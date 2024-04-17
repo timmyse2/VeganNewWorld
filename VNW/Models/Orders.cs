@@ -10,9 +10,12 @@ namespace VNW.Models
             //OrderDetails = new HashSet<OrderDetails>();
         }
 
+        //pk
         public int OrderId { get; set; }
+
+        //fk
         public string CustomerId { get; set; }
-        public int? EmployeeId { get; set; }
+        //public int? EmployeeId { get; set; }
 
         public DateTime? OrderDate { get; set; }
         public DateTime? RequiredDate { get; set; }
@@ -23,13 +26,14 @@ namespace VNW.Models
         public string ShipName { get; set; }
         public string ShipAddress { get; set; }
         public string ShipCity { get; set; }
-        public string ShipRegion { get; set; }
+        //public string ShipRegion { get; set; }
         public string ShipPostalCode { get; set; }
         public string ShipCountry { get; set; }
 
-        //public Customers Customer { get; set; }
+        //np
+        public Customers Customer { get; set; }
         //public Employees Employee { get; set; }
         //public Shippers ShipViaNavigation { get; set; }
-        //public ICollection<OrderDetails> OrderDetails { get; set; }
+        public ICollection<OrderDetails> OrderDetails { get; set; }
     }
 }

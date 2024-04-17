@@ -10,10 +10,15 @@ namespace VNW.Models
             //OrderDetails = new HashSet<OrderDetails>();
         }
 
+        //pk
         public int ProductId { get; set; }
+
         public string ProductName { get; set; }
+
+        //fk
         //public int? SupplierId { get; set; }
         public int? CategoryId { get; set; }
+
         public string QuantityPerUnit { get; set; }
         public decimal? UnitPrice { get; set; }
         public short? UnitsInStock { get; set; }
@@ -21,8 +26,9 @@ namespace VNW.Models
         public short? ReorderLevel { get; set; }
         public bool Discontinued { get; set; }
 
-        //public Categories Category { get; set; }
+        //np
+        public Categories Category { get; set; }
         //public Suppliers Supplier { get; set; }
-        //public ICollection<OrderDetails> OrderDetails { get; set; }
+        public ICollection<OrderDetails> OrderDetails { get; set; }
     }
 }
