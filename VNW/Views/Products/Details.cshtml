@@ -57,8 +57,15 @@
         </dt>
         <dd>
             @Html.DisplayFor(model => model.Category.CategoryName)
-            (@Html.DisplayFor(model => model.Category.CategoryId))
+            (#@Html.DisplayFor(model => model.Category.CategoryId))
         </dd>
+
+        <dt>Picture</dt>
+        <dd>@*@Html.DisplayFor(model => model.Picture)*@         
+            <img src="~/images/@Model.Picture" 
+                 style="width:200px; border:solid;border-width:1px;border-radius:5px;"/>
+        </dd>
+
     </dl>
 </div>
 <div>

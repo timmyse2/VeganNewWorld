@@ -21,7 +21,21 @@
         </dt>
         <dd>
             @Html.DisplayFor(model => model.Description)
+
         </dd>
+        <dt>
+            商品數
+        </dt>
+        <dd>
+            @if (Model.Products != null)
+            {
+                @Model.Products.Count()
+            }
+            (含已下架的商品)
+        </dd>
+
+        
+
     </dl>
 </div>
 <div>

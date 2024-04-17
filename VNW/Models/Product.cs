@@ -36,8 +36,12 @@ namespace VNW.Models
 
         [Display(Name = "已下架")]
         public bool Discontinued { get; set; }
-        //[DisplayColumn("圖片")]
-        //public string Picture { get; set; }
+
+        //[Display(Name = "")]
+        public string Picture { get; set; }
+
+        //[Display(Name = "描述")]        
+        //public string Description { get; set; }
 
         //np
         [Display(Name = "分類")]

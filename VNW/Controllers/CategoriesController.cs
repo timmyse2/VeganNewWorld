@@ -33,7 +33,10 @@ namespace VNW.Controllers
             }
 
             var category = await _context.Category
+                .Include(x=>x.Products) //::try
                 .FirstOrDefaultAsync(m => m.CategoryId == id);
+
+
             if (category == null)
             {
                 return NotFound();
