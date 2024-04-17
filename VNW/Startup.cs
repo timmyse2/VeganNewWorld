@@ -10,6 +10,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
+using Microsoft.EntityFrameworkCore; //::for sql
+
 namespace VNW
 {
     public class Startup
@@ -31,6 +33,11 @@ namespace VNW
                 options.MinimumSameSitePolicy = SameSiteMode.None;
             });
 
+            #region
+            //::Connect string of VNWContext
+            //services.AddDbContext<VNWContext>(op => op.UseSqlServer(
+            //    Configuration.GetConnectionString("VeganNewWorldContext")));
+            #endregion
 
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
         }
