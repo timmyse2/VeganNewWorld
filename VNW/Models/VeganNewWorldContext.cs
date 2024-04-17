@@ -19,6 +19,9 @@ namespace VNW.Models
         public virtual DbSet<Order> Orders { get; set; }
         public virtual DbSet<OrderDetail> OrderDetails { get; set; }
 
+        //::auto created by vs
+        public DbSet<VNW.Models.Category> Category { get; set; }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             //::OD table has compsite PK
@@ -59,7 +62,7 @@ namespace VNW.Models
             });
         }
 
-        public DbSet<VNW.Models.Category> Category { get; set; }
+        
 
     }
 

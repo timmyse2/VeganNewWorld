@@ -56,7 +56,8 @@
             @Html.DisplayNameFor(model => model.Category)
         </dt>
         <dd>
-            @Html.DisplayFor(model => model.Category.CategoryId)
+            @Html.DisplayFor(model => model.Category.CategoryName)
+            (@Html.DisplayFor(model => model.Category.CategoryId))
         </dd>
     </dl>
 </div>

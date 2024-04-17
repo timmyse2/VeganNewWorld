@@ -9,8 +9,9 @@
         <h2>Products</h2>
         <ul>
             <li>食材 (未來肉|植物蛋白肉|天貝)</li>
-            <li>料理</li>            
+            <li>料理 (即食|調理包|餐點)</li>
             <li>器具</li>
+            <li>手工藝品</li>
         </ul>
     </div>
     <div class="col-md-3">
@@ -20,8 +21,12 @@
             <li>訂單(供應商)</li>
             <li>
                 訂單(管理者)
-                <a asp-action="index" asp-controller="Products"> Product </a>
-                <a asp-action="index" asp-controller="Categories"> Category </a>
+                <ul>
+                    <li><a asp-action="index" asp-controller="Products"> Product </a></li>
+                    <li><a asp-action="index" asp-controller="Categories"> Category </a></li>
+
+
+                </ul>
             </li>
         </ul>
     </div>
@@ -33,6 +38,17 @@
             <li>客戶名單(管理者)</li>
         </ul>
     </div>
+    <div class="col-md-3">
+        <h2>IoT綠能專區</h2>
+        <ul>
+            <li>智能與善良的農場(溫濕度記錄)</li>
+            <li>太陽能路燈</li>
+            <li>
+                CAM即時監控 (定點式|無人機|飛天鯊魚)
+            </li>
+
+        </ul>
+    </div>
 </div>
 
 <div class="row">
@@ -40,31 +56,39 @@
         <h2>Recipes</h2>
         <ul>
             <li>食譜分享</li>
-            <li>討論</li>
+            <li>料理討論</li>
+            <img src="~/images/bg02.jfif" style="width:200px;border-radius:5px;" />
         </ul>
+
     </div>
 
     <div class="col-md-3">
-        <h2>IoT綠能專區</h2>
-        <ul>
-            <li>農場溫濕度記錄</li>
-            <li>太陽能路燈</li>
-            <li>
-                CAM即時監控 (定點式|無人機|飛天鯊魚)
-            </li>
-            <li>陸行鳥的蛋 (跑地雞養殖場)</li>
-            <li>高架式太陽能板 <span style="font-size:small">與自動環境的共生</span></li>
-            <li>隱藏式太陽能板 <span style="font-size:small">與古蹟、傳統建築的共生</span></li>
-        </ul>
-    </div>
-
-    <div class="col-md-3">
-        <h2>出版品</h2>
+        <h2>圖文書籍</h2>
         <ul>
             <li>異界素食系 (漫畫)</li>
             <li>色素香的晨間食堂 (漫畫)</li>
             <li>其它圖文書籍</li>
+            <img src="~/images/bg01.jfif" style="width:200px;border-radius:5px;" />
         </ul>
+
+    </div>
+    <div class="col-md-3">
+        <h2>友站連結</h2>
+        <ul>
+            <li>陸行鳥的蛋 (跑地雞養殖場)</li>
+            <li>高架式太陽能板 <span style="font-size:small;color:brown"><b>與自動環境的共生...</b></span></li>
+            <li>隱藏式太陽能板 <span style="font-size:small;color:brown"><b>與古蹟、傳統建築的共生...</b></span></li>
+
+            @*<img src="~/images/bg03.jfif" style="width:200px;border-radius:5px;" />*@
+        </ul>
+        
     </div>
 
 </div>
+
+<div class="row">
+
+</div>
+
+
+
