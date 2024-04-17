@@ -4,6 +4,7 @@ using System.Collections.Generic;
 //using System.Threading.Tasks;
 
 using Microsoft.EntityFrameworkCore; //for DbContext
+using VNW.Models;
 
 namespace VNW.Models
 {
@@ -20,7 +21,7 @@ namespace VNW.Models
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            //OD table has compsite PK
+            //::OD table has compsite PK
             modelBuilder.Entity<OrderDetail>(entity =>
             {
                 entity.HasKey(e => new {
@@ -57,6 +58,8 @@ namespace VNW.Models
                 //                .HasConstraintName("FK_Order_Details_Products");
             });
         }
+
+        public DbSet<VNW.Models.Category> Category { get; set; }
 
     }
 
