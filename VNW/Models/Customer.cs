@@ -3,9 +3,9 @@ using System.Collections.Generic;
 
 namespace VNW.Models
 {
-    public partial class Customers
+    public partial class Customer
     {
-        public Customers()
+        public Customer()
         {
             ////CustomerCustomerDemo = new HashSet<CustomerCustomerDemo>();
             //Orders = new HashSet<Orders>();
@@ -24,6 +24,6 @@ namespace VNW.Models
         //public string Fax { get; set; }
 
         ////public ICollection<CustomerCustomerDemo> CustomerCustomerDemo { get; set; }
-        public ICollection<Orders> Orders { get; set; }
+        public ICollection<Order> Orders { get; set; }
     }
 }

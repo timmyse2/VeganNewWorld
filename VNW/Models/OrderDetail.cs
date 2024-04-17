@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace VNW.Models
 {
-    public partial class OrderDetails
+    public partial class OrderDetail
     {
         //pk fk
         public int OrderId { get; set; }
@@ -14,7 +14,7 @@ namespace VNW.Models
         public float Discount { get; set; }
 
         //np
-        public Orders Order { get; set; }
-        public Products Product { get; set; }
+        public Order Order { get; set; }
+        public Product Product { get; set; }
     }
 }
