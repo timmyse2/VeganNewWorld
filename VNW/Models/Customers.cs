@@ -8,7 +8,7 @@ namespace VNW.Models
         public Customers()
         {
             //CustomerCustomerDemo = new HashSet<CustomerCustomerDemo>();
-            //Orders = new HashSet<Orders>();
+            Orders = new HashSet<Orders>();
         }
 
         public string CustomerId { get; set; }

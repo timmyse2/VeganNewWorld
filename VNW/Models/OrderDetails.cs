@@ -11,7 +11,7 @@ namespace VNW.Models
         public short Quantity { get; set; }
         public float Discount { get; set; }
 
-        //public Orders Order { get; set; }
-        //public Products Product { get; set; }
+        public Orders Order { get; set; }
+        public Products Product { get; set; }
     }
 }
