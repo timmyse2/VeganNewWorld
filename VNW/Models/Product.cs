@@ -12,8 +12,7 @@ namespace VNW.Models
         }
 
         //pk
-        [Key]
-        
+        [Key]        
         public int ProductId { get; set; }
 
         [Display(Name = "商品名")]

@@ -61,10 +61,16 @@
         </dd>
 
         <dt>Picture</dt>
-        <dd>@*@Html.DisplayFor(model => model.Picture)*@         
-            <img src="~/images/@Model.Picture" 
-                 style="width:200px; border:solid;border-width:1px;border-radius:5px;"/>
-        </dd>
+        <dd>
+            @*@Html.DisplayFor(model => model.Picture)*@
+
+                @if (Model.Picture != null)
+                {
+                    <img src="~/images/@Model.Picture"
+                         style="width:200px; border:solid;border-width:1px;border-radius:5px;" />
+                }
+
+            </dd>
 
     </dl>
 </div>

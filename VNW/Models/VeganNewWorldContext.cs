@@ -5,6 +5,7 @@ using System.Collections.Generic;
 
 using Microsoft.EntityFrameworkCore; //for DbContext
 using VNW.Models;
+using VNW.ViewModels;
 
 namespace VNW.Models
 {
@@ -61,6 +62,8 @@ namespace VNW.Models
                 //                .HasConstraintName("FK_Order_Details_Products");
             });
         }
+
+        public DbSet<VNW.ViewModels.ProductsViewModel> ProductsViewModel { get; set; }
 
         
 

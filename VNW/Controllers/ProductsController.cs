@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using VNW.Models;
+using VNW.ViewModels;//
 
 namespace VNW.Controllers
 {
@@ -163,5 +164,36 @@ namespace VNW.Controllers
         {
             return _context.Products.Any(e => e.ProductId == id);
         }
+
+        // GET: Products Index for end user
+        public async Task<IActionResult> ProductList()
+        {
+            var veganNewWorldContext = 
+                _context.Products.
+                Include(p => p.Category)
+                ;
+
+            return View(await veganNewWorldContext.ToListAsync());
+        }
+
+        // GET: Products/Details/5 for end user
+        public async Task<IActionResult> Product_Details(int? id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var product = await _context.Products
+                .Include(p => p.Category)
+                .FirstOrDefaultAsync(m => m.ProductId == id);
+            if (product == null)
+            {
+                return NotFound();
+            }
+
+            return View();
+        }
+
     }
 }

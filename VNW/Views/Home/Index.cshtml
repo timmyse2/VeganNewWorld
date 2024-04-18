@@ -17,15 +17,20 @@
     <div class="col-md-3">
         <h2>Orders</h2>
         <ul>
-            <li>訂單|明細 (個人)</li>
+            <li>
+                訂單|明細 (消費者)
+                <ul>
+                    <li><a asp-action="ProductList" asp-controller="Products"> Product </a></li>
+                </ul>
+            </li>
             <li>訂單(供應商)</li>
             <li>
                 訂單(管理者)
                 <ul>
                     <li><a asp-action="index" asp-controller="Products"> Product </a></li>
                     <li><a asp-action="index" asp-controller="Categories"> Category </a></li>
-
-
+                    <li><a asp-action="index" asp-controller="Orders"> Order </a></li>
+                    <li><a asp-action="index" asp-controller="OrderDetails"> Order Detail </a></li>
                 </ul>
             </li>
         </ul>
