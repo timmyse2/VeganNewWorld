@@ -10,27 +10,26 @@
         <a asp-action="Create">Create New</a>
     </p>*@
 <table class="table">
-    @*<thead>
+    <thead>
             <tr>
                 <th>
-                    @Html.DisplayNameFor(model => model.CategoryName)
+                    分類
                 </th>
                 <th>
-                    @Html.DisplayNameFor(model => model.Description)
+                    數量
                 </th>
-                <th></th>
+                <th>簡介</th>
                 <th></th>
             </tr>
-        </thead>*@
+        </thead>
     <tbody>
         @foreach (var item in Model)
         {
             <tr>
                 <td>
                     <a asp-action="ProductList" asp-controller="Products"
-                        asp-route-cat="@item.CategoryId"
-                        asp-route-catName="@item.CategoryName"
-                        >
+                       asp-route-cat="@item.CategoryId"
+                       asp-route-catName="@item.CategoryName">
                         @Html.DisplayFor(modelItem => item.CategoryName)
                     </a>
                 </td>
