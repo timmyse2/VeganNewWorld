@@ -70,12 +70,8 @@ namespace VNW.Controllers
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            //ViewData["OrderId"] = new SelectList(_context.Orders, "OrderId", "OrderId", orderDetail.OrderId);
-            ViewData["OrderId"] = new SelectList(_context.Orders, "OrderId",
-                "OrderId", orderDetail.OrderId);
-
-            ViewData["ProductId"] = new SelectList(_context.Products, "ProductName","ProductId"
-                , orderDetail.ProductId);
+            ViewData["OrderId"] = new SelectList(_context.Orders, "OrderId", "OrderId", orderDetail.OrderId);
+            ViewData["ProductId"] = new SelectList(_context.Products, "ProductId", "ProductName", orderDetail.ProductId);
             //"ProductId", orderDetail.ProductId);
             return View(orderDetail);
         }
@@ -91,7 +87,7 @@ namespace VNW.Controllers
             //var orderDetail = await _context.OrderDetails.FindAsync(pid);
             var orderDetail = await _context.OrderDetails
                 //.Include(o => o.Order)
-                //.Include(o => o.Product)
+                .Include(o => o.Product)
                 .FirstOrDefaultAsync(m => m.OrderId == oid
                        && m.ProductId == pid
                 );
@@ -115,9 +111,10 @@ namespace VNW.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("OrderId,ProductId,UnitPrice,Quantity,Discount")] OrderDetail orderDetail)
+        public async Task<IActionResult> Edit(int OrderId, [Bind("OrderId,ProductId,UnitPrice,Quantity,Discount")] OrderDetail orderDetail)
         {
-            if (id != orderDetail.OrderId)
+            //if (id != orderDetail.OrderId)
+            if (OrderId != orderDetail.OrderId)
             {
                 return NotFound();
             }
