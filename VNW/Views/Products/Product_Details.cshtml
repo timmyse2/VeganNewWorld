@@ -1,0 +1,62 @@
+﻿@*@model VNW.ViewModels.ProductsViewModel*@
+
+@model VNW.Models.Product
+
+@{
+    //ViewData["Title"] = "Product_Details";
+    ViewData["Title"] = Model.ProductName;
+}
+
+@*<h2>Product_Details</h2>*@
+
+<div>
+    <h4>@Model.ProductName</h4>
+    <hr />
+    <dl class="dl-horizontal">
+        <dt>
+            @Html.DisplayNameFor(model => model.ProductName)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.ProductName)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.UnitPrice)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.UnitPrice)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.QuantityPerUnit)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.QuantityPerUnit)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.CategoryId)
+        </dt>
+        <dd>
+            @*@Html.DisplayFor(model => model.CategoryId)*@
+            @Html.DisplayFor(model => model.Category.CategoryName)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.UnitsInStock)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.UnitsInStock)
+        </dd>
+        <dt>
+            @*@Html.DisplayNameFor(model => model.Picture)*@
+        </dt>
+        <dd>
+            @if (Model.Picture != null)
+            {
+                <img src="~/images/@Model.Picture"
+                     style="width:200px; border:solid;border-width:1px;border-radius:5px;" />
+            }
+        </dd>
+    </dl>
+</div>
+<div>
+    @*<a asp-action="Edit" asp-route-id="@Model.ProductId">Edit</a> |*@
+    <a asp-action="ProductList">Back to List</a>
+</div>

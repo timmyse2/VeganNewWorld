@@ -18,7 +18,7 @@
     @foreach (var item in Model)
     {
     <div class="col-md-3 col-sm-4 col-xs-6">
-        <a asp-action="Details" asp-route-id="@item.ProductId">@Html.DisplayFor(modelItem => item.ProductName)</a>
+        <a asp-action="Product_Details" asp-route-id="@item.ProductId">@Html.DisplayFor(modelItem => item.ProductName)</a>
         @if (item.Picture != null)
         {
             <br><img src="~/images/@item.Picture"

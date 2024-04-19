@@ -192,7 +192,7 @@ namespace VNW.Controllers
                 return NotFound();
             }
 
-            return View();
+            return View(product);
         }
 
     }
