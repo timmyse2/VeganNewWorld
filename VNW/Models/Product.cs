@@ -44,8 +44,8 @@ namespace VNW.Models
         [Display(Name = "圖例")]
         public string Picture { get; set; }
 
-        //[Display(Name = "描述")]        
-        //public string Description { get; set; }
+        [Display(Name = "描述")]        
+        public string Description { get; set; }
 
         //::NP
         [Display(Name = "分類")]

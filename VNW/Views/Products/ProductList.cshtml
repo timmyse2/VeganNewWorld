@@ -22,12 +22,12 @@
         @if (item.Picture != null)
         {
             <br><img src="~/images/@item.Picture"
-                     style="width:150px; border:solid;border-width:1px;" />
+                     style="width:150px; " />
         }
         else
         {
-            <br><img src="~/images/"
-                     style="width:150px; border:solid;border-width:1px;border-radius:5px;" />
+            <br><img src="~/images/default.jpg"
+                     style="width:150px;"  />
         }
         <br>
         @*@Html.DisplayFor(modelItem => item.QuantityPerUnit)*@

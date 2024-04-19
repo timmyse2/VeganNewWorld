@@ -59,19 +59,18 @@
             @Html.DisplayFor(model => model.Category.CategoryName)
             (#@Html.DisplayFor(model => model.Category.CategoryId))
         </dd>
-
-        <dt>Picture</dt>
+        <dt>@Html.DisplayNameFor(model => model.Picture)</dt>
         <dd>
-            @*@Html.DisplayFor(model => model.Picture)*@
-
-                @if (Model.Picture != null)
-                {
-                    <img src="~/images/@Model.Picture"
-                         style="width:200px; border:solid;border-width:1px;border-radius:5px;" />
-                }
-
-            </dd>
-
+            @if (Model.Picture != null)
+            {
+                <img src="~/images/@Model.Picture"
+                     style="width:200px; border:solid;border-width:1px;border-radius:5px;" />
+            }
+        </dd>
+        <dt>@Html.DisplayNameFor(model => model.Description)</dt>
+        <dd>
+            @Model.Description
+        </dd>
     </dl>
 </div>
 <div>
