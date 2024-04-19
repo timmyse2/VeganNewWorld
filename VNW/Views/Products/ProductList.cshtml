@@ -6,7 +6,7 @@
     ViewData["Title"] = "ProductList";
 }
 
-<h2>產品列表</h2>
+<h2>商品</h2>
 
 @*<p>
         <a asp-action="Create">Create New</a>
@@ -17,12 +17,12 @@
 <div class="row">
     @foreach (var item in Model)
     {
-    <div class="col-md-3">
+    <div class="col-md-3 col-sm-4 col-xs-6">
         <a asp-action="Details" asp-route-id="@item.ProductId">@Html.DisplayFor(modelItem => item.ProductName)</a>
         @if (item.Picture != null)
         {
             <br><img src="~/images/@item.Picture"
-                     style="width:150px; border:solid;border-width:1px;border-radius:5px;" />
+                     style="width:150px; border:solid;border-width:1px;" />
         }
         else
         {
@@ -30,8 +30,10 @@
                      style="width:150px; border:solid;border-width:1px;border-radius:5px;" />
         }
         <br>
-        @Html.DisplayFor(modelItem => item.QuantityPerUnit)
-        @Html.DisplayFor(modelItem => item.UnitPrice)
-    </div>
+        @*@Html.DisplayFor(modelItem => item.QuantityPerUnit)*@
+        <b>
+            $@item.UnitPrice
+        </b>
+</div>
     }
 </div>
