@@ -7,10 +7,16 @@
     ViewData["Title"] = Model.ProductName;
 }
 
-@*<h2>Product_Details</h2>*@
+<h2>@Model.ProductName</h2>
 
 <div>
-    <h4>@Model.ProductName</h4>
+    <a asp-action="CategoryList" asp-controller="categories">商品分類</a>
+    >>
+    <a asp-action="ProductList">回到商品清單</a>
+</div>
+
+<div>
+    @*<h4>@Model.ProductName</h4>*@
     <hr />
     <dl class="dl-horizontal">
         <dt>
@@ -61,6 +67,7 @@
     </dl>
 </div>
 <div>
-    @*<a asp-action="Edit" asp-route-id="@Model.ProductId">Edit</a> |*@
-    <a asp-action="ProductList">回到商品表</a>
+    | <a asp-action="CategoryList" asp-controller="categories">商品分類</a>
+    | <a asp-action="ProductList">回到商品清單</a>
+    |
 </div>

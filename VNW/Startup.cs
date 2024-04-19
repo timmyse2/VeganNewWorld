@@ -34,9 +34,21 @@ namespace VNW
                 options.MinimumSameSitePolicy = SameSiteMode.None;
             });
 
-            #region <Connect string of Db WContext>
+            #region ::Connect string of Db WContext
             services.AddDbContext<VeganNewWorldContext>(op => op.UseSqlServer(
                 Configuration.GetConnectionString("VeganNewWorldContext")));
+            #endregion
+
+            #region ::set session
+            services.AddDistributedMemoryCache();
+            services.AddSession(
+                options =>
+                {
+                    options.Cookie.Name = ".AdventureWorks.Session";
+                    //options.IdleTimeout = TimeSpan.FromSeconds(10);
+                    options.IdleTimeout = TimeSpan.FromMinutes(15); //15 min
+                    options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+                });
             #endregion
 
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
@@ -58,6 +70,15 @@ namespace VNW
             app.UseHttpsRedirection();
             app.UseStaticFiles();
             app.UseCookiePolicy();
+
+            #region ::use session            
+            app.UseSession();
+            app.Use(async (context, next) =>
+            {
+                context.Session.SetString("SessionKey", "SessoinValue");
+                await next.Invoke();
+            });            
+            #endregion
 
             app.UseMvc(routes =>
             {

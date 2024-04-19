@@ -3,10 +3,14 @@
 @model IEnumerable<VNW.Models.Product>
 
 @{
-    ViewData["Title"] = "ProductList";
+    ViewData["Title"] = "商品清單";
 }
 
-<h2>商品</h2>
+<h2>@ViewBag.catName 類</h2>
+<p>
+    <a asp-action="CategoryList" asp-controller="categories">商品分類</a>
+    >> @ViewBag.catName 類
+</p>
 
 @*<p>
         <a asp-action="Create">Create New</a>
@@ -17,9 +21,9 @@
 <div class="row">
     @foreach (var item in Model)
     {
-    <div class="col-md-3 col-sm-4 col-xs-6" style="align-items:center">
-        <a asp-action="Product_Details" asp-route-id="@item.ProductId">
-            @Html.DisplayFor(modelItem => item.ProductName)
+        <div class="col-md-3 col-sm-4 col-xs-6" style="align-items:center">
+            <a asp-action="Product_Details" asp-route-id="@item.ProductId">
+                @Html.DisplayFor(modelItem => item.ProductName)
                 @if (item.Picture != null)
                 {
                     <br><img src="~/images/@item.Picture"
@@ -31,11 +35,12 @@
                              style="width:150px;" />
                 }
                 <br>
-        </a>
-        @*@Html.DisplayFor(modelItem => item.QuantityPerUnit)*@
-        <b>
-            $@item.UnitPrice
-        </b>
-</div>
+            </a>
+            @*@Html.DisplayFor(modelItem => item.QuantityPerUnit)*@
+            <b>
+                $@item.UnitPrice
+            </b>
+        </div>
     }
 </div>
+

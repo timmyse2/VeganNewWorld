@@ -166,18 +166,48 @@ namespace VNW.Controllers
         }
 
         // GET: Products Index for end user
-        public async Task<IActionResult> ProductList(int? cat=1)
+        public async Task<IActionResult> ProductList(int? cat, string catName)
         {
-            //if(cat == null)
-            //{
-            //    return Content("Cat ID is wrong");
-            //}
+            if(cat == null)
+            {
+                try
+                {
+                    string _cat = "0";
+                    _cat = GetMySession("catId");
+                    if (_cat != null)
+                        cat = int.Parse(_cat);
+                    //return Content("Cat ID is null");
+                }
+                catch
+                {
+                }
+            }
+
             var veganNewWorldContext = 
                 _context.Products
                 .Where(p=>p.CategoryId == cat) //::cat id
                 .Include(p => p.Category)
                 ;
 
+            //::category name or id on view
+            ViewBag.catId = cat;
+            SetMySession("catId", cat.ToString());
+            
+            if (catName != null)
+            {
+                SetMySession("catName", catName);
+            }
+            else
+            {
+                string _catName = GetMySession("catName");
+                if(_catName != null)
+                {
+                    catName = _catName;
+                }
+            }
+            ViewBag.catName = catName;
+
+            //SetMySession("catName", ViewBag.catName);
             return View(await veganNewWorldContext.ToListAsync());
         }
 
@@ -200,5 +230,38 @@ namespace VNW.Controllers
             return View(product);
         }
 
+        //::my api for session
+        public bool SetMySession(string key, string val)
+        {
+            try
+            {
+                //::string to byte[]
+                byte[] bv = System.Text.Encoding.Default.GetBytes(val); ;
+                HttpContext.Session.Set(key, bv);
+            }
+            catch
+            {
+                return false;
+            }
+            return true;
+        }
+
+        //::my api for session
+        public string GetMySession(string key)
+        {
+            string _str = null;
+            try
+            {
+                byte[] bv = null;
+                HttpContext.Session.TryGetValue(key, out bv);
+                //::byte[] to string
+                _str = System.Text.Encoding.Default.GetString(bv);
+                //System.Diagnostics.Debug.WriteLine(" ss" + _str.Length);
+            }
+            catch
+            {
+            }
+            return _str;
+        }
     }
 }
