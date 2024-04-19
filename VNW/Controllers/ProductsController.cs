@@ -166,11 +166,16 @@ namespace VNW.Controllers
         }
 
         // GET: Products Index for end user
-        public async Task<IActionResult> ProductList()
+        public async Task<IActionResult> ProductList(int? cat=1)
         {
+            //if(cat == null)
+            //{
+            //    return Content("Cat ID is wrong");
+            //}
             var veganNewWorldContext = 
-                _context.Products.
-                Include(p => p.Category)
+                _context.Products
+                .Where(p=>p.CategoryId == cat) //::cat id
+                .Include(p => p.Category)
                 ;
 
             return View(await veganNewWorldContext.ToListAsync());

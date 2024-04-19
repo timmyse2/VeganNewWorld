@@ -55,11 +55,12 @@
                 //border: solid; border - width:1px; border - radius:5px;
             }
         </dd>
-
+        <dt>@Html.DisplayNameFor(model => model.Description)</dt>
+        <dd>@Model.Description </dd>
 
     </dl>
 </div>
 <div>
     @*<a asp-action="Edit" asp-route-id="@Model.ProductId">Edit</a> |*@
-    <a asp-action="ProductList">Back to List</a>
+    <a asp-action="ProductList">回到商品表</a>
 </div>

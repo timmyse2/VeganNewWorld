@@ -151,5 +151,14 @@ namespace VNW.Controllers
         {
             return _context.Category.Any(e => e.CategoryId == id);
         }
+
+
+        public async Task<IActionResult> CategoryList()
+        {
+            //return View(await _context.Category.ToListAsync());
+
+            var query = _context.Category.Include(x=>x.Products);
+            return View(await query.ToListAsync());
+        }
     }
 }

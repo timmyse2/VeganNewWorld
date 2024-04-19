@@ -1,0 +1,56 @@
+﻿@model IEnumerable<VNW.Models.Category>
+
+@{
+    ViewData["Title"] = "商品分類";
+}
+
+@*<h2>商品分類</h2>*@
+
+@*<p>
+    <a asp-action="Create">Create New</a>
+</p>*@
+<table class="table">
+    @*<thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.CategoryName)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Description)
+            </th>
+            <th></th>
+            <th></th>
+        </tr>
+    </thead>*@
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    <a asp-action="ProductList" 
+                        asp-route-cat="@item.CategoryId"
+                        asp-controller="Products"
+                        >
+                    @Html.DisplayFor(modelItem => item.CategoryName)</a>
+                </td>
+
+                <td>
+                    @if (item.Products != null)
+                    {
+                        @item.Products.Count()
+                    } 
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Description)
+                </td>
+
+
+                @*<td>
+                    <a asp-action="Edit" asp-route-id="@item.CategoryId">Edit</a> |
+                  
+                    <a asp-action="Delete" asp-route-id="@item.CategoryId">Delete</a>
+                </td>*@
+            </tr>
+        }
+    </tbody>
+</table>
