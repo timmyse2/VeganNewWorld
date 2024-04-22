@@ -6,6 +6,10 @@
 
 <h2>Order Detail</h2>
 
+<b><span class="text-danger">
+    @TempData["td_serverMessage"]
+</span></b>
+
 <p>
     <a asp-action="Create">Create New</a>
 </p>
@@ -31,30 +35,31 @@
         </tr>
     </thead>
     <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.UnitPrice)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Quantity)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Discount)
-            </td>
-            <td>
-                #@Html.DisplayFor(modelItem => item.Order.OrderId)
-            </td>
-            <td>
-                #@Html.DisplayFor(modelItem => item.Product.ProductId)
-                @item.Product.ProductName
-            </td>
-            <td>
-                @Html.ActionLink("Edit", "Edit", new { pid = item.ProductId, oid = item.OrderId }) |
-                @Html.ActionLink("Details", "Details", new {  pid=item.ProductId, oid = item.OrderId })
-                @*@Html.ActionLink("Delete", "Delete", new { pid = item.ProductId, oid = item.OrderId })*@
-            </td>
-        </tr>
-}
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.UnitPrice)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Quantity)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Discount)
+                </td>
+                <td>
+                    #@Html.DisplayFor(modelItem => item.Order.OrderId)
+                </td>
+                <td>
+                    #@Html.DisplayFor(modelItem => item.Product.ProductId)
+                    @item.Product.ProductName
+                </td>
+                <td>
+                    @Html.ActionLink("Edit", "Edit", new { pid = item.ProductId, oid = item.OrderId }) |
+                    @Html.ActionLink("Details", "Details", new { pid = item.ProductId, oid = item.OrderId })
+                    @*@Html.ActionLink("Delete", "Delete", new { pid = item.ProductId, oid = item.OrderId })*@
+                </td>
+            </tr>
+        }
     </tbody>
 </table>

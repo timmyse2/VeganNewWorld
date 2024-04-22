@@ -65,8 +65,12 @@ namespace VNW.Controllers
             {
                 _context.Add(product);
                 await _context.SaveChangesAsync();
+                TempData["td_serverMessage"] = "Created";
                 return RedirectToAction(nameof(Index));
             }
+
+            TempData["td_serverMessage"] = "Warning! Something is not valid";
+
             ViewData["CategoryId"] = new SelectList(_context.Set<Category>(), "CategoryId", "CategoryId", product.CategoryId);
             return View(product);
         }
@@ -124,6 +128,7 @@ namespace VNW.Controllers
                         throw;
                     }
                 }
+                TempData["td_serverMessage"] = "Updated";
                 return RedirectToAction(nameof(Index));
             }
             ViewData["CategoryId"] = new SelectList(_context.Set<Category>(), "CategoryId", "CategoryId", product.CategoryId);
@@ -157,6 +162,7 @@ namespace VNW.Controllers
             var product = await _context.Products.FindAsync(id);
             _context.Products.Remove(product);
             await _context.SaveChangesAsync();
+            TempData["td_serverMessage"] = "Deleted";
             return RedirectToAction(nameof(Index));
         }
 
@@ -226,6 +232,9 @@ namespace VNW.Controllers
             {
                 return NotFound();
             }
+
+            string _catName = GetMySession("catName");
+            ViewBag.catName = _catName;
 
             return View(product);
         }

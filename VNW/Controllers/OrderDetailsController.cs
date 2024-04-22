@@ -52,8 +52,45 @@ namespace VNW.Controllers
         // GET: OrderDetails/Create
         public IActionResult Create()
         {
+            //if (GetMySession("IsAdmin") != "YES")
+            if(false)
+            {
+                TempData["td_serverMessage"] = "權限不足";
+                return RedirectToAction("Index");
+            }            
+
             ViewData["OrderId"] = new SelectList(_context.Orders, "OrderId", "OrderId");
-            ViewData["ProductId"] = new SelectList(_context.Products, "ProductId", "ProductName");
+            ViewData["ProductId"] = new SelectList(_context.Products, "ProductId",
+                "ProductName");
+                //"ProductId");
+
+
+            //# find data from products where 'Discontinued' Flag is not FALSE
+
+            var prod = _context.Products
+                .Where(p=>p.Discontinued == false)
+                //.Select(p=>p.ProductName)
+                //.Select(new p{ })
+                .ToList()
+                ;
+
+            List<SelectListItem> ProdcutList_Sorted = new List<SelectListItem>();
+
+            foreach (var pi in prod)
+            {
+                //System.Diagnostics.Debug.WriteLine(" " + pi.ProductName);
+                System.Diagnostics.Debug.WriteLine(" " + pi);
+                ProdcutList_Sorted.Add(new SelectListItem {
+                    Text = pi.ProductName + " "
+                    , Value = pi.ProductId.ToString()
+                });
+            }
+
+            System.Diagnostics.Debug.WriteLine(" " + prod.Count());
+            //ViewData["ProdcutSorted"] = Newtonsoft.Json.JsonConvert.SerializeObject(prod);
+            //ViewData["ProdcutSorted"] = prod;
+            ViewData["ProdcutSorted"] = ProdcutList_Sorted;
+
             return View();
         }
 
@@ -68,6 +105,7 @@ namespace VNW.Controllers
             {
                 _context.Add(orderDetail);
                 await _context.SaveChangesAsync();
+                TempData["td_serverMessage"] = "Created";
                 return RedirectToAction(nameof(Index));
             }
             ViewData["OrderId"] = new SelectList(_context.Orders, "OrderId", "OrderId", orderDetail.OrderId);
@@ -137,6 +175,7 @@ namespace VNW.Controllers
                         throw;
                     }
                 }
+                TempData["td_serverMessage"] = "Updated";
                 return RedirectToAction(nameof(Index));
             }
             ViewData["OrderId"] = new SelectList(_context.Orders, "OrderId", "OrderId", orderDetail.OrderId);
@@ -172,6 +211,7 @@ namespace VNW.Controllers
             var orderDetail = await _context.OrderDetails.FindAsync(id);
             _context.OrderDetails.Remove(orderDetail);
             await _context.SaveChangesAsync();
+            TempData["td_serverMessage"] = "Deleted";
             return RedirectToAction(nameof(Index));
         }
 
