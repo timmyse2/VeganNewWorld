@@ -9,16 +9,15 @@
 @try
 {
     @*@ViewBag.ProductId*@
-    if (ViewData["ProdcutSorted"] != null)
+    @*if (ViewData["ProdcutList_Sorted"] != null)
     {
         List<VNW.Models.Product> pp1;
-        @ViewData["ProdcutSorted"]
+        @ViewData["ProdcutList_Sorted"]
         foreach(SelectListItem ti in ViewBag.ProdcutSorted)
         {
             @ti.Text @ti.Value <br>
         }
-    }
-
+    }*@
 }
 catch
 {
@@ -39,25 +38,23 @@ catch
 
 
             <div class="form-group">
-                <label asp-for="ProductId" class="control-label"></label>
-                <select asp-for="ProductId" class="form-control"
-                        asp-items="ViewBag.ProdcutSorted"></select>
-                        @*asp-items="ViewBag.ProductId"></select>*@
-
+                @*<label asp-for="ProductId" class="control-label"></label>*@
                 <label class="control-label">Product (不含下架的項目)</label>
-                <select class="form-control" name="ProductId_Sorted">
+                @*<select asp-for="ProductId" class="form-control"
+                        asp-items="ViewBag.ProdcutList_Sorted"></select>*@
+                @*asp-items="ViewBag.ProductId"></select>*@
+                <select class="form-control" name="ProductId">
                     @try
                     {
-                        int i = 0;
-                        int id = 0;
-
-                        @foreach (var ps in ViewBag.ProdcutSorted)
+                        @if (ViewBag.ProdcutList_Sorted != null)
                         {
-                            i++;
-                            id = i;
-                            <option value="@id">@id @ps</option>
+                            @foreach (SelectListItem st in ViewBag.ProdcutList_Sorted)
+                            {
+                                
+                                @*<option value="@st.Value">#@st.Value @st.Text</option>*@
+                                <option value="@st.Value" selected="@st.Selected" >@st.Text</option>
+                            }
                         }
-
                     }
                     catch
                     {

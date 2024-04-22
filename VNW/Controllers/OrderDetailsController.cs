@@ -60,36 +60,34 @@ namespace VNW.Controllers
             }            
 
             ViewData["OrderId"] = new SelectList(_context.Orders, "OrderId", "OrderId");
-            ViewData["ProductId"] = new SelectList(_context.Products, "ProductId",
-                "ProductName");
-                //"ProductId");
+            //ViewData["ProductId"] = new SelectList(_context.Products, "ProductId",
+            //  "ProductName");
+            //"ProductId");
 
-
-            //# find data from products where 'Discontinued' Flag is not FALSE
-
+            #region
+            
+            //#:: find data from products where 'Discontinued' Flag is not CHEKED
             var prod = _context.Products
                 .Where(p=>p.Discontinued == false)
-                //.Select(p=>p.ProductName)
-                //.Select(new p{ })
+                //.Select(p=>p.ProductName)                
+                .Select(x => new {x.ProductId, x.ProductName })
                 .ToList()
                 ;
-
             List<SelectListItem> ProdcutList_Sorted = new List<SelectListItem>();
-
             foreach (var pi in prod)
             {
                 //System.Diagnostics.Debug.WriteLine(" " + pi.ProductName);
-                System.Diagnostics.Debug.WriteLine(" " + pi);
+                //System.Diagnostics.Debug.WriteLine(" " + pi);
                 ProdcutList_Sorted.Add(new SelectListItem {
-                    Text = pi.ProductName + " "
+                    Text = "#" + pi.ProductId + " " + pi.ProductName 
                     , Value = pi.ProductId.ToString()
                 });
             }
-
-            System.Diagnostics.Debug.WriteLine(" " + prod.Count());
+            //System.Diagnostics.Debug.WriteLine(" " + prod.Count());
             //ViewData["ProdcutSorted"] = Newtonsoft.Json.JsonConvert.SerializeObject(prod);
             //ViewData["ProdcutSorted"] = prod;
-            ViewData["ProdcutSorted"] = ProdcutList_Sorted;
+            ViewData["ProdcutList_Sorted"] = ProdcutList_Sorted;
+            #endregion
 
             return View();
         }
@@ -109,8 +107,34 @@ namespace VNW.Controllers
                 return RedirectToAction(nameof(Index));
             }
             ViewData["OrderId"] = new SelectList(_context.Orders, "OrderId", "OrderId", orderDetail.OrderId);
-            ViewData["ProductId"] = new SelectList(_context.Products, "ProductId", "ProductName", orderDetail.ProductId);
-            //"ProductId", orderDetail.ProductId);
+            //ViewData["ProductId"] = new SelectList(_context.Products, "ProductId", "ProductName", orderDetail.ProductId);
+            ////"ProductId", orderDetail.ProductId);
+
+            //#:: find data from products where 'Discontinued' Flag is not CHEKED
+            #region            
+            var prod = _context.Products
+                .Where(p => p.Discontinued == false)            
+                .Select(x => new { x.ProductId, x.ProductName })
+                .ToList()
+                ;
+            List<SelectListItem> ProdcutList_Sorted = new List<SelectListItem>();
+            bool isSelect = false; //default
+            foreach (var pi in prod)
+            {
+                if (orderDetail.ProductId == pi.ProductId)
+                    isSelect = true;
+                else
+                    isSelect = false;
+                ProdcutList_Sorted.Add(new SelectListItem
+                {
+                    Text = "#" + pi.ProductId + " " + pi.ProductName
+                    ,Value = pi.ProductId.ToString(),
+                    Selected = isSelect
+                });
+            }
+
+            ViewData["ProdcutList_Sorted"] = ProdcutList_Sorted;
+            #endregion
             return View(orderDetail);
         }
 

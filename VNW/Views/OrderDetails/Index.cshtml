@@ -17,6 +17,13 @@
     <thead>
         <tr>
             <th>
+                @Html.DisplayNameFor(model => model.Order)*
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Product)*
+            </th>
+
+            <th>
                 @Html.DisplayNameFor(model => model.UnitPrice)
             </th>
             <th>
@@ -25,12 +32,7 @@
             <th>
                 @Html.DisplayNameFor(model => model.Discount)
             </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Order)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Product)
-            </th>
+
             <th></th>
         </tr>
     </thead>
@@ -38,6 +40,13 @@
         @foreach (var item in Model)
         {
             <tr>
+                <td>
+                    #@Html.DisplayFor(modelItem => item.Order.OrderId)
+                </td>
+                <td>
+                    #@Html.DisplayFor(modelItem => item.Product.ProductId)
+                    @item.Product.ProductName
+                </td>
                 <td>
                     @Html.DisplayFor(modelItem => item.UnitPrice)
                 </td>
@@ -47,13 +56,7 @@
                 <td>
                     @Html.DisplayFor(modelItem => item.Discount)
                 </td>
-                <td>
-                    #@Html.DisplayFor(modelItem => item.Order.OrderId)
-                </td>
-                <td>
-                    #@Html.DisplayFor(modelItem => item.Product.ProductId)
-                    @item.Product.ProductName
-                </td>
+
                 <td>
                     @Html.ActionLink("Edit", "Edit", new { pid = item.ProductId, oid = item.OrderId }) |
                     @Html.ActionLink("Details", "Details", new { pid = item.ProductId, oid = item.OrderId })
