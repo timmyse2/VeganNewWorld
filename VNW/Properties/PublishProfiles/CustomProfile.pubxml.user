@@ -8,4 +8,9 @@
     <TimeStampOfAssociatedLegacyPublishXmlFile />
     <EncryptedPassword />
   </PropertyGroup>
+  <ItemGroup>
+    <DestinationConnectionStrings Include="VeganNewWorldContext">
+      <Value>Server=.\SQLEXPRESS%3bDatabase=DB_VeganNewWorld%3bUser ID=vnwtest%3bPassword=0000%3b</Value>
+    </DestinationConnectionStrings>
+  </ItemGroup>
 </Project>
