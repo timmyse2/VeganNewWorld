@@ -16,17 +16,20 @@
             <input type="hidden" asp-for="ProductId" />
 
             <div class="form-group">
-                <label asp-for="OrderId" class="control-label"></label>
-                <label class="form-control">@Model.OrderId</label>
+                @*<label asp-for="OrderId" class="control-label"></label>
+                <label class="form-control">@Model.OrderId</label>*@
+                <label class="control-label">訂單ID: #@Model.OrderId</label>
             </div>
             <div class="form-group">
-                <label asp-for="ProductId" class="control-label"></label>
-                <label class="form-control">
-                    @Model.ProductId
-                    @Model.Product.ProductName
+                @*<label asp-for="ProductId" class="control-label"></label>*@                
+                <label  class="control-label">
+                    產品ID: #@Model.ProductId
+                    @if (Model.Product != null)
+                    {
+                        @Model.Product.ProductName
+                    }
                 </label>                
-            </div>
-            
+            </div>           
 
             <div class="form-group">
                 <label asp-for="UnitPrice" class="control-label"></label>

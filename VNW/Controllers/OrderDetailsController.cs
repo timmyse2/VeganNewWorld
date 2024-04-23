@@ -50,7 +50,7 @@ namespace VNW.Controllers
         }
 
         // GET: OrderDetails/Create
-        public IActionResult Create()
+        public async Task<IActionResult> Create()
         {
             //if (GetMySession("IsAdmin") != "YES")
             if(false)
@@ -67,11 +67,11 @@ namespace VNW.Controllers
             #region
             
             //#:: find data from products where 'Discontinued' Flag is not CHEKED
-            var prod = _context.Products
+            var prod = await _context.Products
                 .Where(p=>p.Discontinued == false)
                 //.Select(p=>p.ProductName)                
-                .Select(x => new {x.ProductId, x.ProductName })
-                .ToList()
+                .Select(x => new {x.ProductId, x.ProductName, x.UnitPrice })
+                .ToListAsync()
                 ;
             List<SelectListItem> ProdcutList_Sorted = new List<SelectListItem>();
             foreach (var pi in prod)
@@ -80,7 +80,7 @@ namespace VNW.Controllers
                 //System.Diagnostics.Debug.WriteLine(" " + pi);
                 ProdcutList_Sorted.Add(new SelectListItem {
                     Text = "#" + pi.ProductId + " " + pi.ProductName 
-                    , Value = pi.ProductId.ToString()
+                    , Value = pi.ProductId.ToString()                    
                 });
             }
             //System.Diagnostics.Debug.WriteLine(" " + prod.Count());
@@ -112,24 +112,26 @@ namespace VNW.Controllers
 
             //#:: find data from products where 'Discontinued' Flag is not CHEKED
             #region            
-            var prod = _context.Products
+            var prod = await _context.Products
                 .Where(p => p.Discontinued == false)            
                 .Select(x => new { x.ProductId, x.ProductName })
-                .ToList()
+                //.ToList()
+                .ToListAsync()
                 ;
             List<SelectListItem> ProdcutList_Sorted = new List<SelectListItem>();
-            bool isSelect = false; //default
+            //bool isSelect = false; //default
             foreach (var pi in prod)
             {
-                if (orderDetail.ProductId == pi.ProductId)
-                    isSelect = true;
-                else
-                    isSelect = false;
+                //if (orderDetail.ProductId == pi.ProductId)
+                //    isSelect = true;
+                //else
+                //    isSelect = false;
                 ProdcutList_Sorted.Add(new SelectListItem
                 {
                     Text = "#" + pi.ProductId + " " + pi.ProductName
                     ,Value = pi.ProductId.ToString(),
-                    Selected = isSelect
+                    //Selected = isSelect
+                    Selected = (orderDetail.ProductId == pi.ProductId)
                 });
             }
 
@@ -158,13 +160,13 @@ namespace VNW.Controllers
             {
                 return NotFound();
             }
-            //ViewData["OrderId"] = new SelectList(_context.Orders, "OrderId", "OrderId", orderDetail.OrderId);
-            ViewData["OrderId"] = new SelectList(_context.Orders, "OrderId", 
-                "OrderId", orderDetail.OrderId);
+            ////ViewData["OrderId"] = new SelectList(_context.Orders, "OrderId", "OrderId", orderDetail.OrderId);
+            //ViewData["OrderId"] = new SelectList(_context.Orders, "OrderId", 
+            //    "OrderId", orderDetail.OrderId);
 
-            ViewData["ProductId"] = new SelectList(_context.Products, "ProductId",
-                "ProductName", orderDetail.ProductId);
-                //"ProductId", orderDetail.ProductId);
+            //ViewData["ProductId"] = new SelectList(_context.Products, "ProductId",
+            //    "ProductName", orderDetail.ProductId);
+            //    //"ProductId", orderDetail.ProductId);
             return View(orderDetail);
         }
 

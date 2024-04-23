@@ -16,9 +16,15 @@
         </dt>
         <dd>
             #@Html.DisplayFor(model => model.Order.OrderId)
+            (<a asp-controller="Orders" asp-action="Details" asp-route-id="@Model.Order.OrderId" target="_blank">...</a>)
+            <ul>
+                <li>@Model.Order.CustomerId </li>
+                <li>@Model.Order.ShipName</li>
+            </ul>
 
-            (@Model.Order.CustomerId)
             @*@Model.Order.Customer.Address*@
+            @*@Model.Order.Customer.ContactName*@
+
 
         </dd>
         <dt>

@@ -60,6 +60,12 @@ namespace VNW.Controllers
         {
             if (ModelState.IsValid)
             {
+
+                if (order.OrderDate == null)
+                {
+                    order.OrderDate = DateTime.Now;
+                }
+
                 _context.Add(order);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
