@@ -1,0 +1,46 @@
+﻿
+@{
+    ViewData["Title"] = "Login";
+}
+
+<h2>會員登入</h2>
+
+<form asp-action="Login" method="post" id="fromLogin">
+
+    <div class="form-group">
+        <label class="control-label">帳號</label>
+        <input id="account" name="account" type="text" value="@ViewData["UserAccount"]" class="form-control" />
+    </div>
+    <div class="form-group">
+        <label class="control-label">密碼</label>
+        <input id="password" name="password" type="password" value="123456" class="form-control" />
+    </div>
+
+    <div class="form-group">
+
+        <label class="control-label">
+            身份
+        </label>
+        <select id="role" name="role" class="form-control">
+            <option value="Customer" selected>客戶|消費者</option>
+            <option value="Vender">店家|員工</option>
+            <option value="Admin">系統管理者*</option>
+        </select>
+    </div>
+
+    <div class="form-group">
+        <label class="control-label">圖片識別碼</label>
+        <input id="pin" name="pin" type="text" value="1314" class="form-control" />
+        <img src="" id="img_pin"/>
+    </div>
+
+    <div class="form-group">
+        <input type="submit" value="登入" class="btn btn-primary" />
+    </div>
+
+</form>
+
+
+
+
+    
