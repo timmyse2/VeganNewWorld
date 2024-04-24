@@ -23,6 +23,9 @@ namespace VNW.Models
         //::auto created by vs
         public DbSet<VNW.Models.Category> Category { get; set; }
 
+        //::add for end user
+        public DbSet<VNW.Models.Customer> Customer { get; set; }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             //::OD table has compsite PK

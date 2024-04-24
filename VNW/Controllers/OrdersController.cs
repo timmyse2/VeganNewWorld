@@ -47,7 +47,26 @@ namespace VNW.Controllers
         // GET: Orders/Create
         public IActionResult Create()
         {
-            ViewData["CustomerId"] = new SelectList(_context.Set<Customer>(), "CustomerId", "CustomerId");
+            //ViewData["CustomerId"] =
+            //    new SelectList(_context.Set<Customer>(),
+            //    "CustomerId",
+            //    "CustomerId");
+                //"ContactName");
+
+            //::use custom list
+            var members = _context.Customer
+                .ToList();
+            List<SelectListItem> members_Sorted = new List<SelectListItem>();
+            foreach (var ms in members)
+            {
+                members_Sorted.Add(new SelectListItem
+                {
+                    Text = ms.CompanyName + " (" + ms.ContactName + ")", 
+                    Value = ms.CustomerId
+                });
+            }
+            ViewData["CustomerId_Sorted"] = members_Sorted;
+
             return View();
         }
 

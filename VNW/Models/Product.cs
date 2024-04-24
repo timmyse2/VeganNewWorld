@@ -12,13 +12,15 @@ namespace VNW.Models
         }
 
         //::PK
-        [Key]        
+        [Key]
+        [Display(Name = "商品編號")]
         public int ProductId { get; set; }
 
         [Display(Name = "商品名")]
         public string ProductName { get; set; }
 
         //::FK
+        //[Display(Name = "供應商")]
         //public int? SupplierId { get; set; }
         [Display(Name = "分類")]
         public int? CategoryId { get; set; }
@@ -35,7 +37,7 @@ namespace VNW.Models
         [Display(Name = "訂購量")]
         public short? UnitsOnOrder { get; set; }
 
-        [Display(Name = "續訂級別")]
+        [Display(Name = "安全庫存量(不夠請續訂)")] //續訂級別
         public short? ReorderLevel { get; set; }
 
         [Display(Name = "已下架")]
@@ -44,13 +46,15 @@ namespace VNW.Models
         [Display(Name = "圖例")]
         public string Picture { get; set; }
 
-        [Display(Name = "描述")]        
+        [Display(Name = "描述")] //new       
         public string Description { get; set; }
 
         //::NP
         [Display(Name = "分類")]
         public Category Category { get; set; }
+        //[Display(Name = "供應商")]
         //public Suppliers Supplier { get; set; }
+        [Display(Name = "明細")]
         public ICollection<OrderDetail> OrderDetails { get; set; }
     }
 }
