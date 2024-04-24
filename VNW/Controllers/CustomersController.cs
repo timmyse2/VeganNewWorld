@@ -164,7 +164,8 @@ namespace VNW.Controllers
             if (account == null)
             {
                 //return NotFound();
-                return Content("Account Id is null");
+                //return Content("Account Id is null");
+                return Json(new { result = "FAIL", detail = "Id is null" });
             }
 
             //::check pin
@@ -175,7 +176,8 @@ namespace VNW.Controllers
             if (customer == null)
             {
                 //return NotFound();
-                return Content("No matched data");
+                //return Content("No matched data");
+                return Json(new { result = "FAIL", detail = "no matched data" });
             }
             else
             {

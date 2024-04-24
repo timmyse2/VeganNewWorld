@@ -6,14 +6,16 @@
 <h2>會員登入</h2>
 
 <form asp-action="Login" method="post" id="fromLogin">
-
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
     <div class="form-group">
         <label class="control-label">帳號</label>
         <input id="account" name="account" type="text" value="@ViewData["UserAccount"]" class="form-control" />
+        <span id="account_validate" class="text-danger"></span>
     </div>
     <div class="form-group">
         <label class="control-label">密碼</label>
         <input id="password" name="password" type="password" value="123456" class="form-control" />
+        <span id="password_validate" class="text-danger"></span>
     </div>
 
     <div class="form-group">
@@ -31,16 +33,179 @@
     <div class="form-group">
         <label class="control-label">圖片識別碼</label>
         <input id="pin" name="pin" type="text" value="1314" class="form-control" />
-        <img src="" id="img_pin"/>
+        <span id="pin_validate" class="text-danger"></span>
+        <br />
+        <img src="" id="img_pin" style="width:300px;height:50px" />
+        <btn class="btn btn-danger">看不懂請更換</btn><br />
+        @*提示: 請依圖輸入4個數字*@
+
+    </div>
+    <div class="form-group">
+        <b><span id="all_validate" class="text-danger field-validation-valid"></span></b>
     </div>
 
     <div class="form-group">
-        <input type="submit" value="登入" class="btn btn-primary" />
+        @*<input id="btn_submit" type="submit" value="驗證與登入" class="btn btn-primary" />*@
     </div>
-
 </form>
 
+<div class="form-group">
+    @*!NOTICE: do not put htem in the form *@
+    <button class="btn btn-info" id="btn_test">預先驗證</button>
+    <button class="btn btn-primary" id="btn_login_ajax">登入</button>
+</div>
 
+<div>
+    | 註冊| 忘記密碼 | 忘記帳號
+</div>
 
+@section endJS{
+    @*<!--jquery code-->*@
+    <script type="text/javascript" src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+    <script>
+        console.log('Set jquery functions');
+        var isPass = false;
+        $("#btn_test").click(btn_test_click);
+        $("#btn_login_ajax").hide();
 
-    
+        var msg = "";
+
+        function checkData() {
+            console.log('check data');
+            isPass = false;
+            console.log($("#account").val());
+            console.log($("#password").val());
+            msg = ""; //error message
+
+            if ($("#pin").val().length != 4) {
+                //alert("warning! you lost the pwd ");
+                msg += "lost pin, ";
+                $("#pin_validate").text("請輸入4個碼");
+                $("#pin").focus();
+                //return;
+            }
+            else {
+                $("#pin_validate").text("");
+            }
+
+            if ($("#password").val().length < 4) {
+                //alert("warning! you lost the pwd ");
+                msg += "lost pwd, ";
+                $("#password_validate").text("請輸入");
+                $("#password").focus();
+                //return;
+            }
+            else {
+                $("#password_validate").text("");
+            }
+
+            if ($("#account").val().length <= 0) {
+                //alert("warning! you lost the account ");
+                msg += "lost account, ";
+                //$("#account_validate").val("請輸入");
+                $("#account_validate").text("請輸入");
+                $("#account").focus();
+                //return;
+            }
+            else {
+                $("#account_validate").text("");
+            }
+
+            if (msg == "")
+                isPass = true; //precheck pass
+            else
+                isPass = false;
+        }
+
+        function btn_test_click() { //pretest
+            console.log('btn test click');
+            isPass = false;
+            $("#btn_test").hide();
+            checkData();
+
+            if (isPass) {
+                $("#all_validate").text("※提示：通過預試");
+                $("#btn_login_ajax").show();
+            }
+            else {
+                $("#all_validate").text("※提示：未通過");
+                $("#btn_login_ajax").hide();
+            }
+
+            console.log("precheck msg: '" + msg + "'");
+            console.log("end of btn test click");
+            $("#btn_test").show();
+
+            $("#btn_login_ajax").click(function () {
+                isPass = false;
+                $("#btn_login_ajax").hide();
+                $("#all_validate").text("");
+                checkData();
+                //isPass = true;
+
+                if (isPass) { //precheck pass
+                    //ajax
+                    try {
+                        console.log("getjson...");
+                        var surl = "Login";
+
+                        $.ajax({
+                            url: surl,
+                            type: "POST",
+                            dateType: "json",
+                            data: {
+                                account: $("#account").val(),
+                                password: $("#password").val(),
+                                pin: $("#pin").val(),
+                            },
+                            success: function (datar) {
+                                console.log("receive datar")
+                                console.log(datar)
+
+                                if (datar.result == "PASS") {
+                                    //login pass                                
+                                    
+                                    $("#all_validate").text("※提示：成功了!!");
+                                    //window.location.href = "../Comics"; //:: for IIS deploy
+                                    window.location.href = "../";
+                                }
+                                else {
+                                    //fail case
+                                    //$("#all_v").text("似乎找不到符合您輸入的資料呢!! " + datar.detail);
+                                    $("#all_validate").text("※提示：似乎找不到符合您輸入的資料呢!!");
+                                }
+                                $("#btn_login_ajax").show();
+
+                            }, //success
+                            error: function (xhr, ajaxOptions, thrownError) {
+                                console.log(xhr)
+                            }//error
+                        });
+                        return;
+                    }
+                    catch (err) {
+                        console.log("exception " + err);
+                        return;
+                    }
+                }
+                console.log("end of btn_login_ajax");
+                $("#btn_login_ajax").show();
+            });
+
+            $('#fromLogin').submit(function (event) {
+                console.log("from submit");
+                console.log(msg);
+                checkData();
+
+                if (!isPass) {
+                    //alert("someting wrong!");
+                    event.preventDefault();
+                    console.log("do not sumbit data to server");
+                    //window.history.back();
+                    return;
+                }
+            });
+        }
+    </script>
+}
+
