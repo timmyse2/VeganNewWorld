@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using VNW.Models;
+using System.Diagnostics;
 
 namespace VNW.Controllers
 {
@@ -153,6 +154,12 @@ namespace VNW.Controllers
         //::login for end-user
         public async Task<IActionResult> Login()
         {
+            VNW.Common.MySession ms = new Common.MySession();
+            //Debug.WriteLine(" my common test" + ms.Test("123"));
+            ms.SetMySession("ms_test", "1979", HttpContext.Session);
+            Debug.WriteLine(" my common test" + ms.GetMySession("ms_test", HttpContext.Session));
+            ms.Dispose();
+
             ViewData["UserAccount"] = HttpContext.Request.Cookies["UserAccount"];
             return View();
         }

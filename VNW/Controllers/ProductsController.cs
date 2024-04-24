@@ -7,6 +7,8 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using VNW.Models;
 using VNW.ViewModels;//
+using System.Diagnostics;
+using VNW.Common;
 
 namespace VNW.Controllers
 {
@@ -174,12 +176,15 @@ namespace VNW.Controllers
         // GET: Products Index for end user
         public async Task<IActionResult> ProductList(int? cat, string catName)
         {
+
+            MySession ms = new MySession();
+
             if(cat == null)
             {
                 try
                 {
                     string _cat = "0";
-                    _cat = GetMySession("catId");
+                    _cat = ms.GetMySession("catId", HttpContext.Session);
                     if (_cat != null)
                         cat = int.Parse(_cat);
                     //return Content("Cat ID is null");
@@ -197,16 +202,16 @@ namespace VNW.Controllers
 
             //::category name or id on view
             ViewBag.catId = cat;
-            SetMySession("catId", cat.ToString());
+            ms.SetMySession("catId", cat.ToString(),HttpContext.Session);
             
             if (catName != null)
             {
-                SetMySession("catName", catName);
+                ms.SetMySession("catName", catName,HttpContext.Session);
             }
             else
             {
-                string _catName = GetMySession("catName");
-                if(_catName != null)
+                string _catName = ms.GetMySession("catName", HttpContext.Session);
+                if (_catName != null)
                 {
                     catName = _catName;
                 }
@@ -233,44 +238,45 @@ namespace VNW.Controllers
                 return NotFound();
             }
 
-            string _catName = GetMySession("catName");
+            MySession ms = new MySession();
+            string _catName = ms.GetMySession("catName", HttpContext.Session);
             ViewBag.catName = _catName;
 
             return View(product);
         }
 
-        //::my api for session
-        public bool SetMySession(string key, string val)
-        {
-            try
-            {
-                //::string to byte[]
-                byte[] bv = System.Text.Encoding.Default.GetBytes(val); ;
-                HttpContext.Session.Set(key, bv);
-            }
-            catch
-            {
-                return false;
-            }
-            return true;
-        }
+        ////::my api for session
+        //public bool SetMySession(string key, string val)
+        //{
+        //    try
+        //    {
+        //        //::string to byte[]
+        //        byte[] bv = System.Text.Encoding.Default.GetBytes(val); ;
+        //        HttpContext.Session.Set(key, bv);
+        //    }
+        //    catch
+        //    {
+        //        return false;
+        //    }
+        //    return true;
+        //}
 
-        //::my api for session
-        public string GetMySession(string key)
-        {
-            string _str = null;
-            try
-            {
-                byte[] bv = null;
-                HttpContext.Session.TryGetValue(key, out bv);
-                //::byte[] to string
-                _str = System.Text.Encoding.Default.GetString(bv);
-                //System.Diagnostics.Debug.WriteLine(" ss" + _str.Length);
-            }
-            catch
-            {
-            }
-            return _str;
-        }
+        ////::my api for session
+        //public string GetMySession(string key)
+        //{
+        //    string _str = null;
+        //    try
+        //    {
+        //        byte[] bv = null;
+        //        HttpContext.Session.TryGetValue(key, out bv);
+        //        //::byte[] to string
+        //        _str = System.Text.Encoding.Default.GetString(bv);
+        //        //System.Diagnostics.Debug.WriteLine(" ss" + _str.Length);
+        //    }
+        //    catch
+        //    {
+        //    }
+        //    return _str;
+        //}
     }
 }
