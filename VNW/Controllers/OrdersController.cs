@@ -161,5 +161,15 @@ namespace VNW.Controllers
         {
             return _context.Orders.Any(e => e.OrderId == id);
         }
+
+
+        //::for end user
+        public async Task<IActionResult> OrderList()
+        {
+            var veganNewWorldContext = _context.Orders
+                .Include(o => o.Customer);
+            return View(await veganNewWorldContext.ToListAsync());
+        }
+
     }
 }
