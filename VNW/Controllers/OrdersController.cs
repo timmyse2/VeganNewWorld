@@ -12,6 +12,8 @@ namespace VNW.Controllers
     public class OrdersController : Controller
     {
         private readonly VeganNewWorldContext _context;
+        //::set session common interface
+        VNW.Common.MySession _ms = new Common.MySession();
 
         public OrdersController(VeganNewWorldContext context)
         {
@@ -181,13 +183,40 @@ namespace VNW.Controllers
             return _context.Orders.Any(e => e.OrderId == id);
         }
 
-
         //::for end user
         public async Task<IActionResult> OrderList()
         {
+            //string UserAccount =
+            //    ms.GetMySession("UserAccount", HttpContext.Session);
+            //string IsUserLogin = ms.GetMySession("IsUserLogin", HttpContext.Session);
+            //ViewBag.UserAccount = UserAccount;
+            //if (UserAccount == null || UserAccount == "" || IsUserLogin == "" || IsUserLogin == null)
+            //{
+            //    return RedirectToAction("Login", "Customers");
+            //    //return RedirectTo
+            //    //return Content("請先登入");
+            //}
+            if (!LoginPrecheck())
+                return RedirectToAction("Login", "Customers");
+
             var veganNewWorldContext = _context.Orders
                 .Include(o => o.Customer);
             return View(await veganNewWorldContext.ToListAsync());
+        }
+
+
+        public bool LoginPrecheck()
+        {
+            string UserAccount = _ms.GetMySession("UserAccount", HttpContext.Session);
+            string IsUserLogin = _ms.GetMySession("IsUserLogin", HttpContext.Session);
+            ViewBag.UserAccount = UserAccount;
+            if (UserAccount == null || UserAccount == "" || IsUserLogin == "" || IsUserLogin == null)
+            {
+                return false; 
+                //return RedirectTo
+                //return Content("請先登入");
+            }
+            return true;           
         }
 
     }

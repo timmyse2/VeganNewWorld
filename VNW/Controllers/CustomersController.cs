@@ -14,6 +14,9 @@ namespace VNW.Controllers
     {
         private readonly VeganNewWorldContext _context;
 
+        //::set session common interface
+        VNW.Common.MySession _ms = new Common.MySession();
+
         public CustomersController(VeganNewWorldContext context)
         {
             _context = context;
@@ -154,11 +157,11 @@ namespace VNW.Controllers
         //::login for end-user
         public async Task<IActionResult> Login()
         {
-            VNW.Common.MySession ms = new Common.MySession();
+            //VNW.Common.MySession ms = new Common.MySession();
             //Debug.WriteLine(" my common test" + ms.Test("123"));
-            ms.SetMySession("ms_test", "1979", HttpContext.Session);
-            Debug.WriteLine(" my common test" + ms.GetMySession("ms_test", HttpContext.Session));
-            ms.Dispose();
+            //_ms.SetMySession("ms_test", "1979", HttpContext.Session);
+            //Debug.WriteLine(" my common test" + _ms.GetMySession("ms_test", HttpContext.Session));
+            //ms.Dispose();
 
             ViewData["UserAccount"] = HttpContext.Request.Cookies["UserAccount"];
             return View();
@@ -188,9 +191,14 @@ namespace VNW.Controllers
             }
             else
             {
-                ViewData["IsAdmin"] = "YES";
+                ViewData["IsUserLogin"] = "YES";
+                //ViewData["IsAdmin"] = "YES";
+                //ViewData["IsVenderLogin"] = "YES";
                 HttpContext.Response.Cookies.Append("UserAccount", account);
-                //SetMySession("IsAdmin", "YES");                
+                //SetMySession("IsAdmin", "YES");   
+                _ms.SetMySession("IsUserLogin", "YES", HttpContext.Session);
+                _ms.SetMySession("UserAccount", account, HttpContext.Session);
+
                 return Json(new { result = "PASS", detail = "matched" });
             }
             //::pass case
@@ -200,19 +208,15 @@ namespace VNW.Controllers
 
         public async Task<IActionResult> Logout()
         {
-            //if (id == null)
-            //{
-            //    return NotFound();
-            //}
+            //_ms.SetMySession("IsUserLogin", "", HttpContext.Session);
+            //_ms.SetMySession("UserAccount", "", HttpContext.Session);
+            HttpContext.Session.Remove("IsUserLogin");
+            HttpContext.Session.Remove("UserAccount");                       
 
-            //var customer = await _context.Customer
-            //    .FirstOrDefaultAsync(m => m.CustomerId == id);
-            //if (customer == null)
-            //{
-            //    return NotFound();
-            //}
+            TempData["td_serverMessage"] = "已登出"; //::
+            return RedirectToAction("Login");
+            //return Content("LOGOUT");
 
-            return View();
         }
     }
 }

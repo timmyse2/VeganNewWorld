@@ -6,14 +6,24 @@
 
 <h2>您的訂單</h2>
 
-<p>
-    <a asp-action="NewOrder">建立新訂單</a>
-</p>
-[
-客戶(Customer)
-店家(Employee)
-管理(Admin)
-]
+@if (ViewBag.UserAccount == null || ViewBag.UserAccount == "")
+{
+    <a asp-action="login" asp-controller="customers">請先登入</a>
+}
+else
+{
+    <p>
+        @ViewBag.UserAccount 
+        <a asp-action="logout" asp-controller="Customers">登出</a>
+    </p>
+    <p><a asp-action="NewOrder">建立新訂單</a></p>
+}
+
+@*[
+    客戶(Customer)
+    店家(Employee)
+    管理(Admin)
+    ]*@
 <table class="table">
     <thead>
         <tr>
@@ -103,8 +113,8 @@
 
                 <td>
                     @*<a asp-action="Edit" asp-route-id="@item.OrderId">Edit</a> |
-                    <a asp-action="Details" asp-route-id="@item.OrderId">Details</a> |
-                    <a asp-action="Delete" asp-route-id="@item.OrderId">Delete</a>*@
+                        <a asp-action="Details" asp-route-id="@item.OrderId">Details</a> |
+                        <a asp-action="Delete" asp-route-id="@item.OrderId">Delete</a>*@
                 </td>
             </tr>
         }

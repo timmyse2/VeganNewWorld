@@ -15,6 +15,8 @@ namespace VNW.Controllers
     public class ProductsController : Controller
     {
         private readonly VeganNewWorldContext _context;
+        //::set session common interface
+        VNW.Common.MySession _ms = new Common.MySession();
 
         public ProductsController(VeganNewWorldContext context)
         {
@@ -25,6 +27,10 @@ namespace VNW.Controllers
         public async Task<IActionResult> Index()
         {
             var veganNewWorldContext = _context.Products.Include(p => p.Category);
+
+            ViewBag.UserAccount =
+                _ms.GetMySession("UserAccount", HttpContext.Session);
+
             return View(await veganNewWorldContext.ToListAsync());
         }
 

@@ -12,16 +12,14 @@ namespace VNW.Common
 {
     public class MySession : Controller
     {
-
         //::my api for session
         public bool SetMySession(string key, string val, Microsoft.AspNetCore.Http.ISession myIS)
         {
             try
             {
                 if (myIS == null)
-                {
                     return false;
-                }
+
                 //::string to byte[]
                 byte[] bv = System.Text.Encoding.Default.GetBytes(val); ;
                 //HttpContext.Session.Set(key, bv);
@@ -29,7 +27,7 @@ namespace VNW.Common
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.Write("exception " + ex.ToString());
+                System.Diagnostics.Debug.WriteLine("exception " + ex.ToString());
                 return false;
             }
             return true;
@@ -42,36 +40,37 @@ namespace VNW.Common
             try
             {
                 if (myIS == null)
-                {
                     return null;
-                }
 
                 byte[] bv = null;
                 //HttpContext.Session.TryGetValue(key, out bv);
                 myIS.TryGetValue(key, out bv);
+                if (bv == null) return null;
                 //::byte[] to string
                 _str = System.Text.Encoding.Default.GetString(bv);
                 //System.Diagnostics.Debug.WriteLine(" ss" + _str.Length);
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.Write("exception " + ex.ToString());
+                System.Diagnostics.Debug.WriteLine("exception " + ex.ToString());
             }
+
+            System.Diagnostics.Debug.WriteLine("*Get My Session " + key + " : " + _str); //debug trace
             return _str;
         }
 
-        //::test cases
-        public string Test(string key)
-        {
-            return "pass " + key;
-        }
-        public string Test2(Microsoft.AspNetCore.Http.ISession myIS)
-        {
-            if (myIS != null)
-                return "pass ";
-            else
-                return "fail";
-        }
+        ////::test cases
+        //public string Test(string key)
+        //{
+        //    return "pass " + key;
+        //}
+        //public string Test2(Microsoft.AspNetCore.Http.ISession myIS)
+        //{
+        //    if (myIS != null)
+        //        return "pass ";
+        //    else
+        //        return "fail";
+        //}
 
     }
 

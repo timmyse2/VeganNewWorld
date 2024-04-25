@@ -12,10 +12,20 @@
     </span>
 </b>
 
-<p>
-    <a asp-action="Create">Create New</a>
-</p>
 
+@if (ViewBag.UserAccount == null || ViewBag.UserAccount == "")
+{
+    <p>
+        <a asp-action="Login" asp-controller="customers">Login</a>
+    </p>
+}
+else
+{
+    @ViewBag.UserAccount
+    <p>
+        <a asp-action="Create">Create New</a>
+    </p>
+}
 < 1 2 3 4 5 >
 
 <table class="table">
@@ -49,39 +59,47 @@
         </tr>
     </thead>
     <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                <b><a asp-action="Details" asp-route-id="@item.ProductId">@Html.DisplayFor(modelItem => item.ProductName)</a> </b>
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.QuantityPerUnit)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.UnitPrice)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.UnitsInStock)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.UnitsOnOrder)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.ReorderLevel)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Discontinued)
-            </td>
-            <td>
-                @item.Category.CategoryName
-                (#@Html.DisplayFor(modelItem => item.Category.CategoryId))
-            </td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.ProductId">Edit</a> |
-                @*<a asp-action="Details" asp-route-id="@item.ProductId">Details</a> |*@
-                <a asp-action="Delete" asp-route-id="@item.ProductId">Delete</a>
-            </td>
-        </tr>
-}
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    <b><a asp-action="Details" asp-route-id="@item.ProductId">@Html.DisplayFor(modelItem => item.ProductName)</a> </b>
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.QuantityPerUnit)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.UnitPrice)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.UnitsInStock)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.UnitsOnOrder)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.ReorderLevel)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Discontinued)
+                </td>
+                <td>
+                    @item.Category.CategoryName
+                    (#@Html.DisplayFor(modelItem => item.Category.CategoryId))
+                </td>
+                <td>
+
+                    @if (ViewBag.UserAccount == null || ViewBag.UserAccount == "")
+                    {
+
+                    }
+                    else
+                    {
+                        <a asp-action="Edit" asp-route-id="@item.ProductId">Edit</a>
+                        <a asp-action="Delete" asp-route-id="@item.ProductId">Delete</a>
+                    }
+                </td>
+            </tr>
+        }
     </tbody>
 </table>
