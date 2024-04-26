@@ -2,7 +2,21 @@
     ViewData["Title"] = "Home Page";
 }
 
-<a asp-action="Login" asp-controller="Customers">登入</a> | <a>註冊</a>
+
+
+@if (ViewBag.UserAccount == null || ViewBag.UserAccount == "")
+{
+    <a asp-action="login" asp-controller="customers">登入</a> <x>|</x> 
+    <a>註冊</a>
+}
+else
+{
+    <p>
+        @ViewBag.UserAccount
+        <a asp-action="logout" asp-controller="Customers">登出</a>
+    </p>    
+}
+
 
 <div class="row">
     <div class="col-md-3 col-sm-4 col-xs-6">
@@ -13,9 +27,9 @@
             <li>
                 食材 (<a asp-action="ProductList" asp-controller="Products" asp-route-cat="1">未來肉|植物蛋白肉</a>
                 |天貝)
-            </li>            
+            </li>
             <li>料理 (調理包 | 即食 |餐點)</li>
-            <li><a asp-action="ProductList" asp-controller="Products" asp-route-cat="8">書籍</a> | 器具 | 手工藝品</li>            
+            <li><a asp-action="ProductList" asp-controller="Products" asp-route-cat="8">書籍</a> | 器具 | 手工藝品</li>
         </ul>
     </div>
     <div class="col-md-3 col-sm-4 col-xs-6">
@@ -45,7 +59,7 @@
             <ul>
                 <li><a asp-action="index" asp-controller="Customers"> Customer </a></li>
             </ul>
-</div>
+    </div>
     <div class="col-md-3 col-sm-4 col-xs-6">
         <h2>綠能專區</h2>
         <ul>
@@ -53,7 +67,7 @@
             <li>太陽能路燈</li>
             <li>
                 CAM即時監控 (定點式|無人機|飛天鯊魚)
-            </li>            
+            </li>
         </ul>
     </div>
 </div>
@@ -98,7 +112,7 @@
             <li>ASP.NET Core MVC</li>
             <li>MS SQL</li>
             <li>Java Script | jQuery</li>
-            <li>Bootstrap | CSS | HTML5</li>            
+            <li>Bootstrap | CSS | HTML5</li>
         </ul>
 
     </div>

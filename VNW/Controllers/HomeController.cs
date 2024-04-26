@@ -10,8 +10,15 @@ namespace VNW.Controllers
 {
     public class HomeController : Controller
     {
+        //::set session common interface
+        private VNW.Common.MySession _ms = new Common.MySession();
+
         public IActionResult Index()
         {
+
+            ViewBag.UserAccount = _ms.GetMySession("UserAccount", HttpContext.Session);
+            ViewBag.IsUserLogin = _ms.GetMySession("IsUserLogin", HttpContext.Session);
+
             return View();
         }
 

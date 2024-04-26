@@ -54,8 +54,7 @@ namespace VNW.Common
             {
                 System.Diagnostics.Debug.WriteLine("exception " + ex.ToString());
             }
-
-            System.Diagnostics.Debug.WriteLine("*Get My Session " + key + " : " + _str); //debug trace
+            //System.Diagnostics.Debug.WriteLine("*Get My Session " + key + " : " + _str); //debug trace
             return _str;
         }
 
@@ -71,7 +70,6 @@ namespace VNW.Common
         //    else
         //        return "fail";
         //}
-
     }
 
 }

@@ -23,6 +23,9 @@ namespace VNW.Controllers
         // GET: Orders
         public async Task<IActionResult> Index()
         {
+            if (!LoginPrecheck())
+                return RedirectToAction("Login", "Customers");
+
             var veganNewWorldContext = _context.Orders.Include(o => o.Customer);
             return View(await veganNewWorldContext.ToListAsync());
         }
@@ -34,6 +37,9 @@ namespace VNW.Controllers
             {
                 return NotFound();
             }
+
+            if (!LoginPrecheck())
+                return RedirectToAction("Login", "Customers");
 
             var order = await _context.Orders
                 .Include(o => o.Customer)
@@ -49,11 +55,14 @@ namespace VNW.Controllers
         // GET: Orders/Create
         public IActionResult Create()
         {
+            if (!LoginPrecheck())
+                return RedirectToAction("Login", "Customers");
+
             //ViewData["CustomerId"] =
             //    new SelectList(_context.Set<Customer>(),
             //    "CustomerId",
             //    "CustomerId");
-                //"ContactName");
+            //"ContactName");
 
             //::use custom list
             var members = _context.Customer
@@ -79,6 +88,9 @@ namespace VNW.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("OrderId,CustomerId,OrderDate,RequiredDate,ShippedDate,ShipVia,Freight,ShipName,ShipAddress,ShipCity,ShipPostalCode,ShipCountry")] Order order)
         {
+            if (!LoginPrecheck())
+                return RedirectToAction("Login", "Customers");
+
             if (ModelState.IsValid)
             {
 
@@ -98,6 +110,9 @@ namespace VNW.Controllers
         // GET: Orders/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
+            if (!LoginPrecheck())
+                return RedirectToAction("Login", "Customers");
+
             if (id == null)
             {
                 return NotFound();
@@ -119,6 +134,9 @@ namespace VNW.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, [Bind("OrderId,CustomerId,OrderDate,RequiredDate,ShippedDate,ShipVia,Freight,ShipName,ShipAddress,ShipCity,ShipPostalCode,ShipCountry")] Order order)
         {
+            if (!LoginPrecheck())
+                return RedirectToAction("Login", "Customers");
+
             if (id != order.OrderId)
             {
                 return NotFound();
@@ -151,6 +169,9 @@ namespace VNW.Controllers
         // GET: Orders/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
+            if (!LoginPrecheck())
+                return RedirectToAction("Login", "Customers");
+
             if (id == null)
             {
                 return NotFound();
@@ -172,6 +193,9 @@ namespace VNW.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
+            if (!LoginPrecheck())
+                return RedirectToAction("Login", "Customers");
+
             var order = await _context.Orders.FindAsync(id);
             _context.Orders.Remove(order);
             await _context.SaveChangesAsync();
@@ -186,24 +210,26 @@ namespace VNW.Controllers
         //::for end user
         public async Task<IActionResult> OrderList()
         {
-            //string UserAccount =
-            //    ms.GetMySession("UserAccount", HttpContext.Session);
-            //string IsUserLogin = ms.GetMySession("IsUserLogin", HttpContext.Session);
-            //ViewBag.UserAccount = UserAccount;
-            //if (UserAccount == null || UserAccount == "" || IsUserLogin == "" || IsUserLogin == null)
-            //{
-            //    return RedirectToAction("Login", "Customers");
-            //    //return RedirectTo
-            //    //return Content("請先登入");
-            //}
             if (!LoginPrecheck())
                 return RedirectToAction("Login", "Customers");
 
+            //::User ID
+            //var customer = await _context.Customer
+            //    .FirstOrDefaultAsync(m => m.CustomerId == account);
+
+            string userid = _ms.GetMySession("UserAccount", HttpContext.Session);
             var veganNewWorldContext = _context.Orders
+                .Where(o=> o.CustomerId == userid) //sorted
                 .Include(o => o.Customer);
+
+            if (veganNewWorldContext == null)
+            {
+                return Content("null");
+            }
+
+
             return View(await veganNewWorldContext.ToListAsync());
         }
-
 
         public bool LoginPrecheck()
         {
@@ -219,5 +245,45 @@ namespace VNW.Controllers
             return true;           
         }
 
+        //:: for End-user
+        public async Task<IActionResult> NewOrder()
+        {
+            if (!LoginPrecheck())
+                return RedirectToAction("Login", "Customers");
+
+            //:: Get customer Id, Name, Info {address}
+
+            string UserAccount = _ms.GetMySession("UserAccount", HttpContext.Session);
+            Models.Customer member = _context.Customer
+                .Where(x => x.CustomerId == UserAccount)
+                .FirstOrDefault()
+                ;
+
+            if (member == null)
+            {
+
+            }
+            else
+            {
+                ViewData["member"] = member;
+            }
+
+
+            //var members = _context.Customer.ToList();
+            //List<SelectListItem> members_Sorted = new List<SelectListItem>();
+            //foreach (var ms in members)
+            //{
+            //    members_Sorted.Add(new SelectListItem
+            //    {
+            //        Text = ms.CompanyName + " (" + ms.ContactName + ")",
+            //        Value = ms.CustomerId
+            //    });
+            //}
+            //ViewData["CustomerId_Sorted"] = members_Sorted;
+
+            //category or product
+
+            return View();
+        }
     }
 }
