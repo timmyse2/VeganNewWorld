@@ -12,6 +12,8 @@ namespace VNW.Controllers
     public class OrderDetailsController : Controller
     {
         private readonly VeganNewWorldContext _context;
+        //::set session common interface
+        VNW.Common.MySession _ms = new Common.MySession();
 
         public OrderDetailsController(VeganNewWorldContext context)
         {
@@ -29,6 +31,9 @@ namespace VNW.Controllers
         //public async Task<IActionResult> Details(int? id)
         public async Task<IActionResult> Details(int? oid, int? pid)
         {
+            if (!LoginPrecheck())
+                return RedirectToAction("Login", "Customers");
+
             //if (id == null)
             if (pid == null || oid == null)
             {
@@ -52,20 +57,15 @@ namespace VNW.Controllers
         // GET: OrderDetails/Create
         public async Task<IActionResult> Create()
         {
-            //if (GetMySession("IsAdmin") != "YES")
-            if(false)
-            {
-                TempData["td_serverMessage"] = "權限不足";
-                return RedirectToAction("Index");
-            }            
+            if (!LoginPrecheck())
+                return RedirectToAction("Login", "Customers");
 
             ViewData["OrderId"] = new SelectList(_context.Orders, "OrderId", "OrderId");
             //ViewData["ProductId"] = new SelectList(_context.Products, "ProductId",
             //  "ProductName");
             //"ProductId");
 
-            #region
-            
+            #region product data sort            
             //#:: find data from products where 'Discontinued' Flag is not CHEKED
             var prod = await _context.Products
                 .Where(p=>p.Discontinued == false)
@@ -143,6 +143,9 @@ namespace VNW.Controllers
         // GET: OrderDetails/Edit/5
         public async Task<IActionResult> Edit(int? pid, int? oid)
         {
+            if (!LoginPrecheck())
+                return RedirectToAction("Login", "Customers");
+
             if (pid == null || oid == null)
             {
                 return NotFound();
@@ -212,6 +215,9 @@ namespace VNW.Controllers
         // GET: OrderDetails/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
+            if (!LoginPrecheck())
+                return RedirectToAction("Login", "Customers");
+
             if (id == null)
             {
                 return NotFound();
@@ -245,5 +251,41 @@ namespace VNW.Controllers
         {
             return _context.OrderDetails.Any(e => e.OrderId == id);
         }
+
+        public bool LoginPrecheck()
+        {
+            string UserAccount = _ms.GetMySession("UserAccount", HttpContext.Session);
+            string IsUserLogin = _ms.GetMySession("IsUserLogin", HttpContext.Session);
+            ViewBag.UserAccount = UserAccount;
+            if (UserAccount == null || UserAccount == "" || IsUserLogin == "" || IsUserLogin == null)
+            {
+                return false;
+                //return Content("請先登入");
+            }
+            return true;
+        }
+
+        //::for end user
+        public async Task<IActionResult> DetailList(int? oid)
+        {
+
+            if (!LoginPrecheck())
+                return RedirectToAction("Login", "Customers");
+
+            if(oid == null)
+            {
+
+            }
+            var veganNewWorldContext = _context.OrderDetails
+                .Where(o=>o.OrderId == oid) //
+                //.Include(o => o.Order)
+                .Include(o => o.Product)
+                ;
+
+            var res = await veganNewWorldContext.ToListAsync();
+            return View(res);
+            ////return Json(res);
+        }
+
     }
 }

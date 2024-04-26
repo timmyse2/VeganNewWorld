@@ -23,8 +23,9 @@
                 <div asp-validation-summary="ModelOnly" class="text-danger"></div>
                 <div class="form-group">
                     <label asp-for="CustomerId" class="control-label"></label>
+                    @*<input asp-for="CustomerId" class="form-control" value="@ViewBag.UserAccount" readonly/>*@
                     <input type="hidden" asp-for="CustomerId" class="form-control" value="@ViewBag.UserAccount" />
-                    <input class="form-control" value="@ViewBag.UserAccount @member.CompanyName (聯絡人: @member.ContactName)" disabled="disabled" />
+                    <input class="form-control" value="@ViewBag.UserAccount @member.CompanyName (聯絡人: @member.ContactName)" readonly />
 
                     @*<input asp-for="CustomerId" class="form-control" value="@ViewBag.UserAccount"/>*@
                 </div>
@@ -50,7 +51,7 @@
                 </div>
                 <div class="form-group">
                     <label asp-for="Freight" class="control-label"></label>
-                    <input asp-for="Freight" class="form-control" value="0" /> @*disabled="disabled"*@
+                    <input asp-for="Freight" class="form-control" value="0" readonly/> @*disabled="disabled"*@
                     <span asp-validation-for="Freight" class="text-danger"></span>
                 </div>
                 <div class="form-group">

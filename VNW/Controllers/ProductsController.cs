@@ -37,6 +37,9 @@ namespace VNW.Controllers
         // GET: Products/Details/5
         public async Task<IActionResult> Details(int? id)
         {
+            if (!LoginPrecheck())
+                return RedirectToAction("Login", "Customers");
+
             if (id == null)
             {
                 return NotFound();
@@ -56,6 +59,9 @@ namespace VNW.Controllers
         // GET: Products/Create
         public IActionResult Create()
         {
+            if (!LoginPrecheck())
+                return RedirectToAction("Login", "Customers");
+
             //ViewData["CategoryId"] = new SelectList(_context.Set<Category>(), "CategoryId", "CategoryId");
             ViewData["CategoryId"] = new SelectList(_context.Set<Category>(), "CategoryId", 
                 "CategoryName");
@@ -86,6 +92,9 @@ namespace VNW.Controllers
         // GET: Products/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
+            if (!LoginPrecheck())
+                return RedirectToAction("Login", "Customers");
+
             if (id == null)
             {
                 return NotFound();
@@ -146,6 +155,9 @@ namespace VNW.Controllers
         // GET: Products/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
+            if (!LoginPrecheck())
+                return RedirectToAction("Login", "Customers");
+
             if (id == null)
             {
                 return NotFound();
@@ -250,6 +262,20 @@ namespace VNW.Controllers
 
             return View(product);
         }
+
+        public bool LoginPrecheck()
+        {
+            string UserAccount = _ms.GetMySession("UserAccount", HttpContext.Session);
+            string IsUserLogin = _ms.GetMySession("IsUserLogin", HttpContext.Session);
+            ViewBag.UserAccount = UserAccount;
+            if (UserAccount == null || UserAccount == "" || IsUserLogin == "" || IsUserLogin == null)
+            {
+                return false;
+                //return Content("請先登入");
+            }
+            return true;
+        }
+
 
         ////::my api for session
         //public bool SetMySession(string key, string val)

@@ -4,10 +4,10 @@
     ViewData["Title"] = "Details";
 }
 
-<h2>Details</h2>
+<h2>訂單</h2>
 
 <div>
-    <h4>Order</h4>
+    @*<h4>Order</h4>*@
     <hr />
     <dl class="dl-horizontal">
         <dt>
@@ -76,9 +76,29 @@
         <dd>
             @Html.DisplayFor(model => model.Customer.CustomerId)
         </dd>
+
+        <dt>@Html.DisplayNameFor(model => model.OrderDetails)</dt>
+        <dd>
+            @if (Model.OrderDetails != null)
+            {
+                <b>選購商品數</b> @Model.OrderDetails.Count
+                @*<ul>
+                    @foreach(VNW.Models.OrderDetail od in Model.OrderDetails)
+                    {
+                        <li>@od.ProductId</li>
+                    }
+                </ul>*@
+            }
+
+            <a asp-action="DetailList" asp-controller="OrderDetails" asp-route-oid="@Model.OrderId"
+                class="btn btn-info"> CHECK </a>
+
+
+        </dd>
+
     </dl>
 </div>
 <div>
-    <a asp-action="Edit" asp-route-id="@Model.OrderId">Edit</a> |
-    <a asp-action="Index">Back to List</a>
+    @*<a asp-action="Edit" asp-route-id="@Model.OrderId">Edit</a> |
+    <a asp-action="Index">Back to List</a>*@
 </div>

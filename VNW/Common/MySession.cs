@@ -70,6 +70,20 @@ namespace VNW.Common
         //    else
         //        return "fail";
         //}
+
+
+        public bool LoginPrecheck(Microsoft.AspNetCore.Http.ISession myIS)
+        {
+            string UserAccount = GetMySession("UserAccount", myIS);
+            string IsUserLogin = GetMySession("IsUserLogin", myIS);
+            ViewBag.UserAccount = UserAccount;
+            if (UserAccount == null || UserAccount == "" || IsUserLogin == "" || IsUserLogin == null)
+            {
+                return false;                
+            }
+            return true;
+        }
+
     }
 
 }

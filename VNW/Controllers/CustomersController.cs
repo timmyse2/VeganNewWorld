@@ -206,6 +206,7 @@ namespace VNW.Controllers
                 //SetMySession("IsAdmin", "YES");   
                 _ms.SetMySession("IsUserLogin", "YES", HttpContext.Session);
                 _ms.SetMySession("UserAccount", customer.CustomerId, HttpContext.Session);
+                _ms.SetMySession("UserLevel", "3C", HttpContext.Session);
 
                 return Json(new { result = "PASS", detail = "matched" });
             }

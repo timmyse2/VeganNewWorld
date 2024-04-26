@@ -36,7 +36,7 @@ namespace VNW.Controllers
             if (id == null)
             {
                 //return NotFound();
-                TempData["td_server"] = "Not found, id is null";
+                TempData["td_server"] = "缺少編號";
                 return RedirectToAction("OrderList");
             }
 
@@ -45,11 +45,13 @@ namespace VNW.Controllers
 
             var order = await _context.Orders
                 .Include(o => o.Customer)
+                .Include(o=> o.OrderDetails) //::try to preload OD
+                //.Include(o => o.product) //can not to load hrere
                 .FirstOrDefaultAsync(m => m.OrderId == id);
             if (order == null)
             {
                 //return NotFound();
-                TempData["td_server"] = "Not found";
+                TempData["td_server"] = "找不到相符的資料";
                 return RedirectToAction("OrderList");
             }
 
@@ -57,7 +59,7 @@ namespace VNW.Controllers
             string UserAccount = _ms.GetMySession("UserAccount", HttpContext.Session);
             if (order.CustomerId != UserAccount)
             {
-                TempData["td_server"] = "You have no right to access this order";
+                TempData["td_server"] = "您無權查看他人的訂單";
                 //return Content("You have no right to access this order");
                 return RedirectToAction("OrderList");
             }
@@ -233,6 +235,7 @@ namespace VNW.Controllers
             var veganNewWorldContext = _context.Orders
                 .Where(o=> o.CustomerId == Userid) //sorted
                 .Include(o => o.Customer)
+                .Include(o => o.OrderDetails)  //just try !!!!
                 .OrderByDescending(o=>o.OrderId)                
                 ;
 
@@ -264,14 +267,16 @@ namespace VNW.Controllers
 
             //:: Get customer Id, Name, Info {address}
             string UserAccount = _ms.GetMySession("UserAccount", HttpContext.Session);
-            Models.Customer member = _context.Customer
-                .Where(x => x.CustomerId == UserAccount)
-                .FirstOrDefault()
+            Models.Customer member = await _context.Customer
+                .Where(x => x.CustomerId == UserAccount)                
+                .FirstOrDefaultAsync()
                 ;
 
             if (member == null)
             {
                 //error case: tbd
+                TempData["td_server"] = "發生未知問題於存取建立資料時";
+                return RedirectToAction(nameof(OrderList));
             }
             else
             {
@@ -287,7 +292,9 @@ namespace VNW.Controllers
             "OrderId,CustomerId,OrderDate,RequiredDate,ShippedDate,ShipVia,Freight,ShipName,ShipAddress,ShipCity,ShipPostalCode,ShipCountry"
             )] Order order)
         {
-            if (!LoginPrecheck())
+
+            if(!_ms.LoginPrecheck(HttpContext.Session))
+            //if (!LoginPrecheck())
                 return RedirectToAction("Login", "Customers");
 
             if (ModelState.IsValid)
@@ -301,7 +308,7 @@ namespace VNW.Controllers
                 _context.Add(order);
                 await _context.SaveChangesAsync();
                 //return RedirectToAction(nameof(Index));
-                TempData["td_server"] = "create new data";
+                TempData["td_server"] = "已建立資料";
                 return RedirectToAction(nameof(OrderList));
 
             }

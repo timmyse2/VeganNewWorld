@@ -62,7 +62,7 @@ else
             <th>
                 @Html.DisplayNameFor(model => model.ShipCountry)
             </th>
-
+            @*<th>商品數</th>*@
             <th></th>
         </tr>
     </thead>
@@ -113,8 +113,14 @@ else
                 <td>
                     @Html.DisplayFor(modelItem => item.ShipCountry)
                 </td>
-
                 <td>
+                    @if (item.OrderDetails != null)
+                    {
+                        @item.OrderDetails.Count
+                    }
+                </td>
+                <td>
+                    @*<img src="~/images/delete.svg" />*@
                     @*<a asp-action="Edit" asp-route-id="@item.OrderId">Edit</a> |
                         <a asp-action="Details" asp-route-id="@item.OrderId">Details</a> |
                         <a asp-action="Delete" asp-route-id="@item.OrderId">Delete</a>*@
