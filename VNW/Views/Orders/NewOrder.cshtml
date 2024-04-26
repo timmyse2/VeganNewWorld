@@ -7,27 +7,26 @@
 
 <h2>新訂單</h2>
 
-@*@ViewData["CustomerId_Sorted"]*@
 @*@ViewBag.UserAccount*@
 @*@ViewData["member"]*@
+
 @if (ViewData["member"] != null)
 {
     member = (VNW.Models.Customer)ViewData["member"];
-    @member.CompanyName <br />
-    <x>(聯絡人: </x> @member.ContactName<x>)</x> 
 }
 
 @if (member != null)
 {
     <div class="row">
         <div class="col-md-4">
-            <form asp-action="Create" method="post">
+            <form asp-action="NewOrder" method="post">
                 <div asp-validation-summary="ModelOnly" class="text-danger"></div>
                 <div class="form-group">
                     <label asp-for="CustomerId" class="control-label"></label>
-                    @*<select asp-for="CustomerId" class="form-control" asp-items="ViewBag.CustomerId_Sorted"></select>*@
-                    <input asp-for="CustomerId" class="form-control" value="@ViewBag.UserAccount"  />
+                    <input type="hidden" asp-for="CustomerId" class="form-control" value="@ViewBag.UserAccount" />
+                    <input class="form-control" value="@ViewBag.UserAccount @member.CompanyName (聯絡人: @member.ContactName)" disabled="disabled" />
 
+                    @*<input asp-for="CustomerId" class="form-control" value="@ViewBag.UserAccount"/>*@
                 </div>
                 @*<div class="form-group">
                         <label asp-for="OrderDate" class="control-label"></label>

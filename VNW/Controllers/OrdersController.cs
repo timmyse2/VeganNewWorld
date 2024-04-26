@@ -35,7 +35,9 @@ namespace VNW.Controllers
         {
             if (id == null)
             {
-                return NotFound();
+                //return NotFound();
+                TempData["td_server"] = "Not found, id is null";
+                return RedirectToAction("OrderList");
             }
 
             if (!LoginPrecheck())
@@ -46,8 +48,20 @@ namespace VNW.Controllers
                 .FirstOrDefaultAsync(m => m.OrderId == id);
             if (order == null)
             {
-                return NotFound();
+                //return NotFound();
+                TempData["td_server"] = "Not found";
+                return RedirectToAction("OrderList");
             }
+
+            //::check user id
+            string UserAccount = _ms.GetMySession("UserAccount", HttpContext.Session);
+            if (order.CustomerId != UserAccount)
+            {
+                TempData["td_server"] = "You have no right to access this order";
+                //return Content("You have no right to access this order");
+                return RedirectToAction("OrderList");
+            }
+
 
             return View(order);
         }
@@ -214,20 +228,18 @@ namespace VNW.Controllers
                 return RedirectToAction("Login", "Customers");
 
             //::User ID
-            //var customer = await _context.Customer
-            //    .FirstOrDefaultAsync(m => m.CustomerId == account);
+            string Userid = _ms.GetMySession("UserAccount", HttpContext.Session);
 
-            string userid = _ms.GetMySession("UserAccount", HttpContext.Session);
             var veganNewWorldContext = _context.Orders
-                .Where(o=> o.CustomerId == userid) //sorted
-                .Include(o => o.Customer);
+                .Where(o=> o.CustomerId == Userid) //sorted
+                .Include(o => o.Customer)
+                .OrderByDescending(o=>o.OrderId)                
+                ;
 
             if (veganNewWorldContext == null)
             {
                 return Content("null");
             }
-
-
             return View(await veganNewWorldContext.ToListAsync());
         }
 
@@ -239,7 +251,6 @@ namespace VNW.Controllers
             if (UserAccount == null || UserAccount == "" || IsUserLogin == "" || IsUserLogin == null)
             {
                 return false; 
-                //return RedirectTo
                 //return Content("請先登入");
             }
             return true;           
@@ -252,7 +263,6 @@ namespace VNW.Controllers
                 return RedirectToAction("Login", "Customers");
 
             //:: Get customer Id, Name, Info {address}
-
             string UserAccount = _ms.GetMySession("UserAccount", HttpContext.Session);
             Models.Customer member = _context.Customer
                 .Where(x => x.CustomerId == UserAccount)
@@ -261,29 +271,47 @@ namespace VNW.Controllers
 
             if (member == null)
             {
-
+                //error case: tbd
             }
             else
             {
                 ViewData["member"] = member;
             }
-
-
-            //var members = _context.Customer.ToList();
-            //List<SelectListItem> members_Sorted = new List<SelectListItem>();
-            //foreach (var ms in members)
-            //{
-            //    members_Sorted.Add(new SelectListItem
-            //    {
-            //        Text = ms.CompanyName + " (" + ms.ContactName + ")",
-            //        Value = ms.CustomerId
-            //    });
-            //}
-            //ViewData["CustomerId_Sorted"] = members_Sorted;
-
-            //category or product
-
             return View();
         }
+
+        //::for end user
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> NewOrder([Bind(
+            "OrderId,CustomerId,OrderDate,RequiredDate,ShippedDate,ShipVia,Freight,ShipName,ShipAddress,ShipCity,ShipPostalCode,ShipCountry"
+            )] Order order)
+        {
+            if (!LoginPrecheck())
+                return RedirectToAction("Login", "Customers");
+
+            if (ModelState.IsValid)
+            {
+
+                if (order.OrderDate == null)
+                {
+                    order.OrderDate = DateTime.Now;
+                }
+
+                _context.Add(order);
+                await _context.SaveChangesAsync();
+                //return RedirectToAction(nameof(Index));
+                TempData["td_server"] = "create new data";
+                return RedirectToAction(nameof(OrderList));
+
+            }
+
+            //ViewData["CustomerId"] = new SelectList(_context.Set<Customer>(), "CustomerId", "CustomerId", order.CustomerId);
+            //TBC
+
+            return View(order);
+        }
+
+
     }
 }

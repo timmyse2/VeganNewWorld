@@ -13,17 +13,16 @@
 else
 {
     <p>
-        @ViewBag.UserAccount 
+        @ViewBag.UserAccount
         <a asp-action="logout" asp-controller="Customers">登出</a>
     </p>
     <p><a asp-action="NewOrder">建立新訂單</a></p>
 }
 
-@*[
-    客戶(Customer)
-    店家(Employee)
-    管理(Admin)
-    ]*@
+<div class="alert-danger">
+@TempData["td_server"]
+</div>
+
 <table class="table">
     <thead>
         <tr>

@@ -171,8 +171,9 @@
                                 }
                                 else {
                                     //fail case
-                                    //$("#all_v").text("似乎找不到符合您輸入的資料呢!! " + datar.detail);
-                                    $("#all_validate").text("※提示：似乎找不到符合您輸入的資料呢!!");
+                                    var failMessage = "※提示：找不到符合您輸入的資料! 留意大小寫!";
+                                    $("#all_validate").text(failMessage);
+                                    //$("#all_validate").text(failMessage + datar.detail);
                                 }
                                 $("#btn_login_ajax").show();
 

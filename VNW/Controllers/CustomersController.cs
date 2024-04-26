@@ -191,13 +191,21 @@ namespace VNW.Controllers
             }
             else
             {
+                //::<NOTICE: upper case and lower case><FIXED for ISSUE >
+                if(account != customer.CustomerId)
+                {
+                    //account = customer.CustomerId;
+                    return Json(new { result = "NG", detail = "upper case or lower case is mismatched" });
+                }
+                //<><><>
+
                 ViewData["IsUserLogin"] = "YES";
                 //ViewData["IsAdmin"] = "YES";
                 //ViewData["IsVenderLogin"] = "YES";
-                HttpContext.Response.Cookies.Append("UserAccount", account);
+                HttpContext.Response.Cookies.Append("UserAccount", customer.CustomerId);
                 //SetMySession("IsAdmin", "YES");   
                 _ms.SetMySession("IsUserLogin", "YES", HttpContext.Session);
-                _ms.SetMySession("UserAccount", account, HttpContext.Session);
+                _ms.SetMySession("UserAccount", customer.CustomerId, HttpContext.Session);
 
                 return Json(new { result = "PASS", detail = "matched" });
             }
