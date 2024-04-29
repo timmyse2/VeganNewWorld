@@ -82,12 +82,12 @@
             @if (Model.OrderDetails != null)
             {
                 <b>選購商品數</b> @Model.OrderDetails.Count
-                @*<ul>
+                <ul>
                     @foreach(VNW.Models.OrderDetail od in Model.OrderDetails)
                     {
-                        <li>@od.ProductId</li>
+                        <li>#@od.ProductId  @*@od.Product.ProductName*@</li>
                     }
-                </ul>*@
+                </ul>
             }
 
             <a asp-action="DetailList" asp-controller="OrderDetails" asp-route-oid="@Model.OrderId"

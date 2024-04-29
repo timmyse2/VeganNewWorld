@@ -71,12 +71,16 @@ namespace VNW.Common
         //        return "fail";
         //}
 
-
+        //::try to set Common function
         public bool LoginPrecheck(Microsoft.AspNetCore.Http.ISession myIS)
         {
             string UserAccount = GetMySession("UserAccount", myIS);
             string IsUserLogin = GetMySession("IsUserLogin", myIS);
-            ViewBag.UserAccount = UserAccount;
+
+            string UserLevel = GetMySession("UserLevel", myIS); 
+            /*:: 1A (Admin), 2B(Vendor), 3C(Customer), null(Guest)*/
+
+            //ViewBag.UserAccount = UserAccount;
             if (UserAccount == null || UserAccount == "" || IsUserLogin == "" || IsUserLogin == null)
             {
                 return false;                

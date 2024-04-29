@@ -207,12 +207,13 @@ namespace VNW.Controllers
                 _ms.SetMySession("IsUserLogin", "YES", HttpContext.Session);
                 _ms.SetMySession("UserAccount", customer.CustomerId, HttpContext.Session);
                 _ms.SetMySession("UserLevel", "3C", HttpContext.Session);
+                //:: 1A(admin) 2B(business vender) 3C(customer)
 
                 return Json(new { result = "PASS", detail = "matched" });
             }
             //::pass case
             //return View();
-            return Content("End of Login");            
+            //return Content("End of Login");            
         }
 
         public async Task<IActionResult> Logout()
@@ -222,10 +223,9 @@ namespace VNW.Controllers
             HttpContext.Session.Remove("IsUserLogin");
             HttpContext.Session.Remove("UserAccount");                       
 
-            TempData["td_serverMessage"] = "已登出"; //::
+            TempData["td_server"] = "已登出"; //::
             return RedirectToAction("Login");
             //return Content("LOGOUT");
-
         }
     }
 }

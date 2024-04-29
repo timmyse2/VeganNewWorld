@@ -274,13 +274,31 @@ namespace VNW.Controllers
 
             if(oid == null)
             {
-
+                TempData["td_serverMessage"] = "訂單編號是空的";
             }
+
+            #region ::check order's customer id first
+            string UserAccount = _ms.GetMySession("UserAccount", HttpContext.Session);
+            var preCheckOrderId = _context.Orders
+                .Where(o => o.CustomerId == UserAccount && o.OrderId == oid) //sorted 
+                .FirstOrDefault()
+                ;
+            if (preCheckOrderId == null) //This is not your order
+            {
+                TempData["td_serverMessage"] = "這不是您的訂單!";
+                return View(null);
+            }
+            #endregion
+
             var veganNewWorldContext = _context.OrderDetails
                 .Where(o=>o.OrderId == oid) //
-                //.Include(o => o.Order)
+                //.Include(o => o.Order) //try
                 .Include(o => o.Product)
                 ;
+            if (veganNewWorldContext == null) //
+            {
+                TempData["td_serverMessage"] = "data is null";
+            }
 
             var res = await veganNewWorldContext.ToListAsync();
             return View(res);

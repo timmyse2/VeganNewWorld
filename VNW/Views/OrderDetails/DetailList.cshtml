@@ -6,15 +6,21 @@
 
 <h2>訂單細節</h2>
 
-<b>
-    <span class="text-danger">
-        @TempData["td_serverMessage"]
-    </span>
-</b>
+[@ViewBag.UserAccount]
+[@ViewBag.UserLevel]
 
-@*<p>
-    <a asp-action="Create">Create New</a>
-</p>*@
+
+
+<div class="alert-danger">
+    <b>@TempData["td_serverMessage"]</b>
+</div>
+
+
+@if (@Model == null)
+{
+    return;
+}
+
 <table class="table">
     <thead>
         <tr>
@@ -45,7 +51,12 @@
                 <td>
                     @*#@Html.DisplayFor(modelItem => item.Order.OrderId)*@
                     @*@item.Order.Customer.ContactName*@
-                    @*@item.OrderId*@
+                    @item.OrderId
+
+                    @if (item.Order != null)
+                    {
+                        @item.Order.CustomerId
+                    }
 
                 </td>
                 <td>
@@ -64,7 +75,7 @@
 
                 <td>
                     @*@Html.ActionLink("Edit", "Edit", new { pid = item.ProductId, oid = item.OrderId }) |
-                    @Html.ActionLink("Details", "Details", new { pid = item.ProductId, oid = item.OrderId })*@
+                        @Html.ActionLink("Details", "Details", new { pid = item.ProductId, oid = item.OrderId })*@
                     @*@Html.ActionLink("Delete", "Delete", new { pid = item.ProductId, oid = item.OrderId })*@
 
                     <a class="btn btn-danger">取消</a>

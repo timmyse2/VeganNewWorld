@@ -46,7 +46,7 @@ namespace VNW.Controllers
             var order = await _context.Orders
                 .Include(o => o.Customer)
                 .Include(o=> o.OrderDetails) //::try to preload OD
-                //.Include(o => o.product) //can not to load hrere
+                //.Include(o => o.product) //::can not to load here!
                 .FirstOrDefaultAsync(m => m.OrderId == id);
             if (order == null)
             {
@@ -262,8 +262,9 @@ namespace VNW.Controllers
         //:: for End-user
         public async Task<IActionResult> NewOrder()
         {
-            if (!LoginPrecheck())
-                return RedirectToAction("Login", "Customers");
+            //if (!LoginPrecheck())
+            if (!_ms.LoginPrecheck(HttpContext.Session))
+                    return RedirectToAction("Login", "Customers");
 
             //:: Get customer Id, Name, Info {address}
             string UserAccount = _ms.GetMySession("UserAccount", HttpContext.Session);
@@ -280,6 +281,7 @@ namespace VNW.Controllers
             }
             else
             {
+                ViewBag.UserAccount = UserAccount; //
                 ViewData["member"] = member;
             }
             return View();
@@ -299,6 +301,14 @@ namespace VNW.Controllers
 
             if (ModelState.IsValid)
             {
+
+                if (order.CustomerId == null)
+                {
+                    //::error case
+                    TempData["td_server"] = "發生問題, 資料未更新";
+                    return RedirectToAction(nameof(OrderList));
+                    //return View(order);
+                }
 
                 if (order.OrderDate == null)
                 {

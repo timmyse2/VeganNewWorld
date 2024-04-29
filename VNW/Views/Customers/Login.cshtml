@@ -5,6 +5,10 @@
 
 <h2>會員登入</h2>
 
+<div class="alert-danger">
+    @TempData["td_server"]
+</div>
+
 <form asp-action="Login" method="post" id="fromLogin">
     <div asp-validation-summary="ModelOnly" class="text-danger"></div>
     <div class="form-group">
@@ -126,6 +130,9 @@
             if (isPass) {
                 $("#all_validate").text("※提示：通過預試");
                 $("#btn_login_ajax").show();
+
+                //$("#btn_login_ajax").click();//???
+                login_ajax();//auto
             }
             else {
                 $("#all_validate").text("※提示：未通過");
@@ -135,78 +142,80 @@
             console.log("precheck msg: '" + msg + "'");
             console.log("end of btn test click");
             $("#btn_test").show();
+        }
 
-            $("#btn_login_ajax").click(function () {
-                isPass = false;
-                $("#btn_login_ajax").hide();
-                $("#all_validate").text("");
-                checkData();
-                //isPass = true;
+        $("#btn_login_ajax").click(login_ajax);
 
-                if (isPass) { //precheck pass
-                    //ajax
-                    try {
-                        console.log("getjson...");
-                        var surl = "Login";
+        function login_ajax() {
+            isPass = false;
+            $("#btn_login_ajax").hide();
+            $("#all_validate").text("");
+            checkData();
+            //isPass = true;
 
-                        $.ajax({
-                            url: surl,
-                            type: "POST",
-                            dateType: "json",
-                            data: {
-                                account: $("#account").val(),
-                                password: $("#password").val(),
-                                pin: $("#pin").val(),
-                            },
-                            success: function (datar) {
-                                console.log("receive datar")
-                                console.log(datar)
+            if (isPass) { //precheck pass
+                //ajax
+                try {
+                    console.log("getjson...");
+                    var surl = "Login";
 
-                                if (datar.result == "PASS") {
-                                    //login pass                                
-                                    
-                                    $("#all_validate").text("※提示：成功了!!");
-                                    //window.location.href = "../Comics"; //:: for IIS deploy
-                                    window.location.href = "../";
-                                }
-                                else {
-                                    //fail case
-                                    var failMessage = "※提示：找不到符合您輸入的資料! 留意大小寫!";
-                                    $("#all_validate").text(failMessage);
-                                    //$("#all_validate").text(failMessage + datar.detail);
-                                }
-                                $("#btn_login_ajax").show();
+                    $.ajax({
+                        url: surl,
+                        type: "POST",
+                        dateType: "json",
+                        data: {
+                            account: $("#account").val(),
+                            password: $("#password").val(),
+                            pin: $("#pin").val(),
+                        },
+                        success: function (datar) {
+                            console.log("receive datar")
+                            console.log(datar)
 
-                            }, //success
-                            error: function (xhr, ajaxOptions, thrownError) {
-                                console.log(xhr)
-                            }//error
-                        });
-                        return;
-                    }
-                    catch (err) {
-                        console.log("exception " + err);
-                        return;
-                    }
-                }
-                console.log("end of btn_login_ajax");
-                $("#btn_login_ajax").show();
-            });
+                            if (datar.result == "PASS") {
+                                //login pass
 
-            $('#fromLogin').submit(function (event) {
-                console.log("from submit");
-                console.log(msg);
-                checkData();
+                                $("#all_validate").text("※提示：成功了!!");
+                                //window.location.href = "../Comics"; //:: for IIS deploy
+                                window.location.href = "../";
+                            }
+                            else {
+                                //fail case
+                                var failMessage = "※提示：找不到符合您輸入的資料! 留意大小寫!";
+                                $("#all_validate").text(failMessage);
+                                //$("#all_validate").text(failMessage + datar.detail);
+                            }
+                            $("#btn_login_ajax").show();
 
-                if (!isPass) {
-                    //alert("someting wrong!");
-                    event.preventDefault();
-                    console.log("do not sumbit data to server");
-                    //window.history.back();
+                        }, //success
+                        error: function (xhr, ajaxOptions, thrownError) {
+                            console.log(xhr)
+                        }//error
+                    });
                     return;
                 }
-            });
+                catch (err) {
+                    console.log("exception " + err);
+                    return;
+                }
+            }
+            console.log("end of btn_login_ajax");
+            $("#btn_login_ajax").show();
         }
+
+        $('#fromLogin').submit(function (event) {
+            console.log("from submit");
+            console.log(msg);
+            checkData();
+
+            if (!isPass) {
+                //alert("someting wrong!");
+                event.preventDefault();
+                console.log("do not sumbit data to server");
+                //window.history.back();
+                return;
+            }
+        });
     </script>
 }
 
