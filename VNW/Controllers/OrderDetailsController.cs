@@ -265,7 +265,7 @@ namespace VNW.Controllers
             return true;
         }
 
-        //::for end user
+        //::Detail for end user (product)
         public async Task<IActionResult> DetailList(int? oid)
         {
 
@@ -281,6 +281,7 @@ namespace VNW.Controllers
             string UserAccount = _ms.GetMySession("UserAccount", HttpContext.Session);
             var preCheckOrderId = _context.Orders
                 .Where(o => o.CustomerId == UserAccount && o.OrderId == oid) //sorted 
+                .Select(o => new {o.CustomerId, o.OrderId } ) //reduce data
                 .FirstOrDefault()
                 ;
             if (preCheckOrderId == null) //This is not your order
@@ -291,9 +292,9 @@ namespace VNW.Controllers
             #endregion
 
             var veganNewWorldContext = _context.OrderDetails
-                .Where(o=>o.OrderId == oid) //
+                .Where(d => d.OrderId == oid) //
                 //.Include(o => o.Order) //try
-                .Include(o => o.Product)
+                .Include(p => p.Product)
                 ;
             if (veganNewWorldContext == null) //
             {

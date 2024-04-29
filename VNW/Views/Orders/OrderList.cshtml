@@ -4,7 +4,7 @@
     ViewData["Title"] = "Order List";
 }
 
-<h2>您的訂單</h2>
+<h2>您的訂單總表</h2>
 
 @if (ViewBag.UserAccount == null || ViewBag.UserAccount == "")
 {
@@ -62,7 +62,7 @@ else
             <th>
                 @Html.DisplayNameFor(model => model.ShipCountry)
             </th>
-            @*<th>商品數</th>*@
+            <th>商品數</th>
             <th></th>
         </tr>
     </thead>
@@ -71,8 +71,8 @@ else
         {
             <tr>
                 <td>
-                    @*@Html.DisplayFor(modelItem => item.OrderId)*@
-                    <a asp-action="Details" asp-route-id="@item.OrderId"> #@item.OrderId</a>
+                    @*<a asp-action="Details" asp-route-id="@item.OrderId"> #@item.OrderId</a>*@
+                    <a asp-action="DetailList" asp-controller="OrderDetails" asp-route-oid="@item.OrderId"> #@item.OrderId</a>
                 </td>
                 <td>
                     @item.CustomerId

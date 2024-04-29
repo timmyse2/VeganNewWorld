@@ -6,15 +6,17 @@
 
 <h2>訂單細節</h2>
 
-[@ViewBag.UserAccount]
-[@ViewBag.UserLevel]
-
-
+<p>
+    User ID: @ViewBag.UserAccount
+    @*[@ViewBag.UserAccount]
+        [@ViewBag.UserLevel]*@
+</p>
 
 <div class="alert-danger">
     <b>@TempData["td_serverMessage"]</b>
 </div>
 
+<a asp-action="OrderList" asp-controller="orders">訂單總表</a>
 
 @if (@Model == null)
 {
@@ -26,6 +28,7 @@
         <tr>
             <th>
                 @*@Html.DisplayNameFor(model => model.Order)**@
+                Order ID
             </th>
             <th>
                 @Html.DisplayNameFor(model => model.Product)*
@@ -52,10 +55,10 @@
                     @*#@Html.DisplayFor(modelItem => item.Order.OrderId)*@
                     @*@item.Order.Customer.ContactName*@
                     @item.OrderId
-
                     @if (item.Order != null)
                     {
                         @item.Order.CustomerId
+                        @*@item.Order.OrderId*@
                     }
 
                 </td>
