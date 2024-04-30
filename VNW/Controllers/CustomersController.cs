@@ -25,6 +25,10 @@ namespace VNW.Controllers
         // GET: Customers
         public async Task<IActionResult> Index()
         {
+            //check admin
+            if(!_ms.CheckAdmin(HttpContext.Session))            
+                return View(null);
+            
             return View(await _context.Customer.ToListAsync());
         }
 

@@ -23,6 +23,13 @@ namespace VNW.Controllers
         // GET: Orders
         public async Task<IActionResult> Index()
         {
+            //::check admin
+            string UserLevel = _ms.GetMySession("UserLevel", HttpContext.Session);
+            if (UserLevel != "1A")
+            {
+                return Content("You have no right to access this");
+            }
+
             if (!LoginPrecheck())
                 return RedirectToAction("Login", "Customers");
 
@@ -33,6 +40,13 @@ namespace VNW.Controllers
         // GET: Orders/Details/5
         public async Task<IActionResult> Details(int? id)
         {
+            //::check admin
+            string UserLevel = _ms.GetMySession("UserLevel", HttpContext.Session);
+            if (UserLevel != "1A")
+            {
+                return Content("You have no right to access this");
+            }
+
             if (id == null)
             {
                 //return NotFound();
@@ -71,6 +85,13 @@ namespace VNW.Controllers
         // GET: Orders/Create
         public IActionResult Create()
         {
+            //::check admin
+            string UserLevel = _ms.GetMySession("UserLevel", HttpContext.Session);
+            if (UserLevel != "1A")
+            {
+                return Content("You have no right to access this");
+            }
+
             if (!LoginPrecheck())
                 return RedirectToAction("Login", "Customers");
 
@@ -126,6 +147,13 @@ namespace VNW.Controllers
         // GET: Orders/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
+            //::check admin
+            string UserLevel = _ms.GetMySession("UserLevel", HttpContext.Session);
+            if (UserLevel != "1A")
+            {
+                return Content("You have no right to access this");
+            }
+
             if (!LoginPrecheck())
                 return RedirectToAction("Login", "Customers");
 
@@ -150,6 +178,13 @@ namespace VNW.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, [Bind("OrderId,CustomerId,OrderDate,RequiredDate,ShippedDate,ShipVia,Freight,ShipName,ShipAddress,ShipCity,ShipPostalCode,ShipCountry")] Order order)
         {
+            //::check admin
+            string UserLevel = _ms.GetMySession("UserLevel", HttpContext.Session);
+            if (UserLevel != "1A")
+            {
+                return Content("You have no right to access this");
+            }
+
             if (!LoginPrecheck())
                 return RedirectToAction("Login", "Customers");
 
@@ -185,6 +220,13 @@ namespace VNW.Controllers
         // GET: Orders/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
+            //::check admin
+            string UserLevel = _ms.GetMySession("UserLevel", HttpContext.Session);
+            if (UserLevel != "1A")
+            {
+                return Content("You have no right to access this");
+            }
+
             if (!LoginPrecheck())
                 return RedirectToAction("Login", "Customers");
 

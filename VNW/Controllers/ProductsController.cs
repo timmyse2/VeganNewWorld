@@ -26,6 +26,9 @@ namespace VNW.Controllers
         // GET: Products
         public async Task<IActionResult> Index()
         {
+            if (!_ms.CheckAdmin(HttpContext.Session))
+                return Content("You have no right to access this page");
+
             var veganNewWorldContext = _context.Products.Include(p => p.Category);
 
             ViewBag.UserAccount =
@@ -37,6 +40,9 @@ namespace VNW.Controllers
         // GET: Products/Details/5
         public async Task<IActionResult> Details(int? id)
         {
+            if (!_ms.CheckAdmin(HttpContext.Session))
+                return Content("You have no right to access this page");
+
             if (!LoginPrecheck())
                 return RedirectToAction("Login", "Customers");
 

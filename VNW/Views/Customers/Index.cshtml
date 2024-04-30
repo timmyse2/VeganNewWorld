@@ -6,6 +6,12 @@
 
 <h2>Index</h2>
 
+@if (Model == null)
+{
+    <div class="label-danger">You have no right to access this page</div>
+    return;
+}
+
 <p>
     <a asp-action="Create">Create New</a>
 </p>

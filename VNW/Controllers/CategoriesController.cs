@@ -12,6 +12,8 @@ namespace VNW.Controllers
     public class CategoriesController : Controller
     {
         private readonly VeganNewWorldContext _context;
+        //::set session common interface
+        VNW.Common.MySession _ms = new Common.MySession();
 
         public CategoriesController(VeganNewWorldContext context)
         {
@@ -21,6 +23,9 @@ namespace VNW.Controllers
         // GET: Categories
         public async Task<IActionResult> Index()
         {
+            if (!_ms.CheckAdmin(HttpContext.Session))
+                return Content("You have no right to access this page");
+
             return View(await _context.Category.ToListAsync());
         }
 
