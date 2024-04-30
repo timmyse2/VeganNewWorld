@@ -277,6 +277,36 @@ namespace VNW.Controllers
         }
 
 
+        //::api for adding p.id in cookie 
+        public async Task<IActionResult> AddProductInOrder(int? pid)
+        {
+            //check pid
+
+            //cookie p.id list
+            //count
+            //do not re-add item
+
+            //::FAIL case
+
+            //::PASS case
+            //return Json("");
+
+            if(true)
+            {
+                var res = new { result = "PASS", detail = "pid=" + pid };
+                return Json(res);
+            }
+
+            else
+            {
+                var res = new { result = "FAIL", detail = "xxx" };
+                return Json(res);
+            }
+            
+            //return Content("result:'pass'");
+        }
+
+
         ////::my api for session
         //public bool SetMySession(string key, string val)
         //{
