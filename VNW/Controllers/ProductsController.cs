@@ -26,6 +26,7 @@ namespace VNW.Controllers
         // GET: Products
         public async Task<IActionResult> Index()
         {
+            //::check admin
             if (!_ms.CheckAdmin(HttpContext.Session))
                 return Content("You have no right to access this page");
 
@@ -40,10 +41,11 @@ namespace VNW.Controllers
         // GET: Products/Details/5
         public async Task<IActionResult> Details(int? id)
         {
+            //::check admin
             if (!_ms.CheckAdmin(HttpContext.Session))
                 return Content("You have no right to access this page");
 
-            if (!LoginPrecheck())
+            if (!_ms.LoginPrecheck(HttpContext.Session))
                 return RedirectToAction("Login", "Customers");
 
             if (id == null)
@@ -65,7 +67,11 @@ namespace VNW.Controllers
         // GET: Products/Create
         public IActionResult Create()
         {
-            if (!LoginPrecheck())
+            //::check admin
+            if (!_ms.CheckAdmin(HttpContext.Session))
+                return Content("You have no right to access this page");
+
+            if (!_ms.LoginPrecheck(HttpContext.Session))
                 return RedirectToAction("Login", "Customers");
 
             //ViewData["CategoryId"] = new SelectList(_context.Set<Category>(), "CategoryId", "CategoryId");
@@ -98,7 +104,10 @@ namespace VNW.Controllers
         // GET: Products/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
-            if (!LoginPrecheck())
+            //::check admin
+            if (!_ms.CheckAdmin(HttpContext.Session))
+                return Content("You have no right to access this page");
+            if (!_ms.LoginPrecheck(HttpContext.Session))
                 return RedirectToAction("Login", "Customers");
 
             if (id == null)
@@ -161,7 +170,10 @@ namespace VNW.Controllers
         // GET: Products/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
-            if (!LoginPrecheck())
+            //::check admin
+            if (!_ms.CheckAdmin(HttpContext.Session))
+                return Content("You have no right to access this page");
+            if (!_ms.LoginPrecheck(HttpContext.Session))
                 return RedirectToAction("Login", "Customers");
 
             if (id == null)
@@ -269,18 +281,18 @@ namespace VNW.Controllers
             return View(product);
         }
 
-        public bool LoginPrecheck()
-        {
-            string UserAccount = _ms.GetMySession("UserAccount", HttpContext.Session);
-            string IsUserLogin = _ms.GetMySession("IsUserLogin", HttpContext.Session);
-            ViewBag.UserAccount = UserAccount;
-            if (UserAccount == null || UserAccount == "" || IsUserLogin == "" || IsUserLogin == null)
-            {
-                return false;
-                //return Content("請先登入");
-            }
-            return true;
-        }
+        //public bool LoginPrecheck()
+        //{
+        //    string UserAccount = _ms.GetMySession("UserAccount", HttpContext.Session);
+        //    string IsUserLogin = _ms.GetMySession("IsUserLogin", HttpContext.Session);
+        //    ViewBag.UserAccount = UserAccount;
+        //    if (UserAccount == null || UserAccount == "" || IsUserLogin == "" || IsUserLogin == null)
+        //    {
+        //        return false;
+        //        //return Content("請先登入");
+        //    }
+        //    return true;
+        //}
 
 
         //::api for adding p.id in cookie 

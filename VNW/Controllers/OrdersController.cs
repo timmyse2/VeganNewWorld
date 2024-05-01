@@ -30,7 +30,7 @@ namespace VNW.Controllers
                 return Content("You have no right to access this");
             }
 
-            if (!LoginPrecheck())
+            if (!_ms.LoginPrecheck(HttpContext.Session))
                 return RedirectToAction("Login", "Customers");
 
             var veganNewWorldContext = _context.Orders.Include(o => o.Customer);
@@ -54,7 +54,7 @@ namespace VNW.Controllers
                 return RedirectToAction("OrderList");
             }
 
-            if (!LoginPrecheck())
+            if (!_ms.LoginPrecheck(HttpContext.Session))
                 return RedirectToAction("Login", "Customers");
 
             var order = await _context.Orders
@@ -92,7 +92,7 @@ namespace VNW.Controllers
                 return Content("You have no right to access this");
             }
 
-            if (!LoginPrecheck())
+            if (!_ms.LoginPrecheck(HttpContext.Session))
                 return RedirectToAction("Login", "Customers");
 
             //ViewData["CustomerId"] =
@@ -125,7 +125,7 @@ namespace VNW.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("OrderId,CustomerId,OrderDate,RequiredDate,ShippedDate,ShipVia,Freight,ShipName,ShipAddress,ShipCity,ShipPostalCode,ShipCountry")] Order order)
         {
-            if (!LoginPrecheck())
+            if (!_ms.LoginPrecheck(HttpContext.Session))
                 return RedirectToAction("Login", "Customers");
 
             if (ModelState.IsValid)
@@ -154,7 +154,7 @@ namespace VNW.Controllers
                 return Content("You have no right to access this");
             }
 
-            if (!LoginPrecheck())
+            if (!_ms.LoginPrecheck(HttpContext.Session))
                 return RedirectToAction("Login", "Customers");
 
             if (id == null)
@@ -185,7 +185,7 @@ namespace VNW.Controllers
                 return Content("You have no right to access this");
             }
 
-            if (!LoginPrecheck())
+            if (!_ms.LoginPrecheck(HttpContext.Session))
                 return RedirectToAction("Login", "Customers");
 
             if (id != order.OrderId)
@@ -227,7 +227,7 @@ namespace VNW.Controllers
                 return Content("You have no right to access this");
             }
 
-            if (!LoginPrecheck())
+            if (!_ms.LoginPrecheck(HttpContext.Session))
                 return RedirectToAction("Login", "Customers");
 
             if (id == null)
@@ -251,7 +251,7 @@ namespace VNW.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            if (!LoginPrecheck())
+            if (!_ms.LoginPrecheck(HttpContext.Session))
                 return RedirectToAction("Login", "Customers");
 
             var order = await _context.Orders.FindAsync(id);
@@ -268,11 +268,12 @@ namespace VNW.Controllers
         //::for end user
         public async Task<IActionResult> OrderList()
         {
-            if (!LoginPrecheck())
+            if (!_ms.LoginPrecheck(HttpContext.Session))
                 return RedirectToAction("Login", "Customers");
 
             //::User ID
-            string Userid = _ms.GetMySession("UserAccount", HttpContext.Session);
+            string Userid = _ms.GetMySession("UserAccount", HttpContext.Session);            
+            ViewBag.UserAccount = Userid;
 
             var veganNewWorldContext = _context.Orders
                 .Where(o=> o.CustomerId == Userid) //sorted
@@ -288,18 +289,18 @@ namespace VNW.Controllers
             return View(await veganNewWorldContext.ToListAsync());
         }
 
-        public bool LoginPrecheck()
-        {
-            string UserAccount = _ms.GetMySession("UserAccount", HttpContext.Session);
-            string IsUserLogin = _ms.GetMySession("IsUserLogin", HttpContext.Session);
-            ViewBag.UserAccount = UserAccount;
-            if (UserAccount == null || UserAccount == "" || IsUserLogin == "" || IsUserLogin == null)
-            {
-                return false; 
-                //return Content("請先登入");
-            }
-            return true;           
-        }
+        //public bool LoginPrecheck()
+        //{
+        //    string UserAccount = _ms.GetMySession("UserAccount", HttpContext.Session);
+        //    string IsUserLogin = _ms.GetMySession("IsUserLogin", HttpContext.Session);
+        //    ViewBag.UserAccount = UserAccount;
+        //    if (UserAccount == null || UserAccount == "" || IsUserLogin == "" || IsUserLogin == null)
+        //    {
+        //        return false; 
+        //        //return Content("請先登入");
+        //    }
+        //    return true;           
+        //}
 
         //:: for End-user
         public async Task<IActionResult> NewOrder()

@@ -24,12 +24,8 @@ namespace VNW.Controllers
         public async Task<IActionResult> Index()
         {
             //::check admin
-            string UserLevel = _ms.GetMySession("UserLevel", HttpContext.Session);
-            if (UserLevel != "1A")
-            {
-                return Content("You have no right to access this");
-                return View(null);
-            }
+            if (!_ms.CheckAdmin(HttpContext.Session))
+                return Content("You have no right to access this page");
 
             var veganNewWorldContext = _context.OrderDetails.Include(o => o.Order).Include(o => o.Product);
             return View(await veganNewWorldContext.ToListAsync());
@@ -43,7 +39,7 @@ namespace VNW.Controllers
             if (!_ms.CheckAdmin(HttpContext.Session))
                 return Content("You have no right to access this page");
 
-            if (!LoginPrecheck())
+            if (!_ms.LoginPrecheck(HttpContext.Session))
                 return RedirectToAction("Login", "Customers");
 
             //if (id == null)
@@ -70,14 +66,10 @@ namespace VNW.Controllers
         public async Task<IActionResult> Create()
         {
             //::check admin
-            string UserLevel = _ms.GetMySession("UserLevel", HttpContext.Session);
-            if (UserLevel != "1A")
-            {
-                return Content("You have no right to access this");
-                return View(null);
-            }
+            if (!_ms.CheckAdmin(HttpContext.Session))
+                return Content("You have no right to access this page");
 
-            if (!LoginPrecheck())
+            if (!_ms.LoginPrecheck(HttpContext.Session))
                 return RedirectToAction("Login", "Customers");
 
             ViewData["OrderId"] = new SelectList(_context.Orders, "OrderId", "OrderId");
@@ -164,14 +156,10 @@ namespace VNW.Controllers
         public async Task<IActionResult> Edit(int? pid, int? oid)
         {
             //::check admin
-            string UserLevel = _ms.GetMySession("UserLevel", HttpContext.Session);
-            if (UserLevel != "1A")
-            {
-                return Content("You have no right to access this");
-                return View(null);
-            }
+            if (!_ms.CheckAdmin(HttpContext.Session))
+                return Content("You have no right to access this page");
 
-            if (!LoginPrecheck())
+            if (!_ms.LoginPrecheck(HttpContext.Session))
                 return RedirectToAction("Login", "Customers");
 
             if (pid == null || oid == null)
@@ -244,14 +232,10 @@ namespace VNW.Controllers
         public async Task<IActionResult> Delete(int? id)
         {
             //::check admin
-            string UserLevel = _ms.GetMySession("UserLevel", HttpContext.Session);
-            if (UserLevel != "1A")
-            {
-                return Content("You have no right to access this");
-                return View(null);
-            }
+            if (!_ms.CheckAdmin(HttpContext.Session))
+                return Content("You have no right to access this page");
 
-            if (!LoginPrecheck())
+            if (!_ms.LoginPrecheck(HttpContext.Session))
                 return RedirectToAction("Login", "Customers");
 
             if (id == null)
@@ -288,32 +272,27 @@ namespace VNW.Controllers
             return _context.OrderDetails.Any(e => e.OrderId == id);
         }
 
-        public bool LoginPrecheck()
-        {
-            string UserAccount = _ms.GetMySession("UserAccount", HttpContext.Session);
-            string IsUserLogin = _ms.GetMySession("IsUserLogin", HttpContext.Session);
+        //public bool LoginPrecheck()
+        //{
+        //    string UserAccount = _ms.GetMySession("UserAccount", HttpContext.Session);
+        //    string IsUserLogin = _ms.GetMySession("IsUserLogin", HttpContext.Session);
 
-            ////::check admin
-            //string UserLevel = _ms.GetMySession("UserLevel", HttpContext.Session);
-            //if (UserLevel != "1A")
-            //{
-            
-            //}
+        //    ////::check admin
 
-            ViewBag.UserAccount = UserAccount;
-            if (UserAccount == null || UserAccount == "" || IsUserLogin == "" || IsUserLogin == null)
-            {
-                return false;
-                //return Content("請先登入");
-            }
-            return true;
-        }
+        //    ViewBag.UserAccount = UserAccount;
+        //    if (UserAccount == null || UserAccount == "" || IsUserLogin == "" || IsUserLogin == null)
+        //    {
+        //        return false;
+        //        //return Content("請先登入");
+        //    }
+        //    return true;
+        //}
 
         //::Detail for end user (product)
         public async Task<IActionResult> DetailList(int? oid)
         {
 
-            if (!LoginPrecheck())
+            if (!_ms.LoginPrecheck(HttpContext.Session))
                 return RedirectToAction("Login", "Customers");
 
             if(oid == null)

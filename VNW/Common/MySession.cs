@@ -93,7 +93,7 @@ namespace VNW.Common
             string UserLevel = GetMySession("UserLevel", myIS);
             /*:: 1A (Admin), 2B(Vendor), 3C(Customer), null(Guest)*/
             //::pass case
-            if (UserLevel == "1A")            
+            if (UserLevel == "1A")
                 return true;            
             else            
                 return false;                     

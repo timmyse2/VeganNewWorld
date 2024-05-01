@@ -23,6 +23,7 @@ namespace VNW.Controllers
         // GET: Categories
         public async Task<IActionResult> Index()
         {
+            //::check admin
             if (!_ms.CheckAdmin(HttpContext.Session))
                 return Content("You have no right to access this page");
 
