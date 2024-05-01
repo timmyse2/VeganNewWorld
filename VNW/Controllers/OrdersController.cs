@@ -344,6 +344,9 @@ namespace VNW.Controllers
 
             if (ModelState.IsValid)
             {
+                #region
+                //::check last order is opened or not, try to merge od|p in same order id
+                #endregion
 
                 if (order.CustomerId == null)
                 {
@@ -363,7 +366,6 @@ namespace VNW.Controllers
                 //return RedirectToAction(nameof(Index));
                 TempData["td_server"] = "已建立資料";
                 return RedirectToAction(nameof(OrderList));
-
             }
 
             //ViewData["CustomerId"] = new SelectList(_context.Set<Customer>(), "CustomerId", "CustomerId", order.CustomerId);

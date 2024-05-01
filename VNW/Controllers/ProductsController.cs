@@ -6,9 +6,11 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using VNW.Models;
+
 using VNW.ViewModels;//
 using System.Diagnostics;
-using VNW.Common;
+using VNW.Common; //for lib
+using Newtonsoft.Json; //for json
 
 namespace VNW.Controllers
 {
@@ -296,22 +298,83 @@ namespace VNW.Controllers
 
 
         //::api for adding p.id in cookie 
-        public async Task<IActionResult> AddProductInOrder(int? pid)
+        //public async Task<IActionResult> AddProductInOrder(int? pid)
+        public IActionResult AddProductInOrder(int? pid)
         {
-            //check pid
+            //::check pid
+            int _pid;
+            if (pid == 0 || pid == null)
+            {
+                var res = new { result = "FAIL", detail = "id is null" };
+                return Json(res);
+            }
+            _pid = (int)pid;
+
+            try
+            {
+                string pidJSON = null;
+                List<ShoppingCart> shoppingCarts = new List<ShoppingCart>();
+                pidJSON = HttpContext.Request.Cookies["pidJSON"];
+                if (pidJSON == null)
+                {
+                    //if null then add new                            
+                    shoppingCarts.Add(new ShoppingCart { Pid = _pid, Qty = 1 });
+                    pidJSON = JsonConvert.SerializeObject(shoppingCarts);
+                }
+                else
+                {
+                    //::merge data
+                    shoppingCarts = JsonConvert.DeserializeObject<List<ShoppingCart>>(pidJSON);
+
+                    //::found exist itemrepeated                    
+                    ShoppingCart tsc = new ShoppingCart { Pid = _pid, Qty = 1 };
+                    if(shoppingCarts.Contains(tsc))
+                    {
+                        //do not add 
+                    }
+                    else
+                    {
+                        shoppingCarts.Add(new ShoppingCart { Pid = _pid, Qty = 1 });
+                        pidJSON = JsonConvert.SerializeObject(shoppingCarts);
+                    }
+                }
+
+                Debug.WriteLine("shoppingCarts.Count " + shoppingCarts.Count);
+                ViewBag.shoppingCartsCount = shoppingCarts.Count;
+
+                HttpContext.Response.Cookies.Append("pidJSON", pidJSON);
+                var res2 = new { result = "PASS", detail = pidJSON, count = shoppingCarts.Count };            
+                return Json(res2);
+            }
+            catch
+            {
+                var res2 = new { result = "Err", detail = "" };
+                return Json(res2);
+            }
+
+
+            string pids = "";
+            pids = HttpContext.Request.Cookies["pids"];
+            if (pids == null)
+            {
+                pids = pid.ToString();
+            }
+            else
+            {
+                
+                System.Diagnostics.Debug.WriteLine("pids" + pid);
+                pids += ">" + pid;
+            }
+            HttpContext.Response.Cookies.Append("pids", pids);
+
 
             //cookie p.id list
-            //count
+            //count+1
             //do not re-add item
 
-            //::FAIL case
-
-            //::PASS case
-            //return Json("");
-
-            if(true)
+            if (true)
             {
-                var res = new { result = "PASS", detail = "pid=" + pid };
+                var res = new { result = "PASS", detail = "pids=" + pids };
                 return Json(res);
             }
 
@@ -324,39 +387,43 @@ namespace VNW.Controllers
             //return Content("result:'pass'");
         }
 
+        class ShoppingCart
+        {
+            public int Pid;
+            public int Qty;            
+        }
 
-        ////::my api for session
-        //public bool SetMySession(string key, string val)
-        //{
-        //    try
-        //    {
-        //        //::string to byte[]
-        //        byte[] bv = System.Text.Encoding.Default.GetBytes(val); ;
-        //        HttpContext.Session.Set(key, bv);
-        //    }
-        //    catch
-        //    {
-        //        return false;
-        //    }
-        //    return true;
-        //}
+        //::get data from Cookie - API for testing
+        public IActionResult GetShoppingCart()
+        {
+            try
+            {
+                string pidJSON = null;
+                List<ShoppingCart> shoppingCarts = new List<ShoppingCart>();
+                pidJSON = HttpContext.Request.Cookies["pidJSON"];
+                if (pidJSON == null)
+                {
+                    var res1 = new { result = "NG", detail = "", count = 0 };
+                    return Json(res1);
+                }
+                else
+                {
+                    shoppingCarts = JsonConvert.DeserializeObject<List<ShoppingCart>>(pidJSON);
+                    pidJSON = JsonConvert.SerializeObject(shoppingCarts);
+                    //Debug.WriteLine("shoppingCarts.Count " + shoppingCarts.Count);
+                    //ViewBag.shoppingCartsCount = shoppingCarts.Count;
+                    HttpContext.Response.Cookies.Append("pidJSON", pidJSON);
+                    var res2 = new { result = "PASS", detail = pidJSON, count = shoppingCarts.Count };
+                    return Json(res2);
+                }
+            }
+            catch
+            {
+                var res2 = new { result = "Err", detail = "" };
+                return Json(res2);
+            }
 
-        ////::my api for session
-        //public string GetMySession(string key)
-        //{
-        //    string _str = null;
-        //    try
-        //    {
-        //        byte[] bv = null;
-        //        HttpContext.Session.TryGetValue(key, out bv);
-        //        //::byte[] to string
-        //        _str = System.Text.Encoding.Default.GetString(bv);
-        //        //System.Diagnostics.Debug.WriteLine(" ss" + _str.Length);
-        //    }
-        //    catch
-        //    {
-        //    }
-        //    return _str;
-        //}
+        }
+
     }
 }

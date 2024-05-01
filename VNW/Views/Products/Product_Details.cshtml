@@ -115,8 +115,9 @@
                         if (data.result == "PASS") {
                             //login pass
 
-                            $("#txt_Message").text("已加入"); 
-                            console.log("PASS ");  //data.detail           
+                            //$("#txt_Message").text("已加入"); 
+                            $("#txt_Message").text("已加入" + data.detail); 
+                            console.log("PASS "); 
                             //window.location.href = "../";
                         }
                         else {
