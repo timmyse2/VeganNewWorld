@@ -16,9 +16,13 @@ namespace VNW.Controllers
         public IActionResult Index()
         {
 
+            bool IsAdmin = true;
+            if (!_ms.CheckAdmin(HttpContext.Session))
+                IsAdmin = false;
+
             ViewBag.UserAccount = _ms.GetMySession("UserAccount", HttpContext.Session);
             ViewBag.IsUserLogin = _ms.GetMySession("IsUserLogin", HttpContext.Session);
-
+            ViewBag.IsAdmin = IsAdmin;
             return View();
         }
 

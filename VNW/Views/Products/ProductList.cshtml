@@ -6,17 +6,14 @@
     ViewData["Title"] = "商品清單";
 }
 
-<h2>@ViewBag.catName 類</h2>
 <p>
-    <a asp-action="CategoryList" asp-controller="categories">商品分類</a>
-    >> @ViewBag.catName 類
+    <a asp-action="Index" asp-controller="Home">首頁</a>
+    > <a asp-action="CategoryList" asp-controller="categories">商品分類</a>
+    > @(ViewBag.catName)
 </p>
+<h2>@ViewBag.catName</h2>
 
-@*<p>
-        <a asp-action="Create">Create New</a>
-    </p>*@
-
-< 12345 >
+ 1 2 3 4 5 
 
 <div class="row">
     @foreach (var item in Model)

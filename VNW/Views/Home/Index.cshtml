@@ -2,8 +2,6 @@
     ViewData["Title"] = "Home Page";
 }
 
-
-
 @if (ViewBag.UserAccount == null || ViewBag.UserAccount == "")
 {
     <a asp-action="login" asp-controller="customers">登入</a> <x>|</x> 
@@ -39,15 +37,18 @@ else
                 <a asp-action="OrderList" asp-controller="Orders"> 我的訂單</a>
             </li>
             <li>訂單(供應商)</li>
-            <li>
-                訂單(<span class="text-danger">需管理者權限*</span>)
-                <ul>
-                    <li><a asp-action="index" asp-controller="Products"> Product </a></li>
-                    <li><a asp-action="index" asp-controller="Categories"> Category </a></li>
-                    <li><a asp-action="index" asp-controller="Orders"> Order </a></li>
-                    <li><a asp-action="index" asp-controller="OrderDetails"> Order Detail </a></li>
-                </ul>
-            </li>
+            @if (ViewBag.IsAdmin)
+            { 
+                <li>
+                    訂單(<span class="text-danger">需管理者權限*</span>)
+                    <ul>
+                        <li><a asp-action="index" asp-controller="Products"> Product </a></li>
+                        <li><a asp-action="index" asp-controller="Categories"> Category </a></li>
+                        <li><a asp-action="index" asp-controller="Orders"> Order </a></li>
+                        <li><a asp-action="index" asp-controller="OrderDetails"> Order Detail </a></li>
+                    </ul>
+                </li>
+            }
         </ul>
     </div>
     <div class="col-md-3 col-sm-4 col-xs-6">
@@ -55,11 +56,16 @@ else
         <ul>
             <li>個人資料維護 (客戶)</li>
             <li>個人資料維護 (供應商)</li>
-            <li>客戶名單(<span class="text-danger">需管理者權限*</span>)</li>
-            <ul>
-                <li><a asp-action="index" asp-controller="Customers"> Customer </a></li>
-            </ul>
-    </div>
+            @if (ViewBag.IsAdmin)
+            {
+
+                <li>客戶名單(<span class="text-danger">需管理者權限*</span>)</li>
+                <ul>
+                    <li><a asp-action="index" asp-controller="Customers"> Customer </a></li>
+                </ul>
+            }
+
+</div>
     <div class="col-md-3 col-sm-4 col-xs-6">
         <h2>綠能專區</h2>
         <ul>

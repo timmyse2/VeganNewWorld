@@ -7,13 +7,12 @@
     ViewData["Title"] = Model.ProductName;
 }
 
+<p>
+    <a asp-action="Index" asp-controller="Home">首頁</a>
+    > <a asp-action="CategoryList" asp-controller="categories">商品分類</a>
+    > <a asp-action="ProductList"> @ViewBag.catName</a>    
+</p>
 <h2>@Model.ProductName</h2>
-
-<div>
-    <a asp-action="CategoryList" asp-controller="categories">商品分類</a>
-    >>
-    <a asp-action="ProductList"> @ViewBag.catName 類</a>
-</div>
 
 <div>
     @*<h4>@Model.ProductName</h4>*@
@@ -71,11 +70,11 @@
         </dd>
     </dl>
 </div>
-<div>
+@*<div>
     | <a asp-action="CategoryList" asp-controller="categories">商品分類</a>
     | <a asp-action="ProductList">回到商品清單</a>
     |
-</div>
+</div>*@
 註: 產品資料會先暫存在您的瀏覽器Cookie中， 請登入後完成訂單
 
 

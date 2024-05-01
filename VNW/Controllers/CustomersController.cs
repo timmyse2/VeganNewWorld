@@ -225,11 +225,29 @@ namespace VNW.Controllers
             //_ms.SetMySession("IsUserLogin", "", HttpContext.Session);
             //_ms.SetMySession("UserAccount", "", HttpContext.Session);
             HttpContext.Session.Remove("IsUserLogin");
-            HttpContext.Session.Remove("UserAccount");                       
+            HttpContext.Session.Remove("UserAccount");
+            HttpContext.Session.Remove("UserLevel");
 
             TempData["td_server"] = "已登出"; //::
             return RedirectToAction("Login");
             //return Content("LOGOUT");
         }
+
+        //::for Admin
+        public async Task<IActionResult> AdminLogin(string account, string password, string pin, string role)
+        {
+
+            if(true)
+            {
+                //::pass case
+                _ms.SetMySession("IsUserLogin", "YES", HttpContext.Session);
+                _ms.SetMySession("UserAccount", "Saber@Emiya2006", HttpContext.Session);
+                _ms.SetMySession("UserLevel", "1A", HttpContext.Session);
+                
+                return Json(new { result = "PASS", detail = "admin login" });
+            }
+        }
+
+
     }
 }
