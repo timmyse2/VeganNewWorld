@@ -1,0 +1,85 @@
+﻿
+@{
+    ViewData["Title"] = "PrepareOrder";
+}
+
+<h2>確認您的購物車</h2>
+
+<div id="txt_shoppingCart"></div>
+
+<a>下個步驟</a>
+
+@section endJS{
+    <script type="text/javascript" src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+    <script>
+        console.log("jquery start");
+
+        //var btn_AddProductInOrder = $('#btn_AddProductInOrder');
+        //$('#btn_AddProductInOrder').click(btn_AddProductInOrder_click);
+        btn_AddProductInOrder_click();
+        function btn_AddProductInOrder_click() {
+            console.log("btn_AddProductInOrder_click");
+            //::call api (store p.id in cookie)
+            //$('#btn_AddProductInOrder').hide();
+            $("#txt_Message").text("處理中");
+            //ajax
+            try {
+                console.log("ajax r/w data...");
+                var surl = "GetShoppingCart";
+                $.ajax({
+                    url: surl,
+                    type: "POST",
+                    dateType: "json",
+                    data: {
+                        @*//pid: @Model.ProductId,
+                        //catid: @Model.CategoryId*@
+                        //password: $("#password").val(),
+                        //pin: $("#pin").val(),
+                    },
+                    success: function (data) {
+                        console.log("get data")
+                        console.log(data)
+
+                        if (data.result == "PASS") {
+                            //login pass
+
+                            //$("#txt_Message").text("已加入");
+                            //$("#txt_Message").text("已加入" + data.detail);
+                            console.log("PASS ");
+                            console.log("prodCount " + data.prodCount);
+                            //$('#btn_AddProductInOrder').text("加入購物車 (" + data.prodCount+ ")");
+                            //window.location.href = "../";
+                            $('#txt_shoppingCart').text("購物車 (" + data.prodCount + ")");
+
+                            $('#txt_shoppingCart').text(data.detail);
+                        }
+                        else {
+                            //fail case
+                            var failMessage = "※提示：找不到符合您輸入的資料!";
+                            $("#txt_Message").text("");
+                            $("#txt_failMessage").text(failMessage);
+                            console.log("note pass");
+                        }
+                        //$('#btn_AddProductInOrder').show();
+
+                    }, //success
+                    error: function (xhr, ajaxOptions, thrownError) {
+                        console.log(xhr)
+                        $("#txt_failMessage").text("發生未知錯誤");
+                    }//error
+                });
+                return;
+            }
+            catch (err) {
+                console.log("exception " + err);
+                //btn_AddProductInOrder.show();
+                $("#txt_failMessage").text("發生未知錯誤");
+                return;
+            }
+
+
+        }
+
+        console.log("jquery end");
+    </script>
+}

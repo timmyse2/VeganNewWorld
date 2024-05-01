@@ -305,7 +305,7 @@ namespace VNW.Controllers
             int _pid;
             if (pid == 0 || pid == null)
             {
-                var res = new { result = "FAIL", detail = "id is null" };
+                var res = new { result = "FAIL", detail = "id is null", prodCount=0 };
                 return Json(res);
             }
             _pid = (int)pid;
@@ -326,65 +326,37 @@ namespace VNW.Controllers
                     //::merge data
                     shoppingCarts = JsonConvert.DeserializeObject<List<ShoppingCart>>(pidJSON);
 
-                    //::found exist itemrepeated                    
-                    ShoppingCart tsc = new ShoppingCart { Pid = _pid, Qty = 1 };
-                    if(shoppingCarts.Contains(tsc))
+                    //::found exist item repeatedly
+                    var found = shoppingCarts.Find(x => x.Pid == _pid);
+                    //ShoppingCart tsc = new ShoppingCart { Pid = _pid, Qty = 1 };
+                    //if (shoppingCarts.Contains(tsc))                    
+                    //if (shoppingCarts.Contains(new ShoppingCart { Pid = _pid, Qty = 1 }))
+                    if (found != null)
                     {
-                        //do not add 
+                        //::do not add it to new item again
+                        //Debug.WriteLine("Found ");
+                        //found.Qty++;
+                        //pidJSON = JsonConvert.SerializeObject(shoppingCarts);
                     }
                     else
                     {
+                        //Debug.WriteLine("not find ");
                         shoppingCarts.Add(new ShoppingCart { Pid = _pid, Qty = 1 });
                         pidJSON = JsonConvert.SerializeObject(shoppingCarts);
                     }
                 }
-
-                Debug.WriteLine("shoppingCarts.Count " + shoppingCarts.Count);
-                ViewBag.shoppingCartsCount = shoppingCarts.Count;
+                //Debug.WriteLine("shoppingCarts.Count " + shoppingCarts.Count);
+                //ViewBag.shoppingCartsCount = shoppingCarts.Count;
 
                 HttpContext.Response.Cookies.Append("pidJSON", pidJSON);
-                var res2 = new { result = "PASS", detail = pidJSON, count = shoppingCarts.Count };            
+                var res2 = new { result = "PASS", detail = pidJSON, prodCount = shoppingCarts.Count };            
                 return Json(res2);
             }
             catch
             {
-                var res2 = new { result = "Err", detail = "" };
+                var res2 = new { result = "Err", detail = "", prodCount=0 };
                 return Json(res2);
             }
-
-
-            string pids = "";
-            pids = HttpContext.Request.Cookies["pids"];
-            if (pids == null)
-            {
-                pids = pid.ToString();
-            }
-            else
-            {
-                
-                System.Diagnostics.Debug.WriteLine("pids" + pid);
-                pids += ">" + pid;
-            }
-            HttpContext.Response.Cookies.Append("pids", pids);
-
-
-            //cookie p.id list
-            //count+1
-            //do not re-add item
-
-            if (true)
-            {
-                var res = new { result = "PASS", detail = "pids=" + pids };
-                return Json(res);
-            }
-
-            else
-            {
-                var res = new { result = "FAIL", detail = "xxx" };
-                return Json(res);
-            }
-            
-            //return Content("result:'pass'");
         }
 
         class ShoppingCart
@@ -403,7 +375,7 @@ namespace VNW.Controllers
                 pidJSON = HttpContext.Request.Cookies["pidJSON"];
                 if (pidJSON == null)
                 {
-                    var res1 = new { result = "NG", detail = "", count = 0 };
+                    var res1 = new { result = "NG", detail = "", prodCount = 0 };
                     return Json(res1);
                 }
                 else
@@ -413,15 +385,72 @@ namespace VNW.Controllers
                     //Debug.WriteLine("shoppingCarts.Count " + shoppingCarts.Count);
                     //ViewBag.shoppingCartsCount = shoppingCarts.Count;
                     HttpContext.Response.Cookies.Append("pidJSON", pidJSON);
-                    var res2 = new { result = "PASS", detail = pidJSON, count = shoppingCarts.Count };
+                    var res2 = new { result = "PASS", detail = pidJSON, prodCount = shoppingCarts.Count };
                     return Json(res2);
                 }
             }
             catch
             {
-                var res2 = new { result = "Err", detail = "" };
+                var res2 = new { result = "Err", detail = "", prodCount=0 };
                 return Json(res2);
             }
+        }
+
+        public IActionResult RemoveShoppingCart(int? pid)
+        {
+            if (!_ms.LoginPrecheck(HttpContext.Session))
+                return RedirectToAction("Login", "Customers");
+            //::check pid
+            int _pid;
+            if (pid == 0 || pid == null)
+            {
+                var res = new { result = "FAIL", detail = "id is null", prodCount=0 };
+                return Json(res);
+            }
+            _pid = (int)pid;
+
+            try
+            {
+                string pidJSON = null;
+                List<ShoppingCart> shoppingCarts = new List<ShoppingCart>();
+                pidJSON = HttpContext.Request.Cookies["pidJSON"];
+                if (pidJSON == null)
+                {
+                    var res1 = new { result = "empty", detail = "", count = 0 };
+                    return Json(res1);
+                }
+                else
+                {
+                    shoppingCarts = JsonConvert.DeserializeObject<List<ShoppingCart>>(pidJSON);
+
+                    //::found exist item repeatedly
+                    var found = shoppingCarts.Find(x => x.Pid == _pid);
+                    if (found != null)
+                    {
+                        shoppingCarts.Remove(found);
+                        pidJSON = JsonConvert.SerializeObject(shoppingCarts);
+                        HttpContext.Response.Cookies.Append("pidJSON", pidJSON);
+                    }
+                    else
+                    {
+                        //pidJSON = JsonConvert.SerializeObject(shoppingCarts);
+                    }
+                    var res2 = new { result = "PASS", detail = pidJSON, prodCount = shoppingCarts.Count };
+                    return Json(res2);
+                }
+            }
+            catch
+            {
+                var res2 = new { result = "Err", detail = "", prodCount=0 };
+                return Json(res2);
+            }
+
+        }
+
+        public IActionResult PrepareOrder()
+        {
+
+            return View();
 
         }
 

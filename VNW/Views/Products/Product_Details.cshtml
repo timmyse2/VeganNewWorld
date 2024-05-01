@@ -70,12 +70,17 @@
         </dd>
     </dl>
 </div>
+
 @*<div>
     | <a asp-action="CategoryList" asp-controller="categories">商品分類</a>
     | <a asp-action="ProductList">回到商品清單</a>
     |
 </div>*@
 註: 產品資料會先暫存在您的瀏覽器Cookie中， 請登入後完成訂單
+<p>
+    <a class="btn btn-danger" id="btn_shippingCart" asp-action="PrepareOrder" target="_blank">購物車( )</a>
+    
+</p>
 
 
 @section endJS{
@@ -115,10 +120,14 @@
                         if (data.result == "PASS") {
                             //login pass
 
-                            //$("#txt_Message").text("已加入"); 
-                            $("#txt_Message").text("已加入" + data.detail); 
+                            $("#txt_Message").text("已加入"); 
+                            //$("#txt_Message").text("已加入" + data.detail); 
                             console.log("PASS "); 
+                            console.log("prodCount " + data.prodCount); 
+                            //$('#btn_AddProductInOrder').text("加入購物車 (" + data.prodCount+ ")");
                             //window.location.href = "../";
+                            $('#btn_shippingCart').text("購物車 (" + data.prodCount + ")");
+
                         }
                         else {
                             //fail case
@@ -143,17 +152,11 @@
                 $("#txt_failMessage").text("發生未知錯誤");
                 return;
             }
-
-
         }
 
         //btn_AddProductInOrder.click(function () {
         //    console.log("btn click");
         //});
-
-        
-        
-
 
         console.log("jquery end");
     </script>
