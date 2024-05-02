@@ -318,7 +318,14 @@ namespace VNW.Controllers
                 if (pidJSON == null)
                 {
                     //if null then add new                            
-                    shoppingCarts.Add(new ShoppingCart { Pid = _pid, Qty = 1 });
+                    //shoppingCarts.Add(new ShoppingCart { Pid = _pid, Qty = 1 });
+                    shoppingCarts.Add(new ShoppingCart
+                    {
+                        Pid = _pid,
+                        Qty = 1,
+                        Name = "",
+                        Img = ""
+                    });
                     pidJSON = JsonConvert.SerializeObject(shoppingCarts);
                 }
                 else
@@ -341,7 +348,12 @@ namespace VNW.Controllers
                     else
                     {
                         //Debug.WriteLine("not find ");
-                        shoppingCarts.Add(new ShoppingCart { Pid = _pid, Qty = 1 });
+                        shoppingCarts.Add(new ShoppingCart {
+                            Pid = _pid,
+                            Qty = 1,
+                            Name = "",
+                            Img = ""
+                        });
                         pidJSON = JsonConvert.SerializeObject(shoppingCarts);
                     }
                 }
@@ -362,7 +374,9 @@ namespace VNW.Controllers
         class ShoppingCart
         {
             public int Pid;
-            public int Qty;            
+            public int Qty;
+            public string Img;
+            public string Name;
         }
 
         //::get data from Cookie - API for testing
@@ -396,6 +410,8 @@ namespace VNW.Controllers
             }
         }
 
+
+        //::api for remove product from shopping cart
         public IActionResult RemoveShoppingCart(int? pid)
         {
             if (!_ms.LoginPrecheck(HttpContext.Session))
@@ -447,6 +463,7 @@ namespace VNW.Controllers
 
         }
 
+        //::for end user, 
         public IActionResult PrepareOrder()
         {
 

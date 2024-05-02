@@ -5,6 +5,10 @@
 
 <h2>確認購物車</h2>
 <p><a>步驟1 [確認購物車]</a> > <a>步驟2 [付款與運送方式]</a> > <a>步驟3 [訂單確認]</a></p>
+
+<hr/>
+<div id="txt_debug" class="alert-info"></div>
+<hr />
 <div id="txt_shoppingCart"></div>
 
 <table class="table">
@@ -21,8 +25,22 @@
         </tr>
     </thead>
     <tbody>
-
         <tr>
+            <td>
+                <img src="~/images/product_4321_0.jpg" style="width:150px;" />
+            </td>
+            <td>好野狼三輪機車(125CC等級混和動力)</td>
+            <td>14,000</td>
+            <td>
+                <input type="number" value="1" /><br>
+                @*<a class="btn btn-info">+</a><a class="btn btn-primary">-</a>*@
+            </td>
+            <td>14,000</td>
+            <td>
+                <a class="btn btn-danger"> 取消</a>
+            </td>
+        </tr>
+        @*<tr>
             <td>
                 <img src="~/images/product_photo_20200827132032_8p1_tw.jpg" style="width:150px;" />
             </td>
@@ -36,23 +54,9 @@
             <td>
                 <a class="btn btn-danger"> 取消</a>
             </td>
-        </tr>
-        <tr>
-            <td>
-                <img src="~/images/product_4321_0.jpg" style="width:150px;" />
-            </td>
-            <td>好野狼三輪機車(125CC等級混和動力)</td>
-            <td>14,000</td>
-            <td>
-                <input type="text" value="1" /><br>
-                <a class="btn btn-info">+</a><a class="btn btn-primary">-</a>
-            </td>
-            <td>14,000</td>
-            <td>
-                <a class="btn btn-danger"> 取消</a>
-            </td>
-        </tr>
-        <tr>
+        </tr>*@
+
+        @*<tr>
             <td>
                 <img src="~/images/4320_0.jpg" style="width:150px;" />
             </td>
@@ -66,10 +70,22 @@
             <td>
                 <a class="btn btn-danger"> 取消</a>
             </td>
-        </tr>
+        </tr>*@
 
     </tbody>
 </table>
+
+<table  class="table">
+    <thead>
+        <tr><td>id</td><td>qty</td></tr>
+    </thead>
+    <tbody id="tbody_data">
+
+    </tbody>
+</table>
+
+@*<div id="tbody_data"> </div>*@
+
 
 <p>
     <a class="btn btn-primary btn-lg">確認並送出</a>
@@ -118,8 +134,26 @@
                             //$('#btn_AddProductInOrder').text("加入購物車 (" + data.prodCount+ ")");
                             //window.location.href = "../";
                             $('#txt_shoppingCart').text("購物車 (" + data.prodCount + ")");
+                            $('#txt_debug').text(data.detail);
 
-                            $('#txt_shoppingCart').text(data.detail);
+                            console.log("data.detail =" + data.detail);
+                            if (data.detail != null) {
+                                //::covert object from json string
+                                var jsonRes = JSON.parse(data.detail);
+                                //var jsonRes = JSON.stringify(data.detail);
+                                console.log(jsonRes);                                
+                                console.log(jsonRes.length);
+                                //console.log(jsonRes);
+                                var tempstr = "";
+                                //update data in UI table tr
+                                for (var i = 0; i < jsonRes.length; i++) {
+                                    //console.log(i);                                  
+                                    //console.log(" " + jsonRes[i].Pid);
+                                    tempstr += '<tr><td>' + jsonRes[i].Pid + '</td>' + '<td>' + jsonRes[i].Qty + '</td></tr>' ;
+                                }
+                                //$('#tbody_data').text(tempstr);
+                                $('#tbody_data').append(tempstr);
+                            }
                         }
                         else {
                             //fail case
