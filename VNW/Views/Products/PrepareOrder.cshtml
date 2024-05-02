@@ -3,11 +3,79 @@
     ViewData["Title"] = "PrepareOrder";
 }
 
-<h2>確認您的購物車</h2>
-
+<h2>確認購物車</h2>
+<p><a>步驟1 [確認購物車]</a> > <a>步驟2 [付款與運送方式]</a> > <a>步驟3 [訂單確認]</a></p>
 <div id="txt_shoppingCart"></div>
 
-<a>下個步驟</a>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                商品
+            </th>
+            <th>品名</th>
+            <th>單價</th>
+            <th>數量</th>
+            <th>價格</th>
+
+        </tr>
+    </thead>
+    <tbody>
+
+        <tr>
+            <td>
+                <img src="~/images/product_photo_20200827132032_8p1_tw.jpg" style="width:150px;" />
+            </td>
+            <td>植物蛋白漢堡排(純素)</td>
+            <td>200</td>
+            <td>
+                <input type="text" value="2" /><br>
+                <a class="btn btn-info">+</a><a class="btn btn-primary">-</a>
+            </td>
+            <td>400</td>
+            <td>
+                <a class="btn btn-danger"> 取消</a>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <img src="~/images/product_4321_0.jpg" style="width:150px;" />
+            </td>
+            <td>好野狼三輪機車(125CC等級混和動力)</td>
+            <td>14,000</td>
+            <td>
+                <input type="text" value="1" /><br>
+                <a class="btn btn-info">+</a><a class="btn btn-primary">-</a>
+            </td>
+            <td>14,000</td>
+            <td>
+                <a class="btn btn-danger"> 取消</a>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <img src="~/images/4320_0.jpg" style="width:150px;" />
+            </td>
+            <td>好野狼三輪機車(150CC等級混和動力)</td>
+            <td>21,000</td>
+            <td>
+                <input type="text" value="1" /><br>
+                <a class="btn btn-info">+</a><a class="btn btn-primary">-</a>
+            </td>
+            <td> 21,000</td>
+            <td>
+                <a class="btn btn-danger"> 取消</a>
+            </td>
+        </tr>
+
+    </tbody>
+</table>
+
+<p>
+    <a class="btn btn-primary btn-lg">確認並送出</a>
+</p>
+
+
 
 @section endJS{
     <script type="text/javascript" src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
