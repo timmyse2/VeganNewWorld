@@ -6,8 +6,7 @@
 <h2>確認購物車</h2>
 <p><a>步驟1 [確認購物車]</a> > <a>步驟2 [付款與運送方式]</a> > <a>步驟3 [訂單確認]</a></p>
 
-<hr/>
-<div id="txt_debug" class="alert-info"></div>
+<hr />
 <hr />
 <div id="txt_shoppingCart"></div>
 
@@ -41,50 +40,39 @@
             </td>
         </tr>
         @*<tr>
-            <td>
-                <img src="~/images/product_photo_20200827132032_8p1_tw.jpg" style="width:150px;" />
-            </td>
-            <td>植物蛋白漢堡排(純素)</td>
-            <td>200</td>
-            <td>
-                <input type="text" value="2" /><br>
-                <a class="btn btn-info">+</a><a class="btn btn-primary">-</a>
-            </td>
-            <td>400</td>
-            <td>
-                <a class="btn btn-danger"> 取消</a>
-            </td>
-        </tr>*@
+                <td>
+                    <img src="~/images/product_photo_20200827132032_8p1_tw.jpg" style="width:150px;" />
+                </td>
+                <td>植物蛋白漢堡排(純素)</td>
+                <td>200</td>
+                <td>
+                    <input type="text" value="2" /><br>
+                    <a class="btn btn-info">+</a><a class="btn btn-primary">-</a>
+                </td>
+                <td>400</td>
+                <td>
+                    <a class="btn btn-danger"> 取消</a>
+                </td>
+            </tr>*@
 
         @*<tr>
-            <td>
-                <img src="~/images/4320_0.jpg" style="width:150px;" />
-            </td>
-            <td>好野狼三輪機車(150CC等級混和動力)</td>
-            <td>21,000</td>
-            <td>
-                <input type="text" value="1" /><br>
-                <a class="btn btn-info">+</a><a class="btn btn-primary">-</a>
-            </td>
-            <td> 21,000</td>
-            <td>
-                <a class="btn btn-danger"> 取消</a>
-            </td>
-        </tr>*@
+                <td>
+                    <img src="~/images/4320_0.jpg" style="width:150px;" />
+                </td>
+                <td>好野狼三輪機車(150CC等級混和動力)</td>
+                <td>21,000</td>
+                <td>
+                    <input type="text" value="1" /><br>
+                    <a class="btn btn-info">+</a><a class="btn btn-primary">-</a>
+                </td>
+                <td> 21,000</td>
+                <td>
+                    <a class="btn btn-danger"> 取消</a>
+                </td>
+            </tr>*@
 
     </tbody>
 </table>
-
-<table  class="table">
-    <thead>
-        <tr><td>id</td><td>qty</td></tr>
-    </thead>
-    <tbody id="tbody_data">
-
-    </tbody>
-</table>
-
-@*<div id="tbody_data"> </div>*@
 
 
 <p>
@@ -92,16 +80,32 @@
 </p>
 
 
+<hr/>*Data from cookie via Ajax
+<div id="txt_debug" class="alert-info"></div>
+<table class="table">
+    <thead>
+        <tr><td>商品</td><td>數量</td></tr>
+    </thead>
+    <tbody id="tbody_data"></tbody>
+</table>
+
+<p>
+    <a class="btn btn-danger" id="btn_AddProductInOrder">AddProductInOrder</a>
+</p>
+
 
 @section endJS{
     <script type="text/javascript" src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
     <script>
         console.log("jquery start");
 
-        //var btn_AddProductInOrder = $('#btn_AddProductInOrder');
-        //$('#btn_AddProductInOrder').click(btn_AddProductInOrder_click);
-        btn_AddProductInOrder_click();
-        function btn_AddProductInOrder_click() {
+        var btn_AddProductInOrder = $('#btn_AddProductInOrder');
+        //$('#btn_AddProductInOrder').click(AddProductInOrder);
+        //AddProductInOrder(); //auto load
+        btn_AddProductInOrder.text("Load Data");
+        btn_AddProductInOrder.click(AddProductInOrder);
+
+        function AddProductInOrder() {
             console.log("btn_AddProductInOrder_click");
             //::call api (store p.id in cookie)
             //$('#btn_AddProductInOrder').hide();
@@ -117,50 +121,27 @@
                     data: {
                         @*//pid: @Model.ProductId,
                         //catid: @Model.CategoryId*@
-                        //password: $("#password").val(),
-                        //pin: $("#pin").val(),
                     },
                     success: function (data) {
                         console.log("get data")
                         console.log(data)
 
-                        if (data.result == "PASS") {
-                            //login pass
-
-                            //$("#txt_Message").text("已加入");
-                            //$("#txt_Message").text("已加入" + data.detail);
+                        if (data.result == "PASS") {                            
                             console.log("PASS ");
                             console.log("prodCount " + data.prodCount);
-                            //$('#btn_AddProductInOrder').text("加入購物車 (" + data.prodCount+ ")");
-                            //window.location.href = "../";
                             $('#txt_shoppingCart').text("購物車 (" + data.prodCount + ")");
                             $('#txt_debug').text(data.detail);
-
                             console.log("data.detail =" + data.detail);
                             if (data.detail != null) {
-                                //::covert object from json string
-                                var jsonRes = JSON.parse(data.detail);
-                                //var jsonRes = JSON.stringify(data.detail);
-                                console.log(jsonRes);                                
-                                console.log(jsonRes.length);
-                                //console.log(jsonRes);
-                                var tempstr = "";
-                                //update data in UI table tr
-                                for (var i = 0; i < jsonRes.length; i++) {
-                                    //console.log(i);                                  
-                                    //console.log(" " + jsonRes[i].Pid);
-                                    tempstr += '<tr><td>' + jsonRes[i].Pid + '</td>' + '<td>' + jsonRes[i].Qty + '</td></tr>' ;
-                                }
-                                //$('#tbody_data').text(tempstr);
-                                $('#tbody_data').append(tempstr);
+                                generateTable(data.detail);
                             }
+                            //window.location.href = "../";
                         }
                         else {
-                            //fail case
-                            var failMessage = "※提示：找不到符合您輸入的資料!";
-                            $("#txt_Message").text("");
-                            $("#txt_failMessage").text(failMessage);
-                            console.log("note pass");
+                            //::fail case
+                            console.log("fail case");
+                            var failMessage = "回傳非預期的資訊";                            
+                            $('#txt_debug').text(failMessage + ' ' + data.detail);
                         }
                         //$('#btn_AddProductInOrder').show();
 
@@ -178,8 +159,23 @@
                 $("#txt_failMessage").text("發生未知錯誤");
                 return;
             }
+        }//
 
-
+        function generateTable(dataDetail) {
+            //::covert object from json string
+            var jsonRes = JSON.parse(dataDetail);
+            //var jsonRes = JSON.stringify(data.detail);
+            console.log(jsonRes);
+            console.log(jsonRes.length);
+            //console.log(jsonRes);
+            var tempstr = "";
+            $('#tbody_data').text(""); //reset
+            //::update data in UI table 
+            for (var i = 0; i < jsonRes.length; i++) {
+                tempstr += '<tr><td>' + jsonRes[i].Pid + '</td>' + '<td>' + jsonRes[i].Qty + '</td></tr>';
+            }            
+            $('#tbody_data').append(tempstr);
+            //$('#tbody_data').text(tempstr);
         }
 
         console.log("jquery end");
