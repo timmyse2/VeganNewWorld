@@ -425,10 +425,10 @@ namespace VNW.Controllers
         //::api for remove product from shopping cart
         public IActionResult RemoveShoppingCart(int? pid)
         {
-            if (!_ms.LoginPrecheck(HttpContext.Session))
-                return RedirectToAction("Login", "Customers");
+            //if (!_ms.LoginPrecheck(HttpContext.Session))
+            //    return RedirectToAction("Login", "Customers");
             //::check pid
-            int _pid;
+            int _pid = 0;
             if (pid == 0 || pid == null)
             {
                 var res = new { result = "FAIL", detail = "id is null", prodCount=0 };
@@ -475,15 +475,15 @@ namespace VNW.Controllers
         }
 
         //::for end user, 
-        public IActionResult PrepareOrder()
+        public async Task<IActionResult> PrepareOrder()
         {
+            if (!_ms.LoginPrecheck(HttpContext.Session))
+                return RedirectToAction("Login", "Customers");
 
-
-            //::case A - use ajax to get p list
+            //::<Timmy May 1,2024><case A - use ajax to get p list>
             //return View();
 
-
-            //::case B - use Model to provide p list
+            //::<Timmy May 6,2024><case B - use Model to provide p list>
             try
             {
                 string pidJSON = null;
@@ -493,7 +493,7 @@ namespace VNW.Controllers
                 {
                     //var res1 = new { result = "NG", detail = "", prodCount = 0 };
                     //return Json(res1);
-
+                    TempData["td_serverMessage"] = "訂單是空的，請選擇商品";
                     return View();
                 }
                 else
@@ -504,8 +504,8 @@ namespace VNW.Controllers
                     //ViewBag.shoppingCartsCount = shoppingCarts.Count;
                     HttpContext.Response.Cookies.Append("pidJSON", pidJSON);
                     //var res2 = new { result = "PASS", detail = pidJSON, prodCount = shoppingCarts.Count };
-                    //return Json(res2);                   
-
+                    //return Json(res2);
+                    TempData["td_serverMessage"] = "";
                     return View(shoppingCarts);
                 }
             }
@@ -513,6 +513,7 @@ namespace VNW.Controllers
             {
                 //var res2 = new { result = "Err", detail = "", prodCount = 0 };
                 //return Json(res2);
+                TempData["td_serverMessage"] = "發生未知錯誤";
                 return View();
             }
         }

@@ -5,12 +5,18 @@
 }
 
 <h2>確認購物車</h2>
-<p><a>步驟1 [確認購物車]</a> > <a>步驟2 [付款與運送方式]</a> > <a>步驟3 [訂單確認]</a></p>
-
 <hr />
-<hr />
-<div id="txt_shoppingCart"></div>
 
+<p> <b>[1.確認購物車]</b> > [2.付款與運送方式] > [3.訂單確認]</p>
+
+<b>
+    <span class="text-danger">
+        @TempData["td_serverMessage"]
+    </span>
+</b>
+
+@*<div id="txt_shoppingCart"></div>*@
+<h4>一般訂單</h4>
 <table class="table">
     <thead>
         <tr>
@@ -19,9 +25,10 @@
             <th>單價</th>
             <th>數量</th>
             <th>價格</th>
+            <th></th>
         </tr>
     </thead>
-    <tbody>
+    <tbody id="tbody_data">
         @*<tr>
             <td>
                 <img src="~/images/product_4321_0.jpg" style="width:100px;" />
@@ -50,11 +57,16 @@
 
                     <td>$@item.Price</td>
                     <td>
-                        <input type="number" value="@item.Qty" />
+                        @*<input type="number" value="@item.Qty" />*@
+                        <select id="select_qty">
+                            <option>1</option>
+                            <option>2</option>
+                            <option>3</option>
+                        </select>
                     </td>
                     <td>$@(item.Price*item.Qty)</td>
                     <td>
-                        <a class="btn btn-default">取消</a>
+                        <a class="btn btn-default btn_CancelItem" id="btn_CancelItem" pid="@item.Pid" >取消</a>
                     </td>
                 </tr>
             }//foreach
@@ -62,7 +74,7 @@
     </tbody>
 </table>
 
-<table class="table">
+@*<table class="table">
     <thead>
         <tr>
             <th>商品</th>
@@ -73,17 +85,20 @@
         </tr>
     </thead>
     <tbody id="tbody_data"></tbody>
-</table>
+</table>*@
 
-<p>
+@*<p>
     <a class="btn btn-success" id="btn_GetShoppingCart">GetShoppingCart</a>
 </p>
 <hr />*Data from cookie via Ajax
-<div id="txt_debug" class="alert-info"></div>
-
+<div id="txt_debug" class="alert-info"></div>*@
 
 <p>
-    <a class="btn btn-primary btn-lg">確認並送出</a>
+    <a id="btn_SendOrder" class="btn btn-primary btn-lg">確認並送出</a>
+</p>
+
+<p>
+    <a id="btn_clearCart" class="btn btn-danger btn-lg">清空購物車</a>
 </p>
 
 @section endJS{
@@ -93,6 +108,7 @@
 
         var btn_GetShoppingCart = $('#btn_GetShoppingCart');
         //$('#btn_GetShoppingCart').click(GetShoppingCart);
+        //var btn_CancelItem = $('#btn_CancelItem');
 
         //GetShoppingCart(); //auto pre-load
         btn_GetShoppingCart.text("LOAD");
@@ -123,7 +139,7 @@
                         if (data.result == "PASS") {
                             console.log("PASS ");
                             console.log("prodCount " + data.prodCount);
-                            $('#txt_shoppingCart').text("購物車 (" + data.prodCount + ")");
+                            //$('#txt_shoppingCart').text("購物車 (" + data.prodCount + ")");
                             $('#txt_debug').text(data.detail);
                             console.log("data.detail =" + data.detail);
                             if (data.detail != null) {
@@ -186,6 +202,50 @@
 
             }
         }
+
+        $('#btn_clearCart').click(function () {
+            console.log("clear cart click");
+        });
+
+        //::use class (share same name for different buttons, switch by pid)
+        $('.btn_CancelItem').click(function () {            
+            console.log("use class, cancel item click");
+            var pid = 0;         
+            //::get pid from element
+            pid = this.getAttribute("pid");            
+            console.log("pid " + pid);            
+            if (pid != 0) {
+                //::call api
+                console.log("ajax, cancel item " + pid);                
+                var surl = "RemoveShoppingCart";
+                $.ajax({
+                    url: surl,
+                    type: "POST",
+                    dateType: "json",
+                    data: {
+                        pid: pid
+                    },
+                    success: function (data) {
+                        console.log("get data")
+                        console.log(data)
+                        if (data.result == "PASS") {
+                            console.log("PASS ");
+
+                            GetShoppingCart(); //try to reload 
+                        }
+                        else {
+                            //::fail case
+                            console.log("fail case");
+                        }
+                    }, //success
+                    error: function (xhr, ajaxOptions, thrownError) {
+                        console.log(xhr)
+                        //$("#txt_failMessage").text("發生未知錯誤");
+                    }//error
+                });                
+            }
+        });
+
 
         console.log("jquery end");
     </script>
