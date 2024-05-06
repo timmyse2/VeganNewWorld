@@ -12,6 +12,7 @@ using System.Diagnostics;
 using VNW.Common; //for lib
 using Newtonsoft.Json; //for json
 
+
 namespace VNW.Controllers
 {
     public class ProductsController : Controller
@@ -313,7 +314,7 @@ namespace VNW.Controllers
             try
             {
                 string pidJSON = null;
-                List<ShoppingCart> shoppingCarts = new List<ShoppingCart>();
+                List<VNW.ViewModels.ShoppingCart> shoppingCarts = new List<VNW.ViewModels.ShoppingCart>();
                 pidJSON = HttpContext.Request.Cookies["pidJSON"];
                 bool isUpdateData = false;
                 if (pidJSON == null)
@@ -332,7 +333,7 @@ namespace VNW.Controllers
                 else
                 {
                     //::merge data
-                    shoppingCarts = JsonConvert.DeserializeObject<List<ShoppingCart>>(pidJSON);
+                    shoppingCarts = JsonConvert.DeserializeObject<List<VNW.ViewModels.ShoppingCart>>(pidJSON);
 
                     //::found exist item repeatedly
                     var found = shoppingCarts.Find(x => x.Pid == _pid);
@@ -358,7 +359,7 @@ namespace VNW.Controllers
 
                 if(isUpdateData)
                 {
-                    shoppingCarts.Add(new ShoppingCart
+                    shoppingCarts.Add(new VNW.ViewModels.ShoppingCart
                     {
                         Pid = _pid,
                         Qty = 1,
@@ -380,14 +381,14 @@ namespace VNW.Controllers
             }
         }
 
-        class ShoppingCart
-        {
-            public int Pid;
-            public int Qty;
-            public int Price;
-            public string Img;
-            public string Name;
-        }
+        //class ShoppingCart
+        //{
+        //    public int Pid;
+        //    public int Qty;
+        //    public int Price;
+        //    public string Img;
+        //    public string Name;
+        //}
 
         //::get data from Cookie - API for testing
         public IActionResult GetShoppingCart()
@@ -395,16 +396,16 @@ namespace VNW.Controllers
             try
             {
                 string pidJSON = null;
-                List<ShoppingCart> shoppingCarts = new List<ShoppingCart>();
+                List<VNW.ViewModels.ShoppingCart> shoppingCarts = new List<VNW.ViewModels.ShoppingCart>();
                 pidJSON = HttpContext.Request.Cookies["pidJSON"];
                 if (pidJSON == null)
                 {
-                    var res1 = new { result = "NG", detail = "", prodCount = 0 };
+                    var res1 = new { result = "PASS", detail = "no data", prodCount = 0 };
                     return Json(res1);
                 }
                 else
                 {
-                    shoppingCarts = JsonConvert.DeserializeObject<List<ShoppingCart>>(pidJSON);
+                    shoppingCarts = JsonConvert.DeserializeObject<List<VNW.ViewModels.ShoppingCart>>(pidJSON);
                     pidJSON = JsonConvert.SerializeObject(shoppingCarts);
                     //Debug.WriteLine("shoppingCarts.Count " + shoppingCarts.Count);
                     //ViewBag.shoppingCartsCount = shoppingCarts.Count;
@@ -438,7 +439,7 @@ namespace VNW.Controllers
             try
             {
                 string pidJSON = null;
-                List<ShoppingCart> shoppingCarts = new List<ShoppingCart>();
+                List<VNW.ViewModels.ShoppingCart> shoppingCarts = new List<VNW.ViewModels.ShoppingCart>();
                 pidJSON = HttpContext.Request.Cookies["pidJSON"];
                 if (pidJSON == null)
                 {
@@ -447,7 +448,7 @@ namespace VNW.Controllers
                 }
                 else
                 {
-                    shoppingCarts = JsonConvert.DeserializeObject<List<ShoppingCart>>(pidJSON);
+                    shoppingCarts = JsonConvert.DeserializeObject<List<VNW.ViewModels.ShoppingCart>>(pidJSON);
 
                     //::found exist item repeatedly
                     var found = shoppingCarts.Find(x => x.Pid == _pid);
@@ -477,8 +478,43 @@ namespace VNW.Controllers
         public IActionResult PrepareOrder()
         {
 
-            return View();
 
+            //::case A - use ajax to get p list
+            //return View();
+
+
+            //::case B - use Model to provide p list
+            try
+            {
+                string pidJSON = null;
+                List<VNW.ViewModels.ShoppingCart> shoppingCarts = new List<VNW.ViewModels.ShoppingCart>();
+                pidJSON = HttpContext.Request.Cookies["pidJSON"];
+                if (pidJSON == null)
+                {
+                    //var res1 = new { result = "NG", detail = "", prodCount = 0 };
+                    //return Json(res1);
+
+                    return View();
+                }
+                else
+                {
+                    shoppingCarts = JsonConvert.DeserializeObject<List<VNW.ViewModels.ShoppingCart>>(pidJSON);
+                    pidJSON = JsonConvert.SerializeObject(shoppingCarts);
+                    //Debug.WriteLine("shoppingCarts.Count " + shoppingCarts.Count);
+                    //ViewBag.shoppingCartsCount = shoppingCarts.Count;
+                    HttpContext.Response.Cookies.Append("pidJSON", pidJSON);
+                    //var res2 = new { result = "PASS", detail = pidJSON, prodCount = shoppingCarts.Count };
+                    //return Json(res2);                   
+
+                    return View(shoppingCarts);
+                }
+            }
+            catch
+            {
+                //var res2 = new { result = "Err", detail = "", prodCount = 0 };
+                //return Json(res2);
+                return View();
+            }
         }
 
     }

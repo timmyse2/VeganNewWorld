@@ -1,9 +1,10 @@
-﻿
+﻿@model IEnumerable<VNW.ViewModels.ShoppingCart>
+
 @{
     ViewData["Title"] = "PrepareOrder";
 }
 
-<h2>購物車</h2>
+<h2>確認購物車</h2>
 <p><a>步驟1 [確認購物車]</a> > <a>步驟2 [付款與運送方式]</a> > <a>步驟3 [訂單確認]</a></p>
 
 <hr />
@@ -21,38 +22,49 @@
         </tr>
     </thead>
     <tbody>
-        <tr>
+        @*<tr>
             <td>
-                <img src="~/images/product_4321_0.jpg" style="width:150px;" />
+                <img src="~/images/product_4321_0.jpg" style="width:100px;" />
             </td>
             <td>好野狼三輪機車(125CC等級混和動力)</td>
             <td>14,000</td>
             <td>
-                @*<input type="number" value="1" /><br>*@
-                @*<a class="btn btn-info">+</a><a class="btn btn-primary">-</a>*@
-                <select class="form-control">
-                    <option>1</option><option>2</option><option>3</option><option>4</option><option>5</option>                    
-                </select>
+                <input type="number" value="1" />
             </td>
             <td>14,000</td>
             <td>
                 <a class="btn btn-default"> 取消</a>
             </td>
-        </tr>
+        </tr>*@
+
+        @if (Model != null)
+        {
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>
+                        <a asp-route-id="@item.Pid" asp-controller="products" asp-action="product_details">
+                        <img src="~/images/@item.Img" style="width:100px;" /></a>
+                    </td>
+                    <td>@Html.Raw(item.Name)</td>
+
+                    <td>$@item.Price</td>
+                    <td>
+                        <input type="number" value="@item.Qty" />
+                    </td>
+                    <td>$@(item.Price*item.Qty)</td>
+                    <td>
+                        <a class="btn btn-default">取消</a>
+                    </td>
+                </tr>
+            }//foreach
+        }
     </tbody>
 </table>
 
-
-<p>
-    <a class="btn btn-primary btn-lg">確認並送出</a>
-</p>
-
-
-<hr/>*Data from cookie via Ajax
 <table class="table">
     <thead>
         <tr>
-            <th></th>
             <th>商品</th>
             <th>品名</th>
             <th>單價</th>
@@ -64,10 +76,15 @@
 </table>
 
 <p>
-    <a class="btn btn-danger" id="btn_GetShoppingCart">GetShoppingCart</a>
+    <a class="btn btn-success" id="btn_GetShoppingCart">GetShoppingCart</a>
 </p>
+<hr />*Data from cookie via Ajax
 <div id="txt_debug" class="alert-info"></div>
 
+
+<p>
+    <a class="btn btn-primary btn-lg">確認並送出</a>
+</p>
 
 @section endJS{
     <script type="text/javascript" src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
@@ -77,8 +94,8 @@
         var btn_GetShoppingCart = $('#btn_GetShoppingCart');
         //$('#btn_GetShoppingCart').click(GetShoppingCart);
 
-        GetShoppingCart(); //auto load
-        btn_GetShoppingCart.text("RELOAD");
+        //GetShoppingCart(); //auto pre-load
+        btn_GetShoppingCart.text("LOAD");
         btn_GetShoppingCart.click(GetShoppingCart);
 
         function GetShoppingCart() {
@@ -86,6 +103,7 @@
             //::call api (store p.id in cookie)
             //$('#btn_GetShoppingCart').hide();
             $("#txt_Message").text("處理中");
+            btn_GetShoppingCart.text("RELOAD");
             //ajax
             try {
                 console.log("ajax r/w data...");
@@ -102,7 +120,7 @@
                         console.log("get data")
                         console.log(data)
 
-                        if (data.result == "PASS") {                            
+                        if (data.result == "PASS") {
                             console.log("PASS ");
                             console.log("prodCount " + data.prodCount);
                             $('#txt_shoppingCart').text("購物車 (" + data.prodCount + ")");
@@ -116,7 +134,7 @@
                         else {
                             //::fail case
                             console.log("fail case");
-                            var failMessage = "回傳非預期的資訊";                            
+                            var failMessage = "回傳非預期的資訊";
                             $('#txt_debug').text(failMessage + ' ' + data.detail);
                         }
                         //$('#btn_GetShoppingCart').show();
@@ -148,13 +166,12 @@
                 //console.log(jsonRes);
                 var tempstr = "";
                 $('#tbody_data').text(""); //reset
-                //::update data in UI table 
+                //::update data in UI table
                 for (var i = 0; i < jsonRes.length; i++) {
 
                     var priceByQty = jsonRes[i].Price * jsonRes[i].Qty;
-                    
-                    tempstr += '<tr><td><a>#'
-                        + jsonRes[i].Pid + '</a></td><td><img src="../images/'
+
+                    tempstr += '<tr><td><img src="../images/'
                         + jsonRes[i].Img + '" style="width:100px;"/></td><td>'
                         + jsonRes[i].Name + '</td><td>'
                         + jsonRes[i].Price + '</td><td><input type="number" value="'
@@ -162,12 +179,12 @@
                         + '</td><td>' + priceByQty
                         + '</td> <td> <div class="btn btn-info">取消</div>  </td> </tr>';
                 }
-                $('#tbody_data').append(tempstr);                
+                $('#tbody_data').append(tempstr);
             }
             catch
             {
 
-            }            
+            }
         }
 
         console.log("jquery end");
