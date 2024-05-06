@@ -89,11 +89,10 @@
     <script>
         console.log("jquery start");
 
-        var btn_AddProductInOrder = $('#btn_AddProductInOrder');
-        //btn_AddProductInOrder.click(btn_AddProductInOrder_click);
+        var btn_AddProductInOrder = $('#btn_AddProductInOrder');        
+        var btn_GetCount = $('#btn_GetCount');
 
-        $('#btn_AddProductInOrder').click(btn_AddProductInOrder_click);
-        
+        btn_AddProductInOrder.click(btn_AddProductInOrder_click);
         function btn_AddProductInOrder_click() {
             console.log("btn_AddProductInOrder_click");
             //::call api (store p.id in cookie)
@@ -109,17 +108,17 @@
                     dateType: "json",
                     data: {
                         pid: @Model.ProductId,
-                        catid: @Model.CategoryId
-                        //password: $("#password").val(),
-                        //pin: $("#pin").val(),
+                        pname: "@Model.ProductName",
+                        img: "@Model.Picture",
+                        price: @Model.UnitPrice
+                        @*cate: @Model.CategoryId*@
+                        @*pname: @Model.ProductName*@
                     },
                     success: function (data) {
                         console.log("get data")
                         console.log(data)
 
                         if (data.result == "PASS") {
-                            //login pass
-
                             $("#txt_Message").text("已加入"); 
                             //$("#txt_Message").text("已加入" + data.detail); 
                             console.log("PASS "); 
@@ -127,7 +126,6 @@
                             //$('#btn_AddProductInOrder').text("加入購物車 (" + data.prodCount+ ")");
                             //window.location.href = "../";
                             $('#btn_shippingCart').text("購物車 (" + data.prodCount + ")");
-
                         }
                         else {
                             //fail case
@@ -154,9 +152,49 @@
             }
         }
 
-        //btn_AddProductInOrder.click(function () {
-        //    console.log("btn click");
-        //});
+        btn_GetCount_click();
+        function btn_GetCount_click() {
+            try {
+                console.log("ajax r/w data...");
+                var surl = "../GetShoppingCart";
+                $.ajax({
+                    url: surl,
+                    type: "POST",
+                    dateType: "json",
+                    success: function (data) {
+                        console.log("get data")
+                        console.log(data)
+
+                        if (data.result == "PASS") {
+                            console.log("PASS ");
+                            console.log("prodCount " + data.prodCount);
+
+                            $('#btn_shippingCart').text("購物車 (" + data.prodCount + ")");
+
+                        }
+                        else {
+                            //fail case
+                            $('#btn_shippingCart').text("購物車 (0)");
+
+                        }
+
+                    }, //success
+                   error: function (xhr, ajaxOptions, thrownError) {
+                       console.log(xhr)
+                       $('#btn_shippingCart').text("購物車 (0)");
+
+                    }//error                    
+                });
+                return;
+            }
+            catch (err) {
+                console.log("exception " + err);
+                //btn_AddProductInOrder.show();
+                $("#txt_failMessage").text("發生未知錯誤");
+                return;
+            }
+        }
+
 
         console.log("jquery end");
     </script>

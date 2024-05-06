@@ -299,7 +299,7 @@ namespace VNW.Controllers
 
         //::api for adding p.id in cookie 
         //public async Task<IActionResult> AddProductInOrder(int? pid)
-        public IActionResult AddProductInOrder(int? pid)
+        public IActionResult AddProductInOrder(int? pid, string pname, string img, int? price)
         {
             //::check pid
             int _pid;
@@ -315,18 +315,19 @@ namespace VNW.Controllers
                 string pidJSON = null;
                 List<ShoppingCart> shoppingCarts = new List<ShoppingCart>();
                 pidJSON = HttpContext.Request.Cookies["pidJSON"];
+                bool isUpdateData = false;
                 if (pidJSON == null)
                 {
-                    //if null then add new                            
-                    //shoppingCarts.Add(new ShoppingCart { Pid = _pid, Qty = 1 });
-                    shoppingCarts.Add(new ShoppingCart
-                    {
-                        Pid = _pid,
-                        Qty = 1,
-                        Name = "",
-                        Img = ""
-                    });
-                    pidJSON = JsonConvert.SerializeObject(shoppingCarts);
+                    //if null then add new             
+                    isUpdateData = true;
+                    //shoppingCarts.Add(new ShoppingCart
+                    //{
+                    //    Pid = _pid,
+                    //    Qty = 1,
+                    //    Name = "",
+                    //    Img = ""
+                    //});
+                    //pidJSON = JsonConvert.SerializeObject(shoppingCarts);
                 }
                 else
                 {
@@ -344,21 +345,29 @@ namespace VNW.Controllers
                         //Debug.WriteLine("Found ");
                         //found.Qty++;
                         //pidJSON = JsonConvert.SerializeObject(shoppingCarts);
+                        isUpdateData = false;
                     }
                     else
                     {
+                        isUpdateData = true;
                         //Debug.WriteLine("not find ");
-                        shoppingCarts.Add(new ShoppingCart {
-                            Pid = _pid,
-                            Qty = 1,
-                            Name = "",
-                            Img = ""
-                        });
-                        pidJSON = JsonConvert.SerializeObject(shoppingCarts);
                     }
                 }
                 //Debug.WriteLine("shoppingCarts.Count " + shoppingCarts.Count);
                 //ViewBag.shoppingCartsCount = shoppingCarts.Count;
+
+                if(isUpdateData)
+                {
+                    shoppingCarts.Add(new ShoppingCart
+                    {
+                        Pid = _pid,
+                        Qty = 1,
+                        Name = pname,
+                        Price = (int) price,
+                        Img =  img //"default.jpg"
+                    });
+                    pidJSON = JsonConvert.SerializeObject(shoppingCarts);
+                }
 
                 HttpContext.Response.Cookies.Append("pidJSON", pidJSON);
                 var res2 = new { result = "PASS", detail = pidJSON, prodCount = shoppingCarts.Count };            
@@ -375,6 +384,7 @@ namespace VNW.Controllers
         {
             public int Pid;
             public int Qty;
+            public int Price;
             public string Img;
             public string Name;
         }

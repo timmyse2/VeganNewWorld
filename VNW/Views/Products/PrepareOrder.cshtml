@@ -3,7 +3,7 @@
     ViewData["Title"] = "PrepareOrder";
 }
 
-<h2>確認購物車</h2>
+<h2>購物車</h2>
 <p><a>步驟1 [確認購物車]</a> > <a>步驟2 [付款與運送方式]</a> > <a>步驟3 [訂單確認]</a></p>
 
 <hr />
@@ -13,14 +13,11 @@
 <table class="table">
     <thead>
         <tr>
-            <th>
-                商品
-            </th>
+            <th>商品</th>
             <th>品名</th>
             <th>單價</th>
             <th>數量</th>
             <th>價格</th>
-
         </tr>
     </thead>
     <tbody>
@@ -31,46 +28,17 @@
             <td>好野狼三輪機車(125CC等級混和動力)</td>
             <td>14,000</td>
             <td>
-                <input type="number" value="1" /><br>
+                @*<input type="number" value="1" /><br>*@
                 @*<a class="btn btn-info">+</a><a class="btn btn-primary">-</a>*@
+                <select class="form-control">
+                    <option>1</option><option>2</option><option>3</option><option>4</option><option>5</option>                    
+                </select>
             </td>
             <td>14,000</td>
             <td>
-                <a class="btn btn-danger"> 取消</a>
+                <a class="btn btn-default"> 取消</a>
             </td>
         </tr>
-        @*<tr>
-                <td>
-                    <img src="~/images/product_photo_20200827132032_8p1_tw.jpg" style="width:150px;" />
-                </td>
-                <td>植物蛋白漢堡排(純素)</td>
-                <td>200</td>
-                <td>
-                    <input type="text" value="2" /><br>
-                    <a class="btn btn-info">+</a><a class="btn btn-primary">-</a>
-                </td>
-                <td>400</td>
-                <td>
-                    <a class="btn btn-danger"> 取消</a>
-                </td>
-            </tr>*@
-
-        @*<tr>
-                <td>
-                    <img src="~/images/4320_0.jpg" style="width:150px;" />
-                </td>
-                <td>好野狼三輪機車(150CC等級混和動力)</td>
-                <td>21,000</td>
-                <td>
-                    <input type="text" value="1" /><br>
-                    <a class="btn btn-info">+</a><a class="btn btn-primary">-</a>
-                </td>
-                <td> 21,000</td>
-                <td>
-                    <a class="btn btn-danger"> 取消</a>
-                </td>
-            </tr>*@
-
     </tbody>
 </table>
 
@@ -81,17 +49,24 @@
 
 
 <hr/>*Data from cookie via Ajax
-<div id="txt_debug" class="alert-info"></div>
 <table class="table">
     <thead>
-        <tr><td>商品</td><td>數量</td></tr>
+        <tr>
+            <th></th>
+            <th>商品</th>
+            <th>品名</th>
+            <th>單價</th>
+            <th>數量</th>
+            <th>價格</th>
+        </tr>
     </thead>
     <tbody id="tbody_data"></tbody>
 </table>
 
 <p>
-    <a class="btn btn-danger" id="btn_AddProductInOrder">AddProductInOrder</a>
+    <a class="btn btn-danger" id="btn_GetShoppingCart">GetShoppingCart</a>
 </p>
+<div id="txt_debug" class="alert-info"></div>
 
 
 @section endJS{
@@ -99,16 +74,17 @@
     <script>
         console.log("jquery start");
 
-        var btn_AddProductInOrder = $('#btn_AddProductInOrder');
-        //$('#btn_AddProductInOrder').click(AddProductInOrder);
-        //AddProductInOrder(); //auto load
-        btn_AddProductInOrder.text("Load Data");
-        btn_AddProductInOrder.click(AddProductInOrder);
+        var btn_GetShoppingCart = $('#btn_GetShoppingCart');
+        //$('#btn_GetShoppingCart').click(GetShoppingCart);
 
-        function AddProductInOrder() {
-            console.log("btn_AddProductInOrder_click");
+        GetShoppingCart(); //auto load
+        btn_GetShoppingCart.text("RELOAD");
+        btn_GetShoppingCart.click(GetShoppingCart);
+
+        function GetShoppingCart() {
+            console.log("btn_GetShoppingCart_click");
             //::call api (store p.id in cookie)
-            //$('#btn_AddProductInOrder').hide();
+            //$('#btn_GetShoppingCart').hide();
             $("#txt_Message").text("處理中");
             //ajax
             try {
@@ -143,7 +119,7 @@
                             var failMessage = "回傳非預期的資訊";                            
                             $('#txt_debug').text(failMessage + ' ' + data.detail);
                         }
-                        //$('#btn_AddProductInOrder').show();
+                        //$('#btn_GetShoppingCart').show();
 
                     }, //success
                     error: function (xhr, ajaxOptions, thrownError) {
@@ -155,27 +131,43 @@
             }
             catch (err) {
                 console.log("exception " + err);
-                //btn_AddProductInOrder.show();
+                //btn_GetShoppingCart.show();
                 $("#txt_failMessage").text("發生未知錯誤");
                 return;
             }
         }//
 
         function generateTable(dataDetail) {
-            //::covert object from json string
-            var jsonRes = JSON.parse(dataDetail);
-            //var jsonRes = JSON.stringify(data.detail);
-            console.log(jsonRes);
-            console.log(jsonRes.length);
-            //console.log(jsonRes);
-            var tempstr = "";
-            $('#tbody_data').text(""); //reset
-            //::update data in UI table 
-            for (var i = 0; i < jsonRes.length; i++) {
-                tempstr += '<tr><td>' + jsonRes[i].Pid + '</td>' + '<td>' + jsonRes[i].Qty + '</td></tr>';
+
+            try {
+                //::covert object from json string
+                var jsonRes = JSON.parse(dataDetail);
+                //var jsonRes = JSON.stringify(data.detail);
+                console.log(jsonRes);
+                console.log(jsonRes.length);
+                //console.log(jsonRes);
+                var tempstr = "";
+                $('#tbody_data').text(""); //reset
+                //::update data in UI table 
+                for (var i = 0; i < jsonRes.length; i++) {
+
+                    var priceByQty = jsonRes[i].Price * jsonRes[i].Qty;
+                    
+                    tempstr += '<tr><td><a>#'
+                        + jsonRes[i].Pid + '</a></td><td><img src="../images/'
+                        + jsonRes[i].Img + '" style="width:100px;"/></td><td>'
+                        + jsonRes[i].Name + '</td><td>'
+                        + jsonRes[i].Price + '</td><td><input type="number" value="'
+                        + jsonRes[i].Qty + '" />'
+                        + '</td><td>' + priceByQty
+                        + '</td> <td> <div class="btn btn-info">取消</div>  </td> </tr>';
+                }
+                $('#tbody_data').append(tempstr);                
+            }
+            catch
+            {
+
             }            
-            $('#tbody_data').append(tempstr);
-            //$('#tbody_data').text(tempstr);
         }
 
         console.log("jquery end");
