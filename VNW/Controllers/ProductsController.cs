@@ -493,7 +493,7 @@ namespace VNW.Controllers
                 {
                     //var res1 = new { result = "NG", detail = "", prodCount = 0 };
                     //return Json(res1);
-                    TempData["td_serverMessage"] = "訂單是空的，請選擇商品";
+                    TempData["td_serverWarning"] = "訂單是空的，請選擇商品";
                     return View();
                 }
                 else
@@ -505,7 +505,15 @@ namespace VNW.Controllers
                     HttpContext.Response.Cookies.Append("pidJSON", pidJSON);
                     //var res2 = new { result = "PASS", detail = pidJSON, prodCount = shoppingCarts.Count };
                     //return Json(res2);
-                    TempData["td_serverMessage"] = "";
+                    //TempData["td_serverMessage"] = "";
+                    
+                    if(shoppingCarts.Count <= 0)
+                    {
+                        TempData["td_serverWarning"] = "訂單是空的，請選擇商品";
+                    }
+                    else
+                        TempData["td_serverInfo"] = "取得資料" + shoppingCarts.Count;
+
                     return View(shoppingCarts);
                 }
             }
@@ -513,7 +521,7 @@ namespace VNW.Controllers
             {
                 //var res2 = new { result = "Err", detail = "", prodCount = 0 };
                 //return Json(res2);
-                TempData["td_serverMessage"] = "發生未知錯誤";
+                TempData["td_serverWarning"] = "發生未知錯誤";
                 return View();
             }
         }

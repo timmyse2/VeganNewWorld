@@ -34,11 +34,14 @@ else
         <h2>訂單細節</h2>
         <ul>
             <li>
+                <a asp-action="PrepareOrder" asp-controller="Products">購物車</a>
+            </li>
+            <li>
                 <a asp-action="OrderList" asp-controller="Orders"> 我的訂單</a>
             </li>
             <li>訂單(供應商)</li>
             @if (ViewBag.IsAdmin)
-            { 
+            {
                 <li>
                     訂單(<span class="text-danger">需管理者權限*</span>)
                     <ul>

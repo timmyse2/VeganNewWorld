@@ -10,9 +10,8 @@
 <p> <b>[1.確認購物車]</b> > [2.付款與運送方式] > [3.訂單確認]</p>
 
 <b>
-    <span class="text-danger">
-        @TempData["td_serverMessage"]
-    </span>
+    <span class="alert-danger">@TempData["td_serverWarning"]</span>
+    <span class="alert-success">@TempData["td_serverInfo"]</span>
 </b>
 
 @*<div id="txt_shoppingCart"></div>*@
@@ -55,16 +54,18 @@
                     </td>
                     <td>@Html.Raw(item.Name)</td>
 
-                    <td>$@item.Price</td>
+                    <td>$<span class="unitPrice @item.Pid">@item.Price</span></td>
                     <td>
                         @*<input type="number" value="@item.Qty" />*@
-                        <select id="select_qty">
+                        <select class="selectQty" pid="@item.Pid">
                             <option>1</option>
                             <option>2</option>
                             <option>3</option>
+                            <option>4</option>
+                            <option>5</option>
                         </select>
                     </td>
-                    <td>$@(item.Price*item.Qty)</td>
+                    <td>$<span class="TotalPrice @item.Pid">@(item.Price * item.Qty)</span></td>
                     <td>
                         <a class="btn btn-default btn_CancelItem" id="btn_CancelItem" pid="@item.Pid" >取消</a>
                     </td>
@@ -74,32 +75,30 @@
     </tbody>
 </table>
 
-@*<table class="table">
-    <thead>
-        <tr>
-            <th>商品</th>
-            <th>品名</th>
-            <th>單價</th>
-            <th>數量</th>
-            <th>價格</th>
-        </tr>
-    </thead>
-    <tbody id="tbody_data"></tbody>
-</table>*@
-
-@*<p>
-    <a class="btn btn-success" id="btn_GetShoppingCart">GetShoppingCart</a>
+<hr/>
+<p>
+    <div id="div_loadListTools">
+        <a id="btn_GetShoppingCart" class="btn btn-success">GetShoppingCart</a>
+        <hr />*Data from cookie via Ajax
+        <div id="txt_debug" class="alert-info"></div>
+    </div>    
 </p>
-<hr />*Data from cookie via Ajax
-<div id="txt_debug" class="alert-info"></div>*@
+
+<div>
+    
+    
+</div>
+<div>
+    <h4>訂單金額</h4> <h3><b>NT$<span id="TotalPriceSum">0</span></b></h3>
+</div>
 
 <p>
     <a id="btn_SendOrder" class="btn btn-primary btn-lg">確認並送出</a>
 </p>
-
 <p>
     <a id="btn_clearCart" class="btn btn-danger btn-lg">清空購物車</a>
 </p>
+
 
 @section endJS{
     <script type="text/javascript" src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
@@ -109,6 +108,8 @@
         var btn_GetShoppingCart = $('#btn_GetShoppingCart');
         //$('#btn_GetShoppingCart').click(GetShoppingCart);
         //var btn_CancelItem = $('#btn_CancelItem');
+
+        $('#div_loadListTools').hide();        
 
         //GetShoppingCart(); //auto pre-load
         btn_GetShoppingCart.text("LOAD");
@@ -145,7 +146,15 @@
                             if (data.detail != null) {
                                 generateTable(data.detail);
                             }
-                            //window.location.href = "../";
+                            if (data.prodCount <= 0) {
+                                $('#btn_SendOrder').hide();
+                                $('#btn_clearCart').hide();
+                                btn_clearCart
+                            }
+                            else {
+                                $('#btn_SendOrder').show();
+                                $('#btn_clearCart').show();
+                            }
                         }
                         else {
                             //::fail case
@@ -230,8 +239,8 @@
                         console.log(data)
                         if (data.result == "PASS") {
                             console.log("PASS ");
-
-                            GetShoppingCart(); //try to reload 
+                            //GetShoppingCart(); //try to reload 
+                            window.location = "PrepareOrder";
                         }
                         else {
                             //::fail case
@@ -244,6 +253,29 @@
                     }//error
                 });                
             }
+        });
+
+        //::Qty change
+        $('.selectQty').change(function () {
+            console.log("use class, change select option");
+            var pid = this.getAttribute("pid");
+            console.log("pid " + pid);
+            //console.log(this.getAttribute("val"));            
+
+            var newValue = $(this).val();
+            console.log("new val: " + newValue);
+            //::call api to get pid, update qty           
+
+            //::update total price for this product
+            $('.TotalPrice.' + pid).text(newValue * $('.unitPrice.' + pid).text());
+
+            //::update qty select range?  {1 ~ stock}
+
+            //:: Total Price = UnitPrice * Qty 
+            var oldSum = $('#TotalPriceSum').val();
+            var priceChange = newValue * $('.unitPrice.' + pid).text();
+            var newSum = oldSum + priceChange;
+            $('#TotalPriceSum').text(newSum);
         });
 
 
