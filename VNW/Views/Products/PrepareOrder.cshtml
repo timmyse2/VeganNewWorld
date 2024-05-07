@@ -15,6 +15,9 @@
     <span class="alert-success">@TempData["td_serverInfo"]</span>
 </b>
 
+<div id="img_loading"><center>Loading...<img  src="~/images/loading.gif" style="width:150px;" /></center></div>
+<div id="MaskWindow" style="opacity:0.05;background:#0f0;width:100%;height:100%;z-index:9;position:absolute;top:0;left:0;cursor:no-drop;"></div>
+
 @*<div id="txt_shoppingCart"></div>*@
 <h4>一般訂單</h4>
 <table class="table">
@@ -62,7 +65,7 @@
                     <td>
                         @*<input type="number" value="@item.Qty" />*@
                         <select class="selectQty" pid="@item.Pid" OldQty="@item.Qty">
-                            @for (int i = 1; i < 10; i++)
+                            @for (int i = 1; i <= 10; i++)
                             {
                                 if (i == @item.Qty)
                                 {
@@ -292,6 +295,8 @@
             var unitPrice = parseInt($('.unitPrice.' + pid).text());
             $('.TotalPrice.' + pid).text(newQtyValue * unitPrice);
 
+            SetBusy();
+
             //::call api to update qty in cookie
             //::update qty select range?  {1 ~ stock}            
             var surl = "UpdateQty";
@@ -318,25 +323,34 @@
                         var newSum = oldSum + priceChange;
                         console.log("newSum: " + newSum);
                         $('#TotalPriceSum').text(newSum);
+                        SetReady();
                     }
                     else {
                         //::fail case
                         console.log("fail case");
                         $("#td_serverWarning").text("發生未知錯誤");
+                        SetReady();
                     }
                 }, //success
                 error: function (xhr, ajaxOptions, thrownError) {
                     console.log(xhr)
                     $("#td_serverWarning").text("發生未知錯誤");
+                    SetReady();
                 }//error
             });     
-
-
-
             
         });
 
-
+        function SetBusy() {
+            $('#img_loading').show();
+            $('#MaskWindow').show();
+            
+        }
+        function SetReady() {
+            $('#img_loading').hide();
+            $('#MaskWindow').hide();
+        }
+        SetReady();
         console.log("jquery end");
     </script>
 }

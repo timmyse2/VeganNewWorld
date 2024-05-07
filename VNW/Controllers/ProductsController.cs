@@ -474,7 +474,8 @@ namespace VNW.Controllers
         }
 
         //::for end user, Shopping Cart|Step|Prepare Order
-        public async Task<IActionResult> PrepareOrder()
+        public IActionResult PrepareOrder()
+        //public async Task<IActionResult> PrepareOrder()
         {
             if (!_ms.LoginPrecheck(HttpContext.Session))
                 return RedirectToAction("Login", "Customers");
@@ -498,7 +499,7 @@ namespace VNW.Controllers
                 else
                 {
                     //::<Timmy May7 2024><try to set await>
-                    await Task.Run(()=> {
+                    //await Task.Run(()=> {
                         shoppingCarts = JsonConvert.DeserializeObject<List<VNW.ViewModels.ShoppingCart>>(pidJSON);
                         pidJSON = JsonConvert.SerializeObject(shoppingCarts);
                         //Debug.WriteLine("shoppingCarts.Count " + shoppingCarts.Count);
@@ -514,7 +515,7 @@ namespace VNW.Controllers
                         }
                         else
                             TempData["td_serverInfo"] = "取得資料" + shoppingCarts.Count;
-                    });
+                    //});
                     return View(shoppingCarts);
                 }
             }

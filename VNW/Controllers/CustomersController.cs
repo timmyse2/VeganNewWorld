@@ -221,6 +221,7 @@ namespace VNW.Controllers
         }
 
         public async Task<IActionResult> Logout()
+        //public IActionResult Logout()
         {
             //_ms.SetMySession("IsUserLogin", "", HttpContext.Session);
             //_ms.SetMySession("UserAccount", "", HttpContext.Session);
@@ -234,7 +235,8 @@ namespace VNW.Controllers
         }
 
         //::for Admin
-        public async Task<IActionResult> AdminLogin(string account, string password, string pin, string role)
+        //public async Task<IActionResult> AdminLogin(string account, string password, string pin, string role)
+        public IActionResult AdminLogin(string account, string password, string pin, string role)
         {
 
             if(true)
