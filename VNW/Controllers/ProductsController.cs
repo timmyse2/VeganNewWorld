@@ -421,7 +421,6 @@ namespace VNW.Controllers
             }
         }
 
-
         //::api for remove product from shopping cart
         public IActionResult RemoveShoppingCart(int? pid)
         {
@@ -474,7 +473,7 @@ namespace VNW.Controllers
 
         }
 
-        //::for end user, 
+        //::for end user, Shopping Cart|Step|Prepare Order
         public async Task<IActionResult> PrepareOrder()
         {
             if (!_ms.LoginPrecheck(HttpContext.Session))
@@ -498,22 +497,24 @@ namespace VNW.Controllers
                 }
                 else
                 {
-                    shoppingCarts = JsonConvert.DeserializeObject<List<VNW.ViewModels.ShoppingCart>>(pidJSON);
-                    pidJSON = JsonConvert.SerializeObject(shoppingCarts);
-                    //Debug.WriteLine("shoppingCarts.Count " + shoppingCarts.Count);
-                    //ViewBag.shoppingCartsCount = shoppingCarts.Count;
-                    HttpContext.Response.Cookies.Append("pidJSON", pidJSON);
-                    //var res2 = new { result = "PASS", detail = pidJSON, prodCount = shoppingCarts.Count };
-                    //return Json(res2);
-                    //TempData["td_serverMessage"] = "";
-                    
-                    if(shoppingCarts.Count <= 0)
-                    {
-                        TempData["td_serverWarning"] = "訂單是空的，請選擇商品";
-                    }
-                    else
-                        TempData["td_serverInfo"] = "取得資料" + shoppingCarts.Count;
+                    //::<Timmy May7 2024><try to set await>
+                    await Task.Run(()=> {
+                        shoppingCarts = JsonConvert.DeserializeObject<List<VNW.ViewModels.ShoppingCart>>(pidJSON);
+                        pidJSON = JsonConvert.SerializeObject(shoppingCarts);
+                        //Debug.WriteLine("shoppingCarts.Count " + shoppingCarts.Count);
+                        //ViewBag.shoppingCartsCount = shoppingCarts.Count;
+                        HttpContext.Response.Cookies.Append("pidJSON", pidJSON);
+                        //var res2 = new { result = "PASS", detail = pidJSON, prodCount = shoppingCarts.Count };
+                        //return Json(res2);
+                        //TempData["td_serverMessage"] = "";
 
+                        if (shoppingCarts.Count <= 0)
+                        {
+                            TempData["td_serverWarning"] = "訂單是空的，請選擇商品";
+                        }
+                        else
+                            TempData["td_serverInfo"] = "取得資料" + shoppingCarts.Count;
+                    });
                     return View(shoppingCarts);
                 }
             }
@@ -523,6 +524,54 @@ namespace VNW.Controllers
                 //return Json(res2);
                 TempData["td_serverWarning"] = "發生未知錯誤";
                 return View();
+            }
+        }
+
+        //::for end user, update qty
+        public IActionResult UpdateQty(int? pid, int? qty)
+        {
+            //::check pid
+            int _pid;
+            if (pid == 0 || pid == null || qty == null || qty==0)
+            {
+                var res = new { result = "FAIL", detail = "id is null"};
+                return Json(res);
+            }
+            _pid = (int)pid;
+
+            try
+            {
+                string pidJSON = null;
+                List<VNW.ViewModels.ShoppingCart> shoppingCarts = new List<VNW.ViewModels.ShoppingCart>();
+                pidJSON = HttpContext.Request.Cookies["pidJSON"];
+                if (pidJSON != null)
+                {
+                    //::merge data
+                    shoppingCarts = JsonConvert.DeserializeObject<List<VNW.ViewModels.ShoppingCart>>(pidJSON);
+
+                    //::found exist item
+                    var found = shoppingCarts.Find(x => x.Pid == _pid);
+                    if (found != null)
+                    {
+                        found.Qty = (int)qty;
+                        pidJSON = JsonConvert.SerializeObject(shoppingCarts);
+                        HttpContext.Response.Cookies.Append("pidJSON", pidJSON);
+                        var res1 = new { result = "PASS", detail = found};
+                        return Json(res1);
+                    }
+                    else
+                    {
+                        //::not found
+                    }
+                }
+                //HttpContext.Response.Cookies.Append("pidJSON", pidJSON);
+                var res2 = new { result = "NG", detail = "no match data"};
+                return Json(res2);
+            }
+            catch
+            {
+                var res2 = new { result = "Err", detail = ""};
+                return Json(res2);
             }
         }
 

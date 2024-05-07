@@ -2,6 +2,7 @@
 
 @{
     ViewData["Title"] = "PrepareOrder";
+    int totalPriceSum = 0;
 }
 
 <h2>確認購物車</h2>
@@ -10,7 +11,7 @@
 <p> <b>[1.確認購物車]</b> > [2.付款與運送方式] > [3.訂單確認]</p>
 
 <b>
-    <span class="alert-danger">@TempData["td_serverWarning"]</span>
+    <span class="alert-danger" id="td_serverWarning">@TempData["td_serverWarning"]</span>
     <span class="alert-success">@TempData["td_serverInfo"]</span>
 </b>
 
@@ -45,8 +46,11 @@
 
         @if (Model != null)
         {
+            
             @foreach (var item in Model)
             {
+                int PriceByQty = item.Price* item.Qty;
+                totalPriceSum += PriceByQty;
                 <tr>
                     <td>
                         <a asp-route-id="@item.Pid" asp-controller="products" asp-action="product_details">
@@ -57,15 +61,23 @@
                     <td>$<span class="unitPrice @item.Pid">@item.Price</span></td>
                     <td>
                         @*<input type="number" value="@item.Qty" />*@
-                        <select class="selectQty" pid="@item.Pid">
-                            <option>1</option>
-                            <option>2</option>
-                            <option>3</option>
-                            <option>4</option>
-                            <option>5</option>
+                        <select class="selectQty" pid="@item.Pid" OldQty="@item.Qty">
+                            @for (int i = 1; i < 10; i++)
+                            {
+                                if (i == @item.Qty)
+                                {
+                                    <option selected>@i</option>
+                                }
+                                else
+                                {
+                                    <option>@i</option>
+                                }
+
+                            }
                         </select>
-                    </td>
-                    <td>$<span class="TotalPrice @item.Pid">@(item.Price * item.Qty)</span></td>
+                    </td>                   
+
+                    <td>$<span class="TotalPrice @item.Pid">@PriceByQty</span></td>
                     <td>
                         <a class="btn btn-default btn_CancelItem" id="btn_CancelItem" pid="@item.Pid" >取消</a>
                     </td>
@@ -89,7 +101,7 @@
     
 </div>
 <div>
-    <h4>訂單金額</h4> <h3><b>NT$<span id="TotalPriceSum">0</span></b></h3>
+    <h4>訂單金額</h4> <h3><b>NT$<span id="TotalPriceSum">@totalPriceSum</span></b></h3>
 </div>
 
 <p>
@@ -257,25 +269,71 @@
 
         //::Qty change
         $('.selectQty').change(function () {
-            console.log("use class, change select option");
-            var pid = this.getAttribute("pid");
-            console.log("pid " + pid);
-            //console.log(this.getAttribute("val"));            
+            //console.log("use class, change select option");
 
-            var newValue = $(this).val();
-            console.log("new val: " + newValue);
-            //::call api to get pid, update qty           
+            var newQtyValue = $(this).val();
+            console.log("newQtyValue: " + newQtyValue);              
+
+            var OldQtyValue = 1;
+            OldQtyValue = parseInt(this.getAttribute('OldQty'));
+            console.log("OldQtyValue: " + OldQtyValue);
+
+            if (OldQtyValue == newQtyValue) {
+                console.log("do not change");
+                return;
+            }
+            this.setAttribute('OldQty', newQtyValue);
+
+            var pid = this.getAttribute("pid");
+            //console.log("pid " + pid);
 
             //::update total price for this product
-            $('.TotalPrice.' + pid).text(newValue * $('.unitPrice.' + pid).text());
-
-            //::update qty select range?  {1 ~ stock}
-
             //:: Total Price = UnitPrice * Qty 
-            var oldSum = $('#TotalPriceSum').val();
-            var priceChange = newValue * $('.unitPrice.' + pid).text();
-            var newSum = oldSum + priceChange;
-            $('#TotalPriceSum').text(newSum);
+            var unitPrice = parseInt($('.unitPrice.' + pid).text());
+            $('.TotalPrice.' + pid).text(newQtyValue * unitPrice);
+
+            //::call api to update qty in cookie
+            //::update qty select range?  {1 ~ stock}            
+            var surl = "UpdateQty";
+            $.ajax({
+                url: surl,
+                type: "POST",
+                dateType: "json",
+                data: {
+                    pid: pid,
+                    qty: newQtyValue
+                },
+                success: function (data) {
+                    console.log("get data")
+                    console.log(data)
+                    if (data.result == "PASS") {
+                        console.log("PASS ");
+                        //:: Total Price Sum
+                        var oldSum = parseInt($('#TotalPriceSum').text());
+                        console.log("oldSum: " + oldSum);
+
+                        var priceChange = (newQtyValue - OldQtyValue) * unitPrice;
+                        console.log("priceChange: " + priceChange);
+
+                        var newSum = oldSum + priceChange;
+                        console.log("newSum: " + newSum);
+                        $('#TotalPriceSum').text(newSum);
+                    }
+                    else {
+                        //::fail case
+                        console.log("fail case");
+                        $("#td_serverWarning").text("發生未知錯誤");
+                    }
+                }, //success
+                error: function (xhr, ajaxOptions, thrownError) {
+                    console.log(xhr)
+                    $("#td_serverWarning").text("發生未知錯誤");
+                }//error
+            });     
+
+
+
+            
         });
 
 
