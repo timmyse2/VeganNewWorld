@@ -528,7 +528,7 @@ namespace VNW.Controllers
             }
         }
 
-        //::for end user, update qty
+        //::API for end user, update qty
         public IActionResult UpdateQty(int? pid, int? qty)
         {
             //::check pid
@@ -572,6 +572,22 @@ namespace VNW.Controllers
             catch
             {
                 var res2 = new { result = "Err", detail = ""};
+                return Json(res2);
+            }
+        }
+
+        //::api for remove all products from shopping cart
+        public IActionResult ClearShoppingCart()
+        {
+            try
+            {
+                HttpContext.Response.Cookies.Delete("pidJSON");
+                var res1 = new { result = "PASS", detail = "cleared"};
+                return Json(res1);                
+            }
+            catch (Exception ex)
+            {
+                var res2 = new { result = "Err", detail = "..." + ex.ToString()};
                 return Json(res2);
             }
         }

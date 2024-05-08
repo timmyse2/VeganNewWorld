@@ -15,19 +15,19 @@
     <span class="alert-success">@TempData["td_serverInfo"]</span>
 </b>
 
-<div id="img_loading" style=""><center>讀取中...<img src="~/images/loading.gif" style="width:150px;" /></center></div>
+<div id="img_loading" style=""><center>處理中...<img src="~/images/loading.gif" style="width:150px;" /></center></div>
 <div id="MaskWindow" style="opacity:0.05;background:#0f0;width:100%;height:100%;z-index:99;position:absolute;top:0;left:0;cursor:no-drop;"></div>
 
 <div id="popup" class="modal-box">
     <header>
         <a href="#" class="js-modal-cancel closeBtn">x</a>
-        <h3>清空購物車</h3>        
+        <h3>清空購物車</h3>
     </header>
     <div class="modal-body">
         <p>將您暫存的購物清單全刪除?</p>
     </div>
     <footer>
-        <a href="#" class="js-modal-close btn btn-danger">刪除</a>
+        <a href="#" class="js-modal-close btn btn-danger">清除</a>
         <a href="#" class="js-modal-cancel btn btn-default">取消</a>
     </footer>
 </div>
@@ -47,31 +47,32 @@
     </thead>
     <tbody id="tbody_data">
         @*<tr>
-            <td>
-                <img src="~/images/product_4321_0.jpg" style="width:100px;" />
-            </td>
-            <td>好野狼三輪機車(125CC等級混和動力)</td>
-            <td>14,000</td>
-            <td>
-                <input type="number" value="1" />
-            </td>
-            <td>14,000</td>
-            <td>
-                <a class="btn btn-default"> 取消</a>
-            </td>
-        </tr>*@
+                <td>
+                    <img src="~/images/product_4321_0.jpg" style="width:100px;" />
+                </td>
+                <td>好野狼三輪機車(125CC等級混和動力)</td>
+                <td>14,000</td>
+                <td>
+                    <input type="number" value="1" />
+                </td>
+                <td>14,000</td>
+                <td>
+                    <a class="btn btn-default"> 取消</a>
+                </td>
+            </tr>*@
 
         @if (Model != null)
         {
-            
+
             @foreach (var item in Model)
             {
-                int PriceByQty = item.Price* item.Qty;
+                int PriceByQty = item.Price * item.Qty;
                 totalPriceSum += PriceByQty;
                 <tr>
                     <td>
                         <a asp-route-id="@item.Pid" asp-controller="products" asp-action="product_details">
-                        <img src="~/images/@item.Img" style="width:100px;" /></a>
+                            <img src="~/images/@item.Img" style="width:100px;" />
+                        </a>
                     </td>
                     <td>@Html.Raw(item.Name)</td>
 
@@ -92,11 +93,11 @@
 
                             }
                         </select>
-                    </td>                   
+                    </td>
 
                     <td>$<span class="TotalPrice @item.Pid">@PriceByQty</span></td>
                     <td>
-                        <a class="btn btn-default btn_CancelItem" id="btn_CancelItem" pid="@item.Pid" >取消</a>
+                        <a class="btn btn-default btn_CancelItem" id="btn_CancelItem" pid="@item.Pid">移除</a>
                     </td>
                 </tr>
             }//foreach
@@ -104,31 +105,36 @@
     </tbody>
 </table>
 
-<hr/>
+<hr />
 <p>
     <div id="div_loadListTools">
         <a id="btn_GetShoppingCart" class="btn btn-success">GetShoppingCart</a>
         <hr />*Data from cookie via Ajax
         <div id="txt_debug" class="alert-info"></div>
-    </div>    
+    </div>
 </p>
 
-<div>
-    <h4>訂單金額</h4> <h3><b>NT$<span id="TotalPriceSum">@totalPriceSum</span></b></h3>
-</div>
+@if (Model != null)
+{
+    @if (Model.Count() > 0)
+    {
+        <div>
+            <a id="btn_clearCart" class="btn btn-danger">清空購物車</a>
+        </div>
+        <div style="text-align:right;">
+            <h4>訂單金額</h4> <h3><b>NT$<span id="TotalPriceSum">@totalPriceSum</span></b></h3>
+        </div>
 
-<p>
-    <a id="btn_SendOrder" class="btn btn-primary btn-lg">確認並送出</a>
-</p>
-<p>
-    <a id="btn_clearCart" class="btn btn-danger btn-lg">清空購物車</a>
-</p>
+        <div style="text-align:right;">
+            <a id="btn_SendOrder" class="btn btn-primary btn-lg">確認並送出</a>
+        </div>
+    }
+}
 
-
-@section topCSS{ 
+@section topCSS{
     <style>
         .modal-box {
-            display:none;
+            display: none;
             position: absolute;
             z-index: 1000;
             width: 80%;
@@ -139,44 +145,36 @@
             background-clip: padding-box;
             opacity: 0.9;
         }
-
-        .modal-box header{
-            padding:1.5em;
-            border-bottom:1px solid #ddd;
+        .modal-box header {
+            padding: 1.5em;
+            border-bottom: 1px solid #ddd;
         }
-
         .modal-box header h3,
-        .modal-box header h4/*,
-        .modal-box .modal-header h4,
-        .modal-box .modal-header h3*/
-        {margin:0;}
-
-        /*.modal-box .modal-footer,*/
-        .modal-box footer{
-            padding:1em;
-            border-top:1px solid #ddd;
-            text-align:right;
+        .modal-box header h4 {
+            margin: 0;
+        }        
+        .modal-box footer {
+            padding: 1em;
+            border-top: 1px solid #ddd;
+            text-align: right;
         }
-
-        .modal-box .modal-body{
-            padding:2em 1.5em;
+        .modal-box .modal-body {
+            padding: 2em 1.5em;
             /*font-size: 2em;*/
         }
-
         a.closeBtn { /*change name from close to closeBtn*/
             line-height: 2;
             font-size: 1.5em;
             position: absolute;
             top: 5%;
             right: 2%;
-            text-decoration:none;
+            text-decoration: none;
             color: #bbb;
         }
         a.closeBtn:hover {
-            color:#222;
+            color: #222;
             /*transition: color1s ease;*/
         }
-
     </style>
 }
 
@@ -189,7 +187,7 @@
         //$('#btn_GetShoppingCart').click(GetShoppingCart);
         //var btn_CancelItem = $('#btn_CancelItem');
 
-        $('#div_loadListTools').hide();        
+        $('#div_loadListTools').hide();
 
         //GetShoppingCart(); //auto pre-load
         btn_GetShoppingCart.text("LOAD");
@@ -228,8 +226,7 @@
                             }
                             if (data.prodCount <= 0) {
                                 $('#btn_SendOrder').hide();
-                                $('#btn_clearCart').hide();
-                                btn_clearCart
+                                $('#btn_clearCart').hide();                                
                             }
                             else {
                                 $('#btn_SendOrder').show();
@@ -261,7 +258,6 @@
         }//
 
         function generateTable(dataDetail) {
-
             try {
                 //::covert object from json string
                 var jsonRes = JSON.parse(dataDetail);
@@ -294,6 +290,7 @@
 
         $('#btn_clearCart').on('click',function () {
             console.log("clear cart click");
+            SetBusy();
             $(".modal-box").fadeIn(500, function () {
                 console.log("show modal box");
             });
@@ -301,15 +298,15 @@
         });
 
         //::use class (share same name for different buttons, switch by pid)
-        $('.btn_CancelItem').on('click', function () {            
+        $('.btn_CancelItem').on('click', function () {
             console.log("use class, cancel item click");
-            var pid = 0;         
+            var pid = 0;
             //::get pid from element
-            pid = this.getAttribute("pid");            
-            console.log("pid " + pid);            
+            pid = this.getAttribute("pid");
+            console.log("pid " + pid);
             if (pid != 0) {
                 //::call api
-                console.log("ajax, cancel item " + pid);                
+                console.log("ajax, cancel item " + pid);
                 var surl = "RemoveShoppingCart";
                 $.ajax({
                     url: surl,
@@ -323,7 +320,7 @@
                         console.log(data)
                         if (data.result == "PASS") {
                             console.log("PASS ");
-                            //GetShoppingCart(); //try to reload 
+                            //GetShoppingCart(); //try to reload
                             window.location = "PrepareOrder";
                         }
                         else {
@@ -335,7 +332,7 @@
                         console.log(xhr)
                         //$("#txt_failMessage").text("發生未知錯誤");
                     }//error
-                });                
+                });
             }
         });
 
@@ -344,7 +341,7 @@
             //console.log("use class, change select option");
 
             var newQtyValue = $(this).val();
-            console.log("newQtyValue: " + newQtyValue);              
+            console.log("newQtyValue: " + newQtyValue);
 
             var OldQtyValue = 1;
             OldQtyValue = parseInt(this.getAttribute('OldQty'));
@@ -360,14 +357,14 @@
             //console.log("pid " + pid);
 
             //::update total price for this product
-            //:: Total Price = UnitPrice * Qty 
+            //:: Total Price = UnitPrice * Qty
             var unitPrice = parseInt($('.unitPrice.' + pid).text());
             $('.TotalPrice.' + pid).text(newQtyValue * unitPrice);
 
             SetBusy();
 
             //::call api to update qty in cookie
-            //::update qty select range?  {1 ~ stock}            
+            //::update qty select range?  {1 ~ stock}
             var surl = "UpdateQty";
             $.ajax({
                 url: surl,
@@ -406,13 +403,13 @@
                     $("#td_serverWarning").text("發生未知錯誤");
                     SetReady();
                 }//error
-            });     
-            
+            });
+
         });
 
         function SetBusy() {
             $('#img_loading').show();
-            $('#MaskWindow').show();            
+            $('#MaskWindow').show();
         }
         function SetReady() {
             $('#img_loading').hide();
@@ -423,19 +420,53 @@
 
         //::for modal study
         $(".modal-box").hide();
-        $('.js-modal-close').click(function () {
+        $('.js-modal-close').click(function (e) {
             //$('#popup').hide();
+            e.preventDefault();
             $(".modal-box").fadeOut(500, function () {
                 console.log("call api to clear data");
+                var surl = "ClearShoppingCart";
+                SetBusy();
+                $.ajax({
+                    url: surl,
+                    type: "POST",
+                    dateType: "json",
+                    data: {
+                        //pid: pid
+                    },
+                    success: function (data) {
+                        console.log("get data")
+                        console.log(data)
+                        if (data.result == "PASS") {
+                            console.log("PASS ");
+                            //GetShoppingCart(); //try to reload
+                            window.location = "PrepareOrder";
+                        }
+                        else {
+                            //::fail case
+                            console.log("fail case");
+                        }
+                        SetReady();
+                    }, //success
+                    error: function (xhr, ajaxOptions, thrownError) {
+                        console.log(xhr)
+                        //$("#txt_failMessage").text("發生未知錯誤");
+                        SetReady();
+                    }//error
+                });//ajax
+
             });
         });
         //$(".modal-box").fadeIn(500, function () {
         //});
-        $('.js-modal-cancel').click(function () {
+        $('.js-modal-cancel').click(function (e) {
             //$('#popup').hide();
-            $(".modal-box").fadeOut(500, function () {
+            e.preventDefault();
+            //$(".modal-box").fadeOut(500, function () {
+            $(".modal-box").hide();
                 console.log("Cancelled clear");
-            });
+                SetReady();
+            //});
         });
 
 
