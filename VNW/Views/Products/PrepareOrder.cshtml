@@ -8,6 +8,7 @@
 <h2>確認購物車</h2>
 <hr />
 
+<a asp-action="CategoryList" asp-controller="Categories">再去選購商品</a>
 <p> <b>[1.確認購物車]</b> > [2.付款與運送方式] > [3.訂單確認]</p>
 
 <b>
@@ -15,9 +16,21 @@
     <span class="alert-success">@TempData["td_serverInfo"]</span>
 </b>
 
+
+@*@if (Model == null)
+    {
+        <a asp-action="CategoryList" asp-controller="Categories">商品分類</a>
+    }
+    else if(Model.Count() <=0 )
+    {
+        <a asp-action="CategoryList" asp-controller="Categories">商品分類</a>
+    }*@
+
 <div id="img_loading" style=""><center>處理中...<img src="~/images/loading.gif" style="width:150px;" /></center></div>
 <div id="MaskWindow" style="opacity:0.05;background:#0f0;width:100%;height:100%;z-index:99;position:absolute;top:0;left:0;cursor:no-drop;"></div>
 
+@*<div class="modal-overlay js-modal-cancel"></div>*@
+<div class="modal-overlay"></div>
 <div id="popup" class="modal-box">
     <header>
         <a href="#" class="js-modal-cancel closeBtn">x</a>
@@ -63,7 +76,6 @@
 
         @if (Model != null)
         {
-
             @foreach (var item in Model)
             {
                 int PriceByQty = item.Price * item.Qty;
@@ -131,6 +143,8 @@
     }
 }
 
+
+
 @section topCSS{
     <style>
         .modal-box {
@@ -145,23 +159,40 @@
             background-clip: padding-box;
             opacity: 0.9;
         }
+
         .modal-box header {
             padding: 1.5em;
             border-bottom: 1px solid #ddd;
         }
-        .modal-box header h3,
-        .modal-box header h4 {
-            margin: 0;
-        }        
+
+            .modal-box header h3,
+            .modal-box header h4 {
+                margin: 0;
+            }
+
         .modal-box footer {
             padding: 1em;
             border-top: 1px solid #ddd;
             text-align: right;
         }
+
         .modal-box .modal-body {
             padding: 2em 1.5em;
             /*font-size: 2em;*/
         }
+
+        .modal-overlay {
+            /*display:none;*/ /*try*/
+            /*opacity:0.5;*/
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: 900;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5) !important;
+        }
+
         a.closeBtn { /*change name from close to closeBtn*/
             line-height: 2;
             font-size: 1.5em;
@@ -171,6 +202,7 @@
             text-decoration: none;
             color: #bbb;
         }
+
         a.closeBtn:hover {
             color: #222;
             /*transition: color1s ease;*/
@@ -182,6 +214,42 @@
     <script type="text/javascript" src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
     <script>
         console.log("jquery start");
+
+        var IsOrderLock = false;
+        IsOrderLock = true;
+        window.document.body.onbeforeunload = function () {
+            //if (confirm('您尚未將編輯過的表單資料送出，請問您確定要離開網頁嗎？')) {
+            //    return true;
+            //}
+            //else {
+            //    return false;
+            //}
+            //confirm("???");
+            //console.log("不讓你離開!");
+            //return false;
+            if (IsOrderLock) {
+                $('#td_serverWarning').text("沒結完帳不會讓你離開的!");
+                return ("沒結完帳不會讓你離開的!");
+            }
+        }		
+
+        //::disable F5, Alt+<, Alt+> 
+        $(window.document).keydown(disableF5InnerFunc);
+        function disableF5InnerFunc(event) {
+            var e;
+            //if ($.browser.msie) { e = window.event; } else { e = event; }
+            e = event;
+            //console.log(e.keyCode);
+            if (e.keyCode == 116) {
+                console.log("Disable F5 key function");
+                $('#td_serverWarning').text("F5鍵被鎖定了!");
+                e.keyCode = 0; return false;
+            }
+            if (e.altKey && (e.keyCode == 37 || e.keyCode == 39)) {
+                console.log("Disable Alt+< Alt+>  key function");
+                return false;
+            }
+        };
 
         var btn_GetShoppingCart = $('#btn_GetShoppingCart');
         //$('#btn_GetShoppingCart').click(GetShoppingCart);
@@ -226,7 +294,7 @@
                             }
                             if (data.prodCount <= 0) {
                                 $('#btn_SendOrder').hide();
-                                $('#btn_clearCart').hide();                                
+                                $('#btn_clearCart').hide();
                             }
                             else {
                                 $('#btn_SendOrder').show();
@@ -290,7 +358,8 @@
 
         $('#btn_clearCart').on('click',function () {
             console.log("clear cart click");
-            SetBusy();
+            //SetBusy();
+            $(".modal-overlay").show();
             $(".modal-box").fadeIn(500, function () {
                 console.log("show modal box");
             });
@@ -417,13 +486,14 @@
         }
         SetReady(); //hide busy window
 
-
         //::for modal study
         $(".modal-box").hide();
+        $(".modal-overlay").hide();
         $('.js-modal-close').click(function (e) {
             //$('#popup').hide();
             e.preventDefault();
             $(".modal-box").fadeOut(500, function () {
+                $(".modal-overlay").hide();
                 console.log("call api to clear data");
                 var surl = "ClearShoppingCart";
                 SetBusy();
@@ -464,12 +534,14 @@
             e.preventDefault();
             //$(".modal-box").fadeOut(500, function () {
             $(".modal-box").hide();
-                console.log("Cancelled clear");
-                SetReady();
+            $(".modal-overlay").hide();
+            console.log("Cancelled clear");
+            SetReady();
             //});
         });
 
 
         console.log("jquery end");
     </script>
+
 }
