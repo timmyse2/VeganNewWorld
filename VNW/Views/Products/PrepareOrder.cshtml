@@ -15,8 +15,22 @@
     <span class="alert-success">@TempData["td_serverInfo"]</span>
 </b>
 
-<div id="img_loading"><center>Loading...<img  src="~/images/loading.gif" style="width:150px;" /></center></div>
-<div id="MaskWindow" style="opacity:0.05;background:#0f0;width:100%;height:100%;z-index:9;position:absolute;top:0;left:0;cursor:no-drop;"></div>
+<div id="img_loading" style=""><center>讀取中...<img src="~/images/loading.gif" style="width:150px;" /></center></div>
+<div id="MaskWindow" style="opacity:0.05;background:#0f0;width:100%;height:100%;z-index:99;position:absolute;top:0;left:0;cursor:no-drop;"></div>
+
+<div id="popup" class="modal-box">
+    <header>
+        <a href="#" class="js-modal-cancel closeBtn">x</a>
+        <h3>清空購物車</h3>        
+    </header>
+    <div class="modal-body">
+        <p>將您暫存的購物清單全刪除?</p>
+    </div>
+    <footer>
+        <a href="#" class="js-modal-close btn btn-danger">刪除</a>
+        <a href="#" class="js-modal-cancel btn btn-default">取消</a>
+    </footer>
+</div>
 
 @*<div id="txt_shoppingCart"></div>*@
 <h4>一般訂單</h4>
@@ -100,10 +114,6 @@
 </p>
 
 <div>
-    
-    
-</div>
-<div>
     <h4>訂單金額</h4> <h3><b>NT$<span id="TotalPriceSum">@totalPriceSum</span></b></h3>
 </div>
 
@@ -114,6 +124,61 @@
     <a id="btn_clearCart" class="btn btn-danger btn-lg">清空購物車</a>
 </p>
 
+
+@section topCSS{ 
+    <style>
+        .modal-box {
+            display:none;
+            position: absolute;
+            z-index: 1000;
+            width: 80%;
+            background: white;
+            border-bottom: 1px solid #aaa;
+            border-radius: 10px;
+            border: 1px solid rgba(0,0,0,0.5);
+            background-clip: padding-box;
+            opacity: 0.9;
+        }
+
+        .modal-box header{
+            padding:1.5em;
+            border-bottom:1px solid #ddd;
+        }
+
+        .modal-box header h3,
+        .modal-box header h4/*,
+        .modal-box .modal-header h4,
+        .modal-box .modal-header h3*/
+        {margin:0;}
+
+        /*.modal-box .modal-footer,*/
+        .modal-box footer{
+            padding:1em;
+            border-top:1px solid #ddd;
+            text-align:right;
+        }
+
+        .modal-box .modal-body{
+            padding:2em 1.5em;
+            /*font-size: 2em;*/
+        }
+
+        a.closeBtn { /*change name from close to closeBtn*/
+            line-height: 2;
+            font-size: 1.5em;
+            position: absolute;
+            top: 5%;
+            right: 2%;
+            text-decoration:none;
+            color: #bbb;
+        }
+        a.closeBtn:hover {
+            color:#222;
+            /*transition: color1s ease;*/
+        }
+
+    </style>
+}
 
 @section endJS{
     <script type="text/javascript" src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
@@ -128,7 +193,7 @@
 
         //GetShoppingCart(); //auto pre-load
         btn_GetShoppingCart.text("LOAD");
-        btn_GetShoppingCart.click(GetShoppingCart);
+        btn_GetShoppingCart.on('click',GetShoppingCart);
 
         function GetShoppingCart() {
             console.log("btn_GetShoppingCart_click");
@@ -227,12 +292,16 @@
             }
         }
 
-        $('#btn_clearCart').click(function () {
+        $('#btn_clearCart').on('click',function () {
             console.log("clear cart click");
+            $(".modal-box").fadeIn(500, function () {
+                console.log("show modal box");
+            });
+            //$(".modal-box").fadeTo(500,1);
         });
 
         //::use class (share same name for different buttons, switch by pid)
-        $('.btn_CancelItem').click(function () {            
+        $('.btn_CancelItem').on('click', function () {            
             console.log("use class, cancel item click");
             var pid = 0;         
             //::get pid from element
@@ -271,7 +340,7 @@
         });
 
         //::Qty change
-        $('.selectQty').change(function () {
+        $('.selectQty').on('change',function () {
             //console.log("use class, change select option");
 
             var newQtyValue = $(this).val();
@@ -343,14 +412,33 @@
 
         function SetBusy() {
             $('#img_loading').show();
-            $('#MaskWindow').show();
-            
+            $('#MaskWindow').show();            
         }
         function SetReady() {
             $('#img_loading').hide();
             $('#MaskWindow').hide();
         }
-        SetReady();
+        SetReady(); //hide busy window
+
+
+        //::for modal study
+        $(".modal-box").hide();
+        $('.js-modal-close').click(function () {
+            //$('#popup').hide();
+            $(".modal-box").fadeOut(500, function () {
+                console.log("call api to clear data");
+            });
+        });
+        //$(".modal-box").fadeIn(500, function () {
+        //});
+        $('.js-modal-cancel').click(function () {
+            //$('#popup').hide();
+            $(".modal-box").fadeOut(500, function () {
+                console.log("Cancelled clear");
+            });
+        });
+
+
         console.log("jquery end");
     </script>
 }
