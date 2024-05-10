@@ -8,6 +8,8 @@
 <h2>確認購物車</h2>
 <hr />
 
+@*<div class="alert-danger">win size <h1 id="txt_size" ></h1></div>*@
+
 <a asp-action="CategoryList" asp-controller="Categories">再去選購商品</a>
 <p> <b>[1.確認購物車]</b> > [2.付款與運送方式] > [3.訂單確認]</p>
 
@@ -27,7 +29,7 @@
     }*@
 
 <div id="img_loading" style=""><center>處理中...<img src="~/images/loading.gif" style="width:150px;" /></center></div>
-<div id="MaskWindow" style="opacity:0.05;background:#0f0;width:100%;height:100%;z-index:99;position:absolute;top:0;left:0;cursor:no-drop;"></div>
+<div id="MaskWindow" style="opacity:0.05;background:#0f0;width:120%;height:120%;z-index:99;position:absolute;top:0;left:0;cursor:no-drop;"></div>
 
 @*<div class="modal-overlay js-modal-cancel"></div>*@
 <div class="modal-overlay"></div>
@@ -188,9 +190,9 @@
             top: 0;
             left: 0;
             z-index: 900;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.5) !important;
+            width: 120%; /*try to set large*/
+            height: 120%;
+            background: rgba(0,0,0,0.5) !important;            
         }
 
         a.closeBtn { /*change name from close to closeBtn*/
@@ -216,17 +218,8 @@
         console.log("jquery start");
 
         var IsOrderLock = false;
-        IsOrderLock = true;
+        //IsOrderLock = true;
         window.document.body.onbeforeunload = function () {
-            //if (confirm('您尚未將編輯過的表單資料送出，請問您確定要離開網頁嗎？')) {
-            //    return true;
-            //}
-            //else {
-            //    return false;
-            //}
-            //confirm("???");
-            //console.log("不讓你離開!");
-            //return false;
             if (IsOrderLock) {
                 $('#td_serverWarning').text("沒結完帳不會讓你離開的!");
                 return ("沒結完帳不會讓你離開的!");
@@ -369,6 +362,9 @@
         //::use class (share same name for different buttons, switch by pid)
         $('.btn_CancelItem').on('click', function () {
             console.log("use class, cancel item click");
+
+            SetBusy(); return; //study only
+
             var pid = 0;
             //::get pid from element
             pid = this.getAttribute("pid");
@@ -540,6 +536,20 @@
             //});
         });
 
+        var i_acc = 0;
+
+        $(window).resize(function () {
+            //::fixed issue - overlay is not cover window on phone mode sometimes
+            /*
+            i_acc++;
+            if (i_acc > 10) i_acc = 0;
+            $("#txt_size").text("#" + i_acc + " (" + $(window).outerWidth() + ', ' + $(window).outerHeight() + " ) " + " " + window.devicePixelRatio);
+            $(".modal-overlay").css({
+                width: $(window).outerWidth() * window.devicePixelRatio,
+                height: $(window).outerHeight() * window.devicePixelRatio
+            });
+            */
+        }); 
 
         console.log("jquery end");
     </script>
