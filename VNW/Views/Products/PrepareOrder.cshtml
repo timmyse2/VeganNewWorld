@@ -94,7 +94,12 @@
                     <td>
                         @*<input type="number" value="@item.Qty" />*@
                         <select class="selectQty" pid="@item.Pid" OldQty="@item.Qty">
-                            @for (int i = 1; i <= 10; i++)
+                            @{
+                                item.Stock = 5;
+                                //:: NOTICE: stock of product might change
+                                // read stock from DB side again-  TBD
+                            }
+                            @for (int i = 1; i <= item.Stock; i++)
                             {
                                 if (i == @item.Qty)
                                 {
@@ -111,7 +116,7 @@
 
                     <td>$<span class="TotalPrice @item.Pid">@PriceByQty</span></td>
                     <td>
-                        <a class="btn btn-default btn_CancelItem" id="btn_CancelItem" pid="@item.Pid">移除</a>
+                        <a class="btn btn-default btn_ClearSingleItem" id="btn_ClearSingleItem" pid="@item.Pid">移除</a>
                     </td>
                 </tr>
             }//foreach
@@ -246,7 +251,7 @@
 
         var btn_GetShoppingCart = $('#btn_GetShoppingCart');
         //$('#btn_GetShoppingCart').click(GetShoppingCart);
-        //var btn_CancelItem = $('#btn_CancelItem');
+        //var btn_ClearSingleItem = $('#btn_ClearSingleItem');
 
         $('#div_loadListTools').hide();
 
@@ -360,10 +365,9 @@
         });
 
         //::use class (share same name for different buttons, switch by pid)
-        $('.btn_CancelItem').on('click', function () {
+        $('.btn_ClearSingleItem').on('click', function () {
             console.log("use class, cancel item click");
-
-            SetBusy(); return; //study only
+            //SetBusy(); return; //study only
 
             var pid = 0;
             //::get pid from element

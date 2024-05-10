@@ -49,6 +49,14 @@
         </dt>
         <dd>
             @Html.DisplayFor(model => model.UnitsInStock)
+            @if (Model.UnitsInStock != null && Model.UnitsInStock > 0)
+            {
+
+            }
+            else
+            {
+                <span class="alert-danger">缺貨</span>
+            }
         </dd>
         <dt>
             @*@Html.DisplayNameFor(model => model.Picture)*@
@@ -65,7 +73,14 @@
         <dd>@Model.Description </dd>
 
         <dd>
-            <div class="btn btn-lg btn-primary" id="btn_AddProductInOrder">加入購物車</div>
+            @if (Model.UnitsInStock != null && Model.UnitsInStock > 0)
+            {
+                <div class="btn btn-lg btn-primary" id="btn_AddProductInOrder">加入購物車</div>
+            }
+            else
+            {
+                <span class="alert-danger">(無法下單, 貨到通知...)</span>                
+            }
             <div class="alert-info" id="txt_Message"></div>
             <div class="alert-danger" id="txt_failMessage"></div>
         </dd>

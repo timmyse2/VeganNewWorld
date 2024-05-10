@@ -36,7 +36,22 @@
             @*@Html.DisplayFor(modelItem => item.QuantityPerUnit)*@
             <b>
                 $@item.UnitPrice
-            </b>
+
+
+                @if (item.UnitsInStock != null && item.UnitsInStock > 0)
+                {
+                    //(庫存 @item.UnitsInStock )
+                    @*<a class="btn btn-success" style="padding:1px;">預購</a>*@
+
+                    <a style="padding:2px; border-radius:2px;background-color:forestgreen;color:white;">加入購物車</a>
+                }
+                else
+                {
+                    <span class="alert-danger">缺貨</span>
+                }
+
+            </b>            
+
         </div>
     }
 </div>
