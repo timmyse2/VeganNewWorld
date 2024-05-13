@@ -161,13 +161,16 @@ namespace VNW.Controllers
         //::login for end-user
         public async Task<IActionResult> Login()
         {
-            //VNW.Common.MySession ms = new Common.MySession();
-            //Debug.WriteLine(" my common test" + ms.Test("123"));
-            //_ms.SetMySession("ms_test", "1979", HttpContext.Session);
-            //Debug.WriteLine(" my common test" + _ms.GetMySession("ms_test", HttpContext.Session));
-            //ms.Dispose();
+            await Task.Run(()=> {
+                //VNW.Common.MySession ms = new Common.MySession();
+                //Debug.WriteLine(" my common test" + ms.Test("123"));
+                //_ms.SetMySession("ms_test", "1979", HttpContext.Session);
+                //Debug.WriteLine(" my common test" + _ms.GetMySession("ms_test", HttpContext.Session));
+                //ms.Dispose();
 
-            ViewData["UserAccount"] = HttpContext.Request.Cookies["UserAccount"];
+                ViewData["UserAccount"] = HttpContext.Request.Cookies["UserAccount"];
+            });
+
             return View();
         }
         [HttpPost]
@@ -223,33 +226,31 @@ namespace VNW.Controllers
         public async Task<IActionResult> Logout()
         //public IActionResult Logout()
         {
-            //_ms.SetMySession("IsUserLogin", "", HttpContext.Session);
-            //_ms.SetMySession("UserAccount", "", HttpContext.Session);
-            HttpContext.Session.Remove("IsUserLogin");
-            HttpContext.Session.Remove("UserAccount");
-            HttpContext.Session.Remove("UserLevel");
-
-            TempData["td_server"] = "已登出"; //::
+            await Task.Run(() => {
+                //_ms.SetMySession("IsUserLogin", "", HttpContext.Session);
+                //_ms.SetMySession("UserAccount", "", HttpContext.Session);
+                HttpContext.Session.Remove("IsUserLogin");
+                HttpContext.Session.Remove("UserAccount");
+                HttpContext.Session.Remove("UserLevel");
+                TempData["td_server"] = "已登出"; //::
+            });
             return RedirectToAction("Login");
             //return Content("LOGOUT");
         }
 
         //::for Admin
-        //public async Task<IActionResult> AdminLogin(string account, string password, string pin, string role)
-        public IActionResult AdminLogin(string account, string password, string pin, string role)
+        public async Task<IActionResult> AdminLogin(string account, string password, string pin, string role)
+        //public IActionResult AdminLogin(string account, string password, string pin, string role)
         {
 
-            if(true)
+            await Task.Run(() =>
             {
                 //::pass case
                 _ms.SetMySession("IsUserLogin", "YES", HttpContext.Session);
                 _ms.SetMySession("UserAccount", "Saber@Emiya2006", HttpContext.Session);
                 _ms.SetMySession("UserLevel", "1A", HttpContext.Session);
-                
-                return Json(new { result = "PASS", detail = "admin login" });
-            }
+            }); 
+            return Json(new { result = "PASS", detail = "admin login" });
         }
-
-
     }
 }

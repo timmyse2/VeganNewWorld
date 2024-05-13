@@ -406,11 +406,14 @@
                         else {
                             //::fail case
                             console.log("fail case");
+                            //$("#txt_failMessage").text("未得到正確回應");
+                            $("#td_serverWarning").text("未得到正確回應");
                         }
                     }, //success
                     error: function (xhr, ajaxOptions, thrownError) {
                         console.log(xhr)
                         //$("#txt_failMessage").text("發生未知錯誤");
+                        $("#td_serverWarning").text("發生未知錯誤");
                     }//error
                 });
             }
@@ -478,7 +481,8 @@
                     else {
                         //::fail case
                         console.log("fail case");
-                        $("#td_serverWarning").text("發生未知錯誤");
+                        //$("#td_serverWarning").text("發生未知錯誤");
+                        $("#td_serverWarning").text("未得到正確回應");
                         SetReady();
                     }
                 }, //success

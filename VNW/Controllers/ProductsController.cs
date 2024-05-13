@@ -215,7 +215,6 @@ namespace VNW.Controllers
         // GET: Products Index for end user
         public async Task<IActionResult> ProductList(int? cat, string catName)
         {
-
             MySession ms = new MySession();
 
             if(cat == null)
@@ -407,94 +406,119 @@ namespace VNW.Controllers
         }
 
         //::get data from Cookie - API for testing
-        public IActionResult GetShoppingCart()
+        public async Task<IActionResult> GetShoppingCart()
         {
-            try
-            {
-                string pidJSON = null;
-                List<VNW.ViewModels.ShoppingCart> shoppingCarts = new List<VNW.ViewModels.ShoppingCart>();
-                pidJSON = HttpContext.Request.Cookies["pidJSON"];
-                if (pidJSON == null)
+            string _result = "tbc", _detail = "tbc";
+            int _prodCount = 0;
+            await Task.Run(() => {
+                try
                 {
-                    var res1 = new { result = "PASS", detail = "no data", prodCount = 0 };
-                    return Json(res1);
-                }
-                else
-                {
-                    //::PASS CASE
-                    shoppingCarts = JsonConvert.DeserializeObject<List<VNW.ViewModels.ShoppingCart>>(pidJSON);
-                    //::Do not return data if it just needs to get 'COUNT' now
-                    //pidJSON = JsonConvert.SerializeObject(shoppingCarts);
+                    string pidJSON = null;
+                    List<VNW.ViewModels.ShoppingCart> shoppingCarts = new List<VNW.ViewModels.ShoppingCart>();
+                    pidJSON = HttpContext.Request.Cookies["pidJSON"];
+                    if (pidJSON == null)
+                    {
+                        //var res1 = new { result = "PASS", detail = "no data", prodCount = 0 };
+                        //return Json(res1);
+                        _result = "NG"; _detail = "no data"; _prodCount = 0;
+                    }
+                    else
+                    {
+                        //::PASS CASE
+                        shoppingCarts = JsonConvert.DeserializeObject<List<VNW.ViewModels.ShoppingCart>>(pidJSON);
+                        //::Do not return data if it just needs to get 'COUNT' now
+                        //pidJSON = JsonConvert.SerializeObject(shoppingCarts);
 
-                    //Debug.WriteLine("shoppingCarts.Count " + shoppingCarts.Count);
-                    //ViewBag.shoppingCartsCount = shoppingCarts.Count;
-                    //HttpContext.Response.Cookies.Append("pidJSON", pidJSON);
-                    var res2 = new { result = "PASS", detail = pidJSON, prodCount = shoppingCarts.Count };
-                    return Json(res2);
+                        //Debug.WriteLine("shoppingCarts.Count " + shoppingCarts.Count);
+                        //ViewBag.shoppingCartsCount = shoppingCarts.Count;
+                        //HttpContext.Response.Cookies.Append("pidJSON", pidJSON);
+
+                        _result = "PASS"; _detail = pidJSON; _prodCount = shoppingCarts.Count;
+
+                        //var res2 = new { result = "PASS", detail = pidJSON, prodCount = shoppingCarts.Count };
+                        //return Json(res2);
+                    }
                 }
-            }
-            catch
-            {
-                var res2 = new { result = "Err", detail = "", prodCount=0 };
-                return Json(res2);
-            }
+                catch
+                {
+                    //var res2 = new { result = "Err", detail = "", prodCount = 0 };
+                    //return Json(res2);
+                    _result = "Err"; _detail = "???"; _prodCount = 0;
+                }
+
+            });
+            var res = new { result = _result, detail = _detail, prodCount = _prodCount };
+            return Json(res);
         }
 
         //::api for remove product from shopping cart
-        public IActionResult RemoveShoppingCart(int? pid)
+        public async Task<IActionResult> RemoveShoppingCart(int? pid)
         {
             //if (!_ms.LoginPrecheck(HttpContext.Session))
             //    return RedirectToAction("Login", "Customers");
+
+            string _result = "tbc"; string _detail = "tbc"; int _prodCount = 0;
+
             //::check pid
             int _pid = 0;
             if (pid == 0 || pid == null)
             {
-                var res = new { result = "FAIL", detail = "id is null", prodCount=0 };
-                return Json(res);
+                var res0 = new { result = "FAIL", detail = "id is null", prodCount=0 };
+                return Json(res0);
             }
             _pid = (int)pid;
-
-            try
-            {
-                string pidJSON = null;
-                List<VNW.ViewModels.ShoppingCart> shoppingCarts = new List<VNW.ViewModels.ShoppingCart>();
-                pidJSON = HttpContext.Request.Cookies["pidJSON"];
-                if (pidJSON == null)
+            
+            await Task.Run(() => {
+                try
                 {
-                    var res1 = new { result = "empty", detail = "", count = 0 };
-                    return Json(res1);
-                }
-                else
-                {
-                    shoppingCarts = JsonConvert.DeserializeObject<List<VNW.ViewModels.ShoppingCart>>(pidJSON);
-
-                    //::found exist item repeatedly
-                    var found = shoppingCarts.Find(x => x.Pid == _pid);
-                    if (found != null)
+                    string pidJSON = null;
+                    List<VNW.ViewModels.ShoppingCart> shoppingCarts = new List<VNW.ViewModels.ShoppingCart>();
+                    pidJSON = HttpContext.Request.Cookies["pidJSON"];
+                    if (pidJSON == null)
                     {
-                        shoppingCarts.Remove(found);
-                        pidJSON = JsonConvert.SerializeObject(shoppingCarts);
-                        HttpContext.Response.Cookies.Append("pidJSON", pidJSON);
+                        //var res1 = new { result = "empty", detail = "", count = 0 };
+                        //return Json(res1);
+                        _result = "NG"; _detail = "empty"; _prodCount = 0;
                     }
                     else
                     {
-                        //pidJSON = JsonConvert.SerializeObject(shoppingCarts);
-                    }
-                    var res2 = new { result = "PASS", detail = pidJSON, prodCount = shoppingCarts.Count };
-                    return Json(res2);
-                }
-            }
-            catch
-            {
-                var res2 = new { result = "Err", detail = "", prodCount=0 };
-                return Json(res2);
-            }
+                        shoppingCarts = JsonConvert.DeserializeObject<List<VNW.ViewModels.ShoppingCart>>(pidJSON);
 
+                        //::found exist item repeatedly
+                        var found = shoppingCarts.Find(x => x.Pid == _pid);
+                        if (found != null)
+                        {
+                            shoppingCarts.Remove(found);
+                            pidJSON = JsonConvert.SerializeObject(shoppingCarts);
+                            HttpContext.Response.Cookies.Append("pidJSON", pidJSON);
+
+                            _result = "PASS"; _detail = ""; _prodCount = shoppingCarts.Count;
+                            //_result = "PASS"; _detail = pidJSON; _prodCount = shoppingCarts.Count;
+                        }
+                        else
+                        {
+                            //pidJSON = JsonConvert.SerializeObject(shoppingCarts);
+                            _result = "NG"; _detail = "empty"; _prodCount = 0;
+                        }
+                        //var res2 = new { result = "PASS", detail = pidJSON, prodCount = shoppingCarts.Count };
+                        //return Json(res2);
+                    }
+                }
+                catch
+                {
+                    //var res2 = new { result = "Err", detail = "", prodCount = 0 };
+                    //return Json(res2);
+                    _result = "Err"; _detail = ""; _prodCount = 0;
+                }
+
+            });
+            var res = new { result = _result, detail = _detail, prodCount= _prodCount };
+            return Json(res);
         }
 
         //::for end user, Shopping Cart|Step|Prepare Order
-        public IActionResult PrepareOrder()
-        //public async Task<IActionResult> PrepareOrder()
+        //public IActionResult PrepareOrder()
+        public async Task<IActionResult> PrepareOrder()
         {
             if (!_ms.LoginPrecheck(HttpContext.Session))
                 return RedirectToAction("Login", "Customers");
@@ -518,7 +542,7 @@ namespace VNW.Controllers
                 else
                 {
                     //::<Timmy May7 2024><try to set await>
-                    //await Task.Run(()=> {
+                    await Task.Run(()=> {
                         shoppingCarts = JsonConvert.DeserializeObject<List<VNW.ViewModels.ShoppingCart>>(pidJSON);
                         pidJSON = JsonConvert.SerializeObject(shoppingCarts);
                         //Debug.WriteLine("shoppingCarts.Count " + shoppingCarts.Count);
@@ -534,7 +558,7 @@ namespace VNW.Controllers
                         }
                         else
                             TempData["td_serverInfo"] = "取得資料" + shoppingCarts.Count;
-                    //});
+                    });
                     return View(shoppingCarts);
                 }
             }
@@ -624,19 +648,26 @@ namespace VNW.Controllers
         }
 
         //::api for remove all products from shopping cart
-        public IActionResult ClearShoppingCart()
+        public async Task<IActionResult> ClearShoppingCart()
         {
-            try
-            {
-                HttpContext.Response.Cookies.Delete("pidJSON");
-                var res1 = new { result = "PASS", detail = "cleared"};
-                return Json(res1);                
-            }
-            catch (Exception ex)
-            {
-                var res2 = new { result = "Err", detail = "..." + ex.ToString()};
-                return Json(res2);
-            }
+            string _result = "tbc", _detail = "tbc";
+            await Task.Run(() => {
+                try
+                {
+                    HttpContext.Response.Cookies.Delete("pidJSON");
+                    //var res1 = new { result = "PASS", detail = "cleared" };
+                    //return Json(res1);
+                    _result = "PASS"; _detail = "cleared";
+                }
+                catch (Exception ex)
+                {
+                    //var res2 = new { result = "Err", detail = "..." + ex.ToString() };
+                    //return Json(res2);
+                    _result = "Err"; _detail = "..." + ex.ToString();
+                }
+            });
+            var res = new { result = _result, detail = _detail };
+            return Json(res);
         }
 
     }
