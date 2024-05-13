@@ -359,14 +359,39 @@ namespace VNW.Controllers
 
                 if(isUpdateData)
                 {
-                    shoppingCarts.Add(new VNW.ViewModels.ShoppingCart
+                    //::load stock value from DB
+                    short _stock = 0;
+
+                    var query = _context.Products.Find(_pid);
+                    if(query != null)
                     {
-                        Pid = _pid,
-                        Qty = 1,
-                        Name = pname,
-                        Price = (int) price,
-                        Img =  img //"default.jpg"
-                    });
+                        _stock = (short)query.UnitsInStock;
+                        shoppingCarts.Add(new VNW.ViewModels.ShoppingCart
+                        {
+                            Pid = _pid,
+                            Qty = 1,
+                            Name = query.ProductName,
+                            Price = (int) query.UnitPrice,
+                            Img = query.Picture,
+                            Stock = _stock, //add stock
+                        });
+                    }
+                    else
+                    {
+                        //error case
+                        var res3 = new { result = "fail", detail = "no match data", prodCount = 0 };
+                        return Json(res3);
+                    }
+
+                    //shoppingCarts.Add(new VNW.ViewModels.ShoppingCart
+                    //{
+                    //    Pid = _pid,
+                    //    Qty = 1,
+                    //    Name = pname,
+                    //    Price = (int) price,
+                    //    Img =  img,
+                    //    Stock = _stock, //add stock
+                    //});
                     pidJSON = JsonConvert.SerializeObject(shoppingCarts);
                 }
 
@@ -374,9 +399,9 @@ namespace VNW.Controllers
                 var res2 = new { result = "PASS", detail = pidJSON, prodCount = shoppingCarts.Count };            
                 return Json(res2);
             }
-            catch
+            catch (Exception ex)
             {
-                var res2 = new { result = "Err", detail = "", prodCount=0 };
+                var res2 = new { result = "Err", detail = "" + ex.ToString(), prodCount = 0 };
                 return Json(res2);
             }
         }

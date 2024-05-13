@@ -13,7 +13,10 @@
 </p>
 <h2>@ViewBag.catName</h2>
 
- 1 2 3 4 5 
+ 1 2 3 4 5
+
+<div id="txt_PassMessage"></div>
+<div id="txt_FailMessage">JK</div>
 
 <div class="row">
     @foreach (var item in Model)
@@ -36,23 +39,157 @@
             @*@Html.DisplayFor(modelItem => item.QuantityPerUnit)*@
             <b>
                 $@item.UnitPrice
-
-
                 @if (item.UnitsInStock != null && item.UnitsInStock > 0)
                 {
-                    //(庫存 @item.UnitsInStock )
                     @*<a class="btn btn-success" style="padding:1px;">預購</a>*@
-
-                    <a style="padding:2px; border-radius:2px;background-color:forestgreen;color:white;">加入購物車</a>
+                    <a class="btn_AddProductInOrder"
+                       pid="@item.ProductId"
+                       >加入購物車</a>
                 }
                 else
                 {
                     <span class="alert-danger">缺貨</span>
                 }
-
-            </b>            
-
+            </b>
+            @*(@item.UnitsInStock)*@
         </div>
     }
 </div>
 
+@section topCSS{
+    <style>
+        #txt_PassMessage {
+            /*position: absolute;*/
+            position: fixed;
+            top: 100px;
+            left: 50%;
+            transform: translate(-50%, 0);
+            z-index: 99;
+            align-self: center;
+            font-size: 20px;
+            padding: 10px;
+            color: black;
+            display: none;
+            background-color: greenyellow;
+        }
+
+        #txt_FailMessage {
+            /*position: absolute;*/
+            position: fixed;
+            top: 100px;
+            left: 50%;
+            transform: translate(-50%, 0);
+            z-index: 99;
+            align-self: center;
+            font-size: 20px;
+            padding: 10px;
+            color: black;
+            display: none;
+            background-color:orangered;
+        }
+
+        .btn_AddProductInOrder {
+            padding: 2px;
+            border-radius: 2px;
+            background-color: forestgreen;
+            color: white;
+        }
+        .btn_AddProductInOrder:hover {                        
+            color:yellow;
+            cursor:pointer;
+        }
+    </style>
+}
+
+@section endJS{
+    @*<!--jquery code-->*@
+    <script type="text/javascript" src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+    <script>
+        console.log("jquery start");
+
+        //var btn_AddProductInOrder = $('#btn_AddProductInOrder');
+        //btn_AddProductInOrder.click(btn_AddProductInOrder_click);
+
+        //use class with pid
+        $('.btn_AddProductInOrder').click(btn_AddProductInOrder_click);
+
+
+        function btn_AddProductInOrder_click() {
+            console.log("btn_AddProductInOrder_click");
+            //::call api (store p.id in cookie)
+
+            var _pid = 0;
+            _pid = this.getAttribute("pid");
+            console.log("_pid: " + _pid);
+
+            //$("#txt_Message").text("處理中");
+            //ajax
+            try {
+                console.log("ajax r/w data...");
+                var surl = "AddProductInOrder";
+                $.ajax({
+                    url: surl,
+                    type: "POST",
+                    dateType: "json",
+                    data: {
+                        pid: _pid,
+                        @*pname: "@Model.ProductName",
+                        img: "@Model.Picture",
+                        price: @Model.UnitPrice*@
+                    },
+                    success: function (data) {
+                        console.log("get data")
+                        console.log(data)
+
+                        if (data.result == "PASS") {
+                            $("#txt_PassMessage").text("已加入購物車");
+                            //$("#txt_Message").text("已加入" + data.detail);
+                            console.log("PASS ");
+                            console.log("prodCount " + data.prodCount);
+                            $("#txt_PassMessage").fadeIn(0, function () {
+                                $("#txt_PassMessage").fadeOut(3000)
+                            });
+
+                            //$('#btn_shippingCart').text("購物車 (" + data.prodCount + ")");
+                        }
+                        else {
+                            //fail case
+                            var failMessage = "※提示：找不到符合您輸入的資料!";
+                            $("#txt_Message").text("");
+                            $("#txt_FailMessage").text(failMessage);
+                            console.log("not pass");
+                            $("#txt_FailMessage").fadeIn(0, function () {
+                                $("#txt_FailMessage").fadeOut(3000)
+                            });
+                        }
+                        //$('#btn_AddProductInOrder').show();
+
+                    }, //success
+                    error: function (xhr, ajaxOptions, thrownError) {
+                        console.log(xhr)
+                        $("#txt_FailMessage").text("發生未知錯誤");
+                        $("#txt_FailMessage").fadeIn(0, function () {
+                            $("#txt_FailMessage").fadeOut(3000)
+                        });
+                    }//error
+                });
+                return;
+            }
+            catch (err) {
+                console.log("exception " + err);
+                //btn_AddProductInOrder.show();
+                $("#txt_FailMessage").text("發生未知錯誤");
+
+                $("#txt_FailMessage").fadeIn(0, function () {
+                    $("#txt_FailMessage").fadeOut(3000)
+                });
+
+                return;
+            }
+        }
+
+
+        console.log("jquery end");
+    </script>
+
+}

@@ -95,9 +95,13 @@
                         @*<input type="number" value="@item.Qty" />*@
                         <select class="selectQty" pid="@item.Pid" OldQty="@item.Qty">
                             @{
-                                item.Stock = 5;
                                 //:: NOTICE: stock of product might change
                                 // read stock from DB side again-  TBD
+
+                                if (item.Stock == null || item.Stock >=0)
+                                {
+                                    //item.Stock = 5;
+                                }
                             }
                             @for (int i = 1; i <= item.Stock; i++)
                             {
@@ -146,6 +150,7 @@
 
         <div style="text-align:right;">
             <a id="btn_SendOrder" class="btn btn-primary btn-lg">確認並送出</a>
+            @*<p></p>註: 在下一個步驟才會正式，暫存的資料庫存量*@
         </div>
     }
 }
@@ -232,7 +237,7 @@
         }		
 
         //::disable F5, Alt+<, Alt+> 
-        $(window.document).keydown(disableF5InnerFunc);
+        //$(window.document).keydown(disableF5InnerFunc);
         function disableF5InnerFunc(event) {
             var e;
             //if ($.browser.msie) { e = window.event; } else { e = event; }

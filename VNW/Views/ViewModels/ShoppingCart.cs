@@ -12,6 +12,6 @@ namespace VNW.ViewModels
         public int Price;
         public string Img;
         public string Name;
-        public int Stock;
+        public short Stock;
     }
 }
