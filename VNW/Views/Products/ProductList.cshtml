@@ -13,10 +13,14 @@
 </p>
 <h2>@ViewBag.catName</h2>
 
+<div style="text-align:right">    
+    <a class="btn btn-danger" id="btn_shippingCart" asp-action="PrepareOrder">購物車(0)</a><br />
+</div>
+
  1 2 3 4 5
 
 <div id="txt_PassMessage"></div>
-<div id="txt_FailMessage">JK</div>
+<div id="txt_FailMessage"></div>
 
 <div class="row">
     @foreach (var item in Model)
@@ -69,7 +73,7 @@
             font-size: 20px;
             padding: 10px;
             color: black;
-            display: none;
+            display: none; /**/
             background-color: greenyellow;
         }
 
@@ -84,7 +88,7 @@
             font-size: 20px;
             padding: 10px;
             color: black;
-            display: none;
+            display: none; /**/
             background-color:orangered;
         }
 
@@ -96,6 +100,7 @@
         }
         .btn_AddProductInOrder:hover {                        
             color:yellow;
+            background-color:darkseagreen;
             cursor:pointer;
         }
     </style>
@@ -146,11 +151,12 @@
                             //$("#txt_Message").text("已加入" + data.detail);
                             console.log("PASS ");
                             console.log("prodCount " + data.prodCount);
-                            $("#txt_PassMessage").fadeIn(0, function () {
-                                $("#txt_PassMessage").fadeOut(3000)
-                            });
 
-                            //$('#btn_shippingCart').text("購物車 (" + data.prodCount + ")");
+                            $("#txt_PassMessage").fadeIn(0, function () {
+                                $("#txt_PassMessage").fadeOut(3000);                                
+                            });
+                            //btn_GetCount_click();
+                            $('#btn_shippingCart').text("購物車 (" + data.prodCount + ")");
                         }
                         else {
                             //fail case
@@ -188,6 +194,48 @@
             }
         }
 
+        btn_GetCount_click();
+        function btn_GetCount_click() {
+            try {
+                console.log("ajax r/w data...");
+                var surl = "GetShoppingCart";
+                $.ajax({
+                    url: surl,
+                    type: "POST",
+                    dateType: "json",
+                    success: function (data) {
+                        console.log("get data")
+                        console.log(data)
+
+                        if (data.result == "PASS") {
+                            console.log("PASS ");
+                            console.log("prodCount " + data.prodCount);
+
+                            $('#btn_shippingCart').text("購物車 (" + data.prodCount + ")");
+
+                        }
+                        else {
+                            //fail case
+                            $('#btn_shippingCart').text("購物車 (0)");
+
+                        }
+
+                    }, //success
+                    error: function (xhr, ajaxOptions, thrownError) {
+                        console.log(xhr)
+                        $('#btn_shippingCart').text("購物車 (0)");
+
+                    }//error                    
+                });
+                return;
+            }
+            catch (err) {
+                console.log("exception " + err);
+                //btn_AddProductInOrder.show();
+                $("#txt_failMessage").text("發生未知錯誤");
+                return;
+            }
+        }
 
         console.log("jquery end");
     </script>

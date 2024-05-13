@@ -15,6 +15,10 @@
 </p>
 <h2>@Model.ProductName</h2>
 
+<p style="text-align:right">
+    <a class="btn btn-danger" id="btn_shippingCart" asp-action="PrepareOrder">購物車(0)</a><br/>    
+</p>
+
 <div>
     @*<h4>@Model.ProductName</h4>*@
     <hr />
@@ -79,11 +83,13 @@
             }
             else
             {
-                <span class="alert-danger">(無法下單, 貨到通知...)</span>                
+                <span class="alert-danger">(無法下單, 貨到通知...)</span>
             }
+
             <div class="alert-info" id="txt_Message"></div>
             <div class="alert-danger" id="txt_failMessage"></div>
         </dd>
+        <p>註: 產品資料會先暫存在您的瀏覽器Cookie中， 請登入後完成訂單</p>
     </dl>
 </div>
 
@@ -92,11 +98,8 @@
     | <a asp-action="ProductList">回到商品清單</a>
     |
 </div>*@
-註: 產品資料會先暫存在您的瀏覽器Cookie中， 請登入後完成訂單
-<p>
-    <a class="btn btn-danger" id="btn_shippingCart" asp-action="PrepareOrder">購物車(0)</a>
-    
-</p>
+
+
 
 
 @section endJS{

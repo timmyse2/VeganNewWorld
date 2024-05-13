@@ -93,31 +93,39 @@
                     <td>$<span class="unitPrice @item.Pid">@item.Price</span></td>
                     <td>
                         @*<input type="number" value="@item.Qty" />*@
-                        <select class="selectQty" pid="@item.Pid" OldQty="@item.Qty">
-                            @{
-                                //:: NOTICE: stock of product might change
-                                // read stock from DB side again-  TBD
 
-                                if (item.Stock == null || item.Stock >=0)
-                                {
-                                    //item.Stock = 5;
-                                }
-                            }
-                            @for (int i = 1; i <= item.Stock; i++)
+                        @{
+                            //:: NOTICE: stock of product might change
+                            // read stock from DB side again-  TBD
+
+                            if (item.Stock <= 0)
                             {
-                                if (i == @item.Qty)
-                                {
-                                    <option selected>@i</option>
-                                }
-                                else
-                                {
-                                    <option>@i</option>
-                                }
-
+                                //item.Stock = 5;
+                                <span class="alert-danger">缺貨</span>
                             }
-                        </select>
-                    </td>
+                            else
+                            {
+                                <select class="selectQty" pid="@item.Pid" OldQty="@item.Qty">
 
+                                    @for (int i = 1; i <= item.Stock; i++)
+                                    {
+                                        if (i == @item.Qty)
+                                        {
+                                            <option selected>@i</option>
+                                        }
+                                        else
+                                        {
+                                            <option>@i</option>
+                                        }
+                                    }
+                                </select>
+                            }
+                            if (item.Stock < item.Qty)
+                            {
+                                <span class="text-danger"><b>庫存不足</b></span>
+                            }
+                        }
+                    </td>
                     <td>$<span class="TotalPrice @item.Pid">@PriceByQty</span></td>
                     <td>
                         <a class="btn btn-default btn_ClearSingleItem" id="btn_ClearSingleItem" pid="@item.Pid">移除</a>
@@ -154,8 +162,6 @@
         </div>
     }
 }
-
-
 
 @section topCSS{
     <style>
@@ -453,6 +459,10 @@
                     console.log(data)
                     if (data.result == "PASS") {
                         console.log("PASS ");
+
+                        //::update Stock
+                        //this.
+
                         //:: Total Price Sum
                         var oldSum = parseInt($('#TotalPriceSum').text());
                         console.log("oldSum: " + oldSum);

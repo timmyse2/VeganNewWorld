@@ -406,15 +406,6 @@ namespace VNW.Controllers
             }
         }
 
-        //class ShoppingCart
-        //{
-        //    public int Pid;
-        //    public int Qty;
-        //    public int Price;
-        //    public string Img;
-        //    public string Name;
-        //}
-
         //::get data from Cookie - API for testing
         public IActionResult GetShoppingCart()
         {
@@ -430,11 +421,14 @@ namespace VNW.Controllers
                 }
                 else
                 {
+                    //::PASS CASE
                     shoppingCarts = JsonConvert.DeserializeObject<List<VNW.ViewModels.ShoppingCart>>(pidJSON);
-                    pidJSON = JsonConvert.SerializeObject(shoppingCarts);
+                    //::Do not return data if it just needs to get 'COUNT' now
+                    //pidJSON = JsonConvert.SerializeObject(shoppingCarts);
+
                     //Debug.WriteLine("shoppingCarts.Count " + shoppingCarts.Count);
                     //ViewBag.shoppingCartsCount = shoppingCarts.Count;
-                    HttpContext.Response.Cookies.Append("pidJSON", pidJSON);
+                    //HttpContext.Response.Cookies.Append("pidJSON", pidJSON);
                     var res2 = new { result = "PASS", detail = pidJSON, prodCount = shoppingCarts.Count };
                     return Json(res2);
                 }
@@ -580,6 +574,17 @@ namespace VNW.Controllers
                     if (found != null)
                     {
                         found.Qty = (int)qty;
+                        #region 
+                        //::Read stock from DB
+                        var query = _context.Products.Find(_pid);
+                        if (query != null)
+                        {
+                            found.Stock = (short) query.UnitsInStock;
+                        }
+                        else
+                            found.Stock = 0; //TBC
+                        #endregion
+
                         pidJSON = JsonConvert.SerializeObject(shoppingCarts);
                         HttpContext.Response.Cookies.Append("pidJSON", pidJSON);
                         var res1 = new { result = "PASS", detail = found};
