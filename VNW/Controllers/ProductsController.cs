@@ -547,63 +547,80 @@ namespace VNW.Controllers
             }
         }
 
-        //::API for end user, update qty
-        public IActionResult UpdateQty(int? pid, int? qty)
+        //::API for end user, update qty        
+        public async Task<IActionResult> UpdateQty(int? pid, int? qty)
+        //public IActionResult UpdateQty(int? pid, int? qty)
         {
+            string _result = "tbc", _detail = "tbc";
             //::check pid
             int _pid;
-            if (pid == 0 || pid == null || qty == null || qty==0)
+            if (pid == 0 || pid == null || qty == null || qty == 0)
             {
-                var res = new { result = "FAIL", detail = "id is null"};
-                return Json(res);
+                //var res = new { result = "FAIL", detail = "id is null" };
+                //return Json(res);
+                _result = "FAIL"; _detail = "id or key value is null";
             }
-            _pid = (int)pid;
-
-            try
+            else
             {
-                string pidJSON = null;
-                List<VNW.ViewModels.ShoppingCart> shoppingCarts = new List<VNW.ViewModels.ShoppingCart>();
-                pidJSON = HttpContext.Request.Cookies["pidJSON"];
-                if (pidJSON != null)
-                {
-                    //::merge data
-                    shoppingCarts = JsonConvert.DeserializeObject<List<VNW.ViewModels.ShoppingCart>>(pidJSON);
-
-                    //::found exist item
-                    var found = shoppingCarts.Find(x => x.Pid == _pid);
-                    if (found != null)
+                await Task.Run(() => {
+                    try
                     {
-                        found.Qty = (int)qty;
-                        #region 
-                        //::Read stock from DB
-                        var query = _context.Products.Find(_pid);
-                        if (query != null)
+                        _pid = (int)pid;
+                        string pidJSON = null;
+                        List<VNW.ViewModels.ShoppingCart> shoppingCarts = new List<VNW.ViewModels.ShoppingCart>();
+                        pidJSON = HttpContext.Request.Cookies["pidJSON"];
+                        if (pidJSON != null)
                         {
-                            found.Stock = (short) query.UnitsInStock;
+                            //::merge data
+                            shoppingCarts = JsonConvert.DeserializeObject<List<VNW.ViewModels.ShoppingCart>>(pidJSON);
+
+                            //::found exist item
+                            var found = shoppingCarts.Find(x => x.Pid == _pid);
+                            if (found != null)
+                            {
+                                found.Qty = (int)qty;
+                                #region 
+                                //::Read stock from DB
+                                var query = _context.Products.Find(_pid);
+                                if (query != null)
+                                {
+                                    found.Stock = (short)query.UnitsInStock;
+                                }
+                                else
+                                    found.Stock = 0; //TBC
+                                #endregion
+
+                                pidJSON = JsonConvert.SerializeObject(shoppingCarts);
+                                HttpContext.Response.Cookies.Append("pidJSON", pidJSON);
+                                //var res1 = new { result = "PASS", detail = found };
+                                //return Json(res1);
+                                _result = "PASS"; _detail = "";
+                            }
+                            else
+                            {
+                                //::not found
+                                _result = "NG"; _detail = "no match data";
+                            }
                         }
                         else
-                            found.Stock = 0; //TBC
-                        #endregion
+                        {
+                            //HttpContext.Response.Cookies.Append("pidJSON", pidJSON);
+                            //var res2 = new { result = "NG", detail = "no match data" };
+                            //return Json(res2);                        
+                            _result = "NG"; _detail = "something is null";
+                        }
 
-                        pidJSON = JsonConvert.SerializeObject(shoppingCarts);
-                        HttpContext.Response.Cookies.Append("pidJSON", pidJSON);
-                        var res1 = new { result = "PASS", detail = found};
-                        return Json(res1);
                     }
-                    else
+                    catch (Exception ex)
                     {
-                        //::not found
+                        //var res2 = new { result = "Err", detail = "" };
+                        //return Json(res2);
+                        _result = "ERROR"; _detail = "" + ex.ToString();
                     }
-                }
-                //HttpContext.Response.Cookies.Append("pidJSON", pidJSON);
-                var res2 = new { result = "NG", detail = "no match data"};
-                return Json(res2);
-            }
-            catch
-            {
-                var res2 = new { result = "Err", detail = ""};
-                return Json(res2);
-            }
+                });
+            }         
+            var res = new { result = _result, detail = _detail};
+            return Json(res);
         }
 
         //::api for remove all products from shopping cart
