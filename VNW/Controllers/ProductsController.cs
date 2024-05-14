@@ -574,12 +574,25 @@ namespace VNW.Controllers
                         #region ::sync stock value from DB
                         foreach(var s in shoppingCarts)
                         {
-                            VNW.Models.Product q2 = _context.Products.Find(s.Pid);
-                            if (q2 != null)
+                            var q1 = from p in _context.Products
+                                     where p.ProductId == s.Pid
+                                     select new {p.ProductId, p.UnitsInStock };
+                            if(q1 != null)
                             {
-                                s.Stock = (short) q2.UnitsInStock;
-                                //Debug.WriteLine(" " + q2.UnitsInStock);
-                            }
+                                var q12 = q1.First(); // x => x.ProductId == s.Pid);
+                                if(q12 != null)
+                                    s.Stock = (short)q12.UnitsInStock;
+                            }                           
+
+                            //VNW.Models.Product q2 = _context.Products.Find(s.Pid);
+                            //if (q2 != null)
+                            //{
+                            //    s.Stock = (short) q2.UnitsInStock;
+                            //    //Debug.WriteLine(" " + q2.UnitsInStock);
+                            //}
+
+                            //var q3 = _context.Products.Select(x => new { x.ProductId, x.UnitsInStock })
+                            //  .Where(x=>x.ProductId == s.Pid);
                         }
                         #endregion
 
@@ -636,7 +649,10 @@ namespace VNW.Controllers
                                 found.Qty = (int)qty;
                                 #region 
                                 //::Read stock from DB
-                                var query = _context.Products.Find(_pid);
+                                var query = _context.Products
+                                .Where(x=>x.ProductId == _pid)
+                                .Select(x=> new { x.ProductId, x.UnitsInStock }).First();                                
+                                //.Find(_pid);
                                 if (query != null)
                                 {
                                     found.Stock = (short)query.UnitsInStock;
