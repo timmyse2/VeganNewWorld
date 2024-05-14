@@ -1,7 +1,7 @@
 ﻿@model IEnumerable<VNW.ViewModels.ShoppingCart>
 
 @{
-    ViewData["Title"] = "PrepareOrder";
+    ViewData["Title"] = "確認購物車";
     int totalPriceSum = 0;
 }
 
@@ -111,11 +111,11 @@
                                     {
                                         if (i == @item.Qty)
                                         {
-                                            <option selected>@i</option>
+                                            <option selected value="@i">@i</option>
                                         }
                                         else
                                         {
-                                            <option>@i</option>
+                                            <option value="@i">@i</option>
                                         }
                                     }
                                 </select>
@@ -466,15 +466,9 @@
                     if (data.result == "PASS") {
                         console.log("PASS ");
 
-                        //::update Stock to <option>
-                        //keepSelectObj.remove(); //No, it includes <select>
-
-                        //console.log(" keep this val: " + keepThis.val());
+                        //::update Stock to <option>                                                
                         keepThis.empty(); //remove sub <option>
-                        //console.log(" keep this val: " + keepThis.val());
-                        //$(this).append("<select>99</select>");
-
-                        //var jsdata = JSON.parse(data.detail);
+                        //keepSelectObj.remove(); //No, it includes <select>
                         console.log(" stock:" + data.detail);
                         var i = 0;
                         var _stock = parseInt(data.detail);
@@ -482,16 +476,23 @@
                             keepThis.parent().append('<b class="text-danger">庫存不夠!</b>');
                             newQtyValue = _stock;
                         }
+                        else {
+                            //remove warning
+                            if (keepThis.parent().find('b').length > 0) {
+                                console.log('remove warning');
+                                keepThis.parent().find('b').remove();
+                            }
+                        }                        
+                        
                         for (i = 0; i < _stock; i++) {
                             //console.log(" " + i + " " + keepThis.val());
                             if ((i+1) == newQtyValue) {
-                                keepThis.append('<option selected>' + (i+1) + '</option>');
+                                keepThis.append('<option selected value="' + (i+1) +'">' + (i+1) + '</option>');
                             }
                             else {
-                                keepThis.append('<option>' + (i+1) + '</option>');
+                                keepThis.append('<option value="' + (i + 1) + '">' + (i + 1) + '</option>');
                             }                            
                         }
-
 
                         //:: Total Price Sum
                         var oldSum = parseInt($('#TotalPriceSum').text());

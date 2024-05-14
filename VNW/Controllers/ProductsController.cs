@@ -571,11 +571,16 @@ namespace VNW.Controllers
                         //return Json(res2);
                         //TempData["td_serverMessage"] = "";
 
-                        //::update Stock from DB (TBD)
-                        #region 
-                        //::Read stock from DB
-                        //var query = _context.Products.Where(x=>x.)
-
+                        #region ::sync stock value from DB
+                        foreach(var s in shoppingCarts)
+                        {
+                            VNW.Models.Product q2 = _context.Products.Find(s.Pid);
+                            if (q2 != null)
+                            {
+                                s.Stock = (short) q2.UnitsInStock;
+                                //Debug.WriteLine(" " + q2.UnitsInStock);
+                            }
+                        }
                         #endregion
 
                         if (shoppingCarts.Count <= 0)
