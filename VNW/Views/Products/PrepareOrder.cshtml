@@ -449,6 +449,9 @@
             //::call api to update qty in cookie
             //::update qty select range?  {1 ~ stock}
             var surl = "UpdateQty";
+
+            var keepThis = $(this);
+
             $.ajax({
                 url: surl,
                 type: "POST",
@@ -463,8 +466,32 @@
                     if (data.result == "PASS") {
                         console.log("PASS ");
 
-                        //::update Stock
-                        //this.
+                        //::update Stock to <option>
+                        //keepSelectObj.remove(); //No, it includes <select>
+
+                        //console.log(" keep this val: " + keepThis.val());
+                        keepThis.empty(); //remove sub <option>
+                        //console.log(" keep this val: " + keepThis.val());
+                        //$(this).append("<select>99</select>");
+
+                        //var jsdata = JSON.parse(data.detail);
+                        console.log(" stock:" + data.detail);
+                        var i = 0;
+                        var _stock = parseInt(data.detail);
+                        if (newQtyValue > _stock) {
+                            keepThis.parent().append('<b class="text-danger">庫存不夠!</b>');
+                            newQtyValue = _stock;
+                        }
+                        for (i = 0; i < _stock; i++) {
+                            //console.log(" " + i + " " + keepThis.val());
+                            if ((i+1) == newQtyValue) {
+                                keepThis.append('<option selected>' + (i+1) + '</option>');
+                            }
+                            else {
+                                keepThis.append('<option>' + (i+1) + '</option>');
+                            }                            
+                        }
+
 
                         //:: Total Price Sum
                         var oldSum = parseInt($('#TotalPriceSum').text());

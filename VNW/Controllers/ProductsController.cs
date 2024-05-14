@@ -299,110 +299,129 @@ namespace VNW.Controllers
 
         //::api for adding p.id in cookie 
         //public async Task<IActionResult> AddProductInOrder(int? pid)
-        public IActionResult AddProductInOrder(int? pid, string pname, string img, int? price)
+        public async Task<IActionResult> AddProductInOrder(int? pid, string pname, string img, int? price)
         {
             //::check pid
             int _pid;
             if (pid == 0 || pid == null)
             {
-                var res = new { result = "FAIL", detail = "id is null", prodCount=0 };
-                return Json(res);
+                var res0 = new { result = "FAIL", detail = "id is null", prodCount=0 };
+                return Json(res0);
             }
             _pid = (int)pid;
+            string _result = "tbc", _detail = "tbc";
+            int _prodCount = 0;
 
-            try
-            {
-                string pidJSON = null;
-                List<VNW.ViewModels.ShoppingCart> shoppingCarts = new List<VNW.ViewModels.ShoppingCart>();
-                pidJSON = HttpContext.Request.Cookies["pidJSON"];
-                bool isUpdateData = false;
-                if (pidJSON == null)
+            await Task.Run(() => {
+                try
                 {
-                    //if null then add new             
-                    isUpdateData = true;
-                    //shoppingCarts.Add(new ShoppingCart
-                    //{
-                    //    Pid = _pid,
-                    //    Qty = 1,
-                    //    Name = "",
-                    //    Img = ""
-                    //});
-                    //pidJSON = JsonConvert.SerializeObject(shoppingCarts);
-                }
-                else
-                {
-                    //::merge data
-                    shoppingCarts = JsonConvert.DeserializeObject<List<VNW.ViewModels.ShoppingCart>>(pidJSON);
-
-                    //::found exist item repeatedly
-                    var found = shoppingCarts.Find(x => x.Pid == _pid);
-                    //ShoppingCart tsc = new ShoppingCart { Pid = _pid, Qty = 1 };
-                    //if (shoppingCarts.Contains(tsc))                    
-                    //if (shoppingCarts.Contains(new ShoppingCart { Pid = _pid, Qty = 1 }))
-                    if (found != null)
+                    string pidJSON = null;
+                    List<VNW.ViewModels.ShoppingCart> shoppingCarts = new List<VNW.ViewModels.ShoppingCart>();
+                    pidJSON = HttpContext.Request.Cookies["pidJSON"];
+                    bool isUpdateData = false;
+                    if (pidJSON == null)
                     {
-                        //::do not add it to new item again
-                        //Debug.WriteLine("Found ");
-                        //found.Qty++;
-                        //pidJSON = JsonConvert.SerializeObject(shoppingCarts);
-                        isUpdateData = false;
-                    }
-                    else
-                    {
+                        //if null then add new             
                         isUpdateData = true;
-                        //Debug.WriteLine("not find ");
-                    }
-                }
-                //Debug.WriteLine("shoppingCarts.Count " + shoppingCarts.Count);
-                //ViewBag.shoppingCartsCount = shoppingCarts.Count;
-
-                if(isUpdateData)
-                {
-                    //::load stock value from DB
-                    short _stock = 0;
-
-                    var query = _context.Products.Find(_pid);
-                    if(query != null)
-                    {
-                        _stock = (short)query.UnitsInStock;
-                        shoppingCarts.Add(new VNW.ViewModels.ShoppingCart
-                        {
-                            Pid = _pid,
-                            Qty = 1,
-                            Name = query.ProductName,
-                            Price = (int) query.UnitPrice,
-                            Img = query.Picture,
-                            Stock = _stock, //add stock
-                        });
+                        //shoppingCarts.Add(new ShoppingCart
+                        //{
+                        //    Pid = _pid,
+                        //    Qty = 1,
+                        //    Name = "",
+                        //    Img = ""
+                        //});
+                        //pidJSON = JsonConvert.SerializeObject(shoppingCarts);
                     }
                     else
                     {
-                        //error case
-                        var res3 = new { result = "fail", detail = "no match data", prodCount = 0 };
-                        return Json(res3);
+                        //::merge data
+                        shoppingCarts = JsonConvert.DeserializeObject<List<VNW.ViewModels.ShoppingCart>>(pidJSON);
+
+                        //::found exist item repeatedly
+                        var found = shoppingCarts.Find(x => x.Pid == _pid);
+                        //ShoppingCart tsc = new ShoppingCart { Pid = _pid, Qty = 1 };
+                        //if (shoppingCarts.Contains(tsc))                    
+                        //if (shoppingCarts.Contains(new ShoppingCart { Pid = _pid, Qty = 1 }))
+                        if (found != null)
+                        {
+                            //::do not add it to new item again
+                            //Debug.WriteLine("Found ");
+                            //found.Qty++;
+                            //pidJSON = JsonConvert.SerializeObject(shoppingCarts);
+                            isUpdateData = false;
+                            _result = "PASS";
+                            _detail = "Repeated";// pidJSON;
+                            _prodCount = shoppingCarts.Count;
+                        }
+                        else
+                        {
+                            isUpdateData = true;
+                            //Debug.WriteLine("not find ");
+                        }
+                    }
+                    //Debug.WriteLine("shoppingCarts.Count " + shoppingCarts.Count);
+                    //ViewBag.shoppingCartsCount = shoppingCarts.Count;
+
+                    if (isUpdateData)
+                    {
+                        //::load stock value from DB
+                        short _stock = 0;
+
+                        var query = _context.Products.Find(_pid);
+                        if (query != null)
+                        {
+                            _stock = (short)query.UnitsInStock;
+                            shoppingCarts.Add(new VNW.ViewModels.ShoppingCart
+                            {
+                                Pid = _pid,
+                                Qty = 1,
+                                Name = query.ProductName,
+                                Price = (int)query.UnitPrice,
+                                Img = query.Picture,
+                                Stock = _stock, //add stock
+                            });
+                            pidJSON = JsonConvert.SerializeObject(shoppingCarts);
+                            HttpContext.Response.Cookies.Append("pidJSON", pidJSON);
+                            _result = "PASS";
+                            _detail = "new";// pidJSON;
+                            _prodCount = shoppingCarts.Count;
+                        }
+                        else
+                        {
+                            //error case
+                            //var res3 = new { result = "fail", detail = "no match data", prodCount = 0 };
+                            //return Json(res3);
+                            _result = "NG"; _detail = "query is null"; _prodCount = 0;
+                        }
+
+                        //shoppingCarts.Add(new VNW.ViewModels.ShoppingCart
+                        //{
+                        //    Pid = _pid,
+                        //    Qty = 1,
+                        //    Name = pname,
+                        //    Price = (int) price,
+                        //    Img =  img,
+                        //    Stock = _stock, //add stock
+                        //});
+                        //pidJSON = JsonConvert.SerializeObject(shoppingCarts);
                     }
 
-                    //shoppingCarts.Add(new VNW.ViewModels.ShoppingCart
-                    //{
-                    //    Pid = _pid,
-                    //    Qty = 1,
-                    //    Name = pname,
-                    //    Price = (int) price,
-                    //    Img =  img,
-                    //    Stock = _stock, //add stock
-                    //});
-                    pidJSON = JsonConvert.SerializeObject(shoppingCarts);
+                    //HttpContext.Response.Cookies.Append("pidJSON", pidJSON);
+                    //var res2 = new { result = "PASS", detail = pidJSON, prodCount = shoppingCarts.Count };
+                    //return Json(res2);
                 }
+                catch (Exception ex)
+                {
+                    //var res2 = new { result = "Err", detail = "" + ex.ToString(), prodCount = 0 };
+                    //return Json(res2);
 
-                HttpContext.Response.Cookies.Append("pidJSON", pidJSON);
-                var res2 = new { result = "PASS", detail = pidJSON, prodCount = shoppingCarts.Count };            
-                return Json(res2);
-            }
-            catch (Exception ex)
-            {
-                var res2 = new { result = "Err", detail = "" + ex.ToString(), prodCount = 0 };
-                return Json(res2);
-            }
+                    _result = "Err"; _detail = ex.ToString(); _prodCount = 0;
+                }
+            });
+
+
+            var res = new { result = _result, detail = _detail, prodCount = _prodCount };
+            return Json(res);            
         }
 
         //::get data from Cookie - API for testing
@@ -552,6 +571,13 @@ namespace VNW.Controllers
                         //return Json(res2);
                         //TempData["td_serverMessage"] = "";
 
+                        //::update Stock from DB (TBD)
+                        #region 
+                        //::Read stock from DB
+                        //var query = _context.Products.Where(x=>x.)
+
+                        #endregion
+
                         if (shoppingCarts.Count <= 0)
                         {
                             TempData["td_serverWarning"] = "訂單是空的，請選擇商品";
@@ -618,7 +644,7 @@ namespace VNW.Controllers
                                 HttpContext.Response.Cookies.Append("pidJSON", pidJSON);
                                 //var res1 = new { result = "PASS", detail = found };
                                 //return Json(res1);
-                                _result = "PASS"; _detail = "";
+                                _result = "PASS"; _detail = found.Stock.ToString();   //pidJSON; // "";
                             }
                             else
                             {
