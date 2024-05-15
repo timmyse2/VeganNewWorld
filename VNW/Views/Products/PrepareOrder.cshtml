@@ -604,6 +604,13 @@
             */
         }); 
 
+        $('#btn_SendOrder').click(function () {
+            $(this).hide();
+            SetBusy();
+
+            window.location = "CheckOrder";
+        });
+
         console.log("jquery end");
     </script>
 

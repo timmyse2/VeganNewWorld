@@ -1,0 +1,83 @@
+﻿
+@{
+    ViewData["Title"] = "訂單明細";
+    VNW.Models.Customer member = null;
+    VNW.Models.Order newOrder = null;
+    IEnumerable<VNW.Models.OrderDetail> OrderDetails = null;
+
+}
+
+<h2>@ViewData["Title"]</h2>
+
+<hr />
+<h4>Cusomter</h4>
+@if (ViewData["member"] != null)
+{
+    member = (VNW.Models.Customer)ViewData["member"];
+    <ul>
+        <li>@member.CustomerId</li>
+        <li>@member.CompanyName</li>
+    </ul>
+}
+else
+{
+    <span>member is null</span>
+}
+
+<hr />
+<h4>Order</h4>
+@if (ViewData["newOrder"] != null)
+{
+    newOrder = (VNW.Models.Order)ViewData["newOrder"];
+
+
+<dl class="dl-horizontal">
+    <dt>uid</dt>
+    <dd>@newOrder.CustomerId</dd>
+    <dt>oid</dt>
+    <dd>@newOrder.OrderId</dd>
+    <dt>address</dt>
+    <dd>@newOrder.ShipAddress</dd>
+    <dt>ship name</dt>
+    <dd>@newOrder.ShipName</dd>
+    <dt>city</dt>
+    <dd>@newOrder.ShipCity</dd>
+    <dt>Postal Code</dt>
+    <dd>@newOrder.ShipPostalCode</dd>
+      
+</dl>
+
+}
+
+<hr />
+<h4>Prodcut Details of Order</h4>
+@if (ViewData["OrderDetails"] != null)
+{
+    OrderDetails = (IEnumerable<VNW.Models.OrderDetail>)ViewData["OrderDetails"];
+<table class="table">
+    <tr>
+        <td>oid</td><td>pid</td><td>Name</td><td>qty</td><td>price</td><td>total</td>
+    </tr>
+    @foreach (var item in OrderDetails)
+    {
+    <tr>
+        <td>@item.OrderId</td>
+        <td>@item.ProductId</td>
+        <td>
+            @if (item.Product != null)
+            {
+                @item.Product.ProductName
+            }
+            </td>
+        <td>@item.Quantity </td>
+        <td>$@item.UnitPrice</td>
+        <td>$@(item.UnitPrice * item.Quantity) </td>
+
+    </tr>
+    }
+</table>
+}
+
+
+
+

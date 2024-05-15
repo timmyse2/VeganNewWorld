@@ -741,5 +741,143 @@ namespace VNW.Controllers
             return Json(res);
         }
 
+        //::for end user, check order then set official data in Orders and OrderDetails
+        public async Task<IActionResult> CheckOrder()
+        {
+            if (!_ms.LoginPrecheck(HttpContext.Session))
+                return RedirectToAction("Login", "Customers");            
+
+            try
+            {
+                //::get temporary data of ShoppingCart from cookie
+                string pidJSON = null;
+                List<ShoppingCart> shoppingCarts = new List<ShoppingCart>();
+                pidJSON = HttpContext.Request.Cookies["pidJSON"];
+                if (pidJSON == null)
+                {
+                    TempData["td_serverWarning"] = "訂單是空的，請選擇商品";
+                    return View();
+                }
+                else
+                {
+                    shoppingCarts = JsonConvert.DeserializeObject<List<VNW.ViewModels.ShoppingCart>>(pidJSON);
+                    if (shoppingCarts.Count <= 0)
+                    {
+                        TempData["td_serverWarning"] = "訂單是空的，請選擇商品";
+                        //::error case
+                        return View();
+                    }
+                    else
+                    {
+                        TempData["td_serverInfo"] = "取得資料" + shoppingCarts.Count;
+
+                        //::find matched data from DB
+                        #region sync stock data 
+                        List<int> pids = new List<int>();
+                        foreach (var s in shoppingCarts) //get pid from cookie                        
+                            pids.Add(s.Pid);
+
+                        //::find product data from DB
+                        var queryP =  await _context.Products
+                            //.Select(x => new { x.ProductId, x.UnitsInStock })
+                            .Where(x => pids.Contains(x.ProductId))
+                            .ToListAsync();
+                            //.ToList();                            
+
+                        if (queryP != null)
+                        {
+                            //Debug.WriteLine(" Mathced DB Count: " + queryDB.Count());
+                            //put matched stock in cookie
+                            foreach (var q in queryP)
+                            {
+                                Debug.WriteLine("id: " + q.ProductId + ", stock: " + q.UnitsInStock);
+                                var sc = shoppingCarts.Where(x => x.Pid == q.ProductId).First();
+                                if (sc != null)
+                                {
+                                    //::check stock is enough                                    
+                                    if(sc.Stock != q.UnitsInStock)
+                                    {
+                                        sc.Stock = (short)q.UnitsInStock;
+                                    }
+                                }
+
+                            }
+                            Debug.WriteLine("\n EOD ");
+
+                            //pass case
+                            //return View(queryDB);
+                            //return Json(queryDB);
+
+                            //::check price
+
+                            //::get info customer 
+                            //:: Get customer Id, Name, Info {address}
+                            string UserAccount = _ms.GetMySession("UserAccount", HttpContext.Session);
+                            Models.Customer member = await _context.Customer
+                                .Where(x => x.CustomerId == UserAccount)
+                                .FirstOrDefaultAsync()
+                                ;
+                            ViewData["member"] = member;
+
+                            int currentOrderId = 0;
+                            currentOrderId = 17258;
+                            //:: set Order = o.id + ... 
+                            //call NewOrder() Orders ?
+                            Models.Order newOrder = new Order {                                
+                                CustomerId = member.CustomerId,
+                                OrderId = currentOrderId, //auto set?
+                                ShipAddress = member.Address,
+                                ShipCity= member.City,
+                                ShipName = member.CompanyName,
+                                ShipCountry = member.Country,
+                            };
+                            ViewData["newOrder"] = newOrder;
+
+                            //::create Details = o.id + {p.id s} + qty
+                            //check Detail is exist or not
+
+                            
+                            List<Models.OrderDetail> ods = new List<OrderDetail>();
+                            foreach (var p in queryP)
+                            {
+                                Models.OrderDetail od = new OrderDetail {
+                                    ProductId = p.ProductId,
+                                    OrderId = currentOrderId, //current Order                                    
+                                    UnitPrice = (decimal)p.UnitPrice,
+                                    Quantity = 1, //from cart
+                                    Discount = 0,
+                                };
+                                ods.Add(od);
+                            }
+                            ViewData["OrderDetails"] = ods;
+
+                            //::update product, reduce stock
+
+                            //::clear shopping cart cookie
+
+                            //return Json(ods);
+
+                            return View();
+                        }
+                        else
+                        {
+                            //fail case
+                        }
+                        #endregion
+                    }
+                    return View(shoppingCarts);
+                }
+            }
+            catch
+            {
+                //var res2 = new { result = "Err", detail = "", prodCount = 0 };
+                //return Json(res2);
+                TempData["td_serverWarning"] = "發生未知錯誤";
+                return View();
+            }
+
+            return View();
+        }
+
     }
 }
