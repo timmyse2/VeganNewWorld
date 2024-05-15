@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using VNW.Models;
 
 using VNW.ViewModels;//
-using System.Diagnostics;
+using System.Diagnostics; //for debug
 using VNW.Common; //for lib
 using Newtonsoft.Json; //for json
 
@@ -316,7 +316,7 @@ namespace VNW.Controllers
                 try
                 {
                     string pidJSON = null;
-                    List<VNW.ViewModels.ShoppingCart> shoppingCarts = new List<VNW.ViewModels.ShoppingCart>();
+                    List<ShoppingCart> shoppingCarts = new List<VNW.ViewModels.ShoppingCart>();
                     pidJSON = HttpContext.Request.Cookies["pidJSON"];
                     bool isUpdateData = false;
                     if (pidJSON == null)
@@ -572,29 +572,51 @@ namespace VNW.Controllers
                         //TempData["td_serverMessage"] = "";
 
                         #region ::sync stock value from DB
-                        foreach(var s in shoppingCarts)
+                        //foreach(var s in shoppingCarts)
+                        //{
+                        //    var query = (from p in _context.Products
+                        //             where p.ProductId == s.Pid
+                        //             select new {p.ProductId, p.UnitsInStock })
+                        //             .First();
+                        //    if(query != null)
+                        //    {
+                        //        //var q1Res = q1.First(); // x => x.ProductId == s.Pid);
+                        //        //if(q1Res != null)
+                        //        //  s.Stock = (short)q1Res.UnitsInStock;
+                        //        s.Stock = (short)query.UnitsInStock;
+                        //    }                           
+
+                        //    //VNW.Models.Product q2 = _context.Products.Find(s.Pid);
+                        //    //if (q2 != null)
+                        //    //{
+                        //    //    s.Stock = (short) q2.UnitsInStock;
+                        //    //    //Debug.WriteLine(" " + q2.UnitsInStock);
+                        //    //}
+
+                        //    //var q3 = _context.Products.Select(x => new { x.ProductId, x.UnitsInStock })
+                        //    //  .Where(x=>x.ProductId == s.Pid);
+                        //}
+                        #endregion
+                        #region sync stock - use Contains to send SQL only one time
+                        List<int> Ids = new List<int>(); // { 1, 70, 20, 5, 80 };
+                        foreach(var s in shoppingCarts) //get pid from cookie                        
+                            Ids.Add(s.Pid);
+                        //::find stock from DB
+                        var queryDB = _context.Products 
+                            .Select(x => new {x.ProductId, x.UnitsInStock })
+                            .Where(x => Ids.Contains(x.ProductId)).ToList();
+                        if(queryDB != null)
                         {
-                            var query = (from p in _context.Products
-                                     where p.ProductId == s.Pid
-                                     select new {p.ProductId, p.UnitsInStock })
-                                     .First();
-                            if(query != null)
+                            Debug.WriteLine(" Mathced DB Count: " + queryDB.Count());                            
+                            //put matched stock in cookie
+                            foreach(var q in queryDB)
                             {
-                                //var q1Res = q1.First(); // x => x.ProductId == s.Pid);
-                                //if(q1Res != null)
-                                //  s.Stock = (short)q1Res.UnitsInStock;
-                                s.Stock = (short)query.UnitsInStock;
-                            }                           
-
-                            //VNW.Models.Product q2 = _context.Products.Find(s.Pid);
-                            //if (q2 != null)
-                            //{
-                            //    s.Stock = (short) q2.UnitsInStock;
-                            //    //Debug.WriteLine(" " + q2.UnitsInStock);
-                            //}
-
-                            //var q3 = _context.Products.Select(x => new { x.ProductId, x.UnitsInStock })
-                            //  .Where(x=>x.ProductId == s.Pid);
+                                Debug.WriteLine("id: " + q.ProductId + ", stock: " + q.UnitsInStock);
+                                var sc = shoppingCarts.Where(x => x.Pid == q.ProductId).First();
+                                if(sc !=null)
+                                    sc.Stock = (short)q.UnitsInStock;                                
+                            }
+                            Debug.WriteLine("\n EOD ");
                         }
                         #endregion
 

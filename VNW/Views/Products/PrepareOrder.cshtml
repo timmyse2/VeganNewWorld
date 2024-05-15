@@ -109,7 +109,7 @@
 
                                     @for (int i = 1; i <= item.Stock; i++)
                                     {
-                                        if (i == @item.Qty)
+                                        if ((i == @item.Qty) || (item.Stock < item.Qty && i== item.Stock))
                                         {
                                             <option selected value="@i">@i</option>
                                         }
@@ -158,7 +158,7 @@
 
         <div style="text-align:right;">
             <a id="btn_SendOrder" class="btn btn-primary btn-lg">確認並送出</a>
-            @*<p></p>註: 在下一個步驟才會正式，暫存的資料庫存量*@
+            <p>註: 您暫存的訂貨量與實際庫存、金額待在下一步清算</p>
         </div>
     }
 }
