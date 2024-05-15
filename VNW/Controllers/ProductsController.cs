@@ -574,14 +574,16 @@ namespace VNW.Controllers
                         #region ::sync stock value from DB
                         foreach(var s in shoppingCarts)
                         {
-                            var q1 = from p in _context.Products
+                            var query = (from p in _context.Products
                                      where p.ProductId == s.Pid
-                                     select new {p.ProductId, p.UnitsInStock };
-                            if(q1 != null)
+                                     select new {p.ProductId, p.UnitsInStock })
+                                     .First();
+                            if(query != null)
                             {
-                                var q12 = q1.First(); // x => x.ProductId == s.Pid);
-                                if(q12 != null)
-                                    s.Stock = (short)q12.UnitsInStock;
+                                //var q1Res = q1.First(); // x => x.ProductId == s.Pid);
+                                //if(q1Res != null)
+                                //  s.Stock = (short)q1Res.UnitsInStock;
+                                s.Stock = (short)query.UnitsInStock;
                             }                           
 
                             //VNW.Models.Product q2 = _context.Products.Find(s.Pid);

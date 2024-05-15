@@ -471,7 +471,9 @@
                         //keepSelectObj.remove(); //No, it includes <select>
                         console.log(" stock:" + data.detail);
                         var i = 0;
-                        var _stock = parseInt(data.detail);
+                        var _stock = parseInt(data.detail);                        
+                        //:: notice Int? or Short?
+
                         if (newQtyValue > _stock) {
                             keepThis.parent().append('<b class="text-danger">庫存不夠!</b>');
                             newQtyValue = _stock;
