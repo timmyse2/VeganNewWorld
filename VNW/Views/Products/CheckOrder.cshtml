@@ -9,14 +9,18 @@
 
 <h2>@ViewData["Title"]</h2>
 
+<div class="alert-danger">@TempData["td_serverWarning"]</div>
+<div class="alert-info">@TempData["td_serverInfo"]</div>
+
 <hr />
-<h4>Cusomter</h4>
+<h4>訂貨客戶</h4>
 @if (ViewData["member"] != null)
 {
     member = (VNW.Models.Customer)ViewData["member"];
     <ul>
-        <li>@member.CustomerId</li>
-        <li>@member.CompanyName</li>
+        <li>ID: @member.CustomerId</li>
+        <li>姓名: @member.ContactName</li>
+        <li>公司: @member.CompanyName</li>
     </ul>
 }
 else
@@ -25,42 +29,59 @@ else
 }
 
 <hr />
-<h4>Order</h4>
+<h4>訂單主頁</h4>
 @if (ViewData["newOrder"] != null)
 {
     newOrder = (VNW.Models.Order)ViewData["newOrder"];
 
-
-<dl class="dl-horizontal">
-    <dt>uid</dt>
-    <dd>@newOrder.CustomerId</dd>
-    <dt>oid</dt>
-    <dd>@newOrder.OrderId</dd>
-    <dt>address</dt>
-    <dd>@newOrder.ShipAddress</dd>
-    <dt>ship name</dt>
-    <dd>@newOrder.ShipName</dd>
-    <dt>city</dt>
-    <dd>@newOrder.ShipCity</dd>
-    <dt>Postal Code</dt>
-    <dd>@newOrder.ShipPostalCode</dd>
-      
-</dl>
+    <table class="table">
+        <tr>
+            <td>客戶帳號</td>
+            <td>@newOrder.CustomerId</td>
+        </tr>
+        <tr>
+            <td>訂單編號</td>
+            <td>@newOrder.OrderId</td>
+        </tr>
+        <tr>
+            <td>地址</td>
+            <td>@newOrder.ShipAddress</td>
+        </tr>
+        <tr>
+            <td>收貨地(公司|組織)</td>
+            <td>@newOrder.ShipName</td>
+        </tr>
+        <tr>
+            <td>城市</td>
+            <td>@newOrder.ShipCity</td>
+        </tr>
+        <tr>
+            <td>郵遞區號</td>
+            <td>@newOrder.ShipPostalCode</td>
+        </tr>
+    </table>
 
 }
 
 <hr />
-<h4>Prodcut Details of Order</h4>
+<h4>訂單明細</h4>
 @if (ViewData["OrderDetails"] != null)
 {
     OrderDetails = (IEnumerable<VNW.Models.OrderDetail>)ViewData["OrderDetails"];
 <table class="table">
     <tr>
-        <td>oid</td><td>pid</td><td>Name</td><td>qty</td><td>price</td><td>total</td>
+        <td>#</td><td>訂單編號(需全相同)</td>
+        <td>商品編號</td><td>商品名稱</td><td>數量</td><td>單價</td><td>小記</td>
     </tr>
+    @{ 
+        decimal totalSum = 0;
+        int i = 0;
+    }
+
     @foreach (var item in OrderDetails)
     {
     <tr>
+        <td>@(++i)</td>
         <td>@item.OrderId</td>
         <td>@item.ProductId</td>
         <td>
@@ -71,11 +92,18 @@ else
             </td>
         <td>@item.Quantity </td>
         <td>$@item.UnitPrice</td>
-        <td>$@(item.UnitPrice * item.Quantity) </td>
+
+        @{ 
+            decimal totalPrice = item.UnitPrice * item.Quantity;
+            totalSum += totalPrice;
+        }
+
+        <td>$@(totalPrice) </td>
 
     </tr>
     }
 </table>
+    <h3 style="text-align:right">合計: NT$@totalSum</h3>
 }
 
 

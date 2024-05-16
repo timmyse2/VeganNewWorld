@@ -375,5 +375,10 @@ namespace VNW.Controllers
         }
 
 
+        //public async Task<IActionResult> GenerateOrder()
+        //{
+        //    return View();
+        //}
+
     }
 }

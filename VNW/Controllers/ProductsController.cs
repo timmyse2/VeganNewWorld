@@ -769,18 +769,19 @@ namespace VNW.Controllers
                     }
                     else
                     {
-                        TempData["td_serverInfo"] = "取得資料" + shoppingCarts.Count;
+                        //TempData["td_serverInfo"] = "取得資料" + shoppingCarts.Count;
 
                         //::find matched data from DB
                         #region sync stock data 
                         List<int> pids = new List<int>();
+                        List<int> pids_issue = new List<int>();
                         foreach (var s in shoppingCarts) //get pid from cookie                        
                             pids.Add(s.Pid);
 
                         //::find product data from DB
                         var queryP =  await _context.Products
                             //.Select(x => new { x.ProductId, x.UnitsInStock })
-                            .Where(x => pids.Contains(x.ProductId))
+                            .Where(x => pids.Contains(x.ProductId))                            
                             .ToListAsync();
                             //.ToList();                            
 
@@ -794,29 +795,36 @@ namespace VNW.Controllers
                                 var sc = shoppingCarts.Where(x => x.Pid == q.ProductId).First();
                                 if (sc != null)
                                 {
-                                    //::check stock is enough                                    
-                                    if(sc.Stock != q.UnitsInStock)
+                                    //::check stock is enough     
+                                    
+                                    if(sc.Qty > q.UnitsInStock)
+                                    {
+                                        //::show warning or error?
+                                        pids_issue.Add(sc.Pid);
+                                    }
+
+                                    if (sc.Stock != q.UnitsInStock)
                                     {
                                         sc.Stock = (short)q.UnitsInStock;
+                                        //::show warning
                                     }
                                 }
-
                             }
                             Debug.WriteLine("\n EOD ");
-
+                            
+                            if(pids_issue.Count > 0)
+                            {
+                                //someting is worng?
+                                TempData["td_serverWarning"] += " 數量與庫存不合; ";
+                            }
                             //pass case
-                            //return View(queryDB);
-                            //return Json(queryDB);
-
-                            //::check price
 
                             //::get info customer 
                             //:: Get customer Id, Name, Info {address}
                             string UserAccount = _ms.GetMySession("UserAccount", HttpContext.Session);
                             Models.Customer member = await _context.Customer
                                 .Where(x => x.CustomerId == UserAccount)
-                                .FirstOrDefaultAsync()
-                                ;
+                                .FirstOrDefaultAsync();
                             ViewData["member"] = member;
 
                             int currentOrderId = 0;
@@ -825,18 +833,19 @@ namespace VNW.Controllers
                             //call NewOrder() Orders ?
                             Models.Order newOrder = new Order {                                
                                 CustomerId = member.CustomerId,
-                                OrderId = currentOrderId, //auto set?
+                                //OrderId = currentOrderId, //auto set?
                                 ShipAddress = member.Address,
                                 ShipCity= member.City,
                                 ShipName = member.CompanyName,
                                 ShipCountry = member.Country,
+                                ShipPostalCode = member.PostalCode,
                             };
                             ViewData["newOrder"] = newOrder;
 
                             //::create Details = o.id + {p.id s} + qty
                             //check Detail is exist or not
+                            //currentOrderId = 17258;
 
-                            
                             List<Models.OrderDetail> ods = new List<OrderDetail>();
                             foreach (var p in queryP)
                             {
@@ -844,9 +853,16 @@ namespace VNW.Controllers
                                     ProductId = p.ProductId,
                                     OrderId = currentOrderId, //current Order                                    
                                     UnitPrice = (decimal)p.UnitPrice,
-                                    Quantity = 1, //from cart
+                                    //Quantity = 1, //from cart shoppingCarts<*>
                                     Discount = 0,
                                 };
+
+                                var sc = shoppingCarts.Where(x => x.Pid == p.ProductId).First();
+                                if(sc != null)
+                                {
+                                    od.Quantity = (short) sc.Qty; //
+                                }
+
                                 ods.Add(od);
                             }
                             ViewData["OrderDetails"] = ods;
@@ -857,26 +873,29 @@ namespace VNW.Controllers
 
                             //return Json(ods);
 
+                            TempData["td_serverInfo"] += " 無異常; ";
                             return View();
                         }
                         else
                         {
                             //fail case
+                            TempData["td_serverWarning"] += " 購物車內容不正確; ";
                         }
                         #endregion
                     }
-                    return View(shoppingCarts);
+                    //return View(shoppingCarts);
+                    //???
+                    return View(); 
                 }
             }
             catch
             {
                 //var res2 = new { result = "Err", detail = "", prodCount = 0 };
                 //return Json(res2);
-                TempData["td_serverWarning"] = "發生未知錯誤";
+                TempData["td_serverWarning"] += " 發生未知錯誤; ";
                 return View();
             }
-
-            return View();
+            //return View();
         }
 
     }
