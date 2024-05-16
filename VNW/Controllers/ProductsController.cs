@@ -744,6 +744,9 @@ namespace VNW.Controllers
         //::for end user, check order then set official data in Orders and OrderDetails
         public async Task<IActionResult> CheckOrder()
         {
+            return RedirectToAction("CheckOrderAndDetails", "Orders");
+
+
             if (!_ms.LoginPrecheck(HttpContext.Session))
                 return RedirectToAction("Login", "Customers");            
 
@@ -799,7 +802,7 @@ namespace VNW.Controllers
                                     
                                     if(sc.Qty > q.UnitsInStock)
                                     {
-                                        //::show warning or error?
+                                        //::show warning or error???
                                         pids_issue.Add(sc.Pid);
                                     }
 
@@ -807,6 +810,7 @@ namespace VNW.Controllers
                                     {
                                         sc.Stock = (short)q.UnitsInStock;
                                         //::show warning
+                                        pids_issue.Add(sc.Pid);
                                     }
                                 }
                             }
@@ -825,27 +829,46 @@ namespace VNW.Controllers
                             Models.Customer member = await _context.Customer
                                 .Where(x => x.CustomerId == UserAccount)
                                 .FirstOrDefaultAsync();
+
+                            if(member == null)
+                            {
+                                TempData["td_serverWarning"] += " 客戶資訊不明; ";
+                                return View();
+                            }
                             ViewData["member"] = member;
 
-                            int currentOrderId = 0;
-                            currentOrderId = 17258;
-                            //:: set Order = o.id + ... 
-                            //call NewOrder() Orders ?
+                            int currentOrderId = 0;                            
+                            //:: set Order
+                            //  Create New Order or merge to old recordset?
                             Models.Order newOrder = new Order {                                
                                 CustomerId = member.CustomerId,
-                                //OrderId = currentOrderId, //auto set?
+                                //OrderId = currentOrderId, //auto create in sql server
                                 ShipAddress = member.Address,
                                 ShipCity= member.City,
                                 ShipName = member.CompanyName,
                                 ShipCountry = member.Country,
                                 ShipPostalCode = member.PostalCode,
+                                Freight = 0,
+                                ShipVia = 1,
+                                OrderDate = DateTime.Now,
                             };
                             ViewData["newOrder"] = newOrder;
+
+                            //CreateOrder(newOrder);
+                            _context.Add(newOrder);
+                            await _context.SaveChangesAsync();
+
+                            //::get order id, check order
+                            currentOrderId = newOrder.OrderId;
+                            if (currentOrderId == 0)
+                            {
+                                //error case
+                                return Content("error oid is not ready!?");
+                            }
 
                             //::create Details = o.id + {p.id s} + qty
                             //check Detail is exist or not
                             //currentOrderId = 17258;
-
                             List<Models.OrderDetail> ods = new List<OrderDetail>();
                             foreach (var p in queryP)
                             {
@@ -853,17 +876,26 @@ namespace VNW.Controllers
                                     ProductId = p.ProductId,
                                     OrderId = currentOrderId, //current Order                                    
                                     UnitPrice = (decimal)p.UnitPrice,
-                                    //Quantity = 1, //from cart shoppingCarts<*>
-                                    Discount = 0,
+                                    //Quantity = 1, 
+                                    Discount = 0, 
+                                    Product = p, //set queried product data
                                 };
 
+                                //s::et qty from cart
                                 var sc = shoppingCarts.Where(x => x.Pid == p.ProductId).First();
                                 if(sc != null)
                                 {
-                                    od.Quantity = (short) sc.Qty; //
-                                }
+                                    od.Quantity = (short) sc.Qty;
+                                    ods.Add(od);
 
-                                ods.Add(od);
+                                    //::write to DB
+                                    _context.Add(od);
+                                    await _context.SaveChangesAsync();
+                                }
+                                else
+                                {
+                                    //error case?
+                                }
                             }
                             ViewData["OrderDetails"] = ods;
 

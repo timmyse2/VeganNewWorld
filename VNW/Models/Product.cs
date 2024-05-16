@@ -31,7 +31,7 @@ namespace VNW.Models
         [Display(Name = "單價")]
         public decimal? UnitPrice { get; set; }
 
-        [Display(Name = "庫存")]
+        [Display(Name = "庫存量")]
         public short? UnitsInStock { get; set; }
 
         [Display(Name = "訂購量")]

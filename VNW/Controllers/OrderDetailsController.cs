@@ -27,7 +27,8 @@ namespace VNW.Controllers
             if (!_ms.CheckAdmin(HttpContext.Session))
                 return Content("You have no right to access this page");
 
-            var veganNewWorldContext = _context.OrderDetails.Include(o => o.Order).Include(o => o.Product);
+            var veganNewWorldContext = _context.OrderDetails.Include(o => o.Order).Include(o => o.Product)
+                .OrderByDescending(x=>x.OrderId);
             return View(await veganNewWorldContext.ToListAsync());
         }
 
