@@ -744,7 +744,7 @@ namespace VNW.Controllers
         //::for end user, check order before create data in DB
         public async Task<IActionResult> CheckOrder()
         {
-            return RedirectToAction("CreateOrderAndDetails", "Orders");
+            //return RedirectToAction("CreateOrderAndDetails", "Orders");
 
 
             if (!_ms.LoginPrecheck(HttpContext.Session))
@@ -842,7 +842,7 @@ namespace VNW.Controllers
                             //  Create New Order or merge to old recordset?
                             Models.Order newOrder = new Order {                                
                                 CustomerId = member.CustomerId,
-                                //OrderId = currentOrderId, //auto create in sql server
+                                OrderId = currentOrderId, //auto create in sql server
                                 ShipAddress = member.Address,
                                 ShipCity= member.City,
                                 ShipName = member.CompanyName,
@@ -854,17 +854,17 @@ namespace VNW.Controllers
                             };
                             ViewData["newOrder"] = newOrder;
 
-                            //CreateOrder(newOrder);
-                            _context.Add(newOrder);
-                            await _context.SaveChangesAsync();
+                            ////CreateOrder(newOrder);
+                            //_context.Add(newOrder);
+                            //await _context.SaveChangesAsync();
 
                             //::get order id, check order
-                            currentOrderId = newOrder.OrderId;
-                            if (currentOrderId == 0)
-                            {
+                            //currentOrderId = newOrder.OrderId;
+                            //if (currentOrderId <= 0)
+                            //{
                                 //error case
-                                return Content("error oid is not ready!?");
-                            }
+                              //  return Content("error oid is not ready!?");
+                            //}
 
                             //::create Details = o.id + {p.id s} + qty
                             //check Detail is exist or not
@@ -885,12 +885,16 @@ namespace VNW.Controllers
                                 var sc = shoppingCarts.Where(x => x.Pid == p.ProductId).First();
                                 if(sc != null)
                                 {
+                                    if (sc.Qty > p.UnitsInStock)
+                                    {
+                                        //error case
+                                    }
                                     od.Quantity = (short) sc.Qty;
                                     ods.Add(od);
 
-                                    //::write to DB
-                                    _context.Add(od);
-                                    await _context.SaveChangesAsync();
+                                    ////::write to DB
+                                    //_context.Add(od);
+                                    //await _context.SaveChangesAsync();
                                 }
                                 else
                                 {

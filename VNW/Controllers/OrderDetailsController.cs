@@ -305,6 +305,7 @@ namespace VNW.Controllers
             string UserAccount = _ms.GetMySession("UserAccount", HttpContext.Session);
             var preCheckOrder = await _context.Orders
                 .Where(o => o.CustomerId == UserAccount && o.OrderId == oid) //sorted 
+                .Include(x=>x.Customer) //try to include more
                 //.Select(o => new {o.CustomerId, o.OrderId } ) //reduce data
                 //.FirstOrDefault()
                 .FirstOrDefaultAsync()

@@ -270,7 +270,7 @@ namespace VNW.Controllers
             return _context.Orders.Any(e => e.OrderId == id);
         }
 
-        //::for end user
+        //::UX for end user
         public async Task<IActionResult> OrderList()
         {
             if (!_ms.LoginPrecheck(HttpContext.Session))
@@ -280,18 +280,31 @@ namespace VNW.Controllers
             string Userid = _ms.GetMySession("UserAccount", HttpContext.Session);            
             ViewBag.UserAccount = Userid;
 
-            var veganNewWorldContext = _context.Orders
+            var orders = _context.Orders
                 .Where(o=> o.CustomerId == Userid) //sorted
                 .Include(o => o.Customer)
-                .Include(o => o.OrderDetails)  //just try !!!!
+                .Include(o => o.OrderDetails)  //get count of od
+                //.Include(x=>x.prod)
                 .OrderByDescending(o=>o.OrderId)                
                 ;
 
-            if (veganNewWorldContext == null)
+            //::page for order - tbd
+
+            if (orders == null)
             {
                 return Content("null");
             }
-            return View(await veganNewWorldContext.ToListAsync());
+
+            //try to put image - but this method is not good!
+            //foreach(var o in orders)
+            //{
+            //    foreach(var od in o.OrderDetails)
+            //    {
+            //        //od.Product
+            //    }
+            //}
+
+            return View(await orders.ToListAsync());
         }
 
         //public bool LoginPrecheck()
@@ -307,7 +320,7 @@ namespace VNW.Controllers
         //    return true;           
         //}
 
-        //:: for End-user
+        //::NOT for End-user
         public async Task<IActionResult> NewOrder()
         {
             //if (!LoginPrecheck())
@@ -335,7 +348,7 @@ namespace VNW.Controllers
             return View();
         }
 
-        //::for end user
+        //::NOT for end user
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> NewOrder([Bind(

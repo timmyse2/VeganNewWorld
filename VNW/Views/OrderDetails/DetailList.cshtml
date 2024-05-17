@@ -34,18 +34,46 @@
 else
 {
     OrderInfo = (VNW.Models.Order)ViewData["preCheckOrder"];
-    <h4>訂單資訊</h4>
+    
 
-    <table class="table">
-        <tr><td>訂單編號</td><td><b>@OrderInfo.OrderId</b></td></tr>
-        <tr><td>客戶帳號</td><td>@OrderInfo.CustomerId</td></tr>
-        <tr><td>訂貨日期</td><td>@OrderInfo.OrderDate</td></tr>
-        <tr><td>出貨地標(公司|組織)</td><td>@OrderInfo.ShipName</td></tr>
-        <tr><td>出貨時間</td><td>@OrderInfo.ShippedDate</td></tr>
-        <tr><td>出貨地址</td><td>@OrderInfo.ShipAddress</td></tr>
-        <tr><td>送貨方式</td><td>@OrderInfo.ShipVia</td></tr>
-        <tr><td>運費</td><td>@OrderInfo.Freight</td></tr>
-    </table>
+    <div class="row">
+        <div class="col-md-6 col-sm-6 col-xs-6">
+            <h4>訂單資訊</h4>
+            <table class="table">
+                <tr><td>訂單編號</td><td><b>@OrderInfo.OrderId</b></td></tr>
+                
+                <tr><td>訂貨日期</td><td>@OrderInfo.OrderDate</td></tr>
+                <tr><td>出貨地標(公司|組織)</td><td>@OrderInfo.ShipName</td></tr>
+                <tr><td>出貨時間</td><td>                                           
+                        @if(OrderInfo.ShippedDate != null)
+                        {
+                            @OrderInfo.ShippedDate
+                        }
+                        else
+                        {
+                            <span class="alert-danger"><b>尚未出貨</b></span>
+                        }
+
+                    </td></tr>
+                <tr><td>出貨地址</td><td>@OrderInfo.ShipAddress</td></tr>
+                <tr><td>送貨方式</td><td>@OrderInfo.ShipVia</td></tr>
+                <tr><td>運費</td><td>@OrderInfo.Freight</td></tr>
+            </table>
+        </div>
+        <div class="col-md-6 col-sm-6 col-xs-6">
+            <h4>客戶資訊</h4>
+            <table class="table">                
+                <tr><td>帳號</td><td>@OrderInfo.CustomerId</td></tr>
+
+                @if (@OrderInfo.Customer != null)
+                {
+                    <tr><td>聯絡人姓名</td><td>@OrderInfo.Customer.ContactName</td></tr>
+                    <tr><td>電話</td><td>@OrderInfo.Customer.Phone</td></tr>
+                }
+
+            </table>
+        </div>
+    </div>    
 }
 
 <h4>訂單內容</h4>

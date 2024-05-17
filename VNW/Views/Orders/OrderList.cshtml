@@ -1,10 +1,10 @@
 ﻿@model IEnumerable<VNW.Models.Order>
 
 @{
-    ViewData["Title"] = "Order List";
+    ViewData["Title"] = "您的訂單總表";
 }
 
-<h2>您的訂單總表</h2>
+<h2>@ViewData["Title"]</h2>
 
 @if (ViewBag.UserAccount == null || ViewBag.UserAccount == "")
 {
@@ -26,6 +26,7 @@ else
 <table class="table">
     <thead>
         <tr>
+            <th></th>
             <th>
                 @Html.DisplayNameFor(model => model.OrderId)
             </th>
@@ -36,9 +37,9 @@ else
             <th>
                 @Html.DisplayNameFor(model => model.OrderDate)
             </th>
-            <th>
+            @*<th>
                 @Html.DisplayNameFor(model => model.RequiredDate)
-            </th>
+            </th>*@
             <th>
                 @Html.DisplayNameFor(model => model.ShippedDate)
             </th>
@@ -64,7 +65,7 @@ else
             @Html.DisplayNameFor(model => model.ShipCountry)
         </th>*@
 
-            <th></th>
+            <th>狀態</th>
         </tr>
     </thead>
     <tbody>
@@ -72,8 +73,13 @@ else
         {
         <tr>
             <td>
+                <a asp-action="DetailList" asp-controller="OrderDetails"
+                   asp-route-oid="@item.OrderId" class="btn btn-primary">詳情</a>
+            </td>
+            <td>
                 @*<a asp-action="Details" asp-route-id="@item.OrderId"> #@item.OrderId</a>*@
-                <a asp-action="DetailList" asp-controller="OrderDetails" asp-route-oid="@item.OrderId"> #@item.OrderId</a>
+                #TJ202405_@item.OrderId
+                
             </td>
             <td>
                 @item.CustomerId
@@ -88,15 +94,26 @@ else
                 @if (item.OrderDetails != null)
                 {
                     @item.OrderDetails.Count<span>件</span>
+
+                    if (item.OrderDetails.Count <= 0)
+                    {
+                        <span class="alert-danger">異常</span>
+                    }
                 }
+
             </td>
             <td>
                 @Html.DisplayFor(modelItem => item.OrderDate)
             </td>
-            <td>
+            @*<td>
                 @Html.DisplayFor(modelItem => item.RequiredDate)
-            </td>
+            </td>*@
             <td>
+                @if (item.ShippedDate == null)
+                {
+                    <span class="alert-danger"><b>尚未出貨</b></span>
+                }
+
                 @Html.DisplayFor(modelItem => item.ShippedDate)
             </td>
             <td>
