@@ -1,15 +1,18 @@
 ﻿@model IEnumerable<VNW.Models.OrderDetail>
 
 @{
-    ViewData["Title"] = "Detail List";
+    ViewData["Title"] = "訂單細節";
+    decimal totalPriceSum = 0;
+    VNW.Models.Order OrderInfo = null;
 }
 
-<h2>訂單細節</h2>
+<h2>@ViewData["Title"]</h2>
 
 <p>
-    User ID: @ViewBag.UserAccount
+    @*User ID: @ViewBag.UserAccount*@
     @*[@ViewBag.UserAccount]
         [@ViewBag.UserLevel]*@
+
 </p>
 
 <div class="alert-danger">
@@ -23,17 +26,34 @@
     return;
 }
 
+
+@if (ViewData["preCheckOrder"] == null)
+{
+
+}
+else
+{
+    OrderInfo = (VNW.Models.Order)ViewData["preCheckOrder"];
+    <h4>訂單資訊</h4>
+
+    <table class="table">
+        <tr><td>訂單編號</td><td><b>@OrderInfo.OrderId</b></td></tr>
+        <tr><td>客戶帳號</td><td>@OrderInfo.CustomerId</td></tr>
+        <tr><td>訂貨日期</td><td>@OrderInfo.OrderDate</td></tr>
+        <tr><td>出貨地標(公司|組織)</td><td>@OrderInfo.ShipName</td></tr>
+        <tr><td>出貨時間</td><td>@OrderInfo.ShippedDate</td></tr>
+        <tr><td>出貨地址</td><td>@OrderInfo.ShipAddress</td></tr>
+        <tr><td>送貨方式</td><td>@OrderInfo.ShipVia</td></tr>
+        <tr><td>運費</td><td>@OrderInfo.Freight</td></tr>
+    </table>
+}
+
+<h4>訂單內容</h4>
 <table class="table">
     <thead>
         <tr>
-            <th>
-                @*@Html.DisplayNameFor(model => model.Order)**@
-                Order ID
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Product)*
-            </th>
-
+            <th>商品</th>
+            <th>名稱</th>
             <th>
                 @Html.DisplayNameFor(model => model.UnitPrice)
             </th>
@@ -44,7 +64,7 @@
                 @Html.DisplayNameFor(model => model.Discount)
             </th>
 
-            <th></th>
+            <th>小記</th>
         </tr>
     </thead>
     <tbody>
@@ -52,19 +72,16 @@
         {
             <tr>
                 <td>
-                    @*#@Html.DisplayFor(modelItem => item.Order.OrderId)*@
-                    @*@item.Order.Customer.ContactName*@
-                    @item.OrderId
-                    @if (item.Order != null)
+                    @if (item.Product != null)
                     {
-                        @item.Order.CustomerId
-                        @*@item.Order.OrderId*@
+                        <img src="~/images/@item.Product.Picture" style="width:80px; " />
                     }
-
                 </td>
                 <td>
-                    @*#@Html.DisplayFor(modelItem => item.Product.ProductId)*@
                     @item.Product.ProductName
+                    @*#@Html.DisplayFor(modelItem => item.Product.ProductId)*@
+                    @*@item.OrderId
+                    (@item.ProductId)*@
                 </td>
                 <td>
                     @Html.DisplayFor(modelItem => item.UnitPrice)
@@ -75,15 +92,17 @@
                 <td>
                     @Html.DisplayFor(modelItem => item.Discount)
                 </td>
-
+                @{
+                    decimal PriceByQty = item.UnitPrice * item.Quantity;
+                    totalPriceSum += PriceByQty;
+                }
                 <td>
-                    @*@Html.ActionLink("Edit", "Edit", new { pid = item.ProductId, oid = item.OrderId }) |
-                        @Html.ActionLink("Details", "Details", new { pid = item.ProductId, oid = item.OrderId })*@
-                    @*@Html.ActionLink("Delete", "Delete", new { pid = item.ProductId, oid = item.OrderId })*@
-
-                    <a class="btn btn-danger">取消</a>
+                    @PriceByQty
                 </td>
             </tr>
         }
     </tbody>
 </table>
+
+
+<h3 style="text-align:right;">總計: NT$ @totalPriceSum </h3>

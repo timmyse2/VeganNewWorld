@@ -303,29 +303,38 @@ namespace VNW.Controllers
 
             #region ::check order's customer id first
             string UserAccount = _ms.GetMySession("UserAccount", HttpContext.Session);
-            var preCheckOrderId = _context.Orders
+            var preCheckOrder = await _context.Orders
                 .Where(o => o.CustomerId == UserAccount && o.OrderId == oid) //sorted 
-                .Select(o => new {o.CustomerId, o.OrderId } ) //reduce data
-                .FirstOrDefault()
+                //.Select(o => new {o.CustomerId, o.OrderId } ) //reduce data
+                //.FirstOrDefault()
+                .FirstOrDefaultAsync()
                 ;
-            if (preCheckOrderId == null) //This is not your order
+            if (preCheckOrder == null) //This is not your order
             {
                 TempData["td_serverMessage"] = "這不是您的訂單!";
                 return View(null);
             }
+            ViewData["preCheckOrder"] = preCheckOrder;
+
             #endregion
 
-            var veganNewWorldContext = _context.OrderDetails
+            var ods = _context.OrderDetails
                 .Where(d => d.OrderId == oid) //
                 //.Include(o => o.Order) //try
                 .Include(p => p.Product)
                 ;
-            if (veganNewWorldContext == null) //
+
+            if (ods == null) //
             {
                 TempData["td_serverMessage"] = "data is null";
             }
 
-            var res = await veganNewWorldContext.ToListAsync();
+            var res = await ods.ToListAsync();
+            if (res == null) //
+            {
+                TempData["td_serverMessage"] = "data is null";
+            }            
+
             return View(res);
             ////return Json(res);
         }

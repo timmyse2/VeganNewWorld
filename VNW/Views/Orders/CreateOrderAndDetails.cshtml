@@ -18,7 +18,7 @@
 {
     member = (VNW.Models.Customer)ViewData["member"];
     <ul>
-        <li>ID: @member.CustomerId</li>
+        <li>ID: <b> @member.CustomerId </b></li>
         <li>姓名: @member.ContactName</li>
         <li>公司: @member.CompanyName</li>
     </ul>
@@ -128,6 +128,9 @@ else
 </table>
     <h3 style="text-align:right">合計: NT$@totalSum</h3>
 }
+
+<a class="btn btn-success btn-lg" asp-controller="orders" asp-action="OrderList">查詢已送出的訂單</a>
+
 
 
 

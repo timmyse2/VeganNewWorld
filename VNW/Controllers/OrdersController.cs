@@ -537,11 +537,16 @@ namespace VNW.Controllers
                             }
                             ViewData["OrderDetails"] = ods;
 
-                            //::update product, reduce stock
+                            //::update product, reduce UnitsInStock, update UnitsOnOrder...
 
-                            //::clear shopping cart cookie
-
-                            //return Json(ods);
+                            //::clear data from shopping cart cookie
+                            foreach (var p in queryP)
+                            {
+                                var sc = shoppingCarts.Where(x => x.Pid == p.ProductId).First();
+                                shoppingCarts.Remove(sc);
+                            }                            
+                            pidJSON = JsonConvert.SerializeObject(shoppingCarts);
+                            HttpContext.Response.Cookies.Append("pidJSON", pidJSON);
 
                             TempData["td_serverInfo"] += " 無異常; ";
                             return View();

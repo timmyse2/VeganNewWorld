@@ -741,10 +741,10 @@ namespace VNW.Controllers
             return Json(res);
         }
 
-        //::for end user, check order then set official data in Orders and OrderDetails
+        //::for end user, check order before create data in DB
         public async Task<IActionResult> CheckOrder()
         {
-            return RedirectToAction("CheckOrderAndDetails", "Orders");
+            return RedirectToAction("CreateOrderAndDetails", "Orders");
 
 
             if (!_ms.LoginPrecheck(HttpContext.Session))
