@@ -296,13 +296,21 @@ namespace VNW.Controllers
             }
 
             //try to put image - but this method is not good!
-            //foreach(var o in orders)
-            //{
-            //    foreach(var od in o.OrderDetails)
-            //    {
-            //        //od.Product
-            //    }
-            //}
+            //:: get image from 1st item only
+            foreach (var o in orders)
+            {
+                foreach (var od in o.OrderDetails)
+                {
+                    if(od.Product == null)
+                    {
+                        var qtest = _context.Products
+                            .Where(x => x.ProductId == od.ProductId).First();
+                        if(qtest!= null)
+                            od.Product = qtest;
+                    }
+                    break; //just 1st one
+                }
+            }            
 
             return View(await orders.ToListAsync());
         }

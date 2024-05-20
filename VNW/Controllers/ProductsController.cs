@@ -909,7 +909,7 @@ namespace VNW.Controllers
 
                             //return Json(ods);
 
-                            TempData["td_serverInfo"] += " 無異常; ";
+                            //TempData["td_serverInfo"] += " 無異常; ";
                             return View();
                         }
                         else

@@ -78,7 +78,7 @@ else
             </td>
             <td>
                 @*<a asp-action="Details" asp-route-id="@item.OrderId"> #@item.OrderId</a>*@
-                #TJ202405_@item.OrderId
+                #TJ2024_@item.OrderId
                 
             </td>
             <td>
@@ -98,6 +98,14 @@ else
                     if (item.OrderDetails.Count <= 0)
                     {
                         <span class="alert-danger">異常</span>
+                    }
+                    @foreach (var od in item.OrderDetails)
+                    {
+                        @if (od.Product != null)
+                        {
+                            <img src="~/images/@od.Product.Picture" style="width:50px;" />
+                        }
+                        break; //just 1st one
                     }
                 }
 

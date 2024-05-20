@@ -44,7 +44,7 @@ else
         </tr>
         <tr>
             <td>訂單編號</td>
-            <td><span class="text-warning">(待自動產生)</span>@*@newOrder.OrderId*@</td>
+            <td><span class="text-warning">(會自動產生)</span>@*@newOrder.OrderId*@</td>
         </tr>
         <tr>
             <td>地址</td>
@@ -64,16 +64,16 @@ else
         </tr>
         <tr>
             <td>訂貨時間</td>
-            <td>@newOrder.OrderDate (預計)</td>
+            <td>@newOrder.OrderDate <span class="text-warning">(預計, 會自動產生)</span> </td>
         </tr>
-        <tr>
+        @*<tr>
             <td>需求時間</td>
             <td>@newOrder.RequiredDate (TBC)</td>
-        </tr>
+        </tr>*@
         <tr>
             @*<td>@Html.DisplayName(newOrder.ShippedDate)</td>*@
-            <td>寄送時間</td>
-            <td>@newOrder.ShippedDate (TBC)</td>
+            <td>寄送時間</td>            
+            <td> <span class="text-warning">(待店家接單會自動產生)</span> @*@item.OrderId*@</td>
         </tr>
         <tr>
             <td>送貨方式</td>
@@ -112,7 +112,7 @@ else
         {
             <tr>
                 <td>@(++i)</td>
-                <td> <span class="text-warning">(待自動產生)</span> @*@item.OrderId*@</td>
+                <td> <span class="text-warning">(會自動產生)</span> @*@item.OrderId*@</td>
                 <td>@item.ProductId</td>
                 <td>
                     @if (item.Product != null)
