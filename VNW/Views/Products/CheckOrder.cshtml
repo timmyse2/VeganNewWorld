@@ -5,6 +5,7 @@
     VNW.Models.Order newOrder = null;
     IEnumerable<VNW.Models.OrderDetail> OrderDetails = null;
 
+    bool isError = false;
 }
 
 <h2>@ViewData["Title"]</h2>
@@ -98,10 +99,14 @@ else
             <td>訂單編號</td>
             <td>商品編號</td>
             <td>商品名稱</td>
+            <td></td>
+            <td>目前庫存</td>
+            @*<td>UnitOnOrder</td>*@
             <td>數量</td>
             <td>單價</td>
             <td>折扣</td>
             <td>小記</td>
+            <td></td>
         </tr>
         @{
             decimal totalSum = 0;
@@ -110,28 +115,45 @@ else
 
         @foreach (var item in OrderDetails)
         {
+
+            string CheckMark = " 通過初檢 ";
+            
+            decimal totalPrice = item.UnitPrice * item.Quantity;
+            totalSum += totalPrice;
+
+            if (item.Quantity > item.Product.UnitsInStock)
+            {
+                isError = true;
+                CheckMark = "庫存不足，請修改數量或取消";
+            }
+
             <tr>
                 <td>@(++i)</td>
                 <td> <span class="text-warning">(會自動產生)</span> @*@item.OrderId*@</td>
                 <td>@item.ProductId</td>
+                <td><img src="~/images/@item.Product.Picture" style="width:50px;" /></td>
                 <td>
                     @if (item.Product != null)
                     {
                         @item.Product.ProductName
                     }
                 </td>
+                <td>@item.Product.UnitsInStock </td>
+                @*<td>@item.Product.UnitsOnOrder </td>*@
                 <td>@item.Quantity </td>
                 <td>$@item.UnitPrice</td>
                 <td>@item.Discount </td>
-                @{
-                    decimal totalPrice = item.UnitPrice * item.Quantity;
-                    totalSum += totalPrice;
-                }
-
                 <td>$@(totalPrice) </td>
-
-                @*<td>@item.Product.UnitsInStock </td>
-                    <td>@item.Product.UnitsOnOrder </td>*@
+                <td>
+                    @if (isError)
+                    {
+                        <span class="alert-danger">@CheckMark</span>
+                    }
+                    else
+                    {
+                        <span class="alert-success">@CheckMark</span>
+                    }
+                </td>
             </tr>
         }
     </table>
@@ -141,8 +163,17 @@ else
 
     <div style="text-align:right;">
         <a class="btn btn-lg btn-danger" asp-action="PrepareOrder" style="margin-right:20px;">退回前一步</a>
-        <a class="btn btn-lg btn-primary" asp-controller="Orders" asp-action="CreateOrderAndDetails">確認並送出</a>
-        <p>註: 按下[確認並送出]才正式產生訂單資料</p>
+
+        @if (isError)
+        {
+            <p class="alert-danger">註: 發現訂單內有異常，無法送出</p>
+        }
+        else
+        {
+            <a class="btn btn-lg btn-primary" asp-controller="Orders" asp-action="CreateOrderAndDetails">確認並送出</a>
+            <p>註: 按下[確認並送出]才正式產生訂單資料</p>
+        }
+
     </div>
 
 

@@ -149,6 +149,14 @@ namespace VNW.Controllers
             {
                 try
                 {
+                    //::precheck then auto fine tune
+                    if (product.UnitsOnOrder == null)
+                        product.UnitsOnOrder = 0;
+                    if (product.UnitsInStock == null)
+                        product.UnitsInStock = 0;
+                    if (product.ReorderLevel == null)
+                        product.ReorderLevel = 0;
+
                     _context.Update(product);
                     await _context.SaveChangesAsync();
                 }
@@ -745,8 +753,6 @@ namespace VNW.Controllers
         public async Task<IActionResult> CheckOrder()
         {
             //return RedirectToAction("CreateOrderAndDetails", "Orders");
-
-
             if (!_ms.LoginPrecheck(HttpContext.Session))
                 return RedirectToAction("Login", "Customers");            
 
@@ -763,7 +769,7 @@ namespace VNW.Controllers
                 }
                 else
                 {
-                    shoppingCarts = JsonConvert.DeserializeObject<List<VNW.ViewModels.ShoppingCart>>(pidJSON);
+                    shoppingCarts = JsonConvert.DeserializeObject<List<ShoppingCart>>(pidJSON);
                     if (shoppingCarts.Count <= 0)
                     {
                         TempData["td_serverWarning"] = "訂單是空的，請選擇商品";

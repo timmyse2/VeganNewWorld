@@ -19,7 +19,7 @@
     <b>@TempData["td_serverMessage"]</b>
 </div>
 
-<a asp-action="OrderList" asp-controller="orders">訂單總表</a>
+<a asp-action="OrderList" asp-controller="orders" class="btn btn-primary">訂單總表</a>
 
 @if (@Model == null)
 {
@@ -106,7 +106,8 @@ else
                     }
                 </td>
                 <td>
-                    @item.Product.ProductName
+                    <a asp-action="Product_Details" asp-controller="products" 
+                        asp-route-id="@item.ProductId" target="_blank">@item.Product.ProductName</a>
                     @*#@Html.DisplayFor(modelItem => item.Product.ProductId)*@
                     @*@item.OrderId
                     (@item.ProductId)*@

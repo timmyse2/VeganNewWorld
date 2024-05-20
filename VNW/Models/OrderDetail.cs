@@ -6,7 +6,7 @@ namespace VNW.Models
 {
     public partial class OrderDetail
     {
-        //pk fk
+        //PK, FK
         //[Key]
         [Display(Name = "訂單編號")]
         public int OrderId { get; set; }
@@ -21,7 +21,7 @@ namespace VNW.Models
         [Display(Name = "折扣")]
         public float Discount { get; set; }
 
-        //np
+        //NP
         [Display(Name = "購物車訂單")]
         public Order Order { get; set; }
         [Display(Name = "產品")]
