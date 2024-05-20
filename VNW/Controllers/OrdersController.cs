@@ -550,10 +550,24 @@ namespace VNW.Controllers
                                     //::write to DB
                                     _context.Add(od);
                                     await _context.SaveChangesAsync();
+
+                                    #region
+                                    //::update data Product: InStock, OnOrder
+                                    if (p.UnitsInStock == null)
+                                        p.UnitsInStock = 0;
+                                    p.UnitsInStock -= od.Quantity;
+
+                                    if (p.UnitsOnOrder == null)
+                                        p.UnitsOnOrder = 0;
+                                    p.UnitsOnOrder += od.Quantity;
+
+                                    _context.Update(p); //::write to product
+                                    await _context.SaveChangesAsync();
+                                    #endregion
                                 }
                                 else
                                 {
-                                    //error case?
+                                    //error case? TBD
                                 }
                             }
                             ViewData["OrderDetails"] = ods;

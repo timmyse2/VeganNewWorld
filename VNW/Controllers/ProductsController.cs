@@ -33,12 +33,12 @@ namespace VNW.Controllers
             if (!_ms.CheckAdmin(HttpContext.Session))
                 return Content("You have no right to access this page");
 
-            var veganNewWorldContext = _context.Products.Include(p => p.Category);
+            var query = _context.Products.Include(p => p.Category).OrderByDescending(x=>x.ProductId);
 
             ViewBag.UserAccount =
                 _ms.GetMySession("UserAccount", HttpContext.Session);
 
-            return View(await veganNewWorldContext.ToListAsync());
+            return View(await query.ToListAsync());
         }
 
         // GET: Products/Details/5
@@ -783,7 +783,7 @@ namespace VNW.Controllers
                         //::find matched data from DB
                         #region sync stock data 
                         List<int> pids = new List<int>();
-                        List<int> pids_issue = new List<int>();
+                        //List<int> pids_issue = new List<int>();
                         foreach (var s in shoppingCarts) //get pid from cookie                        
                             pids.Add(s.Pid);
 
@@ -806,28 +806,28 @@ namespace VNW.Controllers
                                 {
                                     //::check stock is enough     
                                     
-                                    if(sc.Qty > q.UnitsInStock)
-                                    {
-                                        //::show warning or error???
-                                        pids_issue.Add(sc.Pid);
-                                    }
+                                    //if(sc.Qty > q.UnitsInStock)
+                                    //{
+                                    //    //::show warning or error???
+                                    //    pids_issue.Add(sc.Pid);
+                                    //}
+                                    //q.UnitsOnOrder
 
                                     if (sc.Stock != q.UnitsInStock)
                                     {
                                         sc.Stock = (short)q.UnitsInStock;
                                         //::show warning
-                                        pids_issue.Add(sc.Pid);
+                                        //pids_issue.Add(sc.Pid);
                                     }
                                 }
                             }
                             Debug.WriteLine("\n EOD ");
                             
-                            if(pids_issue.Count > 0)
-                            {
+                            //if(pids_issue.Count > 0)
+                            //{
                                 //someting is worng?
-                                TempData["td_serverWarning"] += " 數量與庫存不合; ";
-                            }
-                            //pass case
+                              //  TempData["td_serverWarning"] += " 數量與庫存不合; ";
+                            //}                            
 
                             //::get info customer 
                             //:: Get customer Id, Name, Info {address}
@@ -891,10 +891,10 @@ namespace VNW.Controllers
                                 var sc = shoppingCarts.Where(x => x.Pid == p.ProductId).First();
                                 if(sc != null)
                                 {
-                                    if (sc.Qty > p.UnitsInStock)
-                                    {
-                                        //error case
-                                    }
+                                    //if (sc.Qty > p.UnitsInStock)
+                                    //{
+                                    //    //error case TBD
+                                    //}
                                     od.Quantity = (short) sc.Qty;
                                     ods.Add(od);
 
