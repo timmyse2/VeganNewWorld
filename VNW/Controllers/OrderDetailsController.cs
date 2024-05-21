@@ -340,5 +340,51 @@ namespace VNW.Controllers
             ////return Json(res);
         }
 
+        //::for 2B Shop
+        public async Task<IActionResult> OrderDetailsForShop(int? id)
+        {
+            //if (!_ms.LoginPrecheck(HttpContext.Session))
+            //    return RedirectToAction("Login", "Customers");
+
+            //::Shop employee account check
+
+            int oid = (int)id;
+
+            #region ::check order's customer id first
+            string UserAccount = _ms.GetMySession("UserAccount", HttpContext.Session);
+            var preCheckOrder = await _context.Orders                
+                .Where(o => o.OrderId == oid) //sorted 
+                .Include(x => x.Customer) 
+                .FirstOrDefaultAsync()
+                ;
+            if (preCheckOrder == null) //This is not your order
+            {
+                TempData["td_serverMessage"] = "這不是您的訂單!";
+                return View(null);
+            }
+            ViewData["preCheckOrder"] = preCheckOrder;
+
+            #endregion
+
+            var ods = _context.OrderDetails
+                .Where(d => d.OrderId == oid) //
+                //.Include(o => o.Order) //try
+                .Include(p => p.Product)
+                ;
+
+            if (ods == null) //
+            {
+                TempData["td_serverMessage"] = "data is null";
+            }
+
+            var res = await ods.ToListAsync();
+            if (res == null) //
+            {
+                TempData["td_serverMessage"] = "data is null";
+            }
+
+            return View(res);
+        }
+
     }
 }

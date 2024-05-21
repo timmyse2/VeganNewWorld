@@ -125,7 +125,16 @@ else
                 @Html.DisplayFor(modelItem => item.ShippedDate)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.ShipVia)
+                @*@Html.DisplayFor(modelItem => item.ShipVia)*@
+                @try
+                {
+                    @item.shipViaTypes[(int)item.ShipVia]
+                }
+                catch
+                {
+                    <span class="alert-danger lg">異常</span>
+                }
+
             </td>
             <td>
                 @Html.DisplayFor(modelItem => item.Freight)

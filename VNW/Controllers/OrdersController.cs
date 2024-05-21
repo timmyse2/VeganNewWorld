@@ -608,5 +608,25 @@ namespace VNW.Controllers
             //return View();
         }
 
+
+        //::Order List for Business Shop side
+        public async Task<IActionResult> OrderListForShop()
+        {
+            //::check Shop
+            //string UserLevel = _ms.GetMySession("UserLevel", HttpContext.Session);
+            //if (UserLevel != "2B")
+            //{
+              //  return Content("You have no right to access this");
+            //}
+
+            //if (!_ms.LoginPrecheck(HttpContext.Session))
+            //    return RedirectToAction("Login", "Customers");
+
+            var qO = _context.Orders.Include(o => o.Customer)
+                .OrderByDescending(x => x.OrderId);
+            return View(await qO.ToListAsync());            
+        }
+
+
     }
 }

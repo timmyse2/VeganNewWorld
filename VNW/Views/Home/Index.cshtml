@@ -38,7 +38,11 @@ else
             <li>
                 <a asp-action="OrderList" asp-controller="Orders">我的訂單</a>
             </li>
-            <li>訂單(供應商)</li>
+            <li>
+                <a asp-action="OrderListForShop" asp-controller="Orders" class="btn btn-success">本店訂單</a>(商家專用*)
+            </li>
+
+
             @if (ViewBag.IsAdmin)
             {
                 <li>
