@@ -627,6 +627,32 @@ namespace VNW.Controllers
             return View(await qO.ToListAsync());            
         }
 
+        //::for Business Shop side - Ready for shipping
+        public async Task<IActionResult> OrderReadyForShop(int id)
+        {
+            //oid
+            var qO = await _context.Orders.Where(x => x.OrderId == id).FirstAsync();
 
+            if (qO != null)
+            { 
+                //::update shipped date                
+                qO.ShippedDate = DateTime.Now;
+
+                //::update status = 'shipping'
+                _context.Update(qO);
+                await _context.SaveChangesAsync();
+
+                //::update product?  stock, on order?
+
+
+                //return Content("pass case");
+                return RedirectToAction("OrderListForShop");
+            }
+
+
+            //::Fail case
+            return Content("fail case");
+            //return View();
+        }
     }
 }

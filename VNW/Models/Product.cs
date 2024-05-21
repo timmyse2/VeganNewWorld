@@ -37,10 +37,10 @@ namespace VNW.Models
         [Display(Name = "訂購量")]
         public short? UnitsOnOrder { get; set; }
 
-        [Display(Name = "安全庫存量(不夠請補貨)")] //續訂級別
+        [Display(Name = "安全庫存量")] //續訂級別 (不夠請補貨)
         public short? ReorderLevel { get; set; }
 
-        [Display(Name = "已下架")]
+        [Display(Name = "已下架無法販售")]
         public bool Discontinued { get; set; }
 
         [Display(Name = "圖例")]

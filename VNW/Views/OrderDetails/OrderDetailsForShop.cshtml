@@ -49,7 +49,8 @@ else
                     <td>
                         @if (OrderInfo.ShippedDate != null)
                         {
-                            @OrderInfo.ShippedDate
+
+                            <span class="alert-success"><b>@OrderInfo.ShippedDate</b></span>
                         }
                         else
                         {
@@ -73,6 +74,9 @@ else
                     </td>
                 </tr>
                 <tr><td>運費</td><td>@OrderInfo.Freight</td></tr>
+
+                <tr><td>狀態</td><td> </td></tr>
+
             </table>
         </div>
         <div class="col-md-6 col-sm-6 col-xs-6">
@@ -129,7 +133,7 @@ else
                     }
                 </td>
                 <td>
-                    <a asp-action="Product_Details" asp-controller="products"
+                    <a asp-action="ProductDetailForShop" asp-controller="products"
                        asp-route-id="@item.ProductId" target="_blank">@item.Product.ProductName</a>
                     @*#@Html.DisplayFor(modelItem => item.Product.ProductId)*@
                     @*@item.OrderId
@@ -160,29 +164,41 @@ else
 <h3 style="text-align:right;">總計: NT$ @totalPriceSum </h3>
 
 
+@if (OrderInfo.ShippedDate != null)
+{
+
+}
+else
+{
+    <div style="text-align:right">
+        @*<a class="btn btn-success btn-lg">確認接單</a>*@
+        <a class="btn btn-success btn-lg" asp-action="OrderReadyForShop"
+           asp-controller="Orders" asp-route-id="@OrderInfo.OrderId">準備完成</a>
+    </div>
+
+    <div>
+
+        <p></p>
+        <label class="form-control-static">理由</label>
+        <select class="form-control">
+            <option>忙碌</option>
+            <option>缺貨</option>
+            <option>內容或數量有差異</option>
+            <option>其它</option>
+        </select>
+        <a class="btn btn-danger btn-lg">取消訂單!退單!</a>
+    </div>
+
+    <div>
+        <a class="btn btn-primary btn-lg">修改訂單</a>
+    </div>
+}
 
 
-<div style="text-align:right">
-    <a class="btn btn-success btn-lg">確認接單</a>
-</div>
-
-<div>
-    <a class="btn btn-primary btn-lg">修改訂單</a>
-</div>
 
 
-<div>
 
-    <p></p>
-    <label class="form-control-static">理由</label>
-    <select class="form-control">
-        <option>內容有誤</option>
-        <option>數量有誤</option>
-        <option>缺貨</option>
-        <option>客人退訂</option>
-    </select>
-    <a class="btn btn-danger btn-lg">退單!!!</a>
-</div>
+
 
 
 

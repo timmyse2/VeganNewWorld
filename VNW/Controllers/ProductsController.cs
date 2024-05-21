@@ -940,5 +940,109 @@ namespace VNW.Controllers
             //return View();
         }
 
+
+        //::for level 2B Shop
+        public async Task<IActionResult> ProductDetailForShop(int? id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var product = await _context.Products
+                .Include(p => p.Category)
+                .FirstOrDefaultAsync(m => m.ProductId == id);
+            if (product == null)
+            {
+                return NotFound();
+            }
+
+            MySession ms = new MySession();
+            string _catName = ms.GetMySession("catName", HttpContext.Session);
+            ViewBag.catName = _catName;
+
+            return View(product);
+        }
+
+        // GET: Products/Edit/5
+        public async Task<IActionResult> EditForShop(int? id)
+        {
+            //::check admin
+            //if (!_ms.CheckAdmin(HttpContext.Session))
+            //    return Content("You have no right to access this page");
+            //if (!_ms.LoginPrecheck(HttpContext.Session))
+            //    return RedirectToAction("Login", "Customers");
+
+            //::check 2B
+
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var product = await _context.Products.FindAsync(id);
+            if (product == null)
+            {
+                return NotFound();
+            }
+
+            //ViewData["CategoryId"] = new SelectList(_context.Set<Category>(), "CategoryId", "CategoryId", product.CategoryId);
+            //::<udpate- show Name in select list>
+            ViewData["CategoryId"] = new SelectList(_context.Set<Category>(), "CategoryId", "CategoryName", product.CategoryId);
+
+            return View(product);
+        }
+
+        // POST: Products/Edit/5
+        // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
+        // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> EditForShop(int id,
+            [Bind("ProductId,ProductName,CategoryId,QuantityPerUnit,UnitPrice,UnitsInStock,UnitsOnOrder,ReorderLevel,Discontinued,Picture,Description"
+                )] Product product)
+        {
+            if (id != product.ProductId)
+            {
+                return NotFound();
+            }
+
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    //::precheck then auto fine tune
+                    if (product.UnitsOnOrder == null)
+                        product.UnitsOnOrder = 0;
+                    if (product.UnitsInStock == null)
+                        product.UnitsInStock = 0;
+                    if (product.ReorderLevel == null)
+                        product.ReorderLevel = 0;
+
+                    _context.Update(product);
+                    await _context.SaveChangesAsync();
+                }
+                catch (DbUpdateConcurrencyException)
+                {
+                    if (!ProductExists(product.ProductId))
+                    {
+                        return NotFound();
+                    }
+                    else
+                    {
+                        throw;
+                    }
+                }
+                //TempData["td_serverMessage"] = "Updated";
+                //return RedirectToAction(nameof(Index));
+                //return RedirectToAction(nameof(ProductDetailForShop));
+                //return RedirectToAction("ProductDetailForShop", product.ProductId);
+                return RedirectToAction("ProductDetailForShop//" + product.ProductId);
+            }
+            ViewData["CategoryId"] = new SelectList(_context.Set<Category>(), "CategoryId", "CategoryId", product.CategoryId);
+            return View(product);
+        }
+
+
     }
 }
