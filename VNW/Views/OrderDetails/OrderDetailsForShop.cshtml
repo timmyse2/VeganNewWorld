@@ -65,7 +65,8 @@ else
                     <td>
                         @try
                         {
-                            @OrderInfo.shipViaTypes[(int)OrderInfo.ShipVia]
+                            @*@OrderInfo.shipViaTypes[(int)OrderInfo.ShipVia]*@                            
+                            @VNW.Common.EnumExtensions.GetDisplayName((VNW.Models.ShipViaTypeEnum)OrderInfo.ShipVia)
                         }
                         catch
                         {
@@ -73,10 +74,16 @@ else
                         }
                     </td>
                 </tr>
-                <tr><td>運費</td><td>@OrderInfo.Freight</td></tr>
-
+                <tr><td>運費</td>
+                    <td>@OrderInfo.Freight                       
+                    </td>
+                </tr>
+                <tr><td>付款方式</td>
+                    <td>
+                        @VNW.Common.EnumExtensions.GetDisplayName((VNW.Common.PayEnum)0)
+                    </td>
+                </tr>
                 <tr><td>狀態</td><td> </td></tr>
-
             </table>
         </div>
         <div class="col-md-6 col-sm-6 col-xs-6">
