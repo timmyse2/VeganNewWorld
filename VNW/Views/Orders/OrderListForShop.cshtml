@@ -15,6 +15,52 @@
 </div>
 
 
+<div style="border:solid;margin:10px;">
+
+    @Html.DropDownList("ShipViaTypeEnum",
+        Html.GetEnumSelectList(
+            typeof(VNW.Models.ShipViaTypeEnum)));
+
+    @Html.ListBox("ShipViaTypeEnum",
+        Html.GetEnumSelectList(typeof(VNW.Models.ShipViaTypeEnum)));
+
+
+    @Html.ListBox("OrderStatusEnum",
+        Html.GetEnumSelectList(typeof(VNW.Models.OrderStatusEnum)));
+
+    <select asp-items="@Html.GetEnumSelectList(typeof(VNW.Models.ShipViaTypeEnum))"
+            class="form-control"></select>
+
+    <select asp-items="@Html.GetEnumSelectList(typeof(VNW.Models.OrderStatusEnum))"
+            multiple="multiple"
+            class="form-control">
+        @*<option>@testE3</option>*@
+    </select>
+
+    @{
+        int val1 = (int)VNW.Models.ShipViaTypeEnum.Home;
+        var val2 = (int)VNW.Models.OrderStatusEnum.Finish;
+
+        //Enum.Parse(typeof(VNW.Models.OrderStatusEnum), val2);
+    }
+    @val1
+    @((VNW.Models.ShipViaTypeEnum)val1)
+    <hr />
+    @val2
+    @((VNW.Models.OrderStatusEnum)val2)
+    @VNW.Models.OrderStatusEnum.Finish.ToString()
+    @*@VNW.Models.OrderStatusEnum.Finish.ToDescription()*@
+
+
+    <select asp-items="@Html.GetEnumSelectList(typeof(VNW.Common.FoodEnum))"
+            multiple="multiple"
+            class="form-control">
+        @*<option>@testE3</option>*@
+    </select>
+
+</div>
+
+
 <table class="table">
     <thead>
         <tr>
@@ -103,10 +149,6 @@
                     <span class="alert-danger lg">異常</span>
                 }
 
-
-
-
-
             </td>
             <td>
                 @Html.DisplayFor(modelItem => item.Freight)
@@ -129,6 +171,8 @@
 
             <td>
                 @*<a asp-action="OrderCancelForShop" asp-route-id="@item.OrderId" class="btn btn-danger">取消</a>*@
+
+
             </td>
         </tr>
 }

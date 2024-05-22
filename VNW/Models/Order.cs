@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
+using System.ComponentModel; // Description
+
 namespace VNW.Models
 {
     public partial class Order
@@ -65,9 +67,32 @@ namespace VNW.Models
 
     public enum ShipViaTypeEnum
     {
-        None, //未定
+        [Display(Name = "超商取貨")]
+        [Description("超商取貨")]
         Shop, //超商取貨
+        [Display(Name = "宅配")]
+        [Description("宅配")]
         Home, //宅配
+        [Display(Name = "魔女宅急便")]
+        [Description("魔女宅急便")]
         Witch, //魔女宅急便
     }
+    public enum OrderStatusEnum
+    {
+        [Display(Name = "尚未接單")]
+        None = 00,
+        [Display(Name = "店家處理中")]
+        Got = 10,
+        [Display(Name = "運送中")]
+        Shipping = 20,
+        [Display(Name = "已到貨")]
+        Shipped = 30,
+        [Display(Name = "已完成")]
+        Finish = 100,
+        [Display(Name = "取消中")]
+        Cancelled = 240,
+        [Display(Name = "已取消")]
+        Canceling = 250,
+    }
+
 }
