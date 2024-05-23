@@ -1,4 +1,5 @@
 ﻿@model IEnumerable<VNW.Models.Order>
+@using VNW.Common
 
 @{
     ViewData["Title"] = "OrderListForShop";
@@ -10,93 +11,37 @@
     <a class="btn-primary btn">員工登入</a>
     <a class="btn-success btn">員工登出</a>
 </div>
+
+<div>
+    <h4>條件快篩</h4>
+    <table id="table_sortCondition">
+        <tr>
+            <td>訂單狀況</td><td>運送方式</td><td>支付方式</td><td> 發票資訊</td>
+        </tr>
+        <tr>
+            <td>
+                <select asp-items="@Html.GetEnumSelectList(typeof(VNW.Models.OrderStatusEnum))"
+                        multiple="multiple" class="form-control"></select>
+            </td>
+            <td>
+                <select asp-items="@Html.GetEnumSelectList(typeof(VNW.Models.ShipViaTypeEnum))"
+                        multiple="multiple" class="form-control"></select>
+            </td>
+            <td>
+                <select asp-items="@Html.GetEnumSelectList(typeof(VNW.Common.PayEnum))"
+                        multiple="multiple" class="form-control"></select>
+            </td>
+            <td>
+                <select asp-items="@Html.GetEnumSelectList(typeof(InvoiceEnum))"
+                        multiple="multiple" class="form-control"></select>
+            </td>
+        </tr>
+    </table>
+</div>
+
 <div>
     << < 1 2 3 4 5 6 7 8 9 10 > >>
 </div>
-
-
-<div style="border:solid;margin:10px;">
-    TEST
-    @Html.DropDownList("ShipViaTypeEnum",
-        Html.GetEnumSelectList(
-            typeof(VNW.Models.ShipViaTypeEnum)));
-
-    @Html.ListBox("ShipViaTypeEnum",
-        Html.GetEnumSelectList(typeof(VNW.Models.ShipViaTypeEnum)))
-
-
-    @Html.ListBox("OrderStatusEnum",
-        Html.GetEnumSelectList(typeof(VNW.Models.OrderStatusEnum)))
-
-    <br>
-    訂單狀況
-    <select asp-items="@Html.GetEnumSelectList(typeof(VNW.Models.OrderStatusEnum))"
-            multiple="multiple" class="form-control"></select>
-    運送方式
-    <select asp-items="@Html.GetEnumSelectList(typeof(VNW.Models.ShipViaTypeEnum))"
-            multiple="multiple" class="form-control"></select>
-    支付方式
-    <select asp-items="@Html.GetEnumSelectList(typeof(VNW.Common.PayEnum))"
-            multiple="multiple" class="form-control"></select>
-    發票資訊
-    <select asp-items="@Html.GetEnumSelectList(typeof(VNW.Common.InvoiceEnum))"
-            multiple="multiple" class="form-control"></select>
-
-    @{
-        int val1 = (int)VNW.Models.ShipViaTypeEnum.Home;
-        var val2 = (int)VNW.Models.OrderStatusEnum.Finish;
-
-        //Enum.Parse(typeof(VNW.Models.OrderStatusEnum), val2);
-    }
-    @val1
-    @((VNW.Models.ShipViaTypeEnum)val1)
-    <hr />
-    @val2
-    @((VNW.Models.OrderStatusEnum)val2)
-    @VNW.Models.OrderStatusEnum.Finish.ToString()
-    @*@VNW.Models.OrderStatusEnum.Finish.ToDescription()*@
-
-    <ul>
-        @foreach (int x in Enum.GetValues(typeof(VNW.Common.PayEnum)))
-        {
-            <li>
-                @x
-                @VNW.Common.EnumExtensions.GetDisplayName((VNW.Common.PayEnum)x)
-            </li>
-            <li>
-                @VNW.Common.EnumExtensions.ToDescription((VNW.Common.PayEnum)x)
-            </li>
-        }
-        @foreach (string n in Enum.GetNames(typeof(VNW.Common.PayEnum)))
-        {
-            <li>@n</li>
-        }
-
-        @foreach (int x in Enum.GetValues(typeof(VNW.Models.ShipViaTypeEnum)))
-        {
-            <li>
-                @x
-                @VNW.Common.EnumExtensions.GetDisplayName((VNW.Models.ShipViaTypeEnum)x)
-            </li>
-            <li>
-                @VNW.Common.EnumExtensions.ToDescription((VNW.Models.ShipViaTypeEnum)x)
-            </li>
-        }
-
-    </ul>
-
-    <div class="btn btn-default">
-        @VNW.Common.EnumExtensions.GetDisplayName(VNW.Common.PayEnum.CreditCard)
-    </div>
-    <div class="btn btn-default">
-        @VNW.Common.EnumExtensions.GetDisplayName((VNW.Common.PayEnum)1)
-    </div>
-    <div class="btn btn-default">
-        @VNW.Common.EnumExtensions.GetDisplayName((VNW.Common.PayEnum)2)
-    </div>
-
-</div>
-
 
 <table class="table">
     <thead>
@@ -132,7 +77,8 @@
                 @Html.DisplayNameFor(model => model.ShipPostalCode)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.ShipCountry)
+                @*@Html.DisplayNameFor(model => model.ShipCountry)*@
+                狀態
             </th>
 
             <th></th>
@@ -167,12 +113,13 @@
 
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.ShipVia)
+                (@Html.DisplayFor(modelItem => item.ShipVia))
                 @try
                 {
                     if (item.ShipVia != null)
                     {
-                        @item.shipViaTypes[(int)item.ShipVia]
+                        @EnumExtensions.GetDisplayName((ShipViaTypeEnum)item.ShipVia)
+                        @*@item.shipViaTypes[(int)item.ShipVia]*@
                         @*@item.shipViaTypes.ElementAt((int)item.ShipVia)
                         @item.shipViaTypes[(int)(@item.ShipVia)]*@
                     }
@@ -203,7 +150,15 @@
                 @Html.DisplayFor(modelItem => item.ShipPostalCode)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.ShipCountry)
+                @*@Html.DisplayFor(modelItem => item.ShipCountry)*@
+                @if (item.ShippedDate == null)
+                {
+                    @VNW.Common.EnumExtensions.GetDisplayName(OrderStatusEnum.Got)
+                }
+                else
+                {
+                    @VNW.Common.EnumExtensions.GetDisplayName(OrderStatusEnum.Finish)
+                }
             </td>
 
             <td>

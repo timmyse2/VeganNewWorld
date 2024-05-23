@@ -1,0 +1,72 @@
+﻿@using  VNW.Common
+
+@{
+    ViewData["Title"] = "付款與運送方式";
+}
+
+<h2>@ViewData["Title"]</h2>
+<hr />
+<div>
+    [1.確認購物車] > <b class="text-primary">[2.付款與運送方式]</b> > [3.訂單確認]
+</div>
+
+<hr />
+@*<h4>付款</h4>*@
+
+<dl class="dl-horizontal">
+
+    <dt>訂購人</dt>
+    <dd>saber@xxxx </dd>
+    <dt>手機</dt>
+    <dd>0988888888</dd>
+    
+    <dt>出貨地址	</dt>
+    <dd>東木市</dd>
+    <dt>出貨地標</dt>
+    <dd>衛宮家的</dd>
+
+    
+
+    <dt>運送方式</dt>
+    <dd>
+        <select asp-items="@Html.GetEnumSelectList(typeof(VNW.Models.ShipViaTypeEnum))"
+                class="form-control"></select>
+        <span class="text-danger">註: 冷凍、冷凍、體積過大的商品無法由[超商取貨]</span>
+    </dd>
+    
+
+    
+    <dt>付款方式</dt>
+    <dd>
+        <select asp-items="@Html.GetEnumSelectList(typeof(VNW.Common.PayEnum))"
+                class="form-control"></select>
+    </dd>
+
+    
+    <dt>運費</dt>
+    <dd>???</dd>
+
+    
+
+    <dt>發票資訊</dt>
+    <dd>
+        <select asp-items="@Html.GetEnumSelectList(typeof(InvoiceEnum))"
+                class="form-control"></select>
+    </dd>
+
+
+</dl>
+
+
+<hr />
+
+<div><a class="btn btn-danger" asp-action="PrepareOrder" asp-controller="Products">退回上一步</a></div>
+
+<div style="text-align:right">
+
+    <a class="btn btn-primary btn-lg" asp-action="CheckOrder" asp-controller="Products">下一步</a>
+</div>
+
+
+
+

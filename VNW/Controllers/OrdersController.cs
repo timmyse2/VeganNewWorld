@@ -401,6 +401,14 @@ namespace VNW.Controllers
         }
 
 
+        //::for customer
+        public async Task<IActionResult> OrderSetAddressPay()
+        {
+
+            return View();
+        }
+
+
         //::set official data in Orders and OrderDetails
         public async Task<IActionResult> CreateOrderAndDetails()
         {

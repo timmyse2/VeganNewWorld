@@ -1,4 +1,5 @@
 ﻿@model IEnumerable<VNW.Models.OrderDetail>
+@using VNW.Common
 
 @{
     ViewData["Title"] = "訂單明細(商家)";
@@ -65,8 +66,9 @@ else
                     <td>
                         @try
                         {
-                            @*@OrderInfo.shipViaTypes[(int)OrderInfo.ShipVia]*@                            
-                            @VNW.Common.EnumExtensions.GetDisplayName((VNW.Models.ShipViaTypeEnum)OrderInfo.ShipVia)
+                            @*@OrderInfo.shipViaTypes[(int)OrderInfo.ShipVia]*@
+                            @*@VNW.Common.EnumExtensions.GetDisplayName((VNW.Models.ShipViaTypeEnum)OrderInfo.ShipVia)*@
+                            @EnumExtensions.GetDisplayName((ShipViaTypeEnum)OrderInfo.ShipVia)
                         }
                         catch
                         {
@@ -80,7 +82,7 @@ else
                 </tr>
                 <tr><td>付款方式</td>
                     <td>
-                        @VNW.Common.EnumExtensions.GetDisplayName((VNW.Common.PayEnum)0)
+                        @EnumExtensions.GetDisplayName((PayEnum)0)
                     </td>
                 </tr>
                 <tr><td>狀態</td><td> </td></tr>
@@ -132,7 +134,7 @@ else
         {
             <tr>
                 <td>@(++i)</td>
-                <td> <a class="btn btn-default">確認 </a>  </td>
+                <td> @*<a class="btn btn-default">確認 </a>*@  </td>
                 <td>
                     @if (item.Product != null)
                     {
