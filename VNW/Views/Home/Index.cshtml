@@ -18,7 +18,7 @@ else
 
 <div class="row">
     <div class="col-md-3 col-sm-4 col-xs-6">
-        <h2>顧客購物</h2>
+        <h2>購物訂單</h2>
         <ul>
             <li><a asp-action="CategoryList" asp-controller="Categories">商品分類</a></li>
 
@@ -31,12 +31,8 @@ else
 
             <li>
                 <a asp-action="PrepareOrder" asp-controller="Products" class="btn btn-danger">購物車</a>
-            </li>
-
-            <li>
-                <a asp-action="OrderList" asp-controller="Orders">我的訂單</a>
-            </li>
-
+                <a asp-action="OrderList" asp-controller="Orders" class="btn btn-primary">我的訂單</a>
+            </li>    
         </ul>
     </div>
     <div class="col-md-3 col-sm-4 col-xs-6">

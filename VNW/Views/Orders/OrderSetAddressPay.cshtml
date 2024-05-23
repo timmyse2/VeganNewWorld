@@ -1,7 +1,15 @@
-﻿@using  VNW.Common
-
+﻿@using VNW.Common
+@using VNW.Models
 @{
     ViewData["Title"] = "付款與運送方式";
+
+    Customer customerInfo = null;
+
+    if (ViewData["customerInfo"] != null)
+    {
+        customerInfo = (Customer)ViewData["customerInfo"];
+    }
+
 }
 
 <h2>@ViewData["Title"]</h2>
@@ -11,51 +19,99 @@
 </div>
 
 <hr />
-@*<h4>付款</h4>*@
 
-<dl class="dl-horizontal">
+@if (customerInfo == null)
+{
+    <div class="alert-danger">發生錯誤: 資料無法代入</div>
+    <hr />
+    <div><a class="btn btn-danger" asp-action="PrepareOrder" asp-controller="Products">退回上一步</a></div>
+    return;
+}
 
-    <dt>訂購人</dt>
-    <dd>saber@xxxx </dd>
-    <dt>手機</dt>
-    <dd>0988888888</dd>
-    
-    <dt>出貨地址	</dt>
-    <dd>東木市</dd>
-    <dt>出貨地標</dt>
-    <dd>衛宮家的</dd>
-
-    
-
-    <dt>運送方式</dt>
-    <dd>
-        <select asp-items="@Html.GetEnumSelectList(typeof(VNW.Models.ShipViaTypeEnum))"
-                class="form-control"></select>
-        <span class="text-danger">註: 冷凍、冷凍、體積過大的商品無法由[超商取貨]</span>
-    </dd>
-    
-
-    
-    <dt>付款方式</dt>
-    <dd>
-        <select asp-items="@Html.GetEnumSelectList(typeof(VNW.Common.PayEnum))"
-                class="form-control"></select>
-    </dd>
-
-    
-    <dt>運費</dt>
-    <dd>???</dd>
-
-    
-
-    <dt>發票資訊</dt>
-    <dd>
-        <select asp-items="@Html.GetEnumSelectList(typeof(InvoiceEnum))"
-                class="form-control"></select>
-    </dd>
+<div class="row">
+    <div class="col-md-6 col-sm-6 col-xs-6">
+        <h4>訂購人資訊</h4>
 
 
-</dl>
+        <dl class="dl-horizontal">
+            <dt>訂購人</dt>
+            <dd>@customerInfo.ContactName (@customerInfo.CustomerId)</dd>
+            <dt>手機</dt>
+            <dd>@customerInfo.Phone</dd>
+
+            <dt>出貨地址	</dt>
+            <dd>@customerInfo.Address</dd>
+            <dt>出貨地標(公司|組織)</dt>
+            <dd>@customerInfo.CompanyName</dd>
+        </dl>
+    </div>
+    <div class="col-md-6 col-sm-6 col-xs-6">
+        <h4>收貨人資訊</h4>
+
+        <div class="form-group">
+            <input type="checkbox" class="form-group" checked id="cbx_sameAsCustomer" />
+            <label>同訂購人資料</label>
+        </div>
+
+        <div class="form-group">
+            <label class="control-label">收貨人姓名*</label>
+            <input class="form-control" value="@customerInfo.ContactName" id="input_ContactName" />
+        </div>
+        <div class="form-group">
+            <label class="control-label">收貨人電話*</label>
+            <input class="form-control" value="@customerInfo.Phone" id="input_Phone" />
+        </div>
+        <div>
+            <label class="control-label">地址*</label>
+            <input class="form-control" value="@customerInfo.Address" id="input_Address" />
+            <input class="form-control" value="@customerInfo.CompanyName" id="input_CompanyName" />
+            @*<input class="form-control" />
+                <input class="form-control"/>*@
+        </div>
+    </div>
+</div>
+
+<hr />
+<div class="row">
+    <div class="col-md-6 col-sm-6 col-xs-6">
+        <h4>訂單金額</h4>
+        <div>
+            <div>金額:      NT$????</div>
+            <div>運費:     NT$<div id="txt_Freight">0</div>  </div>
+            <div>手續費:     $0</div>
+        </div>
+        <h3>
+            總計: NT$????
+        </h3>
+    </div>
+    <div class="col-md-6 col-sm-6 col-xs-6">
+        <h4>付款與運送方式</h4>
+        <div>
+            <label class="control-label">運送方式*</label>
+            <select asp-items="@Html.GetEnumSelectList(typeof(VNW.Models.ShipViaTypeEnum))"
+                    class="form-control" id="sel_ShipVia"></select>
+            <span id="validate_ShipVia" class="text-danger">註: 冷凍、冷凍、體積過大的商品無法由[超商取貨]</span>
+            @*<input class="form-control" type="radio" />
+                <input class="form-control" type="radio" />
+                <input class="form-control" type="radio" />*@
+        </div>
+
+
+        <div>
+            <label>付款方式*</label>
+            <select asp-items="@Html.GetEnumSelectList(typeof(VNW.Common.PayEnum))"
+                    class="form-control" id="sel_Payment"></select>
+        </div>
+
+        <div>
+            <label>發票資訊</label>
+            <select asp-items="@Html.GetEnumSelectList(typeof(InvoiceEnum))"
+                    class="form-control" id="sel_Invoice"></select>
+        </div>
+    </div>
+
+</div>
+
 
 
 <hr />
@@ -64,9 +120,99 @@
 
 <div style="text-align:right">
 
-    <a class="btn btn-primary btn-lg" asp-action="CheckOrder" asp-controller="Products">下一步</a>
+    @*<a id="btn_Next_CheckOrder" class="btn btn-primary btn-lg" asp-action="CheckOrder" asp-controller="Products">下一步</a>*@
+    <a id="btn_Next_CheckOrder" class="btn btn-primary btn-lg" >下一步</a>
 </div>
 
 
 
+@section endJS{
+    <script type="text/javascript" src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+    <script>
+        console.log("jquery start");
+        var isError = false;
+        var sel_ShipVia = $('#sel_ShipVia');
 
+        //$('#btn_Next_CheckOrder').hide();
+        
+
+        preCheck();
+        function preCheck() {
+            //$('#btn_Next_CheckOrder').hide();
+
+            if ($('#input_Phone').val() == "") {
+                console.log("phone is empty");
+                isError = true;
+                $('#input_Phone').focus();
+
+            }
+            else {
+                console.log("phone is pass" + $('#input_Phone').val());                
+            }
+        }
+
+        $('#btn_Next_CheckOrder').click(function () {
+            //$(this).hide();
+            //SetBusy();
+            preCheck();
+
+            if (isError) {
+
+            }
+            else {
+                window.location = "../Products/CheckOrder";                
+            }
+            //SetReady();
+        });
+
+        sel_ShipVia.change(function () {
+            var thisValue = $(this).val();//  sel_ShipVia.val();
+            console.log("sel_ShipVia change " + thisValue);
+            var Freight = 0;
+            switch (thisValue) { //::notice: ths val() is 'string'
+                case '0':
+                    //Freight = 0;
+                    $('#txt_Freight').html(Freight);
+                    $('#validate_ShipVia').html("註: 為確認您在家，送貨員會先與您連絡");
+                    break;
+                case '1':
+                    //Freight = 0;
+                    $('#txt_Freight').html(Freight);
+
+                    $('#validate_ShipVia').html("註: 冷凍、冷凍、體積過大的商品無法由[超商取貨]");
+
+                    break;
+                case '2':
+                    Freight = 100;
+                    console.log("Freight " + Freight);
+                    //$('#txt_Freight').val(Freight);
+                    //$('#txt_Freight').text(Freight);
+                    $('#txt_Freight').html(Freight);
+                    $('#validate_ShipVia').html("註: 小魔女會加收100元小費，不受理體積過大的商品");
+                    break;
+                default:
+                    //console.log("default");
+                    break;
+            }
+
+            //console.log("e o s");
+
+        });
+
+        $('#sel_Payment').change(function () {
+            console.log("sel_Payment change " + $('#sel_Payment').val());
+
+            switch ($('#sel_Payment').val()) {
+                case 0:
+                    break;
+                case 1:
+                    break;
+                case 2:
+                    break;
+                default: break;
+            }
+        });
+
+        console.log("jquery end");
+    </script>
+}

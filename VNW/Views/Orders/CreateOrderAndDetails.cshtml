@@ -1,4 +1,4 @@
-﻿
+﻿@using VNW.Common
 @{
     ViewData["Title"] = "訂單明細";
     VNW.Models.Customer member = null;
@@ -34,53 +34,64 @@ else
 {
     newOrder = (VNW.Models.Order)ViewData["newOrder"];
 
-<table class="table">
-    <tr>
-        <td>客戶帳號</td>
-        <td>@newOrder.CustomerId</td>
-    </tr>
-    <tr>
-        <td>訂單編號</td>
-        <td><b>@newOrder.OrderId</b></td>
-    </tr>
-    <tr>
-        <td>地址</td>
-        <td>@newOrder.ShipAddress</td>
-    </tr>
-    <tr>
-        <td>收貨地(公司|組織)</td>
-        <td>@newOrder.ShipName</td>
-    </tr>
-    <tr>
-        <td>城市</td>
-        <td>@newOrder.ShipCity</td>
-    </tr>
-    <tr>
-        <td>郵遞區號</td>
-        <td>@newOrder.ShipPostalCode</td>
-    </tr>
-    <tr>
-        <td>訂貨時間</td>
-        <td>@newOrder.OrderDate</td>
-    </tr>
-    <tr>
-        <td>需求時間</td>
-        <td>@newOrder.RequiredDate</td>
-    </tr>
-    <tr>
-        @*<td>@Html.DisplayName(newOrder.ShippedDate)</td>*@
-        <td>寄送時間</td>
-        <td>@newOrder.ShippedDate</td>
-    </tr>
-    <tr>
-        <td>送貨方式</td>
-        <td>@newOrder.ShipVia</td>
-    </tr>
-    <tr>
-        <td>運費</td>
-        <td>@newOrder.Freight</td>
-    </tr>
-</table>
+    <table class="table">
+        <tr>
+            <td>客戶帳號</td>
+            <td>@newOrder.CustomerId</td>
+        </tr>
+        <tr>
+            <td>訂單編號</td>
+            <td><b>@newOrder.OrderId</b></td>
+        </tr>
+        <tr>
+            <td>地址</td>
+            <td>@newOrder.ShipAddress</td>
+        </tr>
+        <tr>
+            <td>收貨地(公司|組織)</td>
+            <td>@newOrder.ShipName</td>
+        </tr>
+        <tr>
+            <td>城市</td>
+            <td>@newOrder.ShipCity</td>
+        </tr>
+        <tr>
+            <td>郵遞區號</td>
+            <td>@newOrder.ShipPostalCode</td>
+        </tr>
+        <tr>
+            <td>訂貨時間</td>
+            <td>@newOrder.OrderDate</td>
+        </tr>
+        <tr>
+            <td>需求時間</td>
+            <td>@newOrder.RequiredDate</td>
+        </tr>
+        <tr>
+            @*<td>@Html.DisplayName(newOrder.ShippedDate)</td>*@
+            <td>寄送時間</td>
+            <td>@newOrder.ShippedDate</td>
+        </tr>
+        <tr>
+            <td>送貨方式</td>
+            <td>
+                (@newOrder.ShipVia)
+                @try
+                {
+                    @EnumExtensions.GetDisplayName((VNW.Models.ShipViaTypeEnum)newOrder.ShipVia)
+                }
+                catch
+                {
+                    <span class="alert-danger">異常</span>
+                }
+
+            </td>
+        </tr>
+        <tr>
+            <td>運費</td>
+            <td>@newOrder.Freight</td>
+        </tr>
+    </table>
 
 }
 
@@ -89,44 +100,50 @@ else
 @if (ViewData["OrderDetails"] != null)
 {
     OrderDetails = (IEnumerable<VNW.Models.OrderDetail>)ViewData["OrderDetails"];
-<table class="table">
-    <tr>
-        <td>#</td><td>訂單編號(需全相同)</td>
-        <td>商品編號</td><td>商品名稱</td><td>數量</td><td>單價</td><td>折扣</td><td>小記</td>
-    </tr>
-    @{ 
-        decimal totalSum = 0;
-        int i = 0;
-    }
-
-    @foreach (var item in OrderDetails)
-    {
-    <tr>
-        <td>@(++i)</td>
-        <td>@item.OrderId</td>
-        <td>@item.ProductId</td>
-        <td>
-            @if (item.Product != null)
-            {
-                <img src="~/images/@item.Product.Picture" style="width:50px;" />
-                @item.Product.ProductName
-            }
-        </td>
-        <td>@item.Quantity </td>
-        <td>$@item.UnitPrice</td>
-        <td>@item.Discount </td>
+    <table class="table">
+        <tr>
+            <td>#</td>
+            <td>訂單編號(需全相同)</td>
+            <td>商品編號</td>
+            <td>商品名稱</td>
+            <td>數量</td>
+            <td>單價</td>
+            <td>折扣</td>
+            <td>小記</td>
+        </tr>
         @{
-            decimal totalPrice = item.UnitPrice * item.Quantity;
-            totalSum += totalPrice;
+            decimal totalSum = 0;
+            int i = 0;
         }
 
-        <td>$@(totalPrice) </td>
+        @foreach (var item in OrderDetails)
+        {
+            <tr>
+                <td>@(++i)</td>
+                <td>@item.OrderId</td>
+                <td>@item.ProductId</td>
+                <td>
+                    @if (item.Product != null)
+                    {
+                        <img src="~/images/@item.Product.Picture" style="width:50px;" />
+                        @item.Product.ProductName
+                    }
+                </td>
+                <td>@item.Quantity </td>
+                <td>$@item.UnitPrice</td>
+                <td>@item.Discount </td>
+                @{
+                    decimal totalPrice = item.UnitPrice * item.Quantity;
+                    totalSum += totalPrice;
+                }
 
-        @*<td>@item.Product.UnitsInStock </td>
-        <td>@item.Product.UnitsOnOrder </td>*@
-    </tr>
-    }
-</table>
+                <td>$@(totalPrice) </td>
+
+                @*<td>@item.Product.UnitsInStock </td>
+                    <td>@item.Product.UnitsOnOrder </td>*@
+            </tr>
+        }
+    </table>
     <h3 style="text-align:right">合計: NT$@totalSum</h3>
 }
 

@@ -10,8 +10,8 @@
 
 @*<div class="alert-danger">win size <h1 id="txt_size" ></h1></div>*@
 
-<a asp-action="CategoryList" asp-controller="Categories">再去選購商品</a>
-<p> <b>[1.確認購物車]</b> > [2.付款與運送方式] > [3.訂單確認]</p>
+<a asp-action="CategoryList" asp-controller="Categories" class="btn btn-primary">再去選購商品</a>
+<p> <b class="text-primary">[1.確認購物車]</b> > [2.付款與運送方式] > [3.訂單確認]</p>
 
 <b>
     <span class="alert-danger" id="td_serverWarning">@TempData["td_serverWarning"]</span>
@@ -157,7 +157,7 @@
         </div>
 
         <div style="text-align:right;">
-            <a id="btn_SendOrder" class="btn btn-primary btn-lg">確認並送出</a>
+            <a id="btn_SendOrder" class="btn btn-primary btn-lg">下一步</a>
             <p>註: 您暫存的訂貨量與實際庫存、金額待在下一步清算</p>
         </div>
     }
@@ -605,7 +605,7 @@
         }); 
 
         $('#btn_SendOrder').click(function () {
-            $(this).hide();
+            //$(this).hide();
             SetBusy();
 
             //window.location = "CheckOrder";

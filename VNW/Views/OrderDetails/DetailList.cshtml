@@ -1,4 +1,5 @@
 ﻿@model IEnumerable<VNW.Models.OrderDetail>
+@using VNW.Common
 
 @{
     ViewData["Title"] = "訂單細節";
@@ -34,18 +35,20 @@
 else
 {
     OrderInfo = (VNW.Models.Order)ViewData["preCheckOrder"];
-    
+
 
     <div class="row">
         <div class="col-md-6 col-sm-6 col-xs-6">
             <h4>訂單資訊</h4>
             <table class="table">
                 <tr><td>訂單編號</td><td>TJ2024_<b>@OrderInfo.OrderId</b></td></tr>
-                
+
                 <tr><td>訂貨日期</td><td>@OrderInfo.OrderDate</td></tr>
                 <tr><td>出貨地標(公司|組織)</td><td>@OrderInfo.ShipName</td></tr>
-                <tr><td>出貨時間</td><td>                                           
-                        @if(OrderInfo.ShippedDate != null)
+                <tr>
+                    <td>出貨時間</td>
+                    <td>
+                        @if (OrderInfo.ShippedDate != null)
                         {
                             @OrderInfo.ShippedDate
                         }
@@ -54,24 +57,29 @@ else
                             <span class="alert-danger"><b>尚未出貨</b></span>
                         }
 
-                    </td></tr>
+                    </td>
+                </tr>
                 <tr><td>出貨地址</td><td>@OrderInfo.ShipAddress</td></tr>
-                <tr><td>送貨方式</td><td>
-                    @try
-                    {
-                        @OrderInfo.shipViaTypes[(int)OrderInfo.ShipVia]
-                    }
-                    catch
-                    {
-                        <span class="alert-danger lg">異常</span>
-                    }                    
-                    </td></tr>
+                <tr>
+                    <td>送貨方式</td>
+                    <td>
+                        @try
+                        {
+                            @*@OrderInfo.shipViaTypes[(int)OrderInfo.ShipVia]*@
+                            @EnumExtensions.GetDisplayName((VNW.Models.ShipViaTypeEnum)OrderInfo.ShipVia)
+                        }
+                        catch
+                        {
+                            <span class="alert-danger lg">異常</span>
+                        }
+                    </td>
+                </tr>
                 <tr><td>運費</td><td>@OrderInfo.Freight</td></tr>
             </table>
         </div>
         <div class="col-md-6 col-sm-6 col-xs-6">
             <h4>客戶資訊</h4>
-            <table class="table">                
+            <table class="table">
                 <tr><td>帳號</td><td>@OrderInfo.CustomerId</td></tr>
 
                 @if (@OrderInfo.Customer != null)
@@ -82,7 +90,7 @@ else
 
             </table>
         </div>
-    </div>    
+    </div>
 }
 
 <h4>訂單內容</h4>
@@ -115,11 +123,11 @@ else
                     }
                 </td>
                 <td>
-                    <a asp-action="Product_Details" asp-controller="products" 
-                        asp-route-id="@item.ProductId" target="_blank">@item.Product.ProductName</a>
+                    <a asp-action="Product_Details" asp-controller="products"
+                       asp-route-id="@item.ProductId" target="_blank">@item.Product.ProductName</a>
                     @*#@Html.DisplayFor(modelItem => item.Product.ProductId)*@
                     @*@item.OrderId
-                    (@item.ProductId)*@
+                        (@item.ProductId)*@
                 </td>
                 <td>
                     @Html.DisplayFor(modelItem => item.UnitPrice)

@@ -404,6 +404,29 @@ namespace VNW.Controllers
         //::for customer
         public async Task<IActionResult> OrderSetAddressPay()
         {
+            if (!_ms.LoginPrecheck(HttpContext.Session))
+                return RedirectToAction("Login", "Customers");
+
+            //::Customer's info: name, address...
+            string UserAccount = _ms.GetMySession("UserAccount", HttpContext.Session);
+            Models.Customer customerInfo = await _context.Customer
+                .Where(x => x.CustomerId == UserAccount)
+                .FirstOrDefaultAsync();
+
+            if(customerInfo == null)
+            {
+                //error case
+            }
+            else
+            {
+                ViewData["customerInfo"] = customerInfo;
+            }
+
+            //::Receiver's info
+
+            //::Total Price Sum
+
+            //::Order data - shipVia, Payment, Invoice
 
             return View();
         }

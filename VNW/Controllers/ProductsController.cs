@@ -858,6 +858,9 @@ namespace VNW.Controllers
                                 ShipVia = 1,
                                 OrderDate = DateTime.Now,
                             };
+                            //::get data from step2                            
+                            newOrder.Freight = 100;
+                            newOrder.ShipVia = 2;
                             ViewData["newOrder"] = newOrder;
 
                             ////CreateOrder(newOrder);
@@ -868,8 +871,8 @@ namespace VNW.Controllers
                             //currentOrderId = newOrder.OrderId;
                             //if (currentOrderId <= 0)
                             //{
-                                //error case
-                              //  return Content("error oid is not ready!?");
+                            //error case
+                            //  return Content("error oid is not ready!?");
                             //}
 
                             //::create Details = o.id + {p.id s} + qty

@@ -58,11 +58,11 @@ namespace VNW.Models
         [Display(Name = "訂單明細")]
         public ICollection<OrderDetail> OrderDetails { get; set; }
 
-        public List<string> shipViaTypes = new List<string>() {
-            "宅配",
-            "超商取貨",            
-            "魔女宅急便",
-        };
+        //public List<string> shipViaTypes = new List<string>() {
+        //    "宅配",
+        //    "超商取貨",            
+        //    "魔女宅急便",
+        //};
     }
 
     public enum ShipViaTypeEnum
