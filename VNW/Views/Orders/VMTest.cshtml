@@ -1,0 +1,233 @@
+﻿@model VNW.ViewModels.OrderViewModel
+
+@{
+    ViewData["Title"] = "OrderVMTest";
+}
+
+<h2>OrderVMTest</h2>
+
+<hr />
+<h4>Order Base </h4>
+<dl class="dl-horizontal">
+    <dt>
+        @Html.DisplayNameFor(model => model.OrderBase.OrderId)
+    </dt>
+    <dd>
+        @Html.DisplayFor(model => model.OrderBase.OrderId)
+    </dd>
+
+    <dt>
+        @Html.DisplayNameFor(model => model.OrderBase.CustomerId)
+    </dt>
+    <dd>
+        @Html.DisplayFor(model => model.OrderBase.CustomerId)
+    </dd>
+    <dt>
+        @Html.DisplayNameFor(model => model.OrderBase.OrderDate)
+    </dt>
+    <dd>
+        @Html.DisplayFor(model => model.OrderBase.OrderDate)
+    </dd>
+    <dt>
+        @Html.DisplayNameFor(model => model.OrderBase.RequiredDate)
+    </dt>
+    <dd>
+        @Html.DisplayFor(model => model.OrderBase.RequiredDate)
+    </dd>
+    <dt>
+        @Html.DisplayNameFor(model => model.OrderBase.ShippedDate)
+    </dt>
+    <dd>
+        @Html.DisplayFor(model => model.OrderBase.ShippedDate)
+    </dd>
+    <dt>
+        @Html.DisplayNameFor(model => model.OrderBase.ShipVia)
+    </dt>
+    <dd>
+        @Html.DisplayFor(model => model.OrderBase.ShipVia)
+    </dd>
+    <dt>
+        @Html.DisplayNameFor(model => model.OrderBase.Freight)
+    </dt>
+    <dd>
+        @Html.DisplayFor(model => model.OrderBase.Freight)
+    </dd>
+    <dt>
+        @Html.DisplayNameFor(model => model.OrderBase.ShipName)
+    </dt>
+    <dd>
+        @Html.DisplayFor(model => model.OrderBase.ShipName)
+    </dd>
+    <dt>
+        @Html.DisplayNameFor(model => model.OrderBase.ShipAddress)
+    </dt>
+    <dd>
+        @Html.DisplayFor(model => model.OrderBase.ShipAddress)
+    </dd>
+    <dt>
+        @Html.DisplayNameFor(model => model.OrderBase.ShipCity)
+    </dt>
+    <dd>
+        @Html.DisplayFor(model => model.OrderBase.ShipCity)
+    </dd>
+    <dt>
+        @Html.DisplayNameFor(model => model.OrderBase.ShipPostalCode)
+    </dt>
+    <dd>
+        @Html.DisplayFor(model => model.OrderBase.ShipPostalCode)
+    </dd>
+    <dt>
+        @Html.DisplayNameFor(model => model.OrderBase.ShipCountry)
+    </dt>
+    <dd>
+        @Html.DisplayFor(model => model.OrderBase.ShipCountry)
+    </dd>
+</dl>
+
+
+<h4>Order Additional</h4>
+<dl class="dl-horizontal">
+    <dt>
+        @Html.DisplayNameFor(model => model.Invoice)
+    </dt>
+    <dd>
+        @Html.DisplayFor(model => model.Invoice)
+    </dd>
+    <dt>
+        @Html.DisplayNameFor(model => model.Payment)
+    </dt>
+    <dd>
+        @Html.DisplayFor(model => model.Payment)
+    </dd>
+    <dt>
+        @Html.DisplayNameFor(model => model.TotalPriceSum)
+    </dt>
+    <dd>
+        @Html.DisplayFor(model => model.TotalPriceSum)
+    </dd>
+</dl>
+
+<hr />
+<h4>Details|Shopping Cart|Products </h4>
+<table class="table">
+    @foreach (OrderDetail item in Model.Ods)
+    {
+        <tr>
+            <td>@item.ProductId</td>
+            <td>@item.Quantity</td>
+            <td>@item.Product.ProductName</td>
+            <td>@item.Product.UnitPrice</td>
+        </tr>
+    }
+</table>
+<hr />
+
+@{ 
+    return; //try to skip below statemtns
+}
+
+<div>
+    <h4>OrderViewModel</h4>
+    <hr />
+    <dl class="dl-horizontal">
+        <dt>
+            @Html.DisplayNameFor(model => model.OrderId)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.OrderId)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.CustomerId)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.CustomerId)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.OrderDate)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.OrderDate)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.RequiredDate)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.RequiredDate)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.ShippedDate)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.ShippedDate)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.ShipVia)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.ShipVia)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Freight)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Freight)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.ShipName)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.ShipName)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.ShipAddress)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.ShipAddress)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.ShipCity)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.ShipCity)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.ShipPostalCode)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.ShipPostalCode)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.ShipCountry)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.ShipCountry)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Invoice)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Invoice)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Payment)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Payment)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.TotalPriceSum)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.TotalPriceSum)
+        </dd>
+
+        @*<dt>
+                @Html.DisplayNameFor(model => model.OD.ProductId)
+            </dt>
+            <dd>
+                @Html.DisplayFor(model => model.OD.ProductId)
+            </dd>*@
+
+    </dl>
+</div>

@@ -662,7 +662,9 @@ namespace VNW.Controllers
         public async Task<IActionResult> OrderReadyForShop(int id)
         {
             //oid
-            var qO = await _context.Orders.Where(x => x.OrderId == id).FirstAsync();
+            var qO = await _context.Orders.Where(x => x.OrderId == id)
+                .FirstOrDefaultAsync();
+                //.FirstAsync();
 
             if (qO != null)
             { 
@@ -685,5 +687,37 @@ namespace VNW.Controllers
             return Content("fail case");
             //return View();
         }
+
+
+        public async Task<IActionResult> VMTest(int id)
+        {
+            var qO = await _context.Orders.Where(x => x.OrderId == id)
+                .FirstOrDefaultAsync();
+
+            if (qO != null)
+            {
+                var qD = await _context.OrderDetails
+                    .Where(x => x.OrderId == id)
+                    .Include(x=>x.Product)
+                    .ToListAsync();
+
+                OrderViewModel odvm = new OrderViewModel();
+                odvm.Ods = qD;
+                odvm.OrderBase = qO;
+                odvm.CustomerId = qO.CustomerId;
+                odvm.OrderId = qO.OrderId;
+                odvm.Payment = PayEnum.CashOnDelivery;
+                //if (qD.Count > 0)
+                //{
+                    //odvm.OD = qD.ElementAt(0);
+                    //odvm.ods
+                //}
+
+                return View(odvm);
+            }
+
+            return View();
+        }
+
     }
 }
