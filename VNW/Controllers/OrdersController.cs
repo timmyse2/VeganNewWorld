@@ -719,5 +719,37 @@ namespace VNW.Controllers
             return View();
         }
 
+
+        public async Task<IActionResult> VMEditTest(int id)
+        {
+            var q_order = await _context.Orders.Where(x => x.OrderId == id)
+                .FirstOrDefaultAsync();
+
+            if (q_order != null)
+            {
+                var q_details = await _context.OrderDetails
+                    .Where(x => x.OrderId == id)
+                    .Include(x => x.Product)
+                    .ToListAsync();
+
+                OrderViewModel odvm = new OrderViewModel();
+                odvm.Ods = q_details;
+                odvm.OrderBase = q_order;
+                odvm.CustomerId = q_order.CustomerId;
+                odvm.OrderId = q_order.OrderId;
+                odvm.Payment = PayEnum.CashOnDelivery;
+                odvm.TotalPriceSum = 17258;
+                odvm.Invoice = InvoiceEnum.Donate;
+                //if (qD.Count > 0)
+                //{
+                //odvm.OD = qD.ElementAt(0);
+                //odvm.ods
+                //}
+
+                return View(odvm);
+            }
+
+            return View();
+        }
     }
 }

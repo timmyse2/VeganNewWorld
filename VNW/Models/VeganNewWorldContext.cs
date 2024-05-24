@@ -68,8 +68,7 @@ namespace VNW.Models
 
         public DbSet<VNW.ViewModels.ProductsViewModel> ProductsViewModel { get; set; }
 
-        
-
+        public DbSet<VNW.ViewModels.OrderViewModel> OrderViewModel { get; set; }
     }
 
 
