@@ -10,6 +10,16 @@
         customerInfo = (Customer)ViewData["customerInfo"];
     }
 
+
+    int vd_ShipVia = 0;
+
+    if (ViewData["ShipVia"] != null)
+    {
+        vd_ShipVia = int.Parse((string)ViewData["ShipVia"]);
+    }
+    //ViewData["Payment"]
+    //ViewData["Invoice"]
+
 }
 
 <h2>@ViewData["Title"]</h2>
@@ -77,7 +87,7 @@
         <h4>訂單金額</h4>
         <div>
             <div>金額:      NT$????</div>
-            <div>運費:     NT$<div id="txt_Freight">0</div>  </div>
+            <div>運費:     NT$<span id="txt_Freight">0</span>  </div>
             <div>手續費:     $0</div>
         </div>
         <h3>
@@ -88,7 +98,7 @@
         <h4>付款與運送方式</h4>
         <div>
             <label class="control-label">運送方式*</label>
-            <select asp-items="@Html.GetEnumSelectList(typeof(VNW.Models.ShipViaTypeEnum))"
+            <select name="ShipVia" asp-items="@Html.GetEnumSelectList(typeof(VNW.Models.ShipViaTypeEnum))"
                     class="form-control" id="sel_ShipVia"></select>
             <span id="validate_ShipVia" class="text-danger">註: 冷凍、冷凍、體積過大的商品無法由[超商取貨]</span>
             @*<input class="form-control" type="radio" />
@@ -99,13 +109,13 @@
 
         <div>
             <label>付款方式*</label>
-            <select asp-items="@Html.GetEnumSelectList(typeof(VNW.Common.PayEnum))"
+            <select name="Payment" asp-items="@Html.GetEnumSelectList(typeof(VNW.Common.PayEnum))"
                     class="form-control" id="sel_Payment"></select>
         </div>
 
         <div>
             <label>發票資訊</label>
-            <select asp-items="@Html.GetEnumSelectList(typeof(InvoiceEnum))"
+            <select name="Invovice" asp-items="@Html.GetEnumSelectList(typeof(InvoiceEnum))"
                     class="form-control" id="sel_Invoice"></select>
         </div>
     </div>
@@ -132,6 +142,8 @@
         console.log("jquery start");
         var isError = false;
         var sel_ShipVia = $('#sel_ShipVia');
+        var sel_Payment = $('#sel_Payment');
+        var sel_Invoice = $('#sel_Invoice');
 
         //$('#btn_Next_CheckOrder').hide();
         
@@ -151,6 +163,13 @@
             }
         }
 
+        function SetReady() {
+            $("#btn_Next_CheckOrder").show();
+        }
+        function SetBusy(){
+            $("#btn_Next_CheckOrder").hide();
+        }
+
         $('#btn_Next_CheckOrder').click(function () {
             //$(this).hide();
             //SetBusy();
@@ -158,12 +177,50 @@
 
             if (isError) {
                 console.log("someting is wrong");                
+                SetReady();
+                return;
             }
-            else {
-                console.log("Teleportation!!!!");                
-                window.location = "../Products/CheckOrder";                
-            }
-            //SetReady();
+            //else {
+                //console.log("Teleportation!!!!");                
+                //window.location = "../Products/CheckOrder";                
+            //}
+
+            //::call api to set key values
+            // shipvia, payment, freight,...
+            var surl = "APISetAddressPay";
+
+            console.log(" ship via " + sel_ShipVia.val());
+
+            $.ajax({
+                url: surl,
+                type: "POST",
+                dateType: "json",
+                data: {
+                    ShipVia: sel_ShipVia.val(),
+                    Payment: sel_Payment.val(),
+                    Invoice: sel_Invoice.val()
+                },
+                success: function (data) {
+                    console.log("get data")
+                    console.log(data)
+                    if (data.result == "PASS") {
+                        console.log("PASS ");
+                        console.log("Teleportation!!!!");                
+                        window.location = "../Products/CheckOrder";
+                    }
+                    else {
+                        //::fail case
+                        console.log("fail case");
+                    }
+                    SetReady();
+                }, //success
+                error: function (xhr, ajaxOptions, thrownError) {
+                    console.log(xhr)
+                    //$("#txt_failMessage").text("發生未知錯誤");
+                    SetReady();
+                }//error
+            });//ajax
+            SetReady();
         });
 
         sel_ShipVia.change(function () {
@@ -172,16 +229,14 @@
             var Freight = 0;
             switch (thisValue) { //::notice: ths val() is 'string'
                 case '0':
-                    //Freight = 0;
+                    Freight = 0;
                     $('#txt_Freight').html(Freight);
                     $('#validate_ShipVia').html("註: 為確認您在家，送貨員會先與您連絡");
                     break;
                 case '1':
-                    //Freight = 0;
+                    Freight = 50;
                     $('#txt_Freight').html(Freight);
-
                     $('#validate_ShipVia').html("註: 冷凍、冷凍、體積過大的商品無法由[超商取貨]");
-
                     break;
                 case '2':
                     Freight = 100;
@@ -213,6 +268,13 @@
                 default: break;
             }
         });
+
+        function AutoUpdateSelection() {
+
+
+
+        }
+
 
         console.log("jquery end");
     </script>

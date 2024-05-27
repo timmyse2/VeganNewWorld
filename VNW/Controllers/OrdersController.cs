@@ -428,9 +428,120 @@ namespace VNW.Controllers
 
             //::Order data - shipVia, Payment, Invoice
 
+            //::from cookie
+            string ShipVia =  HttpContext.Request.Cookies["ShipVia"];
+            string Payment = HttpContext.Request.Cookies["Payment"];
+            string Invoice = HttpContext.Request.Cookies["Invoice"];
+            ViewData["ShipVia"] = ShipVia;
+            ViewData["Payment"] = Payment;
+            ViewData["Invoice"] = Invoice;
+
             return View();
         }
 
+        [HttpPost]
+        public async Task<IActionResult> OrderSetAddressPay(OrderViewModel ovm)
+        {
+            //::set data: Shipvia, Freight
+            //:: add Payment, Invoice
+            //:: Receiver's address|name|phone            
+
+            if(ovm != null)
+            {
+                if (ovm.OrderBase.ShipVia == (int)ShipViaTypeEnum.Shop)                
+                    ovm.OrderBase.Freight = 50;                
+                else if (ovm.OrderBase.ShipVia == (int)ShipViaTypeEnum.Witch)                
+                    ovm.OrderBase.Freight = 100;                
+                else                
+                    ovm.OrderBase.Freight = 0;
+
+                ovm.Invoice = InvoiceEnum.Donate;
+                ovm.TotalPriceSum = 1000;
+
+                //Receiver's info
+                bool isCopy = true;
+                if (isCopy) //copy info from Customer table
+                {
+                    ovm.OrderBase.ShipAddress = ovm.OrderBase.Customer.Address;
+                    ovm.OrderBase.ShipName = ovm.OrderBase.Customer.CompanyName;
+                    //ovm.OrderBase.Customer.Phone = "???";
+                }
+
+
+                //ovm.OrderBase.name
+
+                //keep data in cookie
+
+
+            }
+
+
+            return View();
+        }
+
+        //[HttpPost]
+        public async Task<IActionResult> APISetAddressPay(int? ShipVia, int? Payment, int? Invoice)
+        {
+            string _result = "tbc", _detail = "tbc", _time="";
+            if (ShipVia == null || Payment == null || Invoice == null)
+            {
+                _result = "NG"; _detail = "parameter(s) are null";
+                var res0 = new { result = _result, detail = _detail};
+                return Json(res0);
+            }
+            try
+            {
+                _time= DateTime.Now.ToString();
+
+                OrderViewModel ovm = null; // new OrderViewModel();
+                if (ovm != null)
+                {
+                    ovm.Payment = (PayEnum)Payment;
+                    ovm.Invoice = (InvoiceEnum)Invoice;
+
+                    ovm.OrderBase = new Models.Order();
+                    ovm.OrderBase.ShipVia = ShipVia;
+                    if (ovm.OrderBase.ShipVia == (int)ShipViaTypeEnum.Shop)
+                        ovm.OrderBase.Freight = 50;
+                    else if (ovm.OrderBase.ShipVia == (int)ShipViaTypeEnum.Witch)
+                        ovm.OrderBase.Freight = 100;
+                    else
+                        ovm.OrderBase.Freight = 0;
+
+                    ovm.Invoice = InvoiceEnum.Donate;
+                    ovm.TotalPriceSum = 1000;
+
+                    //Receiver's info
+                    bool isCopy = false;
+                    if (isCopy) //copy info from Customer table
+                    {
+                        ovm.OrderBase.ShipAddress = ovm.OrderBase.Customer.Address;
+                        ovm.OrderBase.ShipName = ovm.OrderBase.Customer.CompanyName;
+                        //ovm.OrderBase.Customer.Phone = "???";
+                    }
+                    else
+                    {
+
+                    }
+                    string ovmJSON = "";
+                    //keep data in cookie : NewOrderVM_Temp
+                    ovmJSON = JsonConvert.SerializeObject(ovm);
+                    HttpContext.Response.Cookies.Append("NewOrderVM_Temp", ovmJSON);
+                }
+
+                HttpContext.Response.Cookies.Append("ShipVia", ShipVia.ToString());
+                HttpContext.Response.Cookies.Append("Payment", Payment.ToString());
+                HttpContext.Response.Cookies.Append("Invoice", Invoice.ToString());
+                _result = "PASS"; _detail = " " + ShipVia + "," + Payment +","+ Invoice;
+            }
+            catch (Exception ex)
+            {
+                _result = "Error"; _detail = "exception " + ex;
+            }
+            
+            var res = new { result = _result, detail = _detail, time= _time };
+            return Json(res);
+        }
 
         //::set official data in Orders and OrderDetails
         public async Task<IActionResult> CreateOrderAndDetails()
@@ -537,10 +648,34 @@ namespace VNW.Controllers
                                 ShipName = member.CompanyName,
                                 ShipCountry = member.Country,
                                 ShipPostalCode = member.PostalCode,
-                                Freight = 0,
-                                ShipVia = 1,
+                                //Freight = 0,
+                                //ShipVia = 1,
                                 OrderDate = DateTime.Now,
                             };
+
+                            //::from cookie
+                            string ShipVia = HttpContext.Request.Cookies["ShipVia"];
+                            string Payment = HttpContext.Request.Cookies["Payment"];
+                            string Invoice = HttpContext.Request.Cookies["Invoice"];
+                            ViewData["ShipVia"] = ShipVia;
+                            ViewData["Payment"] = Payment;
+                            ViewData["Invoice"] = Invoice;
+
+                            if(ShipVia == null)
+                            {
+                                //error case
+                                TempData["td_serverWarning"] += " 運送方式異常; ";
+                                return View();
+                            }
+
+                            newOrder.ShipVia = int.Parse(ShipVia);
+                            if (newOrder.ShipVia == (int)ShipViaTypeEnum.Shop)
+                                newOrder.Freight = 50;
+                            else if (newOrder.ShipVia == (int)ShipViaTypeEnum.Witch)
+                                newOrder.Freight = 100;
+                            else
+                                newOrder.Freight = 0;
+
                             ViewData["newOrder"] = newOrder;
 
                             //CreateOrder(newOrder);
@@ -704,8 +839,8 @@ namespace VNW.Controllers
                 OrderViewModel odvm = new OrderViewModel();
                 odvm.Ods = qD;
                 odvm.OrderBase = qO;
-                odvm.CustomerId = qO.CustomerId;
-                odvm.OrderId = qO.OrderId;
+                //odvm.CustomerId = qO.CustomerId;
+                odvm.OrderBase.OrderId = qO.OrderId;
                 odvm.Payment = PayEnum.CashOnDelivery;
                 //if (qD.Count > 0)
                 //{
@@ -735,8 +870,8 @@ namespace VNW.Controllers
                 OrderViewModel odvm = new OrderViewModel();
                 odvm.Ods = q_details;
                 odvm.OrderBase = q_order;
-                odvm.CustomerId = q_order.CustomerId;
-                odvm.OrderId = q_order.OrderId;
+                //odvm.CustomerId = q_order.CustomerId;
+                odvm.OrderBase.OrderId = q_order.OrderId;
                 odvm.Payment = PayEnum.CashOnDelivery;
                 odvm.TotalPriceSum = 17258;
                 odvm.Invoice = InvoiceEnum.Donate;
@@ -756,7 +891,6 @@ namespace VNW.Controllers
         [HttpPost]
         public async Task<IActionResult> VMEditTest(int id, ViewModels.OrderViewModel ovm)
         {
-
             Debug.WriteLine("id " + id);
             if(ovm == null)
             {

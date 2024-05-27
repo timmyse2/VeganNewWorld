@@ -21,7 +21,7 @@
     <div class="col-md-4">
         <form asp-action="VMEditTest">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <input type="hidden" asp-for="OrderId" />
+            <input type="hidden" asp-for="OrderBase.OrderId" />
             <div class="form-group">
                 <label asp-for="OrderBase.OrderId" class="control-label"></label>
                 <input asp-for="OrderBase.OrderId" class="form-control" readonly />
@@ -46,7 +46,7 @@
                 <span asp-validation-for="OrderDate" class="text-danger"></span>
             </div>*@
 
-            <div class="form-group">
+            @*<div class="form-group">
                 <label asp-for="RequiredDate" class="control-label"></label>
                 <input asp-for="RequiredDate" class="form-control" />
                 <span asp-validation-for="RequiredDate" class="text-danger"></span>
@@ -55,7 +55,7 @@
                 <label asp-for="ShippedDate" class="control-label"></label>
                 <input asp-for="ShippedDate" class="form-control" />
                 <span asp-validation-for="ShippedDate" class="text-danger"></span>
-            </div>
+            </div>*@
             <div class="form-group">
                 <label asp-for="OrderBase.ShipVia" class="control-label"></label>
                 @*<input asp-for="OrderBase.ShipVia" class="form-control" />*@
@@ -89,11 +89,11 @@
                 <input asp-for="OrderBase.ShipCity" class="form-control" />
                 <span asp-validation-for="OrderBase.ShipCity" class="text-danger"></span>
             </div>
-            <div class="form-group">
+            @*<div class="form-group">
                 <label asp-for="ShipPostalCode" class="control-label"></label>
                 <input asp-for="ShipPostalCode" class="form-control" />
                 <span asp-validation-for="ShipPostalCode" class="text-danger"></span>
-            </div>
+            </div>*@
             <div class="form-group">
                 <label asp-for="OrderBase.ShipCountry" class="control-label"></label>
                 <input asp-for="OrderBase.ShipCountry" class="form-control" />
@@ -191,7 +191,7 @@
 
 
             <div class="form-group">
-                <a class="btn btn-default" asp-action="vmtest" asp-route-id="@Model.OrderId">Cancel</a>
+                <a class="btn btn-default" asp-action="vmtest" asp-route-id="@Model.OrderBase.OrderId">Cancel</a>
             </div>
 
             <div class="form-group" style="text-align:right;">

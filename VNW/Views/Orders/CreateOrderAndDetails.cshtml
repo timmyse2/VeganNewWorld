@@ -144,7 +144,10 @@ else
             </tr>
         }
     </table>
-    <h3 style="text-align:right">合計: NT$@totalSum</h3>
+    <h3 style="text-align:right">總計: NT$@totalSum</h3>
+    <h3 style="text-align:right">總計(含運費): NT$@(totalSum+ newOrder.Freight)</h3>
+    
+
 }
 
 <a class="btn btn-success btn-lg" asp-controller="orders" asp-action="OrderList">查詢已送出的訂單</a>

@@ -843,24 +843,43 @@ namespace VNW.Controllers
                             }
                             ViewData["member"] = member;
 
+                            //::from cookie
+                            string ShipVia = HttpContext.Request.Cookies["ShipVia"];
+                            string Payment = HttpContext.Request.Cookies["Payment"];
+                            string Invoice = HttpContext.Request.Cookies["Invoice"];
+                            ViewData["ShipVia"] = ShipVia;
+                            ViewData["Payment"] = Payment;
+                            ViewData["Invoice"] = Invoice;
+                            if(ShipVia == null)
+                            {
+                                //error case!
+                            }
+
                             int currentOrderId = 0;                            
                             //:: set Order
                             //  Create New Order or merge to old recordset?
                             Models.Order newOrder = new Order {                                
                                 CustomerId = member.CustomerId,
-                                OrderId = currentOrderId, //auto create in sql server
+                                OrderId = 0, //auto create in sql server
                                 ShipAddress = member.Address,
                                 ShipCity= member.City,
                                 ShipName = member.CompanyName,
                                 ShipCountry = member.Country,
                                 ShipPostalCode = member.PostalCode,
-                                Freight = 0,
-                                ShipVia = 1,
+                                //Freight = 0,
+                                //ShipVia = 1,
                                 OrderDate = DateTime.Now,
                             };
-                            //::get data from step2                            
-                            newOrder.Freight = 100;
-                            newOrder.ShipVia = 2;
+                            //::get data from step2
+                            //newOrder.ShipVia = (int)VNW.Models.ShipViaTypeEnum.Witch;
+                            newOrder.ShipVia = int.Parse(ShipVia);
+                            if(newOrder.ShipVia == (int)ShipViaTypeEnum.Shop)
+                                newOrder.Freight = 50;
+                            else if(newOrder.ShipVia == (int)ShipViaTypeEnum.Witch)
+                                newOrder.Freight = 100;
+                            else
+                                newOrder.Freight = 0;
+
                             ViewData["newOrder"] = newOrder;
 
                             ////CreateOrder(newOrder);
