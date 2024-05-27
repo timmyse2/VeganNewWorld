@@ -139,7 +139,7 @@
         preCheck();
         function preCheck() {
             //$('#btn_Next_CheckOrder').hide();
-
+            isError = false; //clear error first
             if ($('#input_Phone').val() == "") {
                 console.log("phone is empty");
                 isError = true;
@@ -157,9 +157,10 @@
             preCheck();
 
             if (isError) {
-
+                console.log("someting is wrong");                
             }
             else {
+                console.log("Teleportation!!!!");                
                 window.location = "../Products/CheckOrder";                
             }
             //SetReady();

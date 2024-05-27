@@ -14,155 +14,172 @@
 }
 
 <hr />
-<h4>Order Base </h4>
-<table class="table table-bordered">
-    <tr>
-        <td>
-            @Html.DisplayNameFor(model => model.OrderBase.OrderId)
-        </td>
-        <td>
-            @Html.DisplayFor(model => model.OrderBase.OrderId)
-        </td>
-    </tr>
 
-    <tr>
-        <td>
-            @Html.DisplayNameFor(model => model.OrderBase.CustomerId)
-        </td>
-        <td>
-            @Html.DisplayFor(model => model.OrderBase.CustomerId)
-        </td>
-    </tr>
-    <tr>
-        <td>
-            @Html.DisplayNameFor(model => model.OrderBase.OrderDate)
-        </td>
-        <td>
-            @Html.DisplayFor(model => model.OrderBase.OrderDate)
-        </td>
-    </tr>
-    <tr>
-        <td>
-            @Html.DisplayNameFor(model => model.OrderBase.RequiredDate)
-        </td>
-        <td>
-            @Html.DisplayFor(model => model.OrderBase.RequiredDate)
-        </td>
-    </tr>
-    <tr>
-        <td>
-            @Html.DisplayNameFor(model => model.OrderBase.ShippedDate)
-        </td>
-        <td>
-            @Html.DisplayFor(model => model.OrderBase.ShippedDate)
-        </td>
-    </tr>
-    <tr>
-        <td>
-            @Html.DisplayNameFor(model => model.OrderBase.ShipVia)
-        </td>
-        <td>
-            @Html.DisplayFor(model => model.OrderBase.ShipVia)
-            @*@Model.OrderBase.ShipVia*@
-            (@VNW.Common.EnumExtensions.GetDisplayName((VNW.Models.ShipViaTypeEnum)Model.OrderBase.ShipVia))
+<a asp-action="vmedittest" asp-route-id="@Model.OrderBase.OrderId" class="btn btn-primary">Edit Test</a>
 
-        </td>
-    </tr>
-    <tr>
-        <td>
-            @Html.DisplayNameFor(model => model.OrderBase.Freight)
-        </td>
-        <td>
-            NT$@Html.DisplayFor(model => model.OrderBase.Freight)
-        </td>
-    </tr>
-    <tr>
-        <td>
-            @Html.DisplayNameFor(model => model.OrderBase.ShipName)
-        </td>
-        <td>
-            @Html.DisplayFor(model => model.OrderBase.ShipName)
-        </td>
-    </tr>
-    <tr>
-        <td>
-            @Html.DisplayNameFor(model => model.OrderBase.ShipAddress)
-        </td>
-        <td>
-            @Html.DisplayFor(model => model.OrderBase.ShipAddress)
-        </td>
-    </tr>
-    <tr>
-        <td>
-            @Html.DisplayNameFor(model => model.OrderBase.ShipCity)
-        </td>
-        <td>
-            @Html.DisplayFor(model => model.OrderBase.ShipCity)
-        </td>
-    </tr>
-    <tr>
-        <td>
-            @Html.DisplayNameFor(model => model.OrderBase.ShipPostalCode)
-        </td>
-        <td>
-            @Html.DisplayFor(model => model.OrderBase.ShipPostalCode)
-        </td>
-    </tr>
-    <tr>
-        <td>
-            @Html.DisplayNameFor(model => model.OrderBase.ShipCountry)
-        </td>
-        <td>
-            @Html.DisplayFor(model => model.OrderBase.ShipCountry)
-        </td>
-    </tr>
-</table>
+<div class="row">
+    <div class="col-md-6 col-sm-6">
+
+        <h4>Order Base </h4>
+        <table class="table table-bordered">
+            <tr>
+                <td>
+                    @Html.DisplayNameFor(model => model.OrderBase.OrderId)
+                </td>
+                <td>
+                    @Html.DisplayFor(model => model.OrderBase.OrderId)
+                </td>
+            </tr>
+
+            <tr>
+                <td>
+                    @Html.DisplayNameFor(model => model.OrderBase.CustomerId)
+                </td>
+                <td>
+                    @Html.DisplayFor(model => model.OrderBase.CustomerId)
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    @Html.DisplayNameFor(model => model.OrderBase.OrderDate)
+                </td>
+                <td>
+                    @Html.DisplayFor(model => model.OrderBase.OrderDate)
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    @Html.DisplayNameFor(model => model.OrderBase.RequiredDate)
+                </td>
+                <td>
+                    @Html.DisplayFor(model => model.OrderBase.RequiredDate)
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    @Html.DisplayNameFor(model => model.OrderBase.ShippedDate)
+                </td>
+                <td>
+                    @Html.DisplayFor(model => model.OrderBase.ShippedDate)
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    @Html.DisplayNameFor(model => model.OrderBase.ShipVia)
+                </td>
+                <td>
+                    @Html.DisplayFor(model => model.OrderBase.ShipVia)
+                    @*@Model.OrderBase.ShipVia*@
+                    (@VNW.Common.EnumExtensions.GetDisplayName((VNW.Models.ShipViaTypeEnum)Model.OrderBase.ShipVia))
+
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    @Html.DisplayNameFor(model => model.OrderBase.Freight)
+                </td>
+                <td>
+                    NT$@Html.DisplayFor(model => model.OrderBase.Freight)
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    @Html.DisplayNameFor(model => model.OrderBase.ShipName)
+                </td>
+                <td>
+                    @Html.DisplayFor(model => model.OrderBase.ShipName)
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    @Html.DisplayNameFor(model => model.OrderBase.ShipAddress)
+                </td>
+                <td>
+                    @Html.DisplayFor(model => model.OrderBase.ShipAddress)
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    @Html.DisplayNameFor(model => model.OrderBase.ShipCity)
+                </td>
+                <td>
+                    @Html.DisplayFor(model => model.OrderBase.ShipCity)
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    @Html.DisplayNameFor(model => model.OrderBase.ShipPostalCode)
+                </td>
+                <td>
+                    @Html.DisplayFor(model => model.OrderBase.ShipPostalCode)
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    @Html.DisplayNameFor(model => model.OrderBase.ShipCountry)
+                </td>
+                <td>
+                    @Html.DisplayFor(model => model.OrderBase.ShipCountry)
+                </td>
+            </tr>
+        </table>
+    </div>
+    <div class="col-md-6 col-sm-6">
+
+        <h4>Order Additional</h4>
+        <table class="table table-bordered">
+            <thead>
+                @*<tr><td>Item</td><td>Value</td></tr>*@
+            </thead>
+            <tbody>
+                <tr>
+                    <td>
+                        @Html.DisplayNameFor(model => model.Invoice)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(model => model.Invoice)
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        @Html.DisplayNameFor(model => model.Payment)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(model => model.Payment)
+                        (@Model.Payment)
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        @Html.DisplayNameFor(model => model.TotalPriceSum)
+                    </td>
+                    <td>
+                        NT$@Html.DisplayFor(model => model.TotalPriceSum)
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
 
 
-<h4>Order Additional</h4>
-<table class="table table-bordered">
-    <thead>
-        @*<tr><td>Item</td><td>Value</td></tr>*@
-    </thead>
-    <tbody>
-        <tr>
-            <td>
-                @Html.DisplayNameFor(model => model.Invoice)
-            </td>
-            <td>
-                @Html.DisplayFor(model => model.Invoice)
-            </td>
-        </tr>
-        <tr>
-            <td>
-                @Html.DisplayNameFor(model => model.Payment)
-            </td>
-            <td>
-                @Html.DisplayFor(model => model.Payment)
-                (@Model.Payment)
-            </td>
-        </tr>
-        <tr>
-            <td>
-                @Html.DisplayNameFor(model => model.TotalPriceSum)
-            </td>
-            <td>
-                NT$@Html.DisplayFor(model => model.TotalPriceSum)
-            </td>
-        </tr>
-    </tbody>
-</table>
+
+
 
 <hr />
 <h4>Details|Shopping Cart|Products </h4>
+
+
+@if(Model.Ods != null)
+{
 <table class="table table-hover table-striped">
     <tr>
-        <td>pid</td>
-        <td>name</td>
+        <td>Id</td>
+        <td>Name</td>
         <td></td>
-        <td>qty</td>
+        <td>Qty</td>
         <td>
-            price
+            Price
             @*@Html.DisplayNameFor(model => model.Ods)*@
             @*@Html.DisplayName(OrderDetail)*@
         </td>
@@ -179,11 +196,13 @@
         <td>@item.Quantity</td>
         <td>
             @*@item.Product.UnitPrice*@
-            @Html.DisplayFor(modelitem => item.Product.UnitPrice)        
+            NT$@Html.DisplayFor(modelitem => item.Product.UnitPrice)        
         </td>
     </tr>
     }
 </table>
+
+}
 <hr />
 
 @{

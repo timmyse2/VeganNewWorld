@@ -8,30 +8,43 @@
 
 <h4>OrderViewModel</h4>
 <hr />
+
+
+@if (Model == null)
+{
+    <span>Data is null</span>
+    return;
+}
+
+
 <div class="row">
     <div class="col-md-4">
-        <form asp-action="VMEdit">
+        <form asp-action="VMEditTest">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <input type="hidden" asp-for="OrderId" />
+            <div class="form-group">
+                <label asp-for="OrderBase.OrderId" class="control-label"></label>
+                <input asp-for="OrderBase.OrderId" class="form-control" readonly />
+                <span asp-validation-for="OrderBase.OrderId" class="text-danger"></span>
+            </div>
 
 
             <div class="form-group">
-                <label asp-for="CustomerId" class="control-label"></label>
-                <input asp-for="CustomerId" class="form-control" />
-                <span asp-validation-for="CustomerId" class="text-danger"></span>
+                <label asp-for="OrderBase.CustomerId" class="control-label"></label>
+                <input asp-for="OrderBase.CustomerId" class="form-control" readonly/>
+                <span asp-validation-for="OrderBase.CustomerId" class="text-danger"></span>
             </div>
             <div class="form-group">
                 <label asp-for="OrderBase.OrderDate" class="control-label"></label>
-                <input asp-for="OrderBase.OrderDate" class="form-control" />
+                <input asp-for="OrderBase.OrderDate" class="form-control" readonly/>
                 <span asp-validation-for="OrderBase.OrderDate" class="text-danger"></span>
             </div>
 
-
-            <div class="form-group">
+            @*<div class="form-group">
                 <label asp-for="OrderDate" class="control-label"></label>
                 <input asp-for="OrderDate" class="form-control" />
                 <span asp-validation-for="OrderDate" class="text-danger"></span>
-            </div>
+            </div>*@
 
             <div class="form-group">
                 <label asp-for="RequiredDate" class="control-label"></label>
@@ -45,23 +58,25 @@
             </div>
             <div class="form-group">
                 <label asp-for="OrderBase.ShipVia" class="control-label"></label>
-                <input asp-for="OrderBase.ShipVia" class="form-control" />
+                @*<input asp-for="OrderBase.ShipVia" class="form-control" />*@
+                <select asp-items="@Html.GetEnumSelectList(typeof(VNW.Models.ShipViaTypeEnum))"
+                        class="form-control" asp-for="OrderBase.ShipVia"></select>
+
                 <span asp-validation-for="OrderBase.ShipVia" class="text-danger"></span>
             </div>
             <div class="form-group">
                 <label asp-for="OrderBase.Freight" class="control-label"></label>
-                <input asp-for="OrderBase.Freight" class="form-control" />
+                <input asp-for="OrderBase.Freight" class="form-control" readonly/>
                 <span asp-validation-for="OrderBase.Freight" class="text-danger"></span>
             </div>
 
-            
             <div class="form-group">
                 <label asp-for="OrderBase.ShipName" class="control-label"></label>
                 @*<input asp-for="ShipName" class="form-control" />
-                <span class="alert-success">
-                    @Model.OrderBase.ShipName
-                </span>*@
-                <input asp-for="OrderBase.ShipName" class="form-control"/>
+            <span class="alert-success">
+                @Model.OrderBase.ShipName
+            </span>*@
+                <input asp-for="OrderBase.ShipName" class="form-control" />
                 <span asp-validation-for="OrderBase.ShipName" class="text-danger"></span>
             </div>
             <div class="form-group">
@@ -84,29 +99,116 @@
                 <input asp-for="OrderBase.ShipCountry" class="form-control" />
                 <span asp-validation-for="OrderBase.ShipCountry" class="text-danger"></span>
             </div>
+            <hr />
+            <h4>補充資訊</h4>
+
             <div class="form-group">
                 <label asp-for="Invoice" class="control-label"></label>
-                <input asp-for="Invoice" class="form-control" />
+                @*<input asp-for="Invoice" class="form-control" />*@
+                <select asp-items="@Html.GetEnumSelectList(typeof(VNW.Common.InvoiceEnum))"
+                        class="form-control" asp-for="Invoice"></select>
                 <span asp-validation-for="Invoice" class="text-danger"></span>
             </div>
             <div class="form-group">
                 <label asp-for="Payment" class="control-label"></label>
-                <input asp-for="Payment" class="form-control" />
+                @*<input asp-for="Payment" class="form-control" />*@
+                <select asp-items="@Html.GetEnumSelectList(typeof(VNW.Common.PayEnum))"
+                        class="form-control" asp-for="Payment"></select>
                 <span asp-validation-for="Payment" class="text-danger"></span>
             </div>
             <div class="form-group">
                 <label asp-for="TotalPriceSum" class="control-label"></label>
-                <input asp-for="TotalPriceSum" class="form-control" />
+                <input asp-for="TotalPriceSum" class="form-control" readonly/>
                 <span asp-validation-for="TotalPriceSum" class="text-danger"></span>
             </div>
+
+            <hr />
+            <h4>訂單細節</h4>
+            @if (Model.Ods != null)
+            {
+
+                //TempData["Ods"] = Model.Ods; //try
+
+                
+                int i = 0;
+
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <td>id</td>
+                        <td>product name</td>
+                        <td>qty</td>
+                        <td>price</td>
+                        <td>p stock</td>
+                    </tr>
+                </thead>
+
+                @foreach (var item in @Model.Ods)
+                {
+
+                    <tr>
+                        <td>
+                            <input name="Ods[@i].ProductId" asp-for="@Model.Ods.ElementAt(i).ProductId" class="form-control" type="hidden" />
+                            <label class="control-label">
+                                @Model.Ods.ElementAt(i).ProductId
+                            </label>
+                        </td>
+                        <td>
+                            @if (@item.Product != null)
+                            {
+                                <label class="control-label">@item.Product.ProductName</label>
+                            }
+                            @*<label asp-for="@item.Product.ProductName"></label>*@
+                        </td>
+                        <td>
+                            <input name="Ods[@i].Quantity" asp-for="@Model.Ods.ElementAt(i).Quantity"                                  
+                                class="form-control" />
+                            @*<input asp-for="@item.Quantity" class="form-control" style="width:50%;" />*@
+                            @*<input class="form-control" value="@item.Quantity" />*@
+                        </td>
+                        <td>
+                            @*NT$@item.Product.UnitPrice*@
+                            @*NT$@item.UnitPrice*@
+                            <input name="Ods[@i].UnitPrice" asp-for="@item.UnitPrice" class="form-control" readonly />
+                        </td>
+                        <td>
+                            @*<input asp-for="@item.Product.UnitsInStock" class="form-control" style="width:50%;" readonly />*@
+                            @if (@item.Product != null)
+                            {
+                                @item.Product.UnitsInStock
+                            }
+                        </td>
+                    </tr>
+                    i++;
+                }
+            </table>    
+            
+            }
+            else
+            {
+                <span>Details data is null</span>
+            }
+
+
             <div class="form-group">
-                <input type="submit" value="Save" class="btn btn-default" />
+                <a class="btn btn-default" asp-action="vmtest" asp-route-id="@Model.OrderId">Cancel</a>
+            </div>
+
+            <div class="form-group" style="text-align:right;">
+                <input type="submit" value="Save" class="btn btn-danger" />
             </div>
         </form>
     </div>
 </div>
 
-<div>
-    <a asp-action="Index">Back to List</a>
-</div>
+
+
+
+
+
+@*@foreach(var item2 in @Model.CartItems)
+    {
+
+    }*@
+
 

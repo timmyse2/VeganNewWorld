@@ -751,5 +751,27 @@ namespace VNW.Controllers
 
             return View();
         }
+
+
+        [HttpPost]
+        public async Task<IActionResult> VMEditTest(int id, ViewModels.OrderViewModel ovm)
+        {
+
+            Debug.WriteLine("id " + id);
+            if(ovm == null)
+            {
+                return Content("Model is null");
+            }
+
+            if(ovm.Ods == null)
+            {
+                Debug.WriteLine("ods is null");
+            }
+
+            return View(ovm);            
+            ////return RedirectToAction("VMTest", "Orders", ovm);
+            //return View("VMEditTest", ovm);
+            //return View("VMTest", ovm);
+        }
     }
 }
