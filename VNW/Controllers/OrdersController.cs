@@ -416,15 +416,117 @@ namespace VNW.Controllers
             if(customerInfo == null)
             {
                 //error case
+                TempData["td_serverWarning"] = "發生異常: 無法取得用戶資料!";
+                return View();
             }
-            else
+            OrderViewModel ovm = new OrderViewModel
             {
-                ViewData["customerInfo"] = customerInfo;
-            }
+                OrderBase = new Order()
+            };
+            ovm.OrderBase.Customer = customerInfo;
+            //ViewData["customerInfo"] = customerInfo;           
 
             //::Receiver's info
-
             //::Total Price Sum
+            try
+            {
+                //::get temporary data of ShoppingCart from cookie
+                string pidJSON = null;
+                List<ShoppingCart> shoppingCarts = new List<ShoppingCart>();
+                pidJSON = HttpContext.Request.Cookies["pidJSON"];
+                if (pidJSON == null)
+                {
+                    TempData["td_serverWarning"] = "訂單是空的，請選擇商品";
+                    return View();
+                }
+                else
+                {
+                    shoppingCarts = JsonConvert.DeserializeObject<List<ShoppingCart>>(pidJSON);
+                    ovm.CartItems = shoppingCarts;
+                    if (shoppingCarts.Count <= 0)
+                    {
+                        TempData["td_serverWarning"] = "訂單是空的，請選擇商品";
+                        //::error case
+                        return View();
+                    }
+                    else
+                    {
+                        //::find matched data from DB
+                        #region sync stock data 
+                        List<int> pids = new List<int>();
+                        //List<int> pids_issue = new List<int>();
+                        foreach (var s in shoppingCarts) //get pid from cookie                        
+                            pids.Add(s.Pid);
+
+                        //::find product data from DB
+                        var queryP = await _context.Products                            
+                            .Where(x => pids.Contains(x.ProductId))
+                            .ToListAsync();                                          
+
+                        if (queryP != null)
+                        {
+                            //put matched stock in cookie
+                            foreach (var q in queryP)
+                            {
+                                Debug.WriteLine("id: " + q.ProductId + ", stock: " + q.UnitsInStock);
+                                var sc = shoppingCarts.Where(x => x.Pid == q.ProductId).First();
+                                if (sc != null)
+                                {
+                                    if (sc.Stock != q.UnitsInStock)
+                                    {
+                                        sc.Stock = (short)q.UnitsInStock;
+                                    }
+                                }
+                            }
+                            Debug.WriteLine("\n EOD ");
+
+                            int currentOrderId = 0;
+                            //:: set Order
+                            List<Models.OrderDetail> ods = new List<OrderDetail>();
+                            foreach (var p in queryP)
+                            {
+                                Models.OrderDetail od = new OrderDetail
+                                {
+                                    ProductId = p.ProductId,
+                                    OrderId = currentOrderId, //current Order                                    
+                                    UnitPrice = (decimal)p.UnitPrice,
+                                    //Quantity = 1, 
+                                    Discount = 0,
+                                    Product = p, //set queried product data
+                                };
+
+                                //s::et qty from cart
+                                var sc = shoppingCarts.Where(x => x.Pid == p.ProductId).First();
+                                if (sc != null)
+                                {
+                                    od.Quantity = (short)sc.Qty;
+                                    ods.Add(od);
+                                }
+                                else
+                                {
+                                    //error case?
+                                }
+                            }
+                            //ViewData["OrderDetails"] = ods;
+                            ovm.Ods = ods;
+                        }
+                        else
+                        {
+                            //fail case
+                            TempData["td_serverWarning"] += " 購物車內容不正確; ";
+                        }
+                        #endregion
+                    }
+                }
+            }
+            catch
+            {
+                //var res2 = new { result = "Err", detail = "", prodCount = 0 };
+                //return Json(res2);
+                TempData["td_serverWarning"] += " 發生未知錯誤; ";
+                return View();
+            }
+
 
             //::Order data - shipVia, Payment, Invoice
 
@@ -436,50 +538,50 @@ namespace VNW.Controllers
             ViewData["Payment"] = Payment;
             ViewData["Invoice"] = Invoice;
 
-            return View();
-        }
-
-        [HttpPost]
-        public async Task<IActionResult> OrderSetAddressPay(OrderViewModel ovm)
-        {
-            //::set data: Shipvia, Freight
-            //:: add Payment, Invoice
-            //:: Receiver's address|name|phone            
-
-            if(ovm != null)
-            {
-                if (ovm.OrderBase.ShipVia == (int)ShipViaTypeEnum.Shop)                
-                    ovm.OrderBase.Freight = 50;                
-                else if (ovm.OrderBase.ShipVia == (int)ShipViaTypeEnum.Witch)                
-                    ovm.OrderBase.Freight = 100;                
-                else                
-                    ovm.OrderBase.Freight = 0;
-
-                ovm.Invoice = InvoiceEnum.Donate;
-                ovm.TotalPriceSum = 1000;
-
-                //Receiver's info
-                bool isCopy = true;
-                if (isCopy) //copy info from Customer table
-                {
-                    ovm.OrderBase.ShipAddress = ovm.OrderBase.Customer.Address;
-                    ovm.OrderBase.ShipName = ovm.OrderBase.Customer.CompanyName;
-                    //ovm.OrderBase.Customer.Phone = "???";
-                }
-
-
-                //ovm.OrderBase.name
-
-                //keep data in cookie
-
-
-            }
-
-
-            return View();
+            return View(ovm);
+            //return View();
         }
 
         //[HttpPost]
+        //public async Task<IActionResult> OrderSetAddressPay(OrderViewModel ovm)
+        //{
+        //    //::set data: Shipvia, Freight
+        //    //:: add Payment, Invoice
+        //    //:: Receiver's address|name|phone            
+
+        //    if(ovm != null)
+        //    {
+        //        if (ovm.OrderBase.ShipVia == (int)ShipViaTypeEnum.Shop)                
+        //            ovm.OrderBase.Freight = 50;                
+        //        else if (ovm.OrderBase.ShipVia == (int)ShipViaTypeEnum.Witch)                
+        //            ovm.OrderBase.Freight = 100;                
+        //        else                
+        //            ovm.OrderBase.Freight = 0;
+
+        //        ovm.Invoice = InvoiceEnum.Donate;
+        //        ovm.TotalPriceSum = 1000;
+
+        //        //Receiver's info
+        //        bool isCopy = true;
+        //        if (isCopy) //copy info from Customer table
+        //        {
+        //            ovm.OrderBase.ShipAddress = ovm.OrderBase.Customer.Address;
+        //            ovm.OrderBase.ShipName = ovm.OrderBase.Customer.CompanyName;
+        //            //ovm.OrderBase.Customer.Phone = "???";
+        //        }
+
+
+        //        //ovm.OrderBase.name
+
+        //        //keep data in cookie
+
+
+        //    }
+        //    return View();
+        //}
+        
+        [HttpPost]
+        //::API for Customer Order
         public async Task<IActionResult> APISetAddressPay(int? ShipVia, int? Payment, int? Invoice)
         {
             string _result = "tbc", _detail = "tbc", _time="";

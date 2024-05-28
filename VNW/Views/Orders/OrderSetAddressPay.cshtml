@@ -1,15 +1,18 @@
 ﻿@using VNW.Common
 @using VNW.Models
+
+@model VNW.ViewModels.OrderViewModel
+
 @{
     ViewData["Title"] = "付款與運送方式";
 
     Customer customerInfo = null;
 
-    if (ViewData["customerInfo"] != null)
-    {
-        customerInfo = (Customer)ViewData["customerInfo"];
-    }
-
+    //if (ViewData["customerInfo"] != null)
+    //{
+    //    customerInfo = (Customer)ViewData["customerInfo"];
+    //}
+    customerInfo = Model.OrderBase.Customer;
 
     int vd_ShipVia = 0;
 
@@ -27,6 +30,9 @@
 <div>
     [1.確認購物車] > <b class="text-primary">[2.付款與運送方式]</b> > [3.訂單確認]
 </div>
+
+<div class="alert-danger" id="txt_failMessage">@TempData["td_serverWarning"]</div>
+<div class="alert-info" id="txt_infoMessage">@TempData["td_serverInfo"]</div>
 
 <hr />
 
@@ -59,22 +65,23 @@
         <h4>收貨人資訊</h4>
 
         <div class="form-group">
-            <input type="checkbox" class="form-group" checked id="cbx_sameAsCustomer" />
+            <input type="checkbox" class="form-group" checked id="cbx_sameAsCustomer" disabled/>
             <label>同訂購人資料</label>
         </div>
 
         <div class="form-group">
             <label class="control-label">收貨人姓名*</label>
-            <input class="form-control" value="@customerInfo.ContactName" id="input_ContactName" />
+            <input class="form-control" value="@customerInfo.ContactName" id="input_ContactName" readonly />
         </div>
         <div class="form-group">
             <label class="control-label">收貨人電話*</label>
-            <input class="form-control" value="@customerInfo.Phone" id="input_Phone" />
+            <input class="form-control" value="@customerInfo.Phone" id="input_Phone" readonly />
+            <span class="text-danger"></span>
         </div>
         <div>
             <label class="control-label">地址*</label>
-            <input class="form-control" value="@customerInfo.Address" id="input_Address" />
-            <input class="form-control" value="@customerInfo.CompanyName" id="input_CompanyName" />
+            <input class="form-control" value="@customerInfo.Address" id="input_Address" readonly />
+            <input class="form-control" value="@customerInfo.CompanyName" id="input_CompanyName" readonly />
             @*<input class="form-control" />
                 <input class="form-control"/>*@
         </div>
@@ -84,14 +91,36 @@
 <hr />
 <div class="row">
     <div class="col-md-6 col-sm-6 col-xs-6">
+        <h4>訂單內容</h4>
+        <table class="table">
+            <tr></tr>
+            @{ 
+                decimal totalSum = 0;
+                int i = 0;
+            }
+            @foreach (var od in Model.Ods)
+            {
+                <tr>
+                    <td>@(++i)</td>
+                    <td>
+                        <img src="~/images/@od.Product.Picture" style="width:30px;" />                    
+                    </td>
+                    @*<td>#@od.ProductId</td>*@
+                    <td>$@od.UnitPrice</td>                    
+                    <td>x@(od.Quantity)</td>
+                </tr>
+                totalSum+= od.Quantity * od.UnitPrice;                
+            }
+        </table>
+
         <h4>訂單金額</h4>
         <div>
-            <div>金額:      NT$????</div>
-            <div>運費:     NT$<span id="txt_Freight">0</span>  </div>
-            <div>手續費:     $0</div>
+            <div>金額:NT$<span id="txt_TotalPriceSum">@totalSum</span></div>
+            <div>運費:NT$<span id="txt_Freight">0</span></div>
+            @*<div>手續費:$0</div>*@
         </div>
         <h3>
-            總計: NT$????
+            總計(含運費): NT$<span id="txt_TotalPriceSumPlus">@totalSum</span>
         </h3>
     </div>
     <div class="col-md-6 col-sm-6 col-xs-6">
@@ -131,7 +160,7 @@
 <div style="text-align:right">
 
     @*<a id="btn_Next_CheckOrder" class="btn btn-primary btn-lg" asp-action="CheckOrder" asp-controller="Products">下一步</a>*@
-    <a id="btn_Next_CheckOrder" class="btn btn-primary btn-lg" >下一步</a>
+    <a id="btn_Next_CheckOrder" class="btn btn-primary btn-lg">下一步</a>
 </div>
 
 
@@ -146,7 +175,7 @@
         var sel_Invoice = $('#sel_Invoice');
 
         //$('#btn_Next_CheckOrder').hide();
-        
+
 
         preCheck();
         function preCheck() {
@@ -159,15 +188,17 @@
 
             }
             else {
-                console.log("phone is pass" + $('#input_Phone').val());                
+                console.log("phone is pass" + $('#input_Phone').val());
             }
         }
 
         function SetReady() {
             $("#btn_Next_CheckOrder").show();
+            //hide mask
         }
         function SetBusy(){
             $("#btn_Next_CheckOrder").hide();
+            //show mask
         }
 
         $('#btn_Next_CheckOrder').click(function () {
@@ -176,13 +207,13 @@
             preCheck();
 
             if (isError) {
-                console.log("someting is wrong");                
+                console.log("someting is wrong");
                 SetReady();
                 return;
             }
             //else {
-                //console.log("Teleportation!!!!");                
-                //window.location = "../Products/CheckOrder";                
+                //console.log("Teleportation!!!!");
+                //window.location = "../Products/CheckOrder";
             //}
 
             //::call api to set key values
@@ -205,7 +236,7 @@
                     console.log(data)
                     if (data.result == "PASS") {
                         console.log("PASS ");
-                        console.log("Teleportation!!!!");                
+                        console.log("Teleportation!!!!");
                         window.location = "../Products/CheckOrder";
                     }
                     else {
@@ -216,15 +247,17 @@
                 }, //success
                 error: function (xhr, ajaxOptions, thrownError) {
                     console.log(xhr)
-                    //$("#txt_failMessage").text("發生未知錯誤");
+                    $("#txt_failMessage").text("發生未知錯誤");
                     SetReady();
                 }//error
             });//ajax
             SetReady();
         });
 
-        sel_ShipVia.change(function () {
-            var thisValue = $(this).val();//  sel_ShipVia.val();
+        function sel_ShipVia_UpdateFreight() {
+
+            var totalSum = @totalSum;
+            var thisValue = sel_ShipVia.val(); //$(this).val();//  sel_ShipVia.val();
             console.log("sel_ShipVia change " + thisValue);
             var Freight = 0;
             switch (thisValue) { //::notice: ths val() is 'string'
@@ -250,12 +283,14 @@
                     //console.log("default");
                     break;
             }
+            $('#txt_TotalPriceSumPlus').text(totalSum + Freight);
 
             //console.log("e o s");
+        }
 
-        });
+        sel_ShipVia.change(sel_ShipVia_UpdateFreight);
 
-        $('#sel_Payment').change(function () {
+        sel_Payment.change(function () {
             console.log("sel_Payment change " + $('#sel_Payment').val());
 
             switch ($('#sel_Payment').val()) {
@@ -269,12 +304,18 @@
             }
         });
 
+        //:: udpate selected option for ShipVia...
         function AutoUpdateSelection() {
+            try {
+                sel_ShipVia.val(@vd_ShipVia);
+                sel_ShipVia_UpdateFreight();
+            }
+            catch
+            {
 
-
-
+            }
         }
-
+        AutoUpdateSelection();
 
         console.log("jquery end");
     </script>
