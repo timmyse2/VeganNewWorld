@@ -49,6 +49,13 @@ namespace VNW.Models
         [Display(Name = "國家")]
         public string ShipCountry { get; set; }
 
+        //::<new col><28 May 2025>
+        [Display(Name = "狀態")]
+        public OrderStatusEnum? Status { get; set; }
+        [Display(Name = "支付方式")]
+        public VNW.Common.PayEnum? Payment { get; set; }
+        //public int? Payment { get; set; }
+
         //::NP
         [Display(Name = "客戶")]
         public Customer Customer { get; set; }

@@ -1,7 +1,6 @@
-﻿@using VNW.Common
+﻿@model VNW.ViewModels.OrderViewModel
+@using VNW.Common
 @using VNW.Models
-
-@model VNW.ViewModels.OrderViewModel
 
 @{
     ViewData["Title"] = "付款與運送方式";
@@ -22,7 +21,6 @@
     }
     //ViewData["Payment"]
     //ViewData["Invoice"]
-
 }
 
 <h2>@ViewData["Title"]</h2>
@@ -65,7 +63,7 @@
         <h4>收貨人資訊</h4>
 
         <div class="form-group">
-            <input type="checkbox" class="form-group" checked id="cbx_sameAsCustomer" disabled/>
+            <input type="checkbox" class="form-group" checked id="cbx_sameAsCustomer" disabled />
             <label>同訂購人資料</label>
         </div>
 
@@ -82,8 +80,6 @@
             <label class="control-label">地址*</label>
             <input class="form-control" value="@customerInfo.Address" id="input_Address" readonly />
             <input class="form-control" value="@customerInfo.CompanyName" id="input_CompanyName" readonly />
-            @*<input class="form-control" />
-                <input class="form-control"/>*@
         </div>
     </div>
 </div>
@@ -94,7 +90,7 @@
         <h4>訂單內容</h4>
         <table class="table">
             <tr></tr>
-            @{ 
+            @{
                 decimal totalSum = 0;
                 int i = 0;
             }
@@ -103,13 +99,12 @@
                 <tr>
                     <td>@(++i)</td>
                     <td>
-                        <img src="~/images/@od.Product.Picture" style="width:30px;" />                    
+                        <img src="~/images/@od.Product.Picture" style="width:30px;" />
                     </td>
-                    @*<td>#@od.ProductId</td>*@
-                    <td>$@od.UnitPrice</td>                    
+                    <td>$@od.UnitPrice</td>
                     <td>x@(od.Quantity)</td>
                 </tr>
-                totalSum+= od.Quantity * od.UnitPrice;                
+                totalSum += od.Quantity * od.UnitPrice;
             }
         </table>
 

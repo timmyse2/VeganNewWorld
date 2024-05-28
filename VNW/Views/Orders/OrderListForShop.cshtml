@@ -12,7 +12,7 @@
     <a class="btn-success btn">員工登出</a>
 </div>
 
-<div>
+@*<div>
     <h4>條件快篩</h4>
     <table id="table_sortCondition">
         <tr>
@@ -37,7 +37,7 @@
             </td>
         </tr>
     </table>
-</div>
+</div>*@
 
 <div>
     << < 1 2 3 4 5 6 7 8 9 10 > >>
@@ -77,8 +77,10 @@
                 @Html.DisplayNameFor(model => model.ShipPostalCode)
             </th>
             <th>
-                @*@Html.DisplayNameFor(model => model.ShipCountry)*@
-                狀態
+                @Html.DisplayNameFor(m => m.Payment)
+            </th>
+            <th>
+                @Html.DisplayNameFor(m => m.Status)
             </th>
 
             <th></th>
@@ -106,7 +108,7 @@
             <td>
                 @Html.DisplayFor(modelItem => item.ShippedDate)
 
-                @if(item.ShippedDate == null)
+                @if (item.ShippedDate == null)
                 {
                     <span class="alert-danger">尚未出貨</span>
                 }
@@ -121,7 +123,7 @@
                         @EnumExtensions.GetDisplayName((ShipViaTypeEnum)item.ShipVia)
                         @*@item.shipViaTypes[(int)item.ShipVia]*@
                         @*@item.shipViaTypes.ElementAt((int)item.ShipVia)
-                        @item.shipViaTypes[(int)(@item.ShipVia)]*@
+                    @item.shipViaTypes[(int)(@item.ShipVia)]*@
                     }
                     else
                     {
@@ -150,15 +152,29 @@
                 @Html.DisplayFor(modelItem => item.ShipPostalCode)
             </td>
             <td>
+                @Html.DisplayFor(mi => item.Payment)
+
+                @if(item.Payment == null)
+                {
+                    <span class="alert-danger">未設</span>
+                }
+
+            </td>
+            <td>
                 @*@Html.DisplayFor(modelItem => item.ShipCountry)*@
+
+                @Html.DisplayFor(mi => item.Status)
+
                 @if (item.ShippedDate == null)
                 {
-                    @VNW.Common.EnumExtensions.GetDisplayName(OrderStatusEnum.Got)
+                    @*@VNW.Common.EnumExtensions.GetDisplayName(OrderStatusEnum.Got)*@
                 }
                 else
                 {
-                    @VNW.Common.EnumExtensions.GetDisplayName(OrderStatusEnum.Finish)
+                    @*@VNW.Common.EnumExtensions.GetDisplayName(OrderStatusEnum.Finish)*@
+                    <span>(已出貨)</span>
                 }
+
             </td>
 
             <td>

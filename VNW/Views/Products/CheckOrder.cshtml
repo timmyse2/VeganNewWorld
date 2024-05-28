@@ -101,6 +101,20 @@ else
             </td>
         </tr>
         <tr>
+            <td>支付方式</td>
+            <td>
+                @*(@newOrder.Payment)*@
+                @try
+                {
+                    @EnumExtensions.GetDisplayName((VNW.Common.PayEnum)newOrder.Payment)
+                }
+                catch
+                {
+                    <span class="alert-danger">異常</span>
+                }
+            </td>
+        </tr>
+        <tr>
             <td>運費</td>
             <td>@newOrder.Freight</td>
         </tr>

@@ -777,6 +777,7 @@ namespace VNW.Controllers
                                 newOrder.Freight = 100;
                             else
                                 newOrder.Freight = 0;
+                            newOrder.Payment = (Common.PayEnum)int.Parse(Payment);
 
                             ViewData["newOrder"] = newOrder;
 

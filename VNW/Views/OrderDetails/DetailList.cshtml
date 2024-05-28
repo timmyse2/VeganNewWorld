@@ -75,6 +75,33 @@ else
                     </td>
                 </tr>
                 <tr><td>運費</td><td>@OrderInfo.Freight</td></tr>
+                <tr>
+                    <td>支付方式</td>
+                    <td>
+                        @try
+                        {
+                            @EnumExtensions.GetDisplayName((VNW.Common.PayEnum)OrderInfo.Payment)
+                        }
+                        catch
+                        {
+                            <span class="alert-danger">異常或之前未設定</span>
+                        }
+                    </td>
+                </tr>
+                <tr>
+                    <td>狀態</td>
+                    <td>
+                        @OrderInfo.Status
+                        @try
+                        {
+                            @EnumExtensions.GetDisplayName((VNW.Models.OrderStatusEnum)OrderInfo.Status)
+                        }
+                        catch
+                        {
+                            <span class="alert-danger">異常或之前未設定</span>
+                        }
+                    </td>
+                </tr>
             </table>
         </div>
         <div class="col-md-6 col-sm-6 col-xs-6">

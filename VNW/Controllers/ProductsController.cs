@@ -850,9 +850,11 @@ namespace VNW.Controllers
                             ViewData["ShipVia"] = ShipVia;
                             ViewData["Payment"] = Payment;
                             ViewData["Invoice"] = Invoice;
-                            if(ShipVia == null)
+                            if(ShipVia == null || Payment == null)
                             {
                                 //error case!
+                                TempData["td_serverWarning"] += " 運貨方式設定異常; ";
+                                return View();
                             }
 
                             int currentOrderId = 0;                            
@@ -879,6 +881,7 @@ namespace VNW.Controllers
                                 newOrder.Freight = 100;
                             else
                                 newOrder.Freight = 0;
+                            newOrder.Payment = (Common.PayEnum) int.Parse(Payment);
 
                             ViewData["newOrder"] = newOrder;
 

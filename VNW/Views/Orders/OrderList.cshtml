@@ -39,8 +39,8 @@ else
                 @Html.DisplayNameFor(model => model.OrderDate)
             </th>
             @*<th>
-                    @Html.DisplayNameFor(model => model.RequiredDate)
-                </th>*@
+            @Html.DisplayNameFor(model => model.RequiredDate)
+        </th>*@
             <th>
                 @Html.DisplayNameFor(model => model.ShippedDate)
             </th>
@@ -56,17 +56,12 @@ else
             <th>
                 @Html.DisplayNameFor(model => model.ShipAddress)
             </th>
-            @*<th>
-                    @Html.DisplayNameFor(model => model.ShipCity)
-                </th>
-                <th>
-                    @Html.DisplayNameFor(model => model.ShipPostalCode)
-                </th>
-                <th>
-                    @Html.DisplayNameFor(model => model.ShipCountry)
-                </th>*@
-
-            <th>狀態</th>
+            <th>
+                @Html.DisplayNameFor(m => m.Payment)
+            </th>
+            <th>
+                @Html.DisplayNameFor(m => m.Status)
+            </th>
         </tr>
     </thead>
     <tbody>
@@ -149,16 +144,29 @@ else
                 <td>
                     @Html.DisplayFor(modelItem => item.ShipAddress)
                 </td>
-                @*<td>
-                        @Html.DisplayFor(modelItem => item.ShipCity)
-                    </td>
-                    <td>
-                        @Html.DisplayFor(modelItem => item.ShipPostalCode)
-                    </td>
-                    <td>
-                        @Html.DisplayFor(modelItem => item.ShipCountry)
-                    </td>*@
+                <td>
+                    @Html.DisplayFor(mi => item.Payment)
 
+                    @if(item.Payment == null)
+                    {
+                        <span class="alert-danger">未設</span>
+                    }
+                </td>
+                <td>
+                    @*@Html.DisplayFor(modelItem => item.ShipCountry)*@
+
+                    @Html.DisplayFor(mi => item.Status)
+
+                    @if (item.ShippedDate == null)
+                    {
+                        @*@VNW.Common.EnumExtensions.GetDisplayName(OrderStatusEnum.Got)*@
+                    }
+                    else
+                    {
+                        @*@VNW.Common.EnumExtensions.GetDisplayName(OrderStatusEnum.Finish)*@
+                        <span>(已出貨)</span>
+                    }
+                </td>
                 <td>
                     @*<img src="~/images/delete.svg" />*@
                     @*<a asp-action="Edit" asp-route-id="@item.OrderId">Edit</a> |
