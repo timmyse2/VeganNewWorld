@@ -534,9 +534,24 @@ namespace VNW.Controllers
             string ShipVia =  HttpContext.Request.Cookies["ShipVia"];
             string Payment = HttpContext.Request.Cookies["Payment"];
             string Invoice = HttpContext.Request.Cookies["Invoice"];
-            ViewData["ShipVia"] = ShipVia;
-            ViewData["Payment"] = Payment;
-            ViewData["Invoice"] = Invoice;
+
+
+            //ViewData["ShipVia"] = ShipVia;
+            //ViewData["Payment"] = Payment;
+            //ViewData["Invoice"] = Invoice;
+
+             //= int.Parse((string)ViewData["ShipVia"]);
+            if(ShipVia != null)
+                ovm.OrderBase.ShipVia = int.Parse(ShipVia);            
+            if(Payment != null)
+            {
+                ovm.OrderBase.Payment = (PayEnum)int.Parse(Payment);
+                ovm.Payment = (PayEnum)int.Parse(Payment);
+            }
+            if (Invoice != null)
+            {
+                ovm.Invoice = (InvoiceEnum)int.Parse(Invoice);
+            }               
 
             return View(ovm);
             //return View();

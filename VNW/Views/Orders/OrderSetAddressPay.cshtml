@@ -13,12 +13,16 @@
     //}
     customerInfo = Model.OrderBase.Customer;
 
-    int vd_ShipVia = 0;
+    //int vd_ShipVia = 0;
 
-    if (ViewData["ShipVia"] != null)
-    {
-        vd_ShipVia = int.Parse((string)ViewData["ShipVia"]);
-    }
+    //if (ViewData["ShipVia"] != null)
+    //{
+    //    vd_ShipVia = int.Parse((string)ViewData["ShipVia"]);
+    //}
+    //if (Model.OrderBase.ShipVia != null)
+    //{
+    //    vd_ShipVia = (int)Model.OrderBase.ShipVia;
+    //}
     //ViewData["Payment"]
     //ViewData["Invoice"]
 }
@@ -122,9 +126,10 @@
         <h4>付款與運送方式</h4>
         <div>
             <label class="control-label">運送方式*</label>
-            <select name="ShipVia" asp-items="@Html.GetEnumSelectList(typeof(VNW.Models.ShipViaTypeEnum))"
+            <select asp-for="OrderBase.ShipVia" asp-items="@Html.GetEnumSelectList(typeof(VNW.Models.ShipViaTypeEnum))"
                     class="form-control" id="sel_ShipVia"></select>
             <span id="validate_ShipVia" class="text-danger">註: 冷凍、冷凍、體積過大的商品無法由[超商取貨]</span>
+
             @*<input class="form-control" type="radio" />
                 <input class="form-control" type="radio" />
                 <input class="form-control" type="radio" />*@
@@ -133,13 +138,14 @@
 
         <div>
             <label>付款方式*</label>
-            <select name="Payment" asp-items="@Html.GetEnumSelectList(typeof(VNW.Common.PayEnum))"
+            <select asp-for="Payment" asp-items="@Html.GetEnumSelectList(typeof(VNW.Common.PayEnum))"
                     class="form-control" id="sel_Payment"></select>
+            <span id="validate_Payment" class="text-danger"></span>
         </div>
 
         <div>
             <label>發票資訊</label>
-            <select name="Invovice" asp-items="@Html.GetEnumSelectList(typeof(InvoiceEnum))"
+            <select asp-for="Invoice" asp-items="@Html.GetEnumSelectList(typeof(InvoiceEnum))"
                     class="form-control" id="sel_Invoice"></select>
         </div>
     </div>
@@ -284,34 +290,44 @@
             //console.log("e o s");
         }
 
+        function sel_PaymentChange() {
+            var msg = "";
+            console.log("sel_Payment change " + sel_Payment.val());
+            switch (sel_Payment.val()) {
+                case '0': msg = "只接受VISA卡，不能用美國運通、黑卡、提款卡";
+                    break;
+                case '1': msg = "不會主動要求您去操作ATM提款或反戰車飛彈";
+                    break;
+                case '2': msg = "超商店員、送貨員或小魔女會向您收費，建議備好零錢";
+                    break;
+                default:
+                    msg = "someting is wrong";
+                    break;
+            }
+            $('#validate_Payment').html(msg);
+            
+        }
+
         sel_ShipVia.change(sel_ShipVia_UpdateFreight);
 
         sel_Payment.change(function () {
-            console.log("sel_Payment change " + $('#sel_Payment').val());
-
-            switch ($('#sel_Payment').val()) {
-                case 0:
-                    break;
-                case 1:
-                    break;
-                case 2:
-                    break;
-                default: break;
-            }
+            //console.log("sel_Payment change " + $('#sel_Payment').val());
+            sel_PaymentChange();
         });
 
         //:: udpate selected option for ShipVia...
         function AutoUpdateSelection() {
             try {
-                sel_ShipVia.val(@vd_ShipVia);
+                @*sel_ShipVia.val(@vd_ShipVia);*@
                 sel_ShipVia_UpdateFreight();
+                sel_PaymentChange();
             }
             catch
             {
 
             }
         }
-        AutoUpdateSelection();
+        AutoUpdateSelection();        
 
         console.log("jquery end");
     </script>
