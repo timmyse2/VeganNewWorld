@@ -68,6 +68,24 @@
                 <input asp-for="ShipCountry" class="form-control" />
                 <span asp-validation-for="ShipCountry" class="text-danger"></span>
             </div>
+
+            <div class="form-group">
+                <label asp-for="Payment" class="control-label"></label>
+                @*<input asp-for="Payment" class="form-control" />*@
+                <select asp-for="Payment" class="form-control"
+                        asp-items="@Html.GetEnumSelectList(typeof(VNW.Common.PayEnum))"></select>
+                <span asp-validation-for="Payment" class="text-danger"></span>
+            </div>
+
+
+            <div class="form-group">
+                <label asp-for="Status" class="control-label"></label>
+                @*<input asp-for="Status" class="form-control" />*@
+                <select asp-for="Status"  class="form-control" 
+                    asp-items="@Html.GetEnumSelectList(typeof(VNW.Models.OrderStatusEnum))"></select>
+                <span asp-validation-for="Status" class="text-danger"></span>
+            </div>
+
             <div class="form-group">
                 <input type="submit" value="Save" class="btn btn-default" />
             </div>
