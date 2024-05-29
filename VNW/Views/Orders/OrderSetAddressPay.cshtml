@@ -10,8 +10,7 @@
     //if (ViewData["customerInfo"] != null)
     //{
     //    customerInfo = (Customer)ViewData["customerInfo"];
-    //}
-    customerInfo = Model.OrderBase.Customer;
+    //}    
 
     //int vd_ShipVia = 0;
 
@@ -29,6 +28,9 @@
 
 <h2>@ViewData["Title"]</h2>
 <hr />
+
+<a asp-action="CategoryList" asp-controller="Categories" class="btn btn-primary">再去選購商品</a>
+
 <div>
     [1.確認購物車] > <b class="text-primary">[2.付款與運送方式]</b> > [3.訂單確認]
 </div>
@@ -37,6 +39,17 @@
 <div class="alert-info" id="txt_infoMessage">@TempData["td_serverInfo"]</div>
 
 <hr />
+
+@if (Model == null)
+{
+    @*<div class="alert-danger">data is lost</div>*@
+    return;
+}
+else
+{
+    customerInfo = Model.OrderBase.Customer;
+}
+
 
 @if (customerInfo == null)
 {
@@ -305,7 +318,7 @@
                     break;
             }
             $('#validate_Payment').html(msg);
-            
+
         }
 
         sel_ShipVia.change(sel_ShipVia_UpdateFreight);
@@ -327,7 +340,7 @@
 
             }
         }
-        AutoUpdateSelection();        
+        AutoUpdateSelection();
 
         console.log("jquery end");
     </script>

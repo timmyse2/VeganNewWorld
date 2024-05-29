@@ -16,6 +16,8 @@
 
 <h2>@ViewData["Title"]</h2>
 <hr />
+<a asp-action="CategoryList" asp-controller="Categories" class="btn btn-primary">再去選購商品</a>
+
 <div>
     [1.確認購物車] > [2.付款與運送方式] > <b class="text-primary">[3.訂單確認]</b>
 </div>
@@ -220,7 +222,10 @@ else
     }
     else
     {
-        <a class="btn btn-lg btn-primary" asp-controller="Orders" asp-action="CreateOrderAndDetails">確認並送出</a>
+        <a class="btn btn-lg btn-primary" asp-controller="Orders" 
+            asp-action="CreateOrderAndDetails"
+            asp-route-isSaveAndUpdateDB="1"
+            >確認並送出</a>
         <p>
             註: 按下[確認並送出]才正式產生訂單資料
             <span class="text-danger">(庫存較不足的商品可能無法順利訂購)</span>

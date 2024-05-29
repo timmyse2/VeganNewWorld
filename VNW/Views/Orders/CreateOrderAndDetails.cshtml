@@ -10,8 +10,16 @@
 
 <h2>@ViewData["Title"]</h2>
 
+<a asp-action="CategoryList" asp-controller="Categories" class="btn btn-primary">再去選購商品</a>
+
 <div class="alert-danger">@TempData["td_serverWarning"]</div>
 <div class="alert-info">@TempData["td_serverInfo"]</div>
+
+@if (Model == null)
+{
+    <div class="alert-danger">data is lost</div>
+    return;
+}
 
 <hr />
 <h4>訂貨客戶</h4>

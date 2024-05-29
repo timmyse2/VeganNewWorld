@@ -667,6 +667,9 @@ namespace VNW.Controllers
             if (!_ms.LoginPrecheck(HttpContext.Session))
                 return RedirectToAction("Login", "Customers");
 
+            //::try to share same configraution
+            return RedirectToAction("CreateOrderAndDetails");
+
             try
             {
                 //::get temporary data of ShoppingCart from cookie
@@ -893,14 +896,18 @@ namespace VNW.Controllers
         }
 
         //::set official data in Orders and OrderDetails
-        public async Task<IActionResult> CreateOrderAndDetails()
+        public async Task<IActionResult> CreateOrderAndDetails(int? isSaveAndUpdateDB)
         {
             if (!_ms.LoginPrecheck(HttpContext.Session))
                 return RedirectToAction("Login", "Customers");
 
             //::set this flag to switch DB updating/creating or not
-            bool _isSaveAndUpdateDB = false;
-            _isSaveAndUpdateDB = true;
+            bool _isSaveAndUpdateDB = false;            
+            if(isSaveAndUpdateDB != null && isSaveAndUpdateDB == 1)
+            {
+                _isSaveAndUpdateDB = true;
+            }
+
             try
             {
                 //::get temporary data of ShoppingCart from cookie
@@ -910,7 +917,10 @@ namespace VNW.Controllers
                 if (pidJSON == null)
                 {
                     TempData["td_serverWarning"] = "訂單是空的，請選擇商品";
-                    return View();
+                    if (_isSaveAndUpdateDB)
+                        return View();
+                    else
+                        return View("CheckOrder");
                 }
                 else
                 {
@@ -919,7 +929,10 @@ namespace VNW.Controllers
                     {
                         TempData["td_serverWarning"] = "訂單是空的，請選擇商品";
                         //::error case
-                        return View();
+                        if (_isSaveAndUpdateDB)
+                            return View();
+                        else
+                            return View("CheckOrder");
                     }
                     else
                     {
@@ -984,7 +997,10 @@ namespace VNW.Controllers
                             if (customerInfo == null)
                             {
                                 TempData["td_serverWarning"] += " 客戶資訊不明; ";
-                                return View();
+                                if (_isSaveAndUpdateDB)
+                                    return View();
+                                else
+                                    return View("CheckOrder");
                             }
                             //ViewData["member"] = customerInfo;
 
@@ -1000,7 +1016,10 @@ namespace VNW.Controllers
                             {
                                 //error case
                                 TempData["td_serverWarning"] += " 運送方式異常; ";
-                                return View();
+                                if (_isSaveAndUpdateDB)
+                                    return View();
+                                else
+                                    return View("CheckOrder");
                             }
 
                             int currentOrderId = 0;
@@ -1118,7 +1137,11 @@ namespace VNW.Controllers
 
                             TempData["td_serverInfo"] += " 無異常; ";
                             //return View();
-                            return View(ovm);
+
+                            if(_isSaveAndUpdateDB)
+                                return View(ovm);
+                            else
+                                return View("CheckOrder", ovm);
                         }
                         else
                         {
@@ -1127,9 +1150,10 @@ namespace VNW.Controllers
                         }
                         #endregion
                     }
-                    //return View(shoppingCarts);
-                    //???
-                    return View();
+                    if (_isSaveAndUpdateDB)
+                        return View();
+                    else
+                        return View("CheckOrder");
                 }
             }
             catch
@@ -1137,7 +1161,10 @@ namespace VNW.Controllers
                 //var res2 = new { result = "Err", detail = "", prodCount = 0 };
                 //return Json(res2);
                 TempData["td_serverWarning"] += " 發生未知錯誤; ";
-                return View();
+                if (_isSaveAndUpdateDB)
+                    return View();
+                else
+                    return View("CheckOrder");
             }
             //return View();
         }
