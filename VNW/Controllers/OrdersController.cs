@@ -898,6 +898,9 @@ namespace VNW.Controllers
             if (!_ms.LoginPrecheck(HttpContext.Session))
                 return RedirectToAction("Login", "Customers");
 
+            //::set this flag to switch DB updating/creating or not
+            bool _isSaveAndUpdateDB = false;
+            _isSaveAndUpdateDB = true;
             try
             {
                 //::get temporary data of ShoppingCart from cookie
@@ -925,7 +928,7 @@ namespace VNW.Controllers
                         //::find matched data from DB
                         #region sync stock data 
                         List<int> pids = new List<int>();
-                        List<int> pids_issue = new List<int>();
+                        //List<int> pids_issue = new List<int>();
                         foreach (var s in shoppingCarts) //get pid from cookie                        
                             pids.Add(s.Pid);
 
@@ -948,59 +951,42 @@ namespace VNW.Controllers
                                 {
                                     //::check stock is enough     
 
-                                    if (sc.Qty > q.UnitsInStock)
-                                    {
+                                    //if (sc.Qty > q.UnitsInStock)
+                                    //{
                                         //::show warning or error???
-                                        pids_issue.Add(sc.Pid);
-                                    }
+                                        //pids_issue.Add(sc.Pid);
+                                    //}
 
                                     if (sc.Stock != q.UnitsInStock)
                                     {
                                         sc.Stock = (short)q.UnitsInStock;
                                         //::show warning
-                                        pids_issue.Add(sc.Pid);
+                                        //pids_issue.Add(sc.Pid);
                                     }
                                 }
                             }
                             Debug.WriteLine("\n EOD ");
 
-                            if (pids_issue.Count > 0)
-                            {
+                            //if (pids_issue.Count > 0)
+                            //{
                                 //someting is worng?
-                                TempData["td_serverWarning"] += " 數量與庫存不合; ";
-                            }
+                                //TempData["td_serverWarning"] += " 數量與庫存不合; ";
+                            //}
                             //pass case
 
                             //::get info customer 
                             //:: Get customer Id, Name, Info {address}
                             string UserAccount = _ms.GetMySession("UserAccount", HttpContext.Session);
-                            Models.Customer member = await _context.Customer
+                            Models.Customer customerInfo = await _context.Customer
                                 .Where(x => x.CustomerId == UserAccount)
                                 .FirstOrDefaultAsync();
 
-                            if (member == null)
+                            if (customerInfo == null)
                             {
                                 TempData["td_serverWarning"] += " 客戶資訊不明; ";
                                 return View();
                             }
-                            ViewData["member"] = member;
-
-                            int currentOrderId = 0;
-                            //:: set Order
-                            //  Create New Order or merge to old recordset?
-                            Models.Order newOrder = new Order
-                            {
-                                CustomerId = member.CustomerId,
-                                //OrderId = currentOrderId, //auto create in sql server
-                                ShipAddress = member.Address,
-                                ShipCity = member.City,
-                                ShipName = member.CompanyName,
-                                ShipCountry = member.Country,
-                                ShipPostalCode = member.PostalCode,
-                                //Freight = 0,
-                                //ShipVia = 1,
-                                OrderDate = DateTime.Now,
-                            };
+                            //ViewData["member"] = customerInfo;
 
                             //::from cookie
                             string ShipVia = HttpContext.Request.Cookies["ShipVia"];
@@ -1010,12 +996,29 @@ namespace VNW.Controllers
                             ViewData["Payment"] = Payment;
                             ViewData["Invoice"] = Invoice;
 
-                            if(ShipVia == null)
+                            if (ShipVia == null || Payment == null)
                             {
                                 //error case
                                 TempData["td_serverWarning"] += " 運送方式異常; ";
                                 return View();
                             }
+
+                            int currentOrderId = 0;
+                            //:: set Order
+                            //  Create New Order or merge to old recordset?
+                            Models.Order newOrder = new Order
+                            {
+                                CustomerId = customerInfo.CustomerId,
+                                //OrderId = currentOrderId, //auto create in sql server
+                                ShipAddress = customerInfo.Address,
+                                ShipCity = customerInfo.City,
+                                ShipName = customerInfo.CompanyName,
+                                ShipCountry = customerInfo.Country,
+                                ShipPostalCode = customerInfo.PostalCode,
+                                //Freight = 0,
+                                //ShipVia = 1,
+                                OrderDate = DateTime.Now,
+                            };
 
                             newOrder.ShipVia = int.Parse(ShipVia);
                             if (newOrder.ShipVia == (int)ShipViaTypeEnum.Shop)
@@ -1026,18 +1029,26 @@ namespace VNW.Controllers
                                 newOrder.Freight = 0;
                             newOrder.Payment = (Common.PayEnum)int.Parse(Payment);
 
-                            ViewData["newOrder"] = newOrder;
-
-                            //CreateOrder(newOrder);
-                            _context.Add(newOrder);
-                            await _context.SaveChangesAsync();
-
-                            //::get order id, check order
-                            currentOrderId = newOrder.OrderId;
-                            if (currentOrderId == 0)
+                            //ViewData["newOrder"] = newOrder;
+                            OrderViewModel ovm = new OrderViewModel
                             {
-                                //error case
-                                return Content("error oid is not ready!?");
+                                OrderBase = newOrder
+                            };
+                            ovm.OrderBase.Customer = customerInfo;
+
+                            if(_isSaveAndUpdateDB)
+                            {
+                                //CreateOrder(newOrder);
+                                _context.Add(newOrder);
+                                await _context.SaveChangesAsync();                            
+
+                                //::get order id, check order
+                                currentOrderId = newOrder.OrderId;
+                                if (currentOrderId == 0)
+                                {
+                                    //error case
+                                    return Content("error oid is not ready!?");
+                                }
                             }
 
                             //::create Details = o.id + {p.id s} + qty
@@ -1063,44 +1074,51 @@ namespace VNW.Controllers
                                     od.Quantity = (short)sc.Qty;
                                     ods.Add(od);
 
-                                    //::write to DB
-                                    _context.Add(od);
-                                    await _context.SaveChangesAsync();
+                                    if(_isSaveAndUpdateDB)
+                                    {
+                                        //::write to DB table OrderDetail
+                                        _context.Add(od);
+                                        await _context.SaveChangesAsync();
+                                        #region
+                                        //::update data Product: InStock, OnOrder
+                                        if (p.UnitsInStock == null)
+                                            p.UnitsInStock = 0;
+                                        p.UnitsInStock -= od.Quantity;
 
-                                    #region
-                                    //::update data Product: InStock, OnOrder
-                                    if (p.UnitsInStock == null)
-                                        p.UnitsInStock = 0;
-                                    p.UnitsInStock -= od.Quantity;
+                                        if (p.UnitsOnOrder == null)
+                                            p.UnitsOnOrder = 0;
+                                        p.UnitsOnOrder += od.Quantity;
 
-                                    if (p.UnitsOnOrder == null)
-                                        p.UnitsOnOrder = 0;
-                                    p.UnitsOnOrder += od.Quantity;
-
-                                    _context.Update(p); //::write to product
-                                    await _context.SaveChangesAsync();
-                                    #endregion
+                                        _context.Update(p); //::write to product
+                                        await _context.SaveChangesAsync();
+                                        #endregion
+                                    }
                                 }
                                 else
                                 {
                                     //error case? TBD
                                 }
                             }
-                            ViewData["OrderDetails"] = ods;
+                            //ViewData["OrderDetails"] = ods;
+                            ovm.Ods = ods;
 
                             //::update product, reduce UnitsInStock, update UnitsOnOrder...
 
-                            //::clear data from shopping cart cookie
-                            foreach (var p in queryP)
+                            if(_isSaveAndUpdateDB)
                             {
-                                var sc = shoppingCarts.Where(x => x.Pid == p.ProductId).First();
-                                shoppingCarts.Remove(sc);
-                            }                            
-                            pidJSON = JsonConvert.SerializeObject(shoppingCarts);
-                            HttpContext.Response.Cookies.Append("pidJSON", pidJSON);
+                                //::clear data from shopping cart cookie
+                                foreach (var p in queryP)
+                                {
+                                    var sc = shoppingCarts.Where(x => x.Pid == p.ProductId).First();
+                                    shoppingCarts.Remove(sc);
+                                }
+                                pidJSON = JsonConvert.SerializeObject(shoppingCarts);
+                                HttpContext.Response.Cookies.Append("pidJSON", pidJSON);
+                            }
 
                             TempData["td_serverInfo"] += " 無異常; ";
-                            return View();
+                            //return View();
+                            return View(ovm);
                         }
                         else
                         {

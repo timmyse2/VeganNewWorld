@@ -1,9 +1,10 @@
-﻿@using VNW.Common
+﻿@model VNW.ViewModels.OrderViewModel
+@using VNW.Common
 @{
     ViewData["Title"] = "訂單明細";
     VNW.Models.Customer member = null;
     VNW.Models.Order newOrder = null;
-    IEnumerable<VNW.Models.OrderDetail> OrderDetails = null;
+    //IEnumerable<VNW.Models.OrderDetail> OrderDetails = null;
 
 }
 
@@ -14,9 +15,10 @@
 
 <hr />
 <h4>訂貨客戶</h4>
-@if (ViewData["member"] != null)
+
+@if (Model.OrderBase != null && Model.OrderBase.Customer != null)
 {
-    member = (VNW.Models.Customer)ViewData["member"];
+    member = Model.OrderBase.Customer; //(VNW.Models.Customer)ViewData["member"];
     <ul>
         <li>ID: <b> @member.CustomerId </b></li>
         <li>姓名: @member.ContactName</li>
@@ -30,91 +32,91 @@ else
 
 <hr />
 <h4>訂單主頁</h4>
-@if (ViewData["newOrder"] != null)
+@if (Model.OrderBase != null)
 {
-    newOrder = (VNW.Models.Order)ViewData["newOrder"];
+    newOrder = Model.OrderBase; // (VNW.Models.Order)ViewData["newOrder"];
 
-<table class="table">
-    <tr>
-        <td>客戶帳號</td>
-        <td>@newOrder.CustomerId</td>
-    </tr>
-    <tr>
-        <td>訂單編號</td>
-        <td><b>@newOrder.OrderId</b></td>
-    </tr>
-    <tr>
-        <td>地址</td>
-        <td>@newOrder.ShipAddress</td>
-    </tr>
-    <tr>
-        <td>收貨地(公司|組織)</td>
-        <td>@newOrder.ShipName</td>
-    </tr>
-    <tr>
-        <td>城市</td>
-        <td>@newOrder.ShipCity</td>
-    </tr>
-    <tr>
-        <td>郵遞區號</td>
-        <td>@newOrder.ShipPostalCode</td>
-    </tr>
-    <tr>
-        <td>訂貨時間</td>
-        <td>@newOrder.OrderDate</td>
-    </tr>
-    <tr>
-        <td>需求時間</td>
-        <td>@newOrder.RequiredDate</td>
-    </tr>
-    <tr>
-        @*<td>@Html.DisplayName(newOrder.ShippedDate)</td>*@
-        <td>寄送時間</td>
-        <td>@newOrder.ShippedDate</td>
-    </tr>
-    <tr>
-        <td>送貨方式</td>
-        <td>
-            (@newOrder.ShipVia)
-            @try
-            {
-                @EnumExtensions.GetDisplayName((VNW.Models.ShipViaTypeEnum)newOrder.ShipVia)
-            }
-            catch
-            {
-                <span class="alert-danger">異常</span>
-            }
+    <table class="table">
+        <tr>
+            <td>客戶帳號</td>
+            <td>@newOrder.CustomerId</td>
+        </tr>
+        <tr>
+            <td>訂單編號</td>
+            <td><b>@newOrder.OrderId</b></td>
+        </tr>
+        <tr>
+            <td>地址</td>
+            <td>@newOrder.ShipAddress</td>
+        </tr>
+        <tr>
+            <td>收貨地(公司|組織)</td>
+            <td>@newOrder.ShipName</td>
+        </tr>
+        <tr>
+            <td>城市</td>
+            <td>@newOrder.ShipCity</td>
+        </tr>
+        <tr>
+            <td>郵遞區號</td>
+            <td>@newOrder.ShipPostalCode</td>
+        </tr>
+        <tr>
+            <td>訂貨時間</td>
+            <td>@newOrder.OrderDate</td>
+        </tr>
+        <tr>
+            <td>需求時間</td>
+            <td>@newOrder.RequiredDate</td>
+        </tr>
+        <tr>
+            @*<td>@Html.DisplayName(newOrder.ShippedDate)</td>*@
+            <td>寄送時間</td>
+            <td>@newOrder.ShippedDate</td>
+        </tr>
+        <tr>
+            <td>送貨方式</td>
+            <td>
+                (@newOrder.ShipVia)
+                @try
+                {
+                    @EnumExtensions.GetDisplayName((VNW.Models.ShipViaTypeEnum)newOrder.ShipVia)
+                }
+                catch
+                {
+                    <span class="alert-danger">異常</span>
+                }
 
-        </td>
-    </tr>
-    <tr>
-        <td>支付方式</td>
-        <td>
-            (@newOrder.Payment)
-            @try
-            {
-                @EnumExtensions.GetDisplayName((VNW.Common.PayEnum)newOrder.Payment)
-            }
-            catch
-            {
-                <span class="alert-danger">異常</span>
-            }
-        </td>
-    </tr>
+            </td>
+        </tr>
+        <tr>
+            <td>支付方式</td>
+            <td>
+                (@newOrder.Payment)
+                @try
+                {
+                    @EnumExtensions.GetDisplayName((VNW.Common.PayEnum)newOrder.Payment)
+                }
+                catch
+                {
+                    <span class="alert-danger">異常</span>
+                }
+            </td>
+        </tr>
 
-    <tr>
-        <td>運費</td>
-        <td>@newOrder.Freight</td>
-    </tr>
-</table>
+        <tr>
+            <td>運費</td>
+            <td>@newOrder.Freight</td>
+        </tr>
+    </table>
 
 }
 
 <hr />
 <h4>訂單明細</h4>
-@if (ViewData["OrderDetails"] != null)
+@if (Model.Ods != null)
 {
-    OrderDetails = (IEnumerable<VNW.Models.OrderDetail>)ViewData["OrderDetails"];
+    //OrderDetails = Model.Ods; // (IEnumerable<VNW.Models.OrderDetail>)ViewData["OrderDetails"];
     <table class="table">
         <tr>
             <td>#</td>
@@ -131,7 +133,7 @@ else
             int i = 0;
         }
 
-        @foreach (var item in OrderDetails)
+        @foreach (var item in Model.Ods)
         {
             <tr>
                 <td>@(++i)</td>
@@ -160,8 +162,8 @@ else
         }
     </table>
     <h3 style="text-align:right">總計: NT$@totalSum</h3>
-    <h3 style="text-align:right">總計(含運費): NT$@(totalSum+ newOrder.Freight)</h3>
-    
+    <h3 style="text-align:right">總計(含運費): NT$@(totalSum + newOrder.Freight)</h3>
+
 
 }
 
