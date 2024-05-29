@@ -138,7 +138,7 @@
 
         <div>
             <label>付款方式*</label>
-            <select asp-for="Payment" asp-items="@Html.GetEnumSelectList(typeof(VNW.Common.PayEnum))"
+            <select asp-for="OrderBase.Payment" asp-items="@Html.GetEnumSelectList(typeof(VNW.Common.PayEnum))"
                     class="form-control" id="sel_Payment"></select>
             <span id="validate_Payment" class="text-danger"></span>
         </div>

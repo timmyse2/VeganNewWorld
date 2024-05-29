@@ -134,19 +134,26 @@
             <tbody>
                 <tr>
                     <td>
-                        @Html.DisplayNameFor(model => model.Invoice)
+                        @Html.DisplayNameFor(model => model.OrderBase.Payment)
                     </td>
                     <td>
-                        @Html.DisplayFor(model => model.Invoice)
+                        @Html.DisplayFor(model => model.OrderBase.Payment)
+                        (
+                        @if(@Model.OrderBase.Payment != null)
+                        {
+                            @((int)Model.OrderBase.Payment) 
+                            <x>-</x>
+                            @Model.OrderBase.Payment
+                        }   
+                        )
                     </td>
                 </tr>
                 <tr>
                     <td>
-                        @Html.DisplayNameFor(model => model.Payment)
+                        @Html.DisplayNameFor(model => model.Invoice)
                     </td>
                     <td>
-                        @Html.DisplayFor(model => model.Payment)
-                        (@Model.Payment)
+                        @Html.DisplayFor(model => model.Invoice)
                     </td>
                 </tr>
                 <tr>

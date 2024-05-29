@@ -1,9 +1,11 @@
-﻿@using VNW.Common
+﻿@model VNW.ViewModels.OrderViewModel
+
+@using VNW.Common
 @{
     ViewData["Title"] = "訂單明細預覽";
     VNW.Models.Customer member = null;
     VNW.Models.Order newOrder = null;
-    IEnumerable<VNW.Models.OrderDetail> OrderDetails = null;
+    //IEnumerable<VNW.Models.OrderDetail> OrderDetails = null;
 
     bool isError = false;
 
@@ -24,9 +26,14 @@
 
 <hr />
 <h4>訂貨客戶</h4>
-@if (ViewData["member"] != null)
+
+
+
+@*@if (ViewData["member"] != null)*@
+@if (Model.OrderBase != null && Model.OrderBase.Customer != null)
 {
-    member = (VNW.Models.Customer)ViewData["member"];
+    //member = (VNW.Models.Customer)ViewData["member"];
+    member = Model.OrderBase.Customer;
     <ul>
         <li>ID: @member.CustomerId</li>
         <li>姓名: @member.ContactName</li>
@@ -43,9 +50,10 @@ else
 
 
 <h4>訂單主頁</h4>
-@if (ViewData["newOrder"] != null)
+@*@if (ViewData["newOrder"] != null)*@
+@if (Model.OrderBase != null)
 {
-    newOrder = (VNW.Models.Order)ViewData["newOrder"];
+    newOrder = Model.OrderBase; // (VNW.Models.Order)ViewData["newOrder"];
 
     <table class="table">
         <tr>
@@ -124,9 +132,10 @@ else
 
 <hr />
 <h4>訂單明細</h4>
-@if (ViewData["OrderDetails"] != null)
+@*@if (ViewData["OrderDetails"] != null)*@
+@if (Model.Ods != null)
 {
-    OrderDetails = (IEnumerable<VNW.Models.OrderDetail>)ViewData["OrderDetails"];
+    //OrderDetails = Model.Ods; // (IEnumerable<VNW.Models.OrderDetail>)ViewData["OrderDetails"];
     <table class="table">
         <tr>
             <td>#</td>
@@ -147,7 +156,7 @@ else
             int i = 0;
         }
 
-        @foreach (var item in OrderDetails)
+        @foreach (var item in Model.Ods) // OrderDetails)
         {
 
             string CheckMark = " 通過初檢 ";
@@ -193,8 +202,8 @@ else
     </table>
     <h3 style="text-align:right">總計: NT$@totalSum</h3>
 
-    <h3 style="text-align:right">總計(含運費): NT$@(totalSum+newOrder.Freight)</h3>
-    
+    <h3 style="text-align:right">總計(含運費): NT$@(totalSum + newOrder.Freight)</h3>
+
 
 }
 
@@ -215,9 +224,9 @@ else
         <p>
             註: 按下[確認並送出]才正式產生訂單資料
             <span class="text-danger">(庫存較不足的商品可能無法順利訂購)</span>
-            
+
         </p>
-        
+
     }
 
 </div>

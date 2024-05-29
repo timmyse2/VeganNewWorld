@@ -442,7 +442,7 @@ namespace VNW.Controllers
                 else
                 {
                     shoppingCarts = JsonConvert.DeserializeObject<List<ShoppingCart>>(pidJSON);
-                    ovm.CartItems = shoppingCarts;
+                    //ovm.CartItems = shoppingCarts;
                     if (shoppingCarts.Count <= 0)
                     {
                         TempData["td_serverWarning"] = "訂單是空的，請選擇商品";
@@ -546,7 +546,7 @@ namespace VNW.Controllers
             if(Payment != null)
             {
                 ovm.OrderBase.Payment = (PayEnum)int.Parse(Payment);
-                ovm.Payment = (PayEnum)int.Parse(Payment);
+                //ovm.Payment = (PayEnum)int.Parse(Payment);
             }
             if (Invoice != null)
             {
@@ -613,7 +613,7 @@ namespace VNW.Controllers
                 OrderViewModel ovm = null; // new OrderViewModel();
                 if (ovm != null)
                 {
-                    ovm.Payment = (PayEnum)Payment;
+                    ovm.OrderBase.Payment = (PayEnum)Payment;
                     ovm.Invoice = (InvoiceEnum)Invoice;
 
                     ovm.OrderBase = new Models.Order();
@@ -743,16 +743,23 @@ namespace VNW.Controllers
                             //::get info customer 
                             //:: Get customer Id, Name, Info {address}
                             string UserAccount = _ms.GetMySession("UserAccount", HttpContext.Session);
-                            Models.Customer member = await _context.Customer
+                            Models.Customer customerInfo = await _context.Customer
                                 .Where(x => x.CustomerId == UserAccount)
                                 .FirstOrDefaultAsync();
 
-                            if (member == null)
+                            if (customerInfo == null)
                             {
                                 TempData["td_serverWarning"] += " 客戶資訊不明; ";
                                 return View();
                             }
-                            ViewData["member"] = member;
+
+                            if (customerInfo == null)
+                            {
+                                //error case
+                                TempData["td_serverWarning"] = "發生異常: 無法取得用戶資料!";
+                                return View();
+                            }
+                            //ViewData["member"] = customerInfo;
 
                             //::from cookie
                             string ShipVia = HttpContext.Request.Cookies["ShipVia"];
@@ -773,17 +780,18 @@ namespace VNW.Controllers
                             //  Create New Order or merge to old recordset?
                             Models.Order newOrder = new Order
                             {
-                                CustomerId = member.CustomerId,
+                                CustomerId = customerInfo.CustomerId,
                                 OrderId = 0, //auto create in sql server
-                                ShipAddress = member.Address,
-                                ShipCity = member.City,
-                                ShipName = member.CompanyName,
-                                ShipCountry = member.Country,
-                                ShipPostalCode = member.PostalCode,
+                                ShipAddress = customerInfo.Address,
+                                ShipCity = customerInfo.City,
+                                ShipName = customerInfo.CompanyName,
+                                ShipCountry = customerInfo.Country,
+                                ShipPostalCode = customerInfo.PostalCode,
                                 //Freight = 0,
                                 //ShipVia = 1,
                                 OrderDate = DateTime.Now,
                             };
+
                             //::get data from step2
                             //newOrder.ShipVia = (int)VNW.Models.ShipViaTypeEnum.Witch;
                             newOrder.ShipVia = int.Parse(ShipVia);
@@ -795,7 +803,12 @@ namespace VNW.Controllers
                                 newOrder.Freight = 0;
                             newOrder.Payment = (Common.PayEnum)int.Parse(Payment);
 
-                            ViewData["newOrder"] = newOrder;
+                            OrderViewModel ovm = new OrderViewModel
+                            {
+                                OrderBase = newOrder
+                            };
+                            ovm.OrderBase.Customer = customerInfo;
+                            //ViewData["newOrder"] = newOrder;
 
                             ////CreateOrder(newOrder);
                             //_context.Add(newOrder);
@@ -845,7 +858,8 @@ namespace VNW.Controllers
                                     //error case?
                                 }
                             }
-                            ViewData["OrderDetails"] = ods;
+                            //ViewData["OrderDetails"] = ods;
+                            ovm.Ods = ods;
 
                             //::update product, reduce stock
 
@@ -854,7 +868,7 @@ namespace VNW.Controllers
                             //return Json(ods);
 
                             //TempData["td_serverInfo"] += " 無異常; ";
-                            return View();
+                            return View(ovm);
                         }
                         else
                         {
@@ -1110,7 +1124,6 @@ namespace VNW.Controllers
             //return View();
         }
 
-
         //::Order List for Business Shop side
         public async Task<IActionResult> OrderListForShop()
         {
@@ -1159,7 +1172,6 @@ namespace VNW.Controllers
             //return View();
         }
 
-
         public async Task<IActionResult> VMTest(int id)
         {
             var qO = await _context.Orders.Where(x => x.OrderId == id)
@@ -1177,7 +1189,7 @@ namespace VNW.Controllers
                 odvm.OrderBase = qO;
                 //odvm.CustomerId = qO.CustomerId;
                 odvm.OrderBase.OrderId = qO.OrderId;
-                odvm.Payment = PayEnum.CashOnDelivery;
+                //odvm.OrderBase.Payment = PayEnum.CashOnDelivery;
                 //if (qD.Count > 0)
                 //{
                     //odvm.OD = qD.ElementAt(0);
@@ -1189,8 +1201,6 @@ namespace VNW.Controllers
 
             return View();
         }
-
-
         public async Task<IActionResult> VMEditTest(int id)
         {
             var q_order = await _context.Orders.Where(x => x.OrderId == id)
@@ -1208,7 +1218,7 @@ namespace VNW.Controllers
                 odvm.OrderBase = q_order;
                 //odvm.CustomerId = q_order.CustomerId;
                 odvm.OrderBase.OrderId = q_order.OrderId;
-                odvm.Payment = PayEnum.CashOnDelivery;
+                odvm.OrderBase.Payment = PayEnum.CashOnDelivery;
                 odvm.TotalPriceSum = 17258;
                 odvm.Invoice = InvoiceEnum.Donate;
                 //if (qD.Count > 0)
@@ -1222,8 +1232,6 @@ namespace VNW.Controllers
 
             return View();
         }
-
-
         [HttpPost]
         public async Task<IActionResult> VMEditTest(int id, ViewModels.OrderViewModel ovm)
         {

@@ -60,8 +60,8 @@ namespace VNW.ViewModels
         //::new
         [Display(Name = "發票資訊")]
         public InvoiceEnum? Invoice { get; set; }
-        [Display(Name = "付款方式")]
-        public PayEnum? Payment { get; set; }
+        //[Display(Name = "付款方式")]
+        //public PayEnum? Payment { get; set; }
         [Display(Name = "總額")]
         public decimal? TotalPriceSum { get; set; }
 
@@ -71,9 +71,9 @@ namespace VNW.ViewModels
         [NotMapped]
         public ICollection<OrderDetail> Ods { get; set; }
 
-        [Display(Name = "購物車")]
-        [NotMapped]
-        public IEnumerable<ShoppingCart> CartItems { get; set; }
+        //[Display(Name = "購物車")]
+        //[NotMapped]
+        //public IEnumerable<ShoppingCart> CartItems { get; set; }
 
         //int Pid;
         //string PName;
