@@ -222,10 +222,17 @@ else
     }
     else
     {
-        <a class="btn btn-lg btn-primary" asp-controller="Orders" 
+        @*<a class="btn btn-lg btn-primary" asp-controller="Orders" 
             asp-action="CreateOrderAndDetails"
             asp-route-isSaveAndUpdateDB="1"
-            >確認並送出</a>
+            >確認並送出</a>*@
+
+        <form method="post" asp-action="CreateOrderAndDetails">
+            <input type="hidden" name="isSaveAndUpdateDB" value="1"/>
+            <input type="submit" value="確認並送出" class="btn btn-lg btn-primary"/>
+        </form>
+
+
         <p>
             註: 按下[確認並送出]才正式產生訂單資料
             <span class="text-danger">(庫存較不足的商品可能無法順利訂購)</span>

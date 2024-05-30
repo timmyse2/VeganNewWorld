@@ -15,7 +15,7 @@
 <div class="alert-danger">@TempData["td_serverWarning"]</div>
 <div class="alert-info">@TempData["td_serverInfo"]</div>
 
-@if (Model == null)
+@if (Model == null || Model.OrderBase == null)
 {
     <div class="alert-danger">data is lost</div>
     return;
