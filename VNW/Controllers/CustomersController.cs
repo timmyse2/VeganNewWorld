@@ -252,5 +252,21 @@ namespace VNW.Controllers
             }); 
             return Json(new { result = "PASS", detail = "admin login" });
         }
+
+        //[HttpPost]
+        public async Task<IActionResult> ShopLogin(string account, string password, string pin, string role)
+        {
+            string ShopAccount = "wolf2024@vwn.tw";
+            await Task.Run(() =>
+            {
+                //::pass case
+                _ms.SetMySession("IsUserLogin", "NO", HttpContext.Session);
+                
+                _ms.SetMySession("UserLevel", "2B", HttpContext.Session);
+                _ms.SetMySession("UserAccount", "Illyasviel@Einzbern2017", HttpContext.Session);                
+                _ms.SetMySession("ShopAccount", ShopAccount, HttpContext.Session);
+            });
+            return Json(new { result = "PASS", detail = "shop side login " + ShopAccount });
+        }
     }
 }

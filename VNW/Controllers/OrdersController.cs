@@ -319,8 +319,8 @@ namespace VNW.Controllers
                 .Include(o => o.Customer)
                 .Include(o => o.OrderDetails)  //get count of od
                 //.Include(x=>x.prod)
+                .OrderByDescending(o => o.OrderId)
                 .Skip(_skip).Take(_take) //::notice the sequence
-                .OrderByDescending(o=>o.OrderId)
                 ;            
 
             if (orders == null)
@@ -1217,14 +1217,15 @@ namespace VNW.Controllers
         public async Task<IActionResult> OrderListForShop(int? page)
         {
             //::check Shop
-            //string UserLevel = _ms.GetMySession("UserLevel", HttpContext.Session);
-            //if (UserLevel != "2B")
-            //{
-            //  return Content("You have no right to access this");
-            //}
+            string UserLevel = _ms.GetMySession("UserLevel", HttpContext.Session);
+            if (UserLevel != "2B")
+            {
+              //return Content("You have no right to access this");
+              return RedirectToAction("Login", "Customers");
+            }
 
-            //if (!_ms.LoginPrecheck(HttpContext.Session))
-            //    return RedirectToAction("Login", "Customers");
+            if (!_ms.LoginPrecheck(HttpContext.Session))
+                return RedirectToAction("Login", "Customers");
 
             #region page
             int ipp = 10; // item per page
@@ -1263,6 +1264,8 @@ namespace VNW.Controllers
 
             ViewData["page"] = _page;
             ViewData["totalCount"] = totalCount;
+            ViewData["UserAccount"] = _ms.GetMySession("UserAccount", HttpContext.Session);
+            ViewData["ShopAccount"] = _ms.GetMySession("ShopAccount", HttpContext.Session);
 
             return View(await q.ToListAsync());            
         }
@@ -1270,6 +1273,14 @@ namespace VNW.Controllers
         //::for Business Shop side - Ready for shipping
         public async Task<IActionResult> OrderReadyForShop(int id)
         {
+            //::check Shop
+            string UserLevel = _ms.GetMySession("UserLevel", HttpContext.Session);
+            if (UserLevel != "2B")
+            {
+                //return Content("You have no right to access this");
+                return RedirectToAction("Login", "Customers");
+            }
+
             //oid
             var qO = await _context.Orders.Where(x => x.OrderId == id)
                 .FirstOrDefaultAsync();

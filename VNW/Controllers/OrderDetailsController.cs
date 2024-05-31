@@ -343,6 +343,13 @@ namespace VNW.Controllers
         //::for 2B Shop
         public async Task<IActionResult> OrderDetailsForShop(int? id)
         {
+            //::check Shop
+            string UserLevel = _ms.GetMySession("UserLevel", HttpContext.Session);
+            if (UserLevel != "2B")
+            {
+                //return Content("You have no right to access this");
+                return RedirectToAction("Login", "Customers");
+            }
             //if (!_ms.LoginPrecheck(HttpContext.Session))
             //    return RedirectToAction("Login", "Customers");
 

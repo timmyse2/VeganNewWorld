@@ -2,14 +2,14 @@
 @using VNW.Common
 
 @{
-    ViewData["Title"] = "OrderListForShop";
+    ViewData["Title"] = "收到的訂單(商家模式)";
 }
 
-<h2>本店收到的訂單 </h2>
+<h2>@ViewData["Title"]</h2>
 <div style="text-align:right">
-    <div>員工ID: <span><b>wolf2024@@vwn.tw</b></span> </div>
-    <a class="btn-primary btn">員工登入</a>
-    <a class="btn-success btn">員工登出</a>
+    <div>員工ID: <span><b>@ViewData["ShopAccount"]</b></span> </div>
+    <a class="btn-primary btn" asp-action="ShopLogin" asp-controller="Customers">員工登入</a>
+    <a class="btn-success btn"  asp-action="Logout" asp-controller="Customers">員工登出</a>
 </div>
 
 <div id="div_sortCondition">
@@ -99,9 +99,9 @@
             <th>
                 @Html.DisplayNameFor(model => model.OrderDate)
             </th>
-            <th>
+            @*<th>
                 @Html.DisplayNameFor(model => model.RequiredDate)
-            </th>
+            </th>*@
             <th>
                 @Html.DisplayNameFor(model => model.ShippedDate)
             </th>
@@ -156,13 +156,13 @@
                     }
 
                 </td>
-                <td>
+                @*<td>
                     @Html.DisplayFor(modelItem => item.RequiredDate)
                     @if (item.ShippedDate == null)
                     {
                         <span class="alert-danger">未定</span>
                     }
-                </td>
+                </td>*@
                 <td>
                     @Html.DisplayFor(modelItem => item.ShippedDate)
 

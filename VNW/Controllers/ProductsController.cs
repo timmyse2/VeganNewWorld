@@ -242,7 +242,7 @@ namespace VNW.Controllers
 
             var veganNewWorldContext = 
                 _context.Products
-                .Where(p=>p.CategoryId == cat) //::cat id
+                .Where(p=>p.CategoryId == cat && p.Picture != null) //::cat id
                 .Include(p => p.Category)
                 ;
 
@@ -286,8 +286,8 @@ namespace VNW.Controllers
 
             MySession ms = new MySession();
             string _catName = ms.GetMySession("catName", HttpContext.Session);
-            ViewBag.catName = _catName;
-
+            ViewBag.catName = _catName;            
+            ViewData["UserLevel"] = _ms.GetMySession("UserLevel", HttpContext.Session);
             return View(product);
         }
 
@@ -753,6 +753,14 @@ namespace VNW.Controllers
         //::for level 2B Shop
         public async Task<IActionResult> ProductDetailForShop(int? id)
         {
+            //::check Shop
+            string UserLevel = _ms.GetMySession("UserLevel", HttpContext.Session);
+            if (UserLevel != "2B")
+            {
+                //return Content("You have no right to access this");
+                return RedirectToAction("Login", "Customers");
+            }
+
             if (id == null)
             {
                 return NotFound();
@@ -783,6 +791,13 @@ namespace VNW.Controllers
             //    return RedirectToAction("Login", "Customers");
 
             //::check 2B
+            //::check Shop
+            string UserLevel = _ms.GetMySession("UserLevel", HttpContext.Session);
+            if (UserLevel != "2B")
+            {
+                //return Content("You have no right to access this");
+                return RedirectToAction("Login", "Customers");
+            }
 
             if (id == null)
             {
@@ -811,6 +826,14 @@ namespace VNW.Controllers
             [Bind("ProductId,ProductName,CategoryId,QuantityPerUnit,UnitPrice,UnitsInStock,UnitsOnOrder,ReorderLevel,Discontinued,Picture,Description"
                 )] Product product)
         {
+            //::check Shop
+            string UserLevel = _ms.GetMySession("UserLevel", HttpContext.Session);
+            if (UserLevel != "2B")
+            {
+                //return Content("You have no right to access this");
+                return RedirectToAction("Login", "Customers");
+            }
+
             if (id != product.ProductId)
             {
                 return NotFound();

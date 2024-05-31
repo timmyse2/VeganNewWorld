@@ -23,6 +23,7 @@ namespace VNW.Controllers
             ViewBag.UserAccount = _ms.GetMySession("UserAccount", HttpContext.Session);
             ViewBag.IsUserLogin = _ms.GetMySession("IsUserLogin", HttpContext.Session);
             ViewBag.IsAdmin = IsAdmin;
+            ViewData["UserLevel"] = _ms.GetMySession("UserLevel", HttpContext.Session);
             return View();
         }
 

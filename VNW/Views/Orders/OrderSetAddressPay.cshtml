@@ -278,15 +278,15 @@ else
                 case '0':
                     Freight = 0;
                     $('#txt_Freight').html(Freight);
-                    $('#txt_Freight').removeClass("text-danger");
-                    $('#txt_TotalPriceSumPlus').removeClass("text-danger");
+                    $('#txt_Freight').removeClass("alert-danger");
+                    $('#txt_TotalPriceSumPlus').removeClass("alert-danger");
                     $('#validate_ShipVia').html("註: 為確認您在家，送貨員會先與您連絡");
                     break;
                 case '1':
                     Freight = 50;
-                    $('#txt_Freight').html(Freight);
-                    $('#txt_Freight').addClass("text-danger");
-                    $('#txt_TotalPriceSumPlus').addClass("text-danger");
+                    $('#txt_Freight').html(Freight+'*');
+                    $('#txt_Freight').addClass("alert-danger");
+                    $('#txt_TotalPriceSumPlus').addClass("alert-danger");
                     $('#validate_ShipVia').html("註: 冷凍、冷凍、體積過大的商品無法由[超商取貨]");
                     break;
                 case '2':
@@ -295,8 +295,8 @@ else
                     ////$('#txt_Freight').val(Freight);
                     //$('#txt_Freight').text(Freight);
                     $('#txt_Freight').html(Freight+'*');                    
-                    $('#txt_Freight').addClass("text-danger");
-                    $('#txt_TotalPriceSumPlus').addClass("text-danger");
+                    $('#txt_Freight').addClass("alert-danger");
+                    $('#txt_TotalPriceSumPlus').addClass("alert-danger");
                     $('#validate_ShipVia').html("註: 小魔女會加收100元小費，不受理體積過大的商品");
                     break;
                 default:

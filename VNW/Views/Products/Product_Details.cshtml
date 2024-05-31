@@ -10,13 +10,13 @@
 <p>
     <a asp-action="Index" asp-controller="Home">首頁</a>
     > <a asp-action="CategoryList" asp-controller="categories">商品分類</a>
-    > <a asp-action="ProductList"> @ViewBag.catName</a>    
-    > 
+    > <a asp-action="ProductList"> @ViewBag.catName</a>
+    >
 </p>
 <h2>@Model.ProductName</h2>
 
 <p style="text-align:right">
-    <a class="btn btn-danger" id="btn_shippingCart" asp-action="PrepareOrder">購物車(0)</a><br/>    
+    <a class="btn btn-danger" id="btn_shippingCart" asp-action="PrepareOrder">購物車(0)</a><br />
 </p>
 
 <div>
@@ -94,13 +94,16 @@
 </div>
 
 @*<div>
-    | <a asp-action="CategoryList" asp-controller="categories">商品分類</a>
-    | <a asp-action="ProductList">回到商品清單</a>
-    |
-</div>*@
+        | <a asp-action="CategoryList" asp-controller="categories">商品分類</a>
+        | <a asp-action="ProductList">回到商品清單</a>
+        |
+    </div>*@
 
-
-
+@if ((string)ViewData["UserLevel"] == "2B") //2B: for B shop side
+{
+    <a asp-action="ProductDetailForShop" asp-route-id="@Model.ProductId"
+        asp-controller="products" class="btn btn-success btn-lg" target="_blank">確認細節與編輯(商家專用*)</a>
+}
 
 @section endJS{
     @*<!--jquery code-->*@
@@ -108,7 +111,7 @@
     <script>
         console.log("jquery start");
 
-        var btn_AddProductInOrder = $('#btn_AddProductInOrder');        
+        var btn_AddProductInOrder = $('#btn_AddProductInOrder');
         var btn_GetCount = $('#btn_GetCount');
 
         btn_AddProductInOrder.click(btn_AddProductInOrder_click);
@@ -138,10 +141,10 @@
                         console.log(data)
 
                         if (data.result == "PASS") {
-                            $("#txt_Message").text("已加入"); 
-                            //$("#txt_Message").text("已加入" + data.detail); 
-                            console.log("PASS "); 
-                            console.log("prodCount " + data.prodCount); 
+                            $("#txt_Message").text("已加入");
+                            //$("#txt_Message").text("已加入" + data.detail);
+                            console.log("PASS ");
+                            console.log("prodCount " + data.prodCount);
                             //$('#btn_AddProductInOrder').text("加入購物車 (" + data.prodCount+ ")");
                             //window.location.href = "../";
                             $('#btn_shippingCart').text("購物車 (" + data.prodCount + ")");
@@ -151,15 +154,15 @@
                             var failMessage = "※提示：找不到符合您輸入的資料!";
                             $("#txt_Message").text("");
                             $("#txt_failMessage").text(failMessage);
-                            console.log("note pass");            
+                            console.log("note pass");
                         }
                         //$('#btn_AddProductInOrder').show();
 
                     }, //success
                     error: function (xhr, ajaxOptions, thrownError) {
-                        console.log(xhr)                        
+                        console.log(xhr)
                         $("#txt_failMessage").text("發生未知錯誤");
-                    }//error                    
+                    }//error
                 });
                 return;
             }
@@ -202,7 +205,7 @@
                        console.log(xhr)
                        $('#btn_shippingCart').text("購物車 (0)");
 
-                    }//error                    
+                    }//error
                 });
                 return;
             }
