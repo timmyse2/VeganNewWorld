@@ -38,6 +38,8 @@ namespace VNW.Controllers
             if (!_ms.LoginPrecheck(HttpContext.Session))
                 return RedirectToAction("Login", "Customers");
 
+            //::page
+
             var veganNewWorldContext = _context.Orders.Include(o => o.Customer).OrderByDescending(x=>x.OrderId);
             return View(await veganNewWorldContext.ToListAsync());
         }
@@ -1148,9 +1150,9 @@ namespace VNW.Controllers
                                             p.UnitsInStock = 0;
                                         p.UnitsInStock -= od.Quantity;
 
-                                        if (p.UnitsOnOrder == null)
-                                            p.UnitsOnOrder = 0;
-                                        p.UnitsOnOrder += od.Quantity;
+                                        //if (p.UnitsOnOrder == null)
+                                        //    p.UnitsOnOrder = 0;
+                                        //p.UnitsOnOrder += od.Quantity;
 
                                         _context.Update(p); //::write to product
                                         await _context.SaveChangesAsync();

@@ -102,7 +102,7 @@
 @if ((string)ViewData["UserLevel"] == "2B") //2B: for B shop side
 {
     <a asp-action="ProductDetailForShop" asp-route-id="@Model.ProductId"
-        asp-controller="products" class="btn btn-success btn-lg" target="_blank">確認細節與編輯(商家專用*)</a>
+        asp-controller="products" class="btn btn-success btn-lg">確認細節與編輯(商家專用*)</a>
 }
 
 @section endJS{

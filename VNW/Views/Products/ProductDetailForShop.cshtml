@@ -39,16 +39,22 @@
             @Html.DisplayFor(model => model.UnitsInStock)
         </dd>
         <dt>
-            @Html.DisplayNameFor(model => model.UnitsOnOrder)
-        </dt>
-        <dd>
-            @Html.DisplayFor(model => model.UnitsOnOrder)
-        </dd>
-        <dt>
             @Html.DisplayNameFor(model => model.ReorderLevel)
         </dt>
         <dd>
             @Html.DisplayFor(model => model.ReorderLevel)
+
+            @if (Model.UnitsInStock <= Model.ReorderLevel || Model.UnitsInStock <= 0)
+            {
+                <span class="alert-danger">留意庫存, 請補貨</span>
+            }
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.UnitsOnOrder)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.UnitsOnOrder)
         </dd>
         <dt>
             @Html.DisplayNameFor(model => model.Discontinued)

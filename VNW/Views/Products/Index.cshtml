@@ -1,10 +1,10 @@
 ﻿@model IEnumerable<VNW.Models.Product>
 
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "商品管理(店家模式)";
 }
 
-<h2>Products</h2>
+<h2>@ViewData["Title"]</h2>
 
 <b>
     <span class="text-danger">
@@ -20,9 +20,12 @@
 }
 else
 {
-    @ViewBag.UserAccount
+    <span>
+        @ViewBag.UserAccount |
+        @ViewData["ShopAccount"]
+    </span>    
     <p>
-        <a asp-action="Create">Create New</a>
+        <a asp-action="Create" class="btn btn-success">加入新商品</a>
     </p>
 }
 < 1 2 3 4 5 >
@@ -88,14 +91,16 @@ else
                 </td>
                 <td>
 
-                    @if (ViewBag.UserAccount == null || ViewBag.UserAccount == "")
+
+                    @if ((string)ViewData["UserLevel"] == "2B" || (string)ViewData["UserLevel"] == "1A")
+                    {
+                        <a asp-action="ProductDetailForShop" asp-route-id="@item.ProductId" class="btn btn-success">店家確認編輯</a>
+                    }
+                    @if ((string)ViewData["UserLevel"] == "1A")
                     {
 
-                    }
-                    else
-                    {
-                        <a asp-action="Edit" asp-route-id="@item.ProductId" class="btn btn-primary">Edit</a>
-                        <a asp-action="Delete" asp-route-id="@item.ProductId" class="btn btn-danger">Del</a>
+                        <a asp-action="Edit" asp-route-id="@item.ProductId" class="btn btn-primary">管理人編輯</a>
+                        <a asp-action="Delete" asp-route-id="@item.ProductId" class="btn btn-danger">管理人刪除</a>
                     }
                 </td>
             </tr>

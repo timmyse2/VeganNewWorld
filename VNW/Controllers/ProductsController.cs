@@ -30,14 +30,20 @@ namespace VNW.Controllers
         public async Task<IActionResult> Index()
         {
             //::check admin
-            if (!_ms.CheckAdmin(HttpContext.Session))
+            string UserLevel = _ms.GetMySession("UserLevel", HttpContext.Session);
+            if (!_ms.CheckAdmin(HttpContext.Session) && UserLevel != "2B")
                 return Content("You have no right to access this page");
 
             var query = _context.Products.Include(p => p.Category).OrderByDescending(x=>x.ProductId);
 
+            //page
+
             ViewBag.UserAccount =
                 _ms.GetMySession("UserAccount", HttpContext.Session);
 
+            ViewBag.ShopAccount =
+                _ms.GetMySession("ShopAccount", HttpContext.Session);
+            ViewBag.UserLevel = UserLevel;
             return View(await query.ToListAsync());
         }
 

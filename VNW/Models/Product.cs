@@ -34,7 +34,7 @@ namespace VNW.Models
         [Display(Name = "庫存量")]
         public short? UnitsInStock { get; set; }
 
-        [Display(Name = "訂購量")]
+        [Display(Name = "向供應商的訂購量")] //採購流程, 向供應商下訂單
         public short? UnitsOnOrder { get; set; }
 
         [Display(Name = "安全庫存量")] //續訂級別 (不夠請補貨)
