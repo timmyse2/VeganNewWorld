@@ -1175,21 +1175,56 @@ namespace VNW.Controllers
         }
 
         //::Order List for Business Shop side
-        public async Task<IActionResult> OrderListForShop()
+        public async Task<IActionResult> OrderListForShop(int? page)
         {
             //::check Shop
             //string UserLevel = _ms.GetMySession("UserLevel", HttpContext.Session);
             //if (UserLevel != "2B")
             //{
-              //  return Content("You have no right to access this");
+            //  return Content("You have no right to access this");
             //}
 
             //if (!_ms.LoginPrecheck(HttpContext.Session))
             //    return RedirectToAction("Login", "Customers");
 
-            var qO = _context.Orders.Include(o => o.Customer)
-                .OrderByDescending(x => x.OrderId);
-            return View(await qO.ToListAsync());            
+
+            int ipp = 10; // item per page
+            int _page = 1, _take = ipp, _skip = 0;
+            if (page != null)
+                _page = (int)page - 1;
+            else
+            {
+                //::get page from cookie
+                var _cookepage = HttpContext.Request.Cookies["page_shoporder"];
+                try
+                {
+                    if (_cookepage == null)                    
+                        _page = 0;                    
+                    else                    
+                        _page = int.Parse(_cookepage);                    
+                }
+                catch
+                {
+                    _page = 0;
+                }
+            }
+            HttpContext.Response.Cookies.Append("page_shoporder", _page.ToString());
+
+            int totalCount = _context.Orders.Count();
+            int totalPages = totalCount / ipp;
+            if (_page >= totalPages)
+                _page = totalPages; //::debug
+            _skip = _page * ipp; //(totalPages- _page) * ipp;
+            if (_skip < 0) _skip = 0;
+
+            var q = _context.Orders.Include(o => o.Customer)                
+                .OrderByDescending(x => x.OrderId)
+                .Skip(_skip).Take(_take);
+
+            ViewData["page"] = _page;
+            ViewData["totalCount"] = totalCount;
+
+            return View(await q.ToListAsync());            
         }
 
         //::for Business Shop side - Ready for shipping

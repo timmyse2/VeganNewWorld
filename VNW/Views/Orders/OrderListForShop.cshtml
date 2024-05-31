@@ -12,35 +12,82 @@
     <a class="btn-success btn">員工登出</a>
 </div>
 
-@*<div>
-    <h4>條件快篩</h4>
-    <table id="table_sortCondition">
-        <tr>
-            <td>訂單狀況</td><td>運送方式</td><td>支付方式</td><td> 發票資訊</td>
-        </tr>
-        <tr>
-            <td>
-                <select asp-items="@Html.GetEnumSelectList(typeof(VNW.Models.OrderStatusEnum))"
-                        multiple="multiple" class="form-control"></select>
-            </td>
-            <td>
-                <select asp-items="@Html.GetEnumSelectList(typeof(VNW.Models.ShipViaTypeEnum))"
-                        multiple="multiple" class="form-control"></select>
-            </td>
-            <td>
-                <select asp-items="@Html.GetEnumSelectList(typeof(VNW.Common.PayEnum))"
-                        multiple="multiple" class="form-control"></select>
-            </td>
-            <td>
-                <select asp-items="@Html.GetEnumSelectList(typeof(InvoiceEnum))"
-                        multiple="multiple" class="form-control"></select>
-            </td>
-        </tr>
-    </table>
-</div>*@
+<div id="div_sortCondition">
+    @*<h4>條件篩選</h4>
+        <table id="table_sortCondition">
+            <tr>
+                <td>訂單狀況</td>
+                <td>運送方式</td>
+                <td>支付方式</td>
+                <td> 發票資訊</td>
+            </tr>
+            <tr>
+                <td>
+                    <select asp-items="@Html.GetEnumSelectList(typeof(VNW.Models.OrderStatusEnum))"
+                            multiple="multiple" class="form-control"></select>
+                </td>
+                <td>
+                    <select asp-items="@Html.GetEnumSelectList(typeof(VNW.Models.ShipViaTypeEnum))"
+                            multiple="multiple" class="form-control"></select>
+                </td>
+                <td>
+                    <select asp-items="@Html.GetEnumSelectList(typeof(VNW.Common.PayEnum))"
+                            multiple="multiple" class="form-control"></select>
+                </td>
+                <td>
+                    <select asp-items="@Html.GetEnumSelectList(typeof(InvoiceEnum))"
+                            multiple="multiple" class="form-control"></select>
+                </td>
+            </tr>
+        </table>*@
+</div>
 
 <div>
-    << < 1 2 3 4 5 6 7 8 9 10 > >>
+    @{
+        //:: page
+        int totalpage = 0; int ipp = 10;
+        int pageNum = (int)ViewData["page"];
+        if (ViewData["totalCount"] != null)
+        {
+            totalpage = (int)ViewData["totalCount"] / ipp + 1;
+            <ul class="pagination">
+                @{
+                    if (pageNum > 0)
+                    {
+                        <li class="page-item"><a class="page-link" href="?page=@(pageNum)"><</a></li>
+                    }
+                    else
+                    {
+                        <li class="page-item disabled"><a class="page-link"><</a></li>
+                    }
+
+                    for (int i = 0; i < totalpage; i++)
+                    {
+                        if (i == pageNum)
+                        {
+                            <li class="page-item active">
+                                <a class="page-link">@(i + 1)</a>
+                            </li>
+                        }
+                        else
+                        {
+                            <li class="page-item">
+                                <a href="?page=@(i + 1)" class="page-link"> @(i + 1) </a>
+                            </li>
+                        }
+                    } //for
+                    if (pageNum < totalpage - 1)
+                    {
+                        <li class="page-item"><a class="page-link" href="?page=@(pageNum+2)">></a></li>
+                    }
+                    else
+                    {
+                        <li class="page-item disabled"><a class="page-link">></a></li>
+                    }
+                }
+            </ul>
+        }
+    }
 </div>
 
 <table class="table">
@@ -87,102 +134,140 @@
         </tr>
     </thead>
     <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td><a asp-action="OrderDetailsForShop" asp-controller="orderDetails" asp-route-id="@item.OrderId" class="btn btn-primary">檢視</a></td>
-            <td>@item.OrderId  </td>
-            <td>
-                @item.CustomerId | @Html.DisplayFor(modelItem => item.Customer.ContactName)
-            </td>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td><a asp-action="OrderDetailsForShop" asp-controller="orderDetails" asp-route-id="@item.OrderId" class="btn btn-primary">檢視</a></td>
+                <td>@item.OrderId  </td>
+                <td>
+                    @item.CustomerId | @Html.DisplayFor(modelItem => item.Customer.ContactName)
+                </td>
 
-            <td>
-                @Html.DisplayFor(modelItem => item.OrderDate)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.RequiredDate)
-                @if (item.ShippedDate == null)
-                {
-                    <span class="alert-danger">未定</span>
-                }
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.ShippedDate)
+                <td>
+                    @Html.DisplayFor(modelItem => item.OrderDate)
 
-                @if (item.ShippedDate == null)
-                {
-                    <span class="alert-danger">尚未出貨</span>
-                }
-
-            </td>
-            <td>
-                (@Html.DisplayFor(modelItem => item.ShipVia))
-                @try
-                {
-                    if (item.ShipVia != null)
+                    @if (item.OrderDate != null)
                     {
-                        @EnumExtensions.GetDisplayName((ShipViaTypeEnum)item.ShipVia)
-                        @*@item.shipViaTypes[(int)item.ShipVia]*@
-                        @*@item.shipViaTypes.ElementAt((int)item.ShipVia)
-                    @item.shipViaTypes[(int)(@item.ShipVia)]*@
+                        TimeSpan difference = DateTime.Now - (DateTime)item.OrderDate;
+                        if (difference.Days > 3)
+                        {
+                            <span class="newMark"> >3 days </span>
+                        }
                     }
-                    else
+
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.RequiredDate)
+                    @if (item.ShippedDate == null)
+                    {
+                        <span class="alert-danger">未定</span>
+                    }
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.ShippedDate)
+
+                    @if (item.ShippedDate == null)
+                    {
+                        <span class="alert-danger">尚未出貨</span>
+                    }
+
+                </td>
+                <td>
+                    (@Html.DisplayFor(modelItem => item.ShipVia))
+                    @try
+                    {
+                        if (item.ShipVia != null)
+                        {
+                            @EnumExtensions.GetDisplayName((ShipViaTypeEnum)item.ShipVia)
+                            @*@item.shipViaTypes[(int)item.ShipVia]*@
+                            @*@item.shipViaTypes.ElementAt((int)item.ShipVia)
+                                @item.shipViaTypes[(int)(@item.ShipVia)]*@
+                        }
+                        else
+                        {
+                            <span class="alert-danger lg">異常</span>
+                        }
+                    }
+                    catch
                     {
                         <span class="alert-danger lg">異常</span>
                     }
-                }
-                catch
-                {
-                    <span class="alert-danger lg">異常</span>
-                }
 
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Freight)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.ShipName)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.ShipAddress)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.ShipCity)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.ShipPostalCode)
-            </td>
-            <td>
-                @Html.DisplayFor(mi => item.Payment)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Freight)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.ShipName)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.ShipAddress)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.ShipCity)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.ShipPostalCode)
+                </td>
+                <td>
+                    @Html.DisplayFor(mi => item.Payment)
 
-                @if(item.Payment == null)
-                {
-                    <span class="alert-danger">未設</span>
-                }
+                    @if (item.Payment == null)
+                    {
+                        <span class="alert-danger">未設</span>
+                    }
 
-            </td>
-            <td>
-                @*@Html.DisplayFor(modelItem => item.ShipCountry)*@
+                </td>
+                <td>
+                    @*@Html.DisplayFor(modelItem => item.ShipCountry)*@
 
-                @Html.DisplayFor(mi => item.Status)
+                    @Html.DisplayFor(mi => item.Status)
 
-                @if (item.ShippedDate == null)
-                {
-                    @*@VNW.Common.EnumExtensions.GetDisplayName(OrderStatusEnum.Got)*@
-                }
-                else
-                {
-                    @*@VNW.Common.EnumExtensions.GetDisplayName(OrderStatusEnum.Finish)*@
-                    <span>(已出貨)</span>
-                }
+                    @if (item.ShippedDate == null)
+                    {
+                        @*@VNW.Common.EnumExtensions.GetDisplayName(OrderStatusEnum.Got)*@
+                    }
+                    else
+                    {
+                        @*@VNW.Common.EnumExtensions.GetDisplayName(OrderStatusEnum.Finish)*@
+                        <span>(已出貨)</span>
+                    }
 
-            </td>
+                </td>
 
-            <td>
-                @*<a asp-action="OrderCancelForShop" asp-route-id="@item.OrderId" class="btn btn-danger">取消</a>*@
+                <td>
+                    @*<a asp-action="OrderCancelForShop" asp-route-id="@item.OrderId" class="btn btn-danger">取消</a>*@
 
 
-            </td>
-        </tr>
-}
+                </td>
+            </tr>
+        }
     </tbody>
 </table>
+
+@section topCSS{
+    <style>
+        .newMark {
+            background-color: red;
+            color: wheat;
+            border-radius: 5px;
+            padding: 2px;
+            margin: 2px;
+        }
+    </style>
+}
+
+@section endJS{
+    @*<!--jquery code-->*@
+    <script type="text/javascript" src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+    <script>
+        console.log("jquery start");
+
+        showHideCondition();
+        function showHideCondition() {
+            $('#div_sortCondition').hide();
+            //$('#div_sortCondition').show();
+        }
+
+    </script>
+}

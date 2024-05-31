@@ -104,6 +104,33 @@ else
 <hr />
 <div class="row">
     <div class="col-md-6 col-sm-6 col-xs-6">
+        <h4>付款與運送方式</h4>
+        <div>
+            <label class="control-label">運送方式*</label>
+            <select asp-for="OrderBase.ShipVia" asp-items="@Html.GetEnumSelectList(typeof(VNW.Models.ShipViaTypeEnum))"
+                    class="form-control" id="sel_ShipVia"></select>
+            <span id="validate_ShipVia" class="text-danger">註: 冷凍、冷凍、體積過大的商品無法由[超商取貨]</span>
+
+            @*<input class="form-control" type="radio" />
+                <input class="form-control" type="radio" />
+                <input class="form-control" type="radio" />*@
+        </div>
+
+
+        <div>
+            <label>付款方式*</label>
+            <select asp-for="OrderBase.Payment" asp-items="@Html.GetEnumSelectList(typeof(VNW.Common.PayEnum))"
+                    class="form-control" id="sel_Payment"></select>
+            <span id="validate_Payment" class="text-danger"></span>
+        </div>
+
+        <div>
+            <label>發票資訊</label>
+            <select asp-for="Invoice" asp-items="@Html.GetEnumSelectList(typeof(InvoiceEnum))"
+                    class="form-control" id="sel_Invoice"></select>
+        </div>
+    </div>
+    <div class="col-md-6 col-sm-6 col-xs-6">
         <h4>訂單內容</h4>
         <table class="table">
             <tr></tr>
@@ -135,34 +162,6 @@ else
             總計(含運費): NT$<span id="txt_TotalPriceSumPlus">@totalSum</span>
         </h3>
     </div>
-    <div class="col-md-6 col-sm-6 col-xs-6">
-        <h4>付款與運送方式</h4>
-        <div>
-            <label class="control-label">運送方式*</label>
-            <select asp-for="OrderBase.ShipVia" asp-items="@Html.GetEnumSelectList(typeof(VNW.Models.ShipViaTypeEnum))"
-                    class="form-control" id="sel_ShipVia"></select>
-            <span id="validate_ShipVia" class="text-danger">註: 冷凍、冷凍、體積過大的商品無法由[超商取貨]</span>
-
-            @*<input class="form-control" type="radio" />
-                <input class="form-control" type="radio" />
-                <input class="form-control" type="radio" />*@
-        </div>
-
-
-        <div>
-            <label>付款方式*</label>
-            <select asp-for="OrderBase.Payment" asp-items="@Html.GetEnumSelectList(typeof(VNW.Common.PayEnum))"
-                    class="form-control" id="sel_Payment"></select>
-            <span id="validate_Payment" class="text-danger"></span>
-        </div>
-
-        <div>
-            <label>發票資訊</label>
-            <select asp-for="Invoice" asp-items="@Html.GetEnumSelectList(typeof(InvoiceEnum))"
-                    class="form-control" id="sel_Invoice"></select>
-        </div>
-    </div>
-
 </div>
 
 
