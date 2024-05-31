@@ -271,7 +271,7 @@ namespace VNW.Controllers
         }
 
         //::UX for end user
-        public async Task<IActionResult> OrderList()
+        public async Task<IActionResult> OrderList(int? page)
         {
             if (!_ms.LoginPrecheck(HttpContext.Session))
                 return RedirectToAction("Login", "Customers");
@@ -280,23 +280,62 @@ namespace VNW.Controllers
             string Userid = _ms.GetMySession("UserAccount", HttpContext.Session);            
             ViewBag.UserAccount = Userid;
 
+            //::page for order
+            #region page
+            int ipp = 10; // item per page
+            int _page = 1, _take = ipp, _skip = 0;
+            if (page != null)
+                _page = (int)page - 1;
+            else
+            {
+                //::get page from cookie
+                var _cookepage = HttpContext.Request.Cookies["page_customerOrder"];
+                try
+                {
+                    if (_cookepage == null)
+                        _page = 0;
+                    else
+                        _page = int.Parse(_cookepage);
+                }
+                catch
+                {
+                    _page = 0;
+                }
+            }
+            HttpContext.Response.Cookies.Append("page_customerOrder", _page.ToString());
+
+            int totalCount = _context.Orders
+                .Where(o => o.CustomerId == Userid).Count();
+
+            int totalPages = totalCount / ipp;
+            if (_page >= totalPages)
+                _page = totalPages; //::debug
+            _skip = _page * ipp; //(totalPages- _page) * ipp;
+            if (_skip < 0) _skip = 0;
+            #endregion
+
             var orders = _context.Orders
                 .Where(o=> o.CustomerId == Userid) //sorted
                 .Include(o => o.Customer)
                 .Include(o => o.OrderDetails)  //get count of od
                 //.Include(x=>x.prod)
-                .OrderByDescending(o=>o.OrderId)                
-                ;
-
-            //::page for order - tbd
+                .Skip(_skip).Take(_take) //::notice the sequence
+                .OrderByDescending(o=>o.OrderId)
+                ;            
 
             if (orders == null)
             {
                 return Content("null");
             }
 
+            ViewData["page"] = _page;
+            ViewData["totalCount"] = totalCount;
+            ViewData["ipp"] = ipp;
+
             //try to put image - but this method is not good!
             //:: get image from 1st item only
+
+            ///orders.ElementAt[0].
             foreach (var o in orders)
             {
                 foreach (var od in o.OrderDetails)
@@ -1187,7 +1226,7 @@ namespace VNW.Controllers
             //if (!_ms.LoginPrecheck(HttpContext.Session))
             //    return RedirectToAction("Login", "Customers");
 
-
+            #region page
             int ipp = 10; // item per page
             int _page = 1, _take = ipp, _skip = 0;
             if (page != null)
@@ -1216,6 +1255,7 @@ namespace VNW.Controllers
                 _page = totalPages; //::debug
             _skip = _page * ipp; //(totalPages- _page) * ipp;
             if (_skip < 0) _skip = 0;
+            #endregion
 
             var q = _context.Orders.Include(o => o.Customer)                
                 .OrderByDescending(x => x.OrderId)
