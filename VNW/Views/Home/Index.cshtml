@@ -78,9 +78,9 @@ else
                     <li>
                         <a asp-action="OrderListForShop" asp-controller="Orders" class="btn btn-success">本店訂單(商家專用*)</a>
                     </li>
-                    @*<li>
-                    <a asp-action="ProductDetailForShop" asp-controller="products" class="btn btn-primary">商品設定</a>(商家專用*)
-                    </li>*@
+                    <li>
+                        <a asp-action="index" asp-controller="products" class="btn btn-success">商品清單(商家專用*)</a>
+                    </li>
                 }
 
                 @if (ViewBag.IsAdmin)

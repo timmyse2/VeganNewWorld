@@ -16,8 +16,9 @@
 </div>
 
 
-<div class="alert-danger">
-    <b>@TempData["td_serverMessage"]</b>
+<div>
+    <h4 class="alert-danger">@TempData["td_serverWarning"]</h4>
+    <h4 class="alert-success">@TempData["td_serverMessage"]</h4>
 </div>
 
 <a asp-action="OrderListForShop" asp-controller="orders" class="btn btn-primary">訂單總表</a>
@@ -76,37 +77,44 @@ else
                         }
                     </td>
                 </tr>
-                <tr><td>運費</td>
-                    <td>@OrderInfo.Freight                       
-                    </td>
-                </tr>
-                <tr><td>付款方式</td>
+                <tr>
+                    <td>運費</td>
                     <td>
-                        @EnumExtensions.GetDisplayName((PayEnum)0)
-                    </td>
-                </tr>
-                <tr><td>狀態</td>
-                <td>
-                    @OrderInfo.Status
-
+                        @OrderInfo.Freight
                 </td>
-                </tr>
-            </table>
-        </div>
-        <div class="col-md-6 col-sm-6 col-xs-6">
-            <h4>客戶資訊</h4>
-            <table class="table">
-                <tr><td>帳號</td><td>@OrderInfo.CustomerId</td></tr>
-
-                @if (@OrderInfo.Customer != null)
-                {
-                    <tr><td>聯絡人姓名</td><td>@OrderInfo.Customer.ContactName</td></tr>
-                    <tr><td>電話</td><td>@OrderInfo.Customer.Phone</td></tr>
-                }
-
-            </table>
-        </div>
+            </tr>
+            <tr>
+                <td>付款方式</td>
+                <td>
+                    @EnumExtensions.GetDisplayName((PayEnum)0)
+                </td>
+            </tr>
+            <tr>
+                <td>狀態</td>
+                <td>
+                    @if (OrderInfo.Status != null)
+                    {
+                        @EnumExtensions.GetDisplayName((VNW.Models.OrderStatusEnum)OrderInfo.Status)
+                    }
+                    @OrderInfo.Status
+                </td>
+            </tr>
+        </table>
     </div>
+    <div class="col-md-6 col-sm-6 col-xs-6">
+        <h4>客戶資訊</h4>
+        <table class="table">
+            <tr><td>帳號</td><td>@OrderInfo.CustomerId</td></tr>
+
+            @if (@OrderInfo.Customer != null)
+            {
+                <tr><td>聯絡人姓名</td><td>@OrderInfo.Customer.ContactName</td></tr>
+                <tr><td>電話</td><td>@OrderInfo.Customer.Phone</td></tr>
+            }
+
+        </table>
+    </div>
+</div>
 }
 
 <h4>訂單內容</h4>
@@ -174,9 +182,7 @@ else
                 <td>
                     @item.Product.UnitsInStock
                 </td>
-                <td>
-
-                </td>
+                <td></td>
             </tr>
         }
     </tbody>
@@ -193,31 +199,36 @@ else
 }
 else
 {
-    <div style="text-align:right">
-        @*<a class="btn btn-success btn-lg">確認接單</a>*@
-        <a class="btn btn-success btn-lg" asp-action="OrderReadyForShop"
-           asp-controller="Orders" asp-route-id="@OrderInfo.OrderId">準備完成</a>
-    </div>
 
-    <div>
 
-        <p></p>
-        <label class="form-control-static">理由</label>
-        <select class="form-control">
-            <option>忙碌</option>
-            <option>缺貨</option>
-            <option>內容或數量有差異</option>
-            <option>其它</option>
-        </select>
-        <a class="btn btn-danger btn-lg" asp-action="CancelOrderAsync" asp-controller="orders"
-            asp-route-id="@OrderInfo.OrderId" >取消訂單!退單!</a>
-    </div>
 
-    <hr />
+    @if (OrderInfo.Status != OrderStatusEnum.Canceling  && OrderInfo.Status != OrderStatusEnum.Cancelled)
+    {
+        <div style="text-align:right">
+            @*<a class="btn btn-success btn-lg">確認接單</a>*@
+            <a class="btn btn-success btn-lg" asp-action="OrderReadyForShop"
+               asp-controller="Orders" asp-route-id="@OrderInfo.OrderId">準備完成</a>
+        </div>
+        <div>
 
-    <div>
-        <a class="btn btn-primary btn-lg">修改訂單</a>
-    </div>
+            <p></p>
+            <label class="form-control-static">理由</label>
+            <select class="form-control">
+                <option>忙碌</option>
+                <option>缺貨</option>
+                <option>內容或數量有差異</option>
+                <option>其它</option>
+            </select>
+            <a class="btn btn-danger btn-lg" asp-action="CancelOrderAsync" asp-controller="orders"
+               asp-route-id="@OrderInfo.OrderId">取消訂單!退單!</a>
+        </div>
+
+        <hr />
+
+        <div>
+            <a class="btn btn-primary btn-lg">修改訂單</a>
+        </div>
+    }
 }
 
 

@@ -87,15 +87,17 @@ namespace VNW.Models
     public enum OrderStatusEnum
     {
         [Display(Name = "尚未接單")]
-        None = 00,
+        None = 00, //null
         [Display(Name = "店家處理中")]
         Got = 10,
+
+        [Display(Name = "已出貨")]
+        Shipped = 20,
         [Display(Name = "運送中")]
-        Shipping = 20,
-        [Display(Name = "已到貨")]
-        Shipped = 30,
+        Shipping = 30,
         [Display(Name = "已完成")]
         Finish = 100,
+
         [Display(Name = "取消中")]
         Canceling = 240,
         [Display(Name = "已取消")]        

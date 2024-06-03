@@ -266,7 +266,7 @@ namespace VNW.Controllers
                 _ms.SetMySession("UserAccount", "Illyasviel@Einzbern2017", HttpContext.Session);                
                 _ms.SetMySession("ShopAccount", ShopAccount, HttpContext.Session);
             });
-            return Json(new { result = "PASS", detail = "shop side login " + ShopAccount });
+            return Json(new { result = "PASS", detail = "shop side login " + ShopAccount + " " + DateTime.Now });
         }
     }
 }

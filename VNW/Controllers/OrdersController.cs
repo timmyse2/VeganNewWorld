@@ -1341,8 +1341,17 @@ namespace VNW.Controllers
                         return Content("order is not exist");
                     }
 
+                    if(qO.Status == OrderStatusEnum.Cancelled 
+                        || qO.Status == OrderStatusEnum.Canceling)
+                    {
+                        //return Content("Order was cancelled before, it could not be cancelled again");
+                        TempData["td_serverWarning"] = "訂單之前已取消，不能再次執行";
+                        //return RedirectToAction("OrderDetailsForShop", "orderdetails", id);
+                        return RedirectToAction("OrderDetailsForShop/" + id, "orderdetails");
+                    }
+
                     //::o.detail, update product - stock, reserved
-                    var qOds = await _context.OrderDetails.Where(x => x.OrderId == id)
+                        var qOds = await _context.OrderDetails.Where(x => x.OrderId == id)
                         //.Include(x=>x.Product)
                         .ToListAsync();
 
@@ -1369,8 +1378,11 @@ namespace VNW.Controllers
                     //pass case
                     transaction.Commit();
                     //redirection
-                    return Content(":)  This order is Cacencelled");
-                    return View();
+
+                    TempData["td_serverMessage"] = "已將訂單取消";
+                    return RedirectToAction("OrderDetailsForShop/" + id, "orderdetails");
+                    //return Content(":)  This order is Cacencelled");
+                    //return View();
                 }
                 catch
                 {
