@@ -954,27 +954,17 @@ namespace VNW.Controllers
                 _isSaveAndUpdateDB = true;
             }
 
-            try
+            using (var transaction = _context.Database.BeginTransaction())
             {
-                //::get temporary data of ShoppingCart from cookie
-                string pidJSON = null;
-                List<ShoppingCart> shoppingCarts = new List<ShoppingCart>();
-                pidJSON = HttpContext.Request.Cookies["pidJSON"];
-                if (pidJSON == null)
+                try
                 {
-                    TempData["td_serverWarning"] = "訂單是空的，請選擇商品";
-                    if (_isSaveAndUpdateDB)
-                        return View();
-                    else
-                        return View("CheckOrder");
-                }
-                else
-                {
-                    shoppingCarts = JsonConvert.DeserializeObject<List<VNW.ViewModels.ShoppingCart>>(pidJSON);
-                    if (shoppingCarts.Count <= 0)
+                    //::get temporary data of ShoppingCart from cookie
+                    string pidJSON = null;
+                    List<ShoppingCart> shoppingCarts = new List<ShoppingCart>();
+                    pidJSON = HttpContext.Request.Cookies["pidJSON"];
+                    if (pidJSON == null)
                     {
                         TempData["td_serverWarning"] = "訂單是空的，請選擇商品";
-                        //::error case
                         if (_isSaveAndUpdateDB)
                             return View();
                         else
@@ -982,236 +972,253 @@ namespace VNW.Controllers
                     }
                     else
                     {
-                        //TempData["td_serverInfo"] = "取得資料" + shoppingCarts.Count;
-
-                        //::find matched data from DB
-                        #region sync stock data 
-                        List<int> pids = new List<int>();
-                        //List<int> pids_issue = new List<int>();
-                        foreach (var s in shoppingCarts) //get pid from cookie                        
-                            pids.Add(s.Pid);
-
-                        //::find product data from DB
-                        var queryP = await _context.Products
-                            //.Select(x => new { x.ProductId, x.UnitsInStock })
-                            .Where(x => pids.Contains(x.ProductId))
-                            .ToListAsync();
-                        //.ToList();                            
-
-                        if (queryP != null)
+                        shoppingCarts = JsonConvert.DeserializeObject<List<VNW.ViewModels.ShoppingCart>>(pidJSON);
+                        if (shoppingCarts.Count <= 0)
                         {
-                            //Debug.WriteLine(" Mathced DB Count: " + queryDB.Count());
-                            //put matched stock in cookie
-                            foreach (var q in queryP)
-                            {
-                                Debug.WriteLine("id: " + q.ProductId + ", stock: " + q.UnitsInStock);
-                                var sc = shoppingCarts.Where(x => x.Pid == q.ProductId).First();
-                                if (sc != null)
-                                {
-                                    //::check stock is enough     
-
-                                    //if (sc.Qty > q.UnitsInStock)
-                                    //{
-                                        //::show warning or error???
-                                        //pids_issue.Add(sc.Pid);
-                                    //}
-
-                                    if (sc.Stock != q.UnitsInStock)
-                                    {
-                                        sc.Stock = (short)q.UnitsInStock;
-                                        //::show warning
-                                        //pids_issue.Add(sc.Pid);
-                                    }
-                                }
-                            }
-                            Debug.WriteLine("\n EOD ");
-
-                            //if (pids_issue.Count > 0)
-                            //{
-                                //someting is worng?
-                                //TempData["td_serverWarning"] += " 數量與庫存不合; ";
-                            //}
-                            //pass case
-
-                            //::get info customer 
-                            //:: Get customer Id, Name, Info {address}
-                            string UserAccount = _ms.GetMySession("UserAccount", HttpContext.Session);
-                            Models.Customer customerInfo = await _context.Customer
-                                .Where(x => x.CustomerId == UserAccount)
-                                .FirstOrDefaultAsync();
-
-                            if (customerInfo == null)
-                            {
-                                TempData["td_serverWarning"] += " 客戶資訊不明; ";
-                                if (_isSaveAndUpdateDB)
-                                    return View();
-                                else
-                                    return View("CheckOrder");
-                            }
-                            //ViewData["member"] = customerInfo;
-
-                            //::from cookie
-                            string ShipVia = HttpContext.Request.Cookies["ShipVia"];
-                            string Payment = HttpContext.Request.Cookies["Payment"];
-                            string Invoice = HttpContext.Request.Cookies["Invoice"];
-                            ViewData["ShipVia"] = ShipVia;
-                            ViewData["Payment"] = Payment;
-                            ViewData["Invoice"] = Invoice;
-
-                            if (ShipVia == null || Payment == null)
-                            {
-                                //error case
-                                TempData["td_serverWarning"] += " 運送方式異常; ";
-                                if (_isSaveAndUpdateDB)
-                                    return View();
-                                else
-                                    return View("CheckOrder");
-                            }
-
-                            int currentOrderId = 0;
-                            //:: set Order
-                            //  Create New Order or merge to old recordset?
-                            Models.Order newOrder = new Order
-                            {
-                                CustomerId = customerInfo.CustomerId,
-                                //OrderId = currentOrderId, //auto create in sql server
-                                ShipAddress = customerInfo.Address,
-                                ShipCity = customerInfo.City,
-                                ShipName = customerInfo.CompanyName,
-                                ShipCountry = customerInfo.Country,
-                                ShipPostalCode = customerInfo.PostalCode,
-                                //Freight = 0,
-                                //ShipVia = 1,
-                                OrderDate = DateTime.Now,
-                            };
-
-                            newOrder.ShipVia = int.Parse(ShipVia);
-                            if (newOrder.ShipVia == (int)ShipViaTypeEnum.Shop)
-                                newOrder.Freight = 50;
-                            else if (newOrder.ShipVia == (int)ShipViaTypeEnum.Witch)
-                                newOrder.Freight = 100;
+                            TempData["td_serverWarning"] = "訂單是空的，請選擇商品";
+                            //::error case
+                            if (_isSaveAndUpdateDB)
+                                return View();
                             else
-                                newOrder.Freight = 0;
-                            newOrder.Payment = (Common.PayEnum)int.Parse(Payment);
-
-                            //ViewData["newOrder"] = newOrder;
-                            OrderViewModel ovm = new OrderViewModel
-                            {
-                                OrderBase = newOrder
-                            };
-                            ovm.OrderBase.Customer = customerInfo;
-
-                            if(_isSaveAndUpdateDB)
-                            {
-                                //CreateOrder(newOrder);
-                                _context.Add(newOrder);
-                                await _context.SaveChangesAsync();                            
-
-                                //::get order id, check order
-                                currentOrderId = newOrder.OrderId;
-                                if (currentOrderId == 0)
-                                {
-                                    //error case
-                                    return Content("error oid is not ready!?");
-                                }
-                            }
-
-                            //::create Details = o.id + {p.id s} + qty
-                            //check Detail is exist or not
-                            //currentOrderId = 17258;
-                            List<Models.OrderDetail> ods = new List<OrderDetail>();
-                            foreach (var p in queryP)
-                            {
-                                Models.OrderDetail od = new OrderDetail
-                                {
-                                    ProductId = p.ProductId,
-                                    OrderId = currentOrderId, //current Order                                    
-                                    UnitPrice = (decimal)p.UnitPrice,
-                                    //Quantity = 1, 
-                                    Discount = 0,
-                                    Product = p, //set queried product data
-                                };
-
-                                //s::et qty from cart
-                                var sc = shoppingCarts.Where(x => x.Pid == p.ProductId).First();
-                                if (sc != null)
-                                {
-                                    od.Quantity = (short)sc.Qty;
-                                    ods.Add(od);
-
-                                    if(_isSaveAndUpdateDB)
-                                    {
-                                        //::write to DB table OrderDetail
-                                        _context.Add(od);
-                                        await _context.SaveChangesAsync();
-                                        #region
-                                        //::update data Product: InStock, OnOrder
-                                        if (p.UnitsInStock == null)
-                                            p.UnitsInStock = 0;
-                                        p.UnitsInStock -= od.Quantity;
-
-                                        //if (p.UnitsOnOrder == null)
-                                        //    p.UnitsOnOrder = 0;
-                                        //p.UnitsOnOrder += od.Quantity;
-
-                                        _context.Update(p); //::write to product
-                                        await _context.SaveChangesAsync();
-                                        #endregion
-                                    }
-                                }
-                                else
-                                {
-                                    //error case? TBD
-                                }
-                            }
-                            //ViewData["OrderDetails"] = ods;
-                            ovm.Ods = ods;
-
-                            //::update product, reduce UnitsInStock, update UnitsOnOrder...
-
-                            if(_isSaveAndUpdateDB)
-                            {
-                                //::clear data from shopping cart cookie
-                                foreach (var p in queryP)
-                                {
-                                    var sc = shoppingCarts.Where(x => x.Pid == p.ProductId).First();
-                                    shoppingCarts.Remove(sc);
-                                }
-                                pidJSON = JsonConvert.SerializeObject(shoppingCarts);
-                                HttpContext.Response.Cookies.Append("pidJSON", pidJSON);
-                            }
-
-                            TempData["td_serverInfo"] += " 無異常; ";
-                            //return View();
-
-                            if(_isSaveAndUpdateDB)
-                                return View(ovm);
-                            else
-                                return View("CheckOrder", ovm);
+                                return View("CheckOrder");
                         }
                         else
                         {
-                            //fail case
-                            TempData["td_serverWarning"] += " 購物車內容不正確; ";
+                            //TempData["td_serverInfo"] = "取得資料" + shoppingCarts.Count;
+
+                            //::find matched data from DB
+                            #region sync stock data 
+                            List<int> pids = new List<int>();
+                            //List<int> pids_issue = new List<int>();
+                            foreach (var s in shoppingCarts) //get pid from cookie                        
+                                pids.Add(s.Pid);
+
+                            //::find product data from DB
+                            var queryP = await _context.Products
+                                //.Select(x => new { x.ProductId, x.UnitsInStock })
+                                .Where(x => pids.Contains(x.ProductId))
+                                .ToListAsync();
+                            //.ToList();                            
+
+                            if (queryP != null)
+                            {
+                                //Debug.WriteLine(" Mathced DB Count: " + queryDB.Count());
+                                //put matched stock in cookie
+                                foreach (var q in queryP)
+                                {
+                                    Debug.WriteLine("id: " + q.ProductId + ", stock: " + q.UnitsInStock);
+                                    var sc = shoppingCarts.Where(x => x.Pid == q.ProductId).First();
+                                    if (sc != null)
+                                    {
+                                        //::check stock is enough     
+
+                                        //if (sc.Qty > q.UnitsInStock)
+                                        //{
+                                        //::show warning or error???
+                                        //pids_issue.Add(sc.Pid);
+                                        //}
+
+                                        if (sc.Stock != q.UnitsInStock)
+                                        {
+                                            sc.Stock = (short)q.UnitsInStock;
+                                            //::show warning
+                                            //pids_issue.Add(sc.Pid);
+                                        }
+                                    }
+                                }
+                                Debug.WriteLine("\n EOD ");
+
+                                //if (pids_issue.Count > 0)
+                                //{
+                                //someting is worng?
+                                //TempData["td_serverWarning"] += " 數量與庫存不合; ";
+                                //}
+                                //pass case
+
+                                //::get info customer 
+                                //:: Get customer Id, Name, Info {address}
+                                string UserAccount = _ms.GetMySession("UserAccount", HttpContext.Session);
+                                Models.Customer customerInfo = await _context.Customer
+                                    .Where(x => x.CustomerId == UserAccount)
+                                    .FirstOrDefaultAsync();
+
+                                if (customerInfo == null)
+                                {
+                                    TempData["td_serverWarning"] += " 客戶資訊不明; ";
+                                    if (_isSaveAndUpdateDB)
+                                        return View();
+                                    else
+                                        return View("CheckOrder");
+                                }
+                                //ViewData["member"] = customerInfo;
+
+                                //::from cookie
+                                string ShipVia = HttpContext.Request.Cookies["ShipVia"];
+                                string Payment = HttpContext.Request.Cookies["Payment"];
+                                string Invoice = HttpContext.Request.Cookies["Invoice"];
+                                ViewData["ShipVia"] = ShipVia;
+                                ViewData["Payment"] = Payment;
+                                ViewData["Invoice"] = Invoice;
+
+                                if (ShipVia == null || Payment == null)
+                                {
+                                    //error case
+                                    TempData["td_serverWarning"] += " 運送方式異常; ";
+                                    if (_isSaveAndUpdateDB)
+                                        return View();
+                                    else
+                                        return View("CheckOrder");
+                                }
+
+                                int currentOrderId = 0;
+                                //:: set Order
+                                //  Create New Order or merge to old recordset?
+                                Models.Order newOrder = new Order
+                                {
+                                    CustomerId = customerInfo.CustomerId,
+                                    //OrderId = currentOrderId, //auto create in sql server
+                                    ShipAddress = customerInfo.Address,
+                                    ShipCity = customerInfo.City,
+                                    ShipName = customerInfo.CompanyName,
+                                    ShipCountry = customerInfo.Country,
+                                    ShipPostalCode = customerInfo.PostalCode,
+                                    //Freight = 0,
+                                    //ShipVia = 1,
+                                    OrderDate = DateTime.Now,
+                                };
+
+                                newOrder.ShipVia = int.Parse(ShipVia);
+                                if (newOrder.ShipVia == (int)ShipViaTypeEnum.Shop)
+                                    newOrder.Freight = 50;
+                                else if (newOrder.ShipVia == (int)ShipViaTypeEnum.Witch)
+                                    newOrder.Freight = 100;
+                                else
+                                    newOrder.Freight = 0;
+                                newOrder.Payment = (Common.PayEnum)int.Parse(Payment);
+
+                                //ViewData["newOrder"] = newOrder;
+                                OrderViewModel ovm = new OrderViewModel
+                                {
+                                    OrderBase = newOrder
+                                };
+                                ovm.OrderBase.Customer = customerInfo;
+
+                                if (_isSaveAndUpdateDB)
+                                {
+                                    //CreateOrder(newOrder);
+                                    _context.Add(newOrder);
+                                    await _context.SaveChangesAsync();
+
+                                    //::get order id, check order
+                                    currentOrderId = newOrder.OrderId;
+                                    if (currentOrderId == 0)
+                                    {
+                                        //error case
+                                        return Content("error oid is not ready!?");
+                                    }
+                                }
+
+                                //::create Details = o.id + {p.id s} + qty
+                                //check Detail is exist or not
+                                //currentOrderId = 17258;
+                                List<Models.OrderDetail> ods = new List<OrderDetail>();
+                                foreach (var p in queryP)
+                                {
+                                    Models.OrderDetail od = new OrderDetail
+                                    {
+                                        ProductId = p.ProductId,
+                                        OrderId = currentOrderId, //current Order                                    
+                                        UnitPrice = (decimal)p.UnitPrice,
+                                        //Quantity = 1, 
+                                        Discount = 0,
+                                        Product = p, //set queried product data
+                                    };
+
+                                    //s::et qty from cart
+                                    var sc = shoppingCarts.Where(x => x.Pid == p.ProductId).First();
+                                    if (sc != null)
+                                    {
+                                        od.Quantity = (short)sc.Qty;
+                                        ods.Add(od);
+
+                                        if (_isSaveAndUpdateDB)
+                                        {
+                                            //::write to DB table OrderDetail
+                                            _context.Add(od);
+                                            await _context.SaveChangesAsync();
+                                            #region
+                                            //::update data Product: InStock, OnOrder
+                                            if (p.UnitsInStock == null)
+                                                p.UnitsInStock = 0;
+                                            p.UnitsInStock -= od.Quantity;
+
+                                            //if (p.UnitsOnOrder == null)
+                                            //    p.UnitsOnOrder = 0;
+                                            //p.UnitsOnOrder += od.Quantity;
+
+                                            _context.Update(p); //::write to product
+                                            await _context.SaveChangesAsync();
+                                            #endregion
+                                        }
+                                    }
+                                    else
+                                    {
+                                        //error case? TBD
+                                    }
+                                }
+                                //ViewData["OrderDetails"] = ods;
+                                ovm.Ods = ods;
+
+                                //::update product, reduce UnitsInStock, update UnitsOnOrder...
+
+                                if (_isSaveAndUpdateDB)
+                                {
+                                    //::clear data from shopping cart cookie
+                                    foreach (var p in queryP)
+                                    {
+                                        var sc = shoppingCarts.Where(x => x.Pid == p.ProductId).First();
+                                        shoppingCarts.Remove(sc);
+                                    }
+                                    pidJSON = JsonConvert.SerializeObject(shoppingCarts);
+                                    HttpContext.Response.Cookies.Append("pidJSON", pidJSON);
+
+                                    transaction.Commit();//key
+                                }
+
+                                TempData["td_serverInfo"] += " 無異常; ";
+                                //return View();
+
+                                if (_isSaveAndUpdateDB)
+                                    return View(ovm);
+                                else
+                                    return View("CheckOrder", ovm);
+                            }
+                            else
+                            {
+                                //fail case
+                                TempData["td_serverWarning"] += " 購物車內容不正確; ";
+                            }
+                            #endregion
                         }
-                        #endregion
+                        if (_isSaveAndUpdateDB)
+                            return View();
+                        else
+                            return View("CheckOrder");
                     }
+                }
+                catch
+                {
+                    //var res2 = new { result = "Err", detail = "", prodCount = 0 };
+                    //return Json(res2);
+                    TempData["td_serverWarning"] += " 發生未知錯誤; ";
                     if (_isSaveAndUpdateDB)
                         return View();
                     else
                         return View("CheckOrder");
                 }
             }
-            catch
-            {
-                //var res2 = new { result = "Err", detail = "", prodCount = 0 };
-                //return Json(res2);
-                TempData["td_serverWarning"] += " 發生未知錯誤; ";
-                if (_isSaveAndUpdateDB)
-                    return View();
-                else
-                    return View("CheckOrder");
-            }
+
+
             //return View();
         }
 
@@ -1273,6 +1280,7 @@ namespace VNW.Controllers
         }
 
         //::for Business Shop side - Ready for shipping
+        //ShipOrderAsync()
         public async Task<IActionResult> OrderReadyForShop(int id)
         {
             //::check Shop
@@ -1283,31 +1291,93 @@ namespace VNW.Controllers
                 return RedirectToAction("Login", "Customers");
             }
 
-            //oid
-            var qO = await _context.Orders.Where(x => x.OrderId == id)
-                .FirstOrDefaultAsync();
+            using (var transaction = _context.Database.BeginTransaction())
+            {
+                //oid
+                var qO = await _context.Orders.Where(x => x.OrderId == id)
+                    .FirstOrDefaultAsync();
                 //.FirstAsync();
 
-            if (qO != null)
-            { 
-                //::update shipped date                
-                qO.ShippedDate = DateTime.Now;
+                if (qO != null)
+                {
+                    //::update shipped date                
+                    qO.ShippedDate = DateTime.Now;
+                    qO.Status = OrderStatusEnum.Shipped;
+                    //::update status = 'shipping'
+                    _context.Update(qO);
+                    await _context.SaveChangesAsync();
 
-                //::update status = 'shipping'
-                _context.Update(qO);
-                await _context.SaveChangesAsync();
+                    //::update product: 
+                    //units in stock
+                    //reserved
 
-                //::update product?  stock, on order?
+                    //return Content("pass case");
 
-
-                //return Content("pass case");
-                return RedirectToAction("OrderListForShop");
+                    transaction.Commit();
+                    return RedirectToAction("OrderListForShop");
+                }
             }
-
-
             //::Fail case
             return Content("fail case");
             //return View();
+        }
+
+        //::for user
+        //public async Task CancelOrderAsync(int orderId)
+        public async Task<IActionResult> CancelOrderAsync(int? id)
+        {
+            using (var transaction = await _context.Database.BeginTransactionAsync())
+            {
+                try
+                {
+                    //::order: cancel
+                    var qO = await _context.Orders.Where(x => x.OrderId == id)
+                        .FirstOrDefaultAsync();
+                    //status
+
+                    if (qO == null)
+                    {
+                        //NG case
+                        return Content("order is not exist");
+                    }
+
+                    //::o.detail, update product - stock, reserved
+                    var qOds = await _context.OrderDetails.Where(x => x.OrderId == id)
+                        //.Include(x=>x.Product)
+                        .ToListAsync();
+
+                    if (qOds != null)
+                    {
+                        foreach (var od in qOds)
+                        {
+                            //od.ProductId
+                            var p = await _context.Products.Where(x => x.ProductId == od.ProductId).FirstAsync();
+
+                            if (p != null)
+                            {
+                                p.UnitsInStock += od.Quantity;
+                                //p.UnitsReserved += od.Quantity;                            
+                                _context.Products.Update(p);
+                            }
+                        }
+                    }
+
+                    qO.Status = OrderStatusEnum.Cancelled;
+                    _context.Orders.Update(qO);
+
+                    await _context.SaveChangesAsync();
+                    //pass case
+                    transaction.Commit();
+                    //redirection
+                    return Content(":)  This order is Cacencelled");
+                    return View();
+                }
+                catch
+                {
+                    return Content("Exception :(");
+                }
+
+            }
         }
 
         public async Task<IActionResult> VMTest(int id)

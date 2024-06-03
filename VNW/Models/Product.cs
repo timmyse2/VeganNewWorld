@@ -49,6 +49,10 @@ namespace VNW.Models
         [Display(Name = "描述")] //new       
         public string Description { get; set; }
 
+        //::prepare UnitsReserved for more complex order system
+        //[Display(Name = "預留標記")] //new
+        //public short? UnitsReserved { get; set; }
+
         //::NP
         [Display(Name = "分類")]
         public Category Category { get; set; }

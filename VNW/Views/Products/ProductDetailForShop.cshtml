@@ -5,7 +5,9 @@
 <h2>@ViewData["Title"]</h2>
 
 
-
+<a asp-action="Index" class="btn btn-primary">返回清單(店家)</a>
+<a asp-action="Index" class="btn btn-info">返回前一頁</a>
+<a asp-controller="Categories" asp-action="CategoryList" class="btn btn-info">CategoryList</a>
 
 
 <div>
@@ -86,7 +88,7 @@
 </div>
 
 @*<a class="btn btn-danger">下架</a>*@
-<div >
+<div>
     <a class="btn btn-primary btn-lg" asp-action="EditForShop" asp-route-id="@Model.ProductId">編輯(商家專用*)</a>
 </div>
 

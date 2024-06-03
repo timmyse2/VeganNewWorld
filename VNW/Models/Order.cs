@@ -97,9 +97,9 @@ namespace VNW.Models
         [Display(Name = "已完成")]
         Finish = 100,
         [Display(Name = "取消中")]
-        Cancelled = 240,
-        [Display(Name = "已取消")]
-        Canceling = 250,
+        Canceling = 240,
+        [Display(Name = "已取消")]        
+        Cancelled = 250,
     }
 
 }

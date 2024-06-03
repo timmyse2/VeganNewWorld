@@ -65,7 +65,8 @@ else
         {
             <tr>
                 <td>
-                    <b><a asp-action="Details" asp-route-id="@item.ProductId">@Html.DisplayFor(modelItem => item.ProductName)</a> </b>
+                    @*<b><a asp-action="Details" asp-route-id="@item.ProductId">@Html.DisplayFor(modelItem => item.ProductName)</a> </b>*@
+                    @Html.DisplayFor(modelItem => item.ProductName)
                 </td>
                 <td>
                     @Html.DisplayFor(modelItem => item.QuantityPerUnit)
@@ -75,12 +76,22 @@ else
                 </td>
                 <td>
                     @Html.DisplayFor(modelItem => item.UnitsInStock)
+                    @if (item.UnitsInStock <=0 || item.UnitsInStock==null)
+                    {
+                        <span class="alert-danger">缺貨</span>
+                    }
                 </td>
                 <td>
                     @Html.DisplayFor(modelItem => item.UnitsOnOrder)
                 </td>
                 <td>
                     @Html.DisplayFor(modelItem => item.ReorderLevel)
+
+                    @if(item.ReorderLevel >= item.UnitsInStock)
+                    {
+                        <span class="alert-warning">不足</span>
+                    }
+
                 </td>
                 <td>
                     @Html.DisplayFor(modelItem => item.Discontinued)
@@ -94,7 +105,8 @@ else
 
                     @if ((string)ViewData["UserLevel"] == "2B" || (string)ViewData["UserLevel"] == "1A")
                     {
-                        <a asp-action="ProductDetailForShop" asp-route-id="@item.ProductId" class="btn btn-success">店家確認編輯</a>
+                        @*<a asp-action="EditForShop" asp-route-id="@item.ProductId" class="btn btn-primary">編輯(店家)</a>*@
+                        <a asp-action="ProductDetailForShop" asp-route-id="@item.ProductId" class="btn btn-success">檢視(店家)</a>
                     }
                     @if ((string)ViewData["UserLevel"] == "1A")
                     {
