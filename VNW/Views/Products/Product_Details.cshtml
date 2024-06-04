@@ -7,6 +7,12 @@
     ViewData["Title"] = Model.ProductName;
 }
 
+
+<div>
+    <h3 class="alert-info">@TempData["td_serverMessage"]</h3>
+    <h3 class="alert-danger">@TempData["td_serverWarning"]</h3>
+</div>
+
 <p>
     <a asp-action="Index" asp-controller="Home">首頁</a>
     > <a asp-action="CategoryList" asp-controller="categories">商品分類</a>

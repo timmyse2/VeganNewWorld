@@ -13,11 +13,11 @@
 <a asp-action="CategoryList" asp-controller="Categories" class="btn btn-primary">再去選購商品</a>
 <p> <b class="text-primary">[1.確認購物車]</b> > [2.付款與運送方式] > [3.訂單確認]</p>
 
-<b>
-    <span class="alert-danger" id="td_serverWarning">@TempData["td_serverWarning"]</span>
-    <span class="alert-success">@TempData["td_serverInfo"]</span>
-</b>
-
+<div>
+    <h3 class="alert-danger" id="td_serverWarning">@TempData["td_serverWarning"]</h3>
+    @*<h3 class="alert-success">@TempData["td_serverInfo"]</h3>*@
+    <h3 class="alert-info">@TempData["td_serverMessage"]</h3>
+</div>
 
 @*@if (Model == null)
     {

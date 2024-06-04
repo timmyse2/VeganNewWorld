@@ -12,8 +12,13 @@
 
 <a asp-action="CategoryList" asp-controller="Categories" class="btn btn-primary">再去選購商品</a>
 
-<div class="alert-danger">@TempData["td_serverWarning"]</div>
-<div class="alert-info">@TempData["td_serverInfo"]</div>
+<div>
+    <h3 class="alert-danger" id="txt_failMessage">@TempData["td_serverWarning"]</h3>
+    <h3 class="alert-info" id="txt_infoMessage">@TempData["td_serverInfo"]</h3>
+    <h3 class="alert-info">@TempData["td_serverMessage"]</h3>
+</div>
+
+
 
 @if (Model == null || Model.OrderBase == null)
 {

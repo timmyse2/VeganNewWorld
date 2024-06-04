@@ -6,6 +6,12 @@
 }
 
 <h2>@ViewData["Title"]</h2>
+
+<div>
+    <h3 class="alert-info">@TempData["td_serverMessage"]</h3>
+    <h3 class="alert-danger">@TempData["td_serverWarning"]</h3>
+</div>
+
 <div style="text-align:right">
     <div>員工ID: <span><b>@ViewData["ShopAccount"]</b></span> </div>
     <a class="btn-primary btn" asp-action="ShopLogin" asp-controller="Customers">員工登入</a>

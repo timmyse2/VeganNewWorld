@@ -17,8 +17,8 @@
 
 
 <div>
-    <h4 class="alert-danger">@TempData["td_serverWarning"]</h4>
-    <h4 class="alert-success">@TempData["td_serverMessage"]</h4>
+    <h3 class="alert-info">@TempData["td_serverMessage"]</h3>
+    <h3 class="alert-danger">@TempData["td_serverWarning"]</h3>
 </div>
 
 <a asp-action="OrderListForShop" asp-controller="orders" class="btn btn-primary">訂單總表</a>
@@ -96,7 +96,7 @@ else
                     {
                         @EnumExtensions.GetDisplayName((VNW.Models.OrderStatusEnum)OrderInfo.Status)
                     }
-                    @OrderInfo.Status
+                    (@OrderInfo.Status)
                 </td>
             </tr>
         </table>
@@ -206,8 +206,10 @@ else
     {
         <div style="text-align:right">
             @*<a class="btn btn-success btn-lg">確認接單</a>*@
-            <a class="btn btn-success btn-lg" asp-action="OrderReadyForShop"
-               asp-controller="Orders" asp-route-id="@OrderInfo.OrderId">準備完成</a>
+            <a class="btn btn-success btn-lg" asp-action="ShipOrderForShop"
+               asp-controller="Orders" asp-route-id="@OrderInfo.OrderId">準備完成出貨</a>
+            <br/>
+            註: 按下[準備完成]代表正式出貨!!
         </div>
         <div>
 

@@ -638,8 +638,8 @@ namespace VNW.Controllers
                         {
                             TempData["td_serverWarning"] = "訂單是空的，請選擇商品";
                         }
-                        else
-                            TempData["td_serverInfo"] = "取得資料" + shoppingCarts.Count;
+                        //else
+                          //  TempData["td_serverInfo"] = "取得資料" + shoppingCarts.Count;
                     });
                     return View(shoppingCarts);
                 }

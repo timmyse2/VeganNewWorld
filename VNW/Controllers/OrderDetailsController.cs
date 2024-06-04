@@ -354,6 +354,11 @@ namespace VNW.Controllers
             //    return RedirectToAction("Login", "Customers");
 
             //::Shop employee account check
+            if(id == null)
+            {
+                TempData["td_serverWarning"] += "data is null;";
+                return View();
+            }                
 
             int oid = (int)id;
 
@@ -364,9 +369,9 @@ namespace VNW.Controllers
                 .Include(x => x.Customer) 
                 .FirstOrDefaultAsync()
                 ;
-            if (preCheckOrder == null) //This is not your order
+            if (preCheckOrder == null)
             {
-                TempData["td_serverMessage"] = "這不是您的訂單!";
+                TempData["td_serverWarning"] = "查不到訂單 "+ id;
                 return View(null);
             }
             ViewData["preCheckOrder"] = preCheckOrder;
@@ -381,13 +386,13 @@ namespace VNW.Controllers
 
             if (ods == null) //
             {
-                TempData["td_serverMessage"] = "data is null";
+                TempData["td_serverWarning"] += "data is null;";
             }
 
             var res = await ods.ToListAsync();
             if (res == null) //
             {
-                TempData["td_serverMessage"] = "data is null";
+                TempData["td_serverWarning"] += "data is null;";
             }
 
             return View(res);

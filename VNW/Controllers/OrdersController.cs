@@ -1280,8 +1280,8 @@ namespace VNW.Controllers
         }
 
         //::for Business Shop side - Ready for shipping
-        //ShipOrderAsync()
-        public async Task<IActionResult> OrderReadyForShop(int id)
+        
+        public async Task<IActionResult> ShipOrderForShop(int id)
         {
             //::check Shop
             string UserLevel = _ms.GetMySession("UserLevel", HttpContext.Session);
@@ -1300,6 +1300,14 @@ namespace VNW.Controllers
 
                 if (qO != null)
                 {
+                    //::pre check Status
+                    if(qO.Status == OrderStatusEnum.Shipped)
+                    {
+                        //TempData["td_serverMessage"] = "已設定出貨 訂單:" + id;
+                        TempData["td_serverWarning"] = "之前已經出貨, 無法重覆流程 " + id;
+                        return RedirectToAction("OrderDetailsForShop//" + id, "orderDetails");
+                    }
+
                     //::update shipped date                
                     qO.ShippedDate = DateTime.Now;
                     qO.Status = OrderStatusEnum.Shipped;
@@ -1312,9 +1320,10 @@ namespace VNW.Controllers
                     //reserved
 
                     //return Content("pass case");
-
                     transaction.Commit();
-                    return RedirectToAction("OrderListForShop");
+                    TempData["td_serverMessage"] = "已設定出貨 訂單:" + id;
+                    return RedirectToAction("OrderDetailsForShop//" + id, "orderDetails");
+                    //return RedirectToAction("OrderListForShop");
                 }
             }
             //::Fail case
