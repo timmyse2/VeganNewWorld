@@ -384,7 +384,13 @@ namespace VNW.Controllers
                         var query = _context.Products.Find(_pid);
                         if (query != null)
                         {
-                            _stock = (short)query.UnitsInStock;
+                            if (query.UnitsReserved != null)
+                            {
+                                _stock = (short)(query.UnitsInStock - query.UnitsReserved);
+                            }
+                            else
+                                _stock = (short)query.UnitsInStock;
+
                             shoppingCarts.Add(new VNW.ViewModels.ShoppingCart
                             {
                                 Pid = _pid,
@@ -617,7 +623,7 @@ namespace VNW.Controllers
                             Ids.Add(s.Pid);
                         //::find stock from DB
                         var queryDB = _context.Products 
-                            .Select(x => new {x.ProductId, x.UnitsInStock })
+                            .Select(x => new {x.ProductId, x.UnitsInStock, x.UnitsReserved })
                             .Where(x => Ids.Contains(x.ProductId)).ToList();
                         if(queryDB != null)
                         {
@@ -628,7 +634,15 @@ namespace VNW.Controllers
                                 Debug.WriteLine("id: " + q.ProductId + ", stock: " + q.UnitsInStock);
                                 var sc = shoppingCarts.Where(x => x.Pid == q.ProductId).First();
                                 if(sc !=null)
-                                    sc.Stock = (short)q.UnitsInStock;                                
+                                {
+                                    //::
+                                    if(q.UnitsReserved != null)
+                                    {
+                                        sc.Stock = (short)(q.UnitsInStock- q.UnitsReserved);
+                                    }
+                                    else
+                                        sc.Stock = (short)q.UnitsInStock;
+                                }                                    
                             }
                             Debug.WriteLine("\n EOD ");
                         }
@@ -689,11 +703,17 @@ namespace VNW.Controllers
                                 //::Read stock from DB
                                 var query = _context.Products
                                 .Where(x=>x.ProductId == _pid)
-                                .Select(x=> new { x.ProductId, x.UnitsInStock }).First();                                
+                                .Select(x=> new { x.ProductId, x.UnitsInStock, x.UnitsReserved }).First();                                
                                 //.Find(_pid);
                                 if (query != null)
                                 {
-                                    found.Stock = (short)query.UnitsInStock;
+                                    if (query.UnitsReserved != null)
+                                    {                                        
+                                        found.Stock = (short)
+                                            (query.UnitsInStock - query.UnitsReserved);
+                                    }
+                                    else
+                                        found.Stock = (short)query.UnitsInStock;
                                 }
                                 else
                                     found.Stock = 0; //TBC
@@ -829,7 +849,7 @@ namespace VNW.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> EditForShop(int id,
-            [Bind("ProductId,ProductName,CategoryId,QuantityPerUnit,UnitPrice,UnitsInStock,UnitsOnOrder,ReorderLevel,Discontinued,Picture,Description"
+            [Bind("ProductId,ProductName,CategoryId,QuantityPerUnit,UnitPrice,UnitsInStock,UnitsOnOrder,ReorderLevel,Discontinued,Picture,Description,UnitsReserved"
                 )] Product product)
         {
             //::check Shop
@@ -856,6 +876,8 @@ namespace VNW.Controllers
                         product.UnitsInStock = 0;
                     if (product.ReorderLevel == null)
                         product.ReorderLevel = 0;
+                    if (product.UnitsReserved == null)
+                        product.UnitsReserved = 0;
 
                     _context.Update(product);
                     await _context.SaveChangesAsync();

@@ -135,6 +135,7 @@ else
                 @Html.DisplayNameFor(model => model.Discount)
             </th>
             <th>小記</th>
+            <th></th>
             <th>庫存</th>
             <th>預購量</th>
         </tr>
@@ -178,11 +179,14 @@ else
                 <td>
                     @PriceByQty
                 </td>
-
+                <td></td>
                 <td>
                     @item.Product.UnitsInStock
                 </td>
-                <td></td>
+                <td>
+                    @item.Product.UnitsReserved
+
+                </td>
             </tr>
         }
     </tbody>

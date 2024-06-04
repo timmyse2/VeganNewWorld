@@ -61,13 +61,26 @@
             @Html.DisplayFor(model => model.UnitsInStock)
             @if (Model.UnitsInStock != null && Model.UnitsInStock > 0)
             {
-
             }
             else
             {
                 <span class="alert-danger">缺貨</span>
             }
         </dd>
+
+        <dt>可下單量</dt>
+        <dd>
+            @{
+                short UnitsReserved = 0;
+
+                @if (Model.UnitsReserved != null)
+                {
+                    UnitsReserved = (short)Model.UnitsReserved;
+                }
+            }
+            @(Model.UnitsInStock - UnitsReserved)
+        </dd>
+
         <dt>
             @*@Html.DisplayNameFor(model => model.Picture)*@
         </dt>
@@ -83,13 +96,14 @@
         <dd>@Model.Description </dd>
 
         <dd>
-            @if (Model.UnitsInStock != null && Model.UnitsInStock > 0)
+            @if (Model.UnitsInStock != null && (Model.UnitsInStock- UnitsReserved) > 0)
             {
                 <div class="btn btn-lg btn-primary" id="btn_AddProductInOrder">加入購物車</div>
             }
             else
             {
-                <span class="alert-danger">(無法下單, 貨到通知...)</span>
+                <h4 class="alert-danger">庫存不足, 無法下單</h4>
+                @*<span class="alert-dismissible">貨到通知...</span>*@
             }
 
             <div class="alert-info" id="txt_Message"></div>

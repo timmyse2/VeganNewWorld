@@ -515,7 +515,12 @@ namespace VNW.Controllers
                                 {
                                     if (sc.Stock != q.UnitsInStock)
                                     {
-                                        sc.Stock = (short)q.UnitsInStock;
+                                        short UnitsReserved = 0;
+                                        if (q.UnitsReserved !=null)
+                                        {
+                                            UnitsReserved = (short)q.UnitsReserved;
+                                        }
+                                        sc.Stock = (short)(q.UnitsInStock- UnitsReserved);
                                     }
                                 }
                             }
@@ -1020,7 +1025,12 @@ namespace VNW.Controllers
 
                                         if (sc.Stock != q.UnitsInStock)
                                         {
-                                            sc.Stock = (short)q.UnitsInStock;
+                                            short UnitsReserved = 0;
+                                            if (q.UnitsReserved != null)
+                                            {
+                                                UnitsReserved = (short)q.UnitsReserved;
+                                            }
+                                            sc.Stock = (short)(q.UnitsInStock - UnitsReserved);                                            
                                             //::show warning
                                             //pids_issue.Add(sc.Pid);
                                         }
@@ -1146,11 +1156,16 @@ namespace VNW.Controllers
                                             //::write to DB table OrderDetail
                                             _context.Add(od);
                                             await _context.SaveChangesAsync();
+
                                             #region
                                             //::update data Product: InStock, OnOrder
                                             if (p.UnitsInStock == null)
                                                 p.UnitsInStock = 0;
-                                            p.UnitsInStock -= od.Quantity;
+                                            //p.UnitsInStock -= od.Quantity;
+
+                                            //::use new col
+                                            if (p.UnitsReserved == null) p.UnitsReserved = 0;
+                                            p.UnitsReserved += od.Quantity;
 
                                             //if (p.UnitsOnOrder == null)
                                             //    p.UnitsOnOrder = 0;
@@ -1185,7 +1200,7 @@ namespace VNW.Controllers
                                     transaction.Commit();//key
                                 }
 
-                                TempData["td_serverInfo"] += " 無異常; ";
+                                //TempData["td_serverInfo"] += " 無異常; ";
                                 //return View();
 
                                 if (_isSaveAndUpdateDB)
@@ -1301,23 +1316,52 @@ namespace VNW.Controllers
                 if (qO != null)
                 {
                     //::pre check Status
-                    if(qO.Status == OrderStatusEnum.Shipped)
+                    bool isPrecheckNG = false;
+                    switch(qO.Status)
                     {
-                        //TempData["td_serverMessage"] = "已設定出貨 訂單:" + id;
-                        TempData["td_serverWarning"] = "之前已經出貨, 無法重覆流程 " + id;
-                        return RedirectToAction("OrderDetailsForShop//" + id, "orderDetails");
+                        case OrderStatusEnum.Shipped:
+                        case OrderStatusEnum.Finish:
+                            TempData["td_serverWarning"] = "之前已經[出貨], 無法直接重設流程 ";
+                            isPrecheckNG = true;
+                            break;
+                        case OrderStatusEnum.Canceling:
+                        case OrderStatusEnum.Cancelled:
+                            TempData["td_serverWarning"] = "之前已經[取消], 無法直接重設流程 ";
+                            isPrecheckNG = true;
+                            break;
                     }
+                    if(isPrecheckNG)
+                        return RedirectToAction("OrderDetailsForShop//" + id, "orderDetails");
 
                     //::update shipped date                
                     qO.ShippedDate = DateTime.Now;
                     qO.Status = OrderStatusEnum.Shipped;
                     //::update status = 'shipping'
                     _context.Update(qO);
-                    await _context.SaveChangesAsync();
+                    #region
+                    var qOds = await _context.OrderDetails.Where(x => x.OrderId == id)
+                        //.Include(x=>x.Product)
+                        .ToListAsync();
+                    if (qOds != null)
+                    {
+                        foreach (var od in qOds)
+                        {
+                            //od.ProductId
+                            var p = await _context.Products.Where(x => x.ProductId == od.ProductId).FirstAsync();
+                            //::update product: 
+                            if (p != null)
+                            {
+                                p.UnitsInStock -= od.Quantity;
+                                if (p.UnitsReserved == null) p.UnitsReserved = 0;                                
+                                p.UnitsReserved -= od.Quantity;                                
+                                _context.Products.Update(p);
+                                //await _context.SaveChangesAsync();
+                            }
+                        }
+                    }
+                    #endregion
 
-                    //::update product: 
-                    //units in stock
-                    //reserved
+                    await _context.SaveChangesAsync();
 
                     //return Content("pass case");
                     transaction.Commit();
@@ -1373,8 +1417,11 @@ namespace VNW.Controllers
 
                             if (p != null)
                             {
-                                p.UnitsInStock += od.Quantity;
-                                //p.UnitsReserved += od.Quantity;                            
+                                //p.UnitsInStock += od.Quantity;
+                                
+                                if (p.UnitsReserved == null) p.UnitsReserved = 0;
+                                p.UnitsReserved -= od.Quantity;
+
                                 _context.Products.Update(p);
                             }
                         }

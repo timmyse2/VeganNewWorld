@@ -3,6 +3,7 @@
 @{
     ViewData["Title"] = "確認購物車";
     int totalPriceSum = 0;
+    bool isError = false;
 }
 
 <h2>確認購物車</h2>
@@ -102,6 +103,7 @@
                             {
                                 //item.Stock = 5;
                                 <span class="alert-danger">缺貨</span>
+                                isError = true;
                             }
                             else
                             {
@@ -123,6 +125,7 @@
                             if (item.Stock < item.Qty)
                             {
                                 <span class="text-danger"><b>庫存不足</b></span>
+                                isError = true;
                             }
                         }
                     </td>
@@ -157,7 +160,14 @@
         </div>
 
         <div style="text-align:right;">
-            <a id="btn_SendOrder" class="btn btn-primary btn-lg">下一步</a>
+            @if (!isError)
+            {
+                <a id="btn_SendOrder" class="btn btn-primary btn-lg">下一步</a>
+            }
+            else
+            {
+                <h3 class="alert-warning">提示: 部份商品的庫存可能不足, 請調整</h3>
+            }
             <p>註: 您暫存的訂貨量與實際庫存、金額待在下一步清算</p>
         </div>
     }

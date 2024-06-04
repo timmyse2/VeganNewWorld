@@ -163,8 +163,24 @@ namespace VNW.Controllers
         {
             //return View(await _context.Category.ToListAsync());
 
-            var query = _context.Category.Include(x=>x.Products);
-            return View(await query.ToListAsync());
+            //var query = _context.Category
+            //.Include(x => x.Products);
+            //return View(await query.ToListAsync());
+
+            var categories = await _context.Category.ToArrayAsync();
+
+            foreach(var cate in categories)
+            {
+                var ps = await _context.Products
+                    .Where(x => x.CategoryId == cate.CategoryId 
+                        //&& x.Discontinued == false 
+                        && x.Picture != null)
+                    .ToListAsync();                   
+
+                cate.Products = ps;
+            }
+
+            return View(categories);
         }
     }
 }

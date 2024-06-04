@@ -49,7 +49,15 @@
             @*@Html.DisplayFor(modelItem => item.QuantityPerUnit)*@
             <b>
                 $@item.UnitPrice
-                @if (item.UnitsInStock != null && item.UnitsInStock > 0)
+                @{ 
+                    short UnitsReserved = 0;
+                    if (item.UnitsReserved != null)
+                    {
+                         UnitsReserved = (short)item.UnitsReserved;
+                    }
+                }
+
+                @if (item.UnitsInStock != null && (item.UnitsInStock - UnitsReserved) > 0)
                 {
                     @*<a class="btn btn-success" style="padding:1px;">預購</a>*@
                     <a class="btn_AddProductInOrder"

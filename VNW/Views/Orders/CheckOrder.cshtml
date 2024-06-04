@@ -16,7 +16,7 @@
 
 <h2>@ViewData["Title"]</h2>
 <hr />
-<a asp-action="CategoryList" asp-controller="Categories" class="btn btn-primary">再去選購商品</a>
+@*<a asp-action="CategoryList" asp-controller="Categories" class="btn btn-primary">再去選購商品</a>*@
 
 <div>
     [1.確認購物車] > [2.付款與運送方式] > <b class="text-primary">[3.訂單確認]</b>
@@ -29,7 +29,10 @@
 <hr />
 <h4>訂貨客戶</h4>
 
-
+@if (Model == null)
+{
+    return;
+}
 
 @*@if (ViewData["member"] != null)*@
 @if (Model.OrderBase != null && Model.OrderBase.Customer != null)
@@ -146,7 +149,7 @@ else
             <td>商品名稱</td>
             <td></td>
             <td>目前庫存</td>
-            @*<td>UnitOnOrder</td>*@
+            <td>可下單量*</td>
             <td>數量</td>
             <td>單價</td>
             <td>折扣</td>
@@ -166,7 +169,14 @@ else
             decimal totalPrice = item.UnitPrice * item.Quantity;
             totalSum += totalPrice;
 
-            if (item.Quantity > item.Product.UnitsInStock)
+
+            short UnitsReserved = 0;
+            if (item.Product.UnitsReserved != null)
+            {
+                UnitsReserved = (short)item.Product.UnitsReserved;
+            }
+
+            if (item.Quantity > (item.Product.UnitsInStock - UnitsReserved))
             {
                 isError = true;
                 CheckMark = "庫存不足，請修改數量或取消";
@@ -184,8 +194,9 @@ else
                     }
                 </td>
                 <td>@item.Product.UnitsInStock </td>
-                @*<td>@item.Product.UnitsOnOrder </td>*@
+                <td>@(item.Product.UnitsInStock - UnitsReserved)</td>
                 <td>@item.Quantity </td>
+
                 <td>$@item.UnitPrice</td>
                 <td>@item.Discount </td>
                 <td>$@(totalPrice) </td>
@@ -222,14 +233,14 @@ else
     }
     else
     {
-        @*<a class="btn btn-lg btn-primary" asp-controller="Orders" 
+        @*<a class="btn btn-lg btn-primary" asp-controller="Orders"
             asp-action="CreateOrderAndDetails"
             asp-route-isSaveAndUpdateDB="1"
             >確認並送出</a>*@
 
         <form method="post" asp-action="CreateOrderAndDetails">
-            <input type="hidden" name="isSaveAndUpdateDB" value="1"/>
-            <input type="submit" value="確認並送出" class="btn btn-lg btn-primary"/>
+            <input type="hidden" name="isSaveAndUpdateDB" value="1" />
+            <input type="submit" value="確認並送出" class="btn btn-lg btn-primary" />
         </form>
 
 

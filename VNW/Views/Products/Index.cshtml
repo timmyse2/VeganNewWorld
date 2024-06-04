@@ -43,13 +43,18 @@ else
                 @Html.DisplayNameFor(model => model.UnitPrice)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.UnitsInStock)
+                <div style="color:red">
+                    @Html.DisplayNameFor(model => model.UnitsInStock)
+                </div>
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.UnitsOnOrder)
+                @Html.DisplayNameFor(model => model.UnitsReserved)
             </th>
             <th>
                 @Html.DisplayNameFor(model => model.ReorderLevel)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.UnitsOnOrder)
             </th>
             <th>
                 @Html.DisplayNameFor(model => model.Discontinued)
@@ -82,7 +87,7 @@ else
                     }
                 </td>
                 <td>
-                    @Html.DisplayFor(modelItem => item.UnitsOnOrder)
+                    @Html.DisplayFor(modelItem => item.UnitsReserved)
                 </td>
                 <td>
                     @Html.DisplayFor(modelItem => item.ReorderLevel)
@@ -93,6 +98,10 @@ else
                     }
 
                 </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.UnitsOnOrder)
+                </td>
+                
                 <td>
                     @Html.DisplayFor(modelItem => item.Discontinued)
                 </td>

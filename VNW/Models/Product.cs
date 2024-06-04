@@ -50,8 +50,8 @@ namespace VNW.Models
         public string Description { get; set; }
 
         //::prepare UnitsReserved for more complex order system
-        //[Display(Name = "預購量")] //new 預留標記
-        //public short? UnitsReserved { get; set; }
+        [Display(Name = "預購量")] //預留標記
+        public short? UnitsReserved { get; set; }
 
         //::NP
         [Display(Name = "分類")]
