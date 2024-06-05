@@ -28,7 +28,60 @@ else
         <a asp-action="Create" class="btn btn-success">加入新商品</a>
     </p>
 }
-< 1 2 3 4 5 >
+
+<div id="pageSelection">
+    @{
+        //:: page
+        int totalpage = 0; int ipp = 10; int totalCount = 0;
+        int pageNum = 0;
+        if (ViewData["page"] != null)
+            { pageNum = (int)ViewData["page"]; }
+        if (ViewData["totalCount"] != null)
+        {
+            totalpage = (int)ViewData["totalCount"] / ipp + 1;
+            totalCount = (int)ViewData["totalCount"];
+            <ul class="pagination">
+                @{
+                    if (pageNum > 0)
+                    {
+                        <li class="page-item"><a class="page-link" href="?page=@(pageNum)"><</a></li>
+                    }
+                    else
+                    {
+                        <li class="page-item disabled"><a class="page-link"><</a></li>
+                    }
+
+                    for (int i = 0; i < totalpage; i++)
+                    {
+                        if (i == pageNum)
+                        {
+                            <li class="page-item active">
+                                <a class="page-link">@(i + 1)</a>
+                            </li>
+                        }
+                        else
+                        {
+                            <li class="page-item">
+                                <a href="?page=@(i + 1)" class="page-link"> @(i + 1) </a>
+                            </li>
+                        }
+                    } //for
+                    if (pageNum < totalpage - 1)
+                    {
+                        <li class="page-item"><a class="page-link" href="?page=@(pageNum+2)">></a></li>
+                    }
+                    else
+                    {
+                        <li class="page-item disabled"><a class="page-link">></a></li>
+                    }
+                }
+            </ul>
+            <br/>
+            <span>取 @Model.Count() / @totalCount 筆</span>
+        }
+    }
+    
+</div>
 
 <table class="table">
     <thead>
@@ -71,7 +124,7 @@ else
             <tr>
                 <td>
                     @*<b><a asp-action="Details" asp-route-id="@item.ProductId">@Html.DisplayFor(modelItem => item.ProductName)</a> </b>*@
-                    @Html.DisplayFor(modelItem => item.ProductName)
+                    #@item.ProductId-@Html.DisplayFor(modelItem => item.ProductName)
                 </td>
                 <td>
                     @Html.DisplayFor(modelItem => item.QuantityPerUnit)
@@ -88,15 +141,19 @@ else
                 </td>
                 <td>
                     @Html.DisplayFor(modelItem => item.UnitsReserved)
+
+                    @if (item.UnitsReserved > item.UnitsInStock)
+                    {
+                        <span class="alert-danger">超賣(Overbooking)</span>
+                    }
                 </td>
                 <td>
                     @Html.DisplayFor(modelItem => item.ReorderLevel)
 
-                    @if(item.ReorderLevel >= item.UnitsInStock)
+                    @if (item.ReorderLevel >= item.UnitsInStock)
                     {
-                        <span class="alert-warning">不足</span>
+                        <span class="alert-warning">不足</span>                        
                     }
-
                 </td>
                 <td>
                     @Html.DisplayFor(modelItem => item.UnitsOnOrder)

@@ -27,16 +27,46 @@ namespace VNW.Controllers
         }
 
         // GET: Products
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(int? page)
         {
             //::check admin
             string UserLevel = _ms.GetMySession("UserLevel", HttpContext.Session);
             if (!_ms.CheckAdmin(HttpContext.Session) && UserLevel != "2B")
                 return Content("You have no right to access this page");
 
-            var query = _context.Products.Include(p => p.Category).OrderByDescending(x=>x.ProductId);
+            #region page
+            int ipp = 10; // item per page
+            int _page = 1, _take = ipp, _skip = 0;
+            if (page != null)
+                _page = (int)page - 1;
+            else
+            {
+                //::get page from cookie
+                var _cookepage = HttpContext.Request.Cookies["page_shopProduct"];
+                try
+                {
+                    if (_cookepage == null)
+                        _page = 0;
+                    else
+                        _page = int.Parse(_cookepage);
+                }
+                catch
+                {
+                    _page = 0;
+                }
+            }
+            HttpContext.Response.Cookies.Append("page_shopProduct", _page.ToString());
 
-            //page
+            int totalCount = _context.Products.Count();
+            int totalPages = totalCount / ipp;
+            if (_page >= totalPages)
+                _page = totalPages; //::debug
+            _skip = _page * ipp; //(totalPages- _page) * ipp;
+            if (_skip < 0) _skip = 0;
+            ViewData["page"] = _page;
+            ViewData["totalCount"] = totalCount;
+            ViewData["ipp"] = ipp;
+            #endregion
 
             ViewBag.UserAccount =
                 _ms.GetMySession("UserAccount", HttpContext.Session);
@@ -44,6 +74,13 @@ namespace VNW.Controllers
             ViewBag.ShopAccount =
                 _ms.GetMySession("ShopAccount", HttpContext.Session);
             ViewBag.UserLevel = UserLevel;
+
+            var query = _context.Products
+                .Include(p => p.Category)
+                .OrderByDescending(x => x.UnitsReserved)
+                .ThenByDescending(x => x.ProductId)                
+                .Skip(_skip).Take(_take);
+
             return View(await query.ToListAsync());
         }
 

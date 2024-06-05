@@ -48,9 +48,13 @@
         <dt>
             @Html.DisplayNameFor(model => model.UnitsReserved)
             <span style="color:mediumvioletred">(新測試功能)</span>
-</dt>
+        </dt>
         <dd>
             @Html.DisplayFor(model => model.UnitsReserved)
+            @if (Model.UnitsInStock < Model.UnitsReserved)
+            {
+                <span class="alert-danger">超賣(Overbooking)</span>
+            }
         </dd>
         <dt>
             @Html.DisplayNameFor(model => model.ReorderLevel)

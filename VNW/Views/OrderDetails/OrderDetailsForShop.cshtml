@@ -185,7 +185,10 @@ else
                 </td>
                 <td>
                     @item.Product.UnitsReserved
-
+                    @if(item.Product.UnitsInStock < item.Product.UnitsReserved)
+                    {
+                        <span class="alert-danger">超賣(Overbooking)</span>
+                    }
                 </td>
             </tr>
         }

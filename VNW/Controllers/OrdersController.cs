@@ -314,6 +314,9 @@ namespace VNW.Controllers
                 _page = totalPages; //::debug
             _skip = _page * ipp; //(totalPages- _page) * ipp;
             if (_skip < 0) _skip = 0;
+            ViewData["page"] = _page;
+            ViewData["totalCount"] = totalCount;
+            ViewData["ipp"] = ipp;
             #endregion
 
             var orders = _context.Orders
@@ -329,10 +332,6 @@ namespace VNW.Controllers
             {
                 return Content("null");
             }
-
-            ViewData["page"] = _page;
-            ViewData["totalCount"] = totalCount;
-            ViewData["ipp"] = ipp;
 
             //try to put image - but this method is not good!
             //:: get image from 1st item only
@@ -1280,14 +1279,14 @@ namespace VNW.Controllers
                 _page = totalPages; //::debug
             _skip = _page * ipp; //(totalPages- _page) * ipp;
             if (_skip < 0) _skip = 0;
+            ViewData["page"] = _page;
+            ViewData["totalCount"] = totalCount;
             #endregion
 
             var q = _context.Orders.Include(o => o.Customer)                
                 .OrderByDescending(x => x.OrderId)
                 .Skip(_skip).Take(_take);
 
-            ViewData["page"] = _page;
-            ViewData["totalCount"] = totalCount;
             ViewData["UserAccount"] = _ms.GetMySession("UserAccount", HttpContext.Session);
             ViewData["ShopAccount"] = _ms.GetMySession("ShopAccount", HttpContext.Session);
 
