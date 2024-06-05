@@ -758,6 +758,8 @@ namespace VNW.Controllers
                     //::get temporary data of ShoppingCart from cookie
                     string pidJSON = null;
                     List<ShoppingCart> shoppingCarts = new List<ShoppingCart>();
+                    //::for checking issue such as overbooking
+                    List<int> pids_issue = new List<int>();
                     pidJSON = HttpContext.Request.Cookies["pidJSON"];
                     if (pidJSON == null)
                     {
@@ -801,40 +803,46 @@ namespace VNW.Controllers
                             {
                                 //Debug.WriteLine(" Mathced DB Count: " + queryDB.Count());
                                 //put matched stock in cookie
-                                foreach (var q in queryP)
+                                foreach (var p in queryP)
                                 {
-                                    Debug.WriteLine("id: " + q.ProductId + ", stock: " + q.UnitsInStock);
-                                    var sc = shoppingCarts.Where(x => x.Pid == q.ProductId).First();
+                                    Debug.WriteLine("id: " + p.ProductId + ", stock: " + p.UnitsInStock);
+                                    var sc = shoppingCarts.Where(x => x.Pid == p.ProductId).First();
                                     if (sc != null)
                                     {
-                                        //::check stock is enough     
-
-                                        //if (sc.Qty > q.UnitsInStock)
-                                        //{
-                                        //::show warning or error???
-                                        //pids_issue.Add(sc.Pid);
-                                        //}
-
-                                        if (sc.Stock != q.UnitsInStock)
+                                        //::sync
+                                        short UnitsReserved = 0;
+                                        if (p.UnitsReserved != null)                                        
+                                            UnitsReserved = (short)p.UnitsReserved;
+                                        
+                                        if (sc.Stock != (short)(p.UnitsInStock - UnitsReserved))
                                         {
-                                            short UnitsReserved = 0;
-                                            if (q.UnitsReserved != null)
-                                            {
-                                                UnitsReserved = (short)q.UnitsReserved;
-                                            }
-                                            sc.Stock = (short)(q.UnitsInStock - UnitsReserved);
+                                            sc.Stock = (short)(p.UnitsInStock - UnitsReserved);
                                             //::show warning
-                                            //pids_issue.Add(sc.Pid);
+                                            ////pids_issue.Add(sc.Pid);
+                                        }
+
+                                        //::check stock is enough     
+                                        if (sc.Qty > sc.Stock)
+                                         {
+                                            //::show warning or error?
+                                            pids_issue.Add(sc.Pid);
                                         }
                                     }
                                 }
                                 Debug.WriteLine("\n EOD ");
 
-                                //if (pids_issue.Count > 0)
-                                //{
-                                //someting is worng?
-                                //TempData["td_serverWarning"] += " 數量與庫存不合; ";
-                                //}
+                                if (_isSaveAndUpdateDB)
+                                    if (pids_issue.Count > 0)
+                                    {
+                                        //::someting is worng                                        
+                                        TempData["td_serverWarning"] += " 部份商品庫存不足, 訂單無法成立: ";
+                                        foreach(var pid in pids)
+                                        {
+                                            TempData["td_serverWarning"] += pid + ", " ;
+                                        }
+                                        return _ovm; //tbd
+                                    }
+
                                 //pass case
 
                                 //::get info customer 
@@ -950,41 +958,76 @@ namespace VNW.Controllers
 
                                         if (_isSaveAndUpdateDB)
                                         {
-                                            //::write to DB table OrderDetail
-                                            _context.Add(od);
-                                            await _context.SaveChangesAsync();
-
                                             #region
                                             //::update data Product: InStock, OnOrder
                                             if (p.UnitsInStock == null)
-                                                p.UnitsInStock = 0;
-                                            //p.UnitsInStock -= od.Quantity;
+                                                p.UnitsInStock = 0;                                            
 
                                             //::use new col
-                                            if (p.UnitsReserved == null) p.UnitsReserved = 0;
-                                            p.UnitsReserved += od.Quantity;
+                                            if (p.UnitsReserved == null)
+                                                p.UnitsReserved = 0;
 
-                                            //if (p.UnitsOnOrder == null)
-                                            //    p.UnitsOnOrder = 0;
-                                            //p.UnitsOnOrder += od.Quantity;
+                                            //::check stock again
+                                            if(od.Quantity > (p.UnitsInStock - p.UnitsReserved))
+                                            {
+                                                //:: Overbooking error
+                                                //TempData["td_serverWarning"] += "Overbooking " + p.ProductId;
+                                                pids_issue.Add(p.ProductId);
+                                            }
+                                            else //normal case
+                                            {
+                                                //p.UnitsInStock -= od.Quantity;
+                                                p.UnitsReserved += od.Quantity;
 
-                                            _context.Update(p); //::write to product
-                                            await _context.SaveChangesAsync();
+                                                //if (p.UnitsOnOrder == null)
+                                                //    p.UnitsOnOrder = 0;
+                                                //p.UnitsOnOrder += od.Quantity;
+
+                                                //::write to DB table OrderDetail
+                                                _context.Add(od);
+                                                await _context.SaveChangesAsync();
+                                                _context.Update(p); //::write to product
+                                                await _context.SaveChangesAsync();
+                                            }                                            
                                             #endregion
                                         }
                                     }
                                     else
                                     {
-                                        //error case? TBD
+                                        //error case
+                                        TempData["td_serverWarning"] += " 購物車沒有預期的資料";
+                                        return _ovm;
                                     }
                                 }
                                 //ViewData["OrderDetails"] = ods;
                                 _ovm.Ods = ods;
 
                                 //::update product, reduce UnitsInStock, update UnitsOnOrder...
-
                                 if (_isSaveAndUpdateDB)
                                 {
+                                    if (pids_issue.Count > 0)
+                                    {
+                                        //someting is worng?
+                                        TempData["td_serverWarning"] += " 庫存不足, 避免超訂(overbooking), 部份商品未成立: ";
+                                        foreach (var pid in pids)
+                                        {
+                                            TempData["td_serverWarning"] += "#" +pid + ", ";
+                                        }
+                                        //return _ovm; //tbd
+                                    }
+
+                                    //::prevent from overbooking issue
+                                    if (pids_issue.Count > 0)
+                                    {
+                                        ViewData["pids_issue"] = pids_issue;
+                                        return _ovm; //tbd
+                                    }
+                                    if (ods.Count <= 0)
+                                    {
+                                        TempData["td_serverWarning"] += " 內容不足, 定單未成立;";
+                                        return _ovm;
+                                    }
+
                                     //::clear data from shopping cart cookie
                                     foreach (var p in queryP)
                                     {

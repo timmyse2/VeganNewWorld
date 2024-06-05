@@ -148,7 +148,7 @@ else
             <td>商品編號</td>
             <td>商品名稱</td>
             <td></td>
-            <td>目前庫存</td>
+            @*<td>目前庫存</td>*@
             <td>可下單量*</td>
             <td>數量</td>
             <td>單價</td>
@@ -193,10 +193,9 @@ else
                         @item.Product.ProductName
                     }
                 </td>
-                <td>@item.Product.UnitsInStock </td>
+                @*<td>@item.Product.UnitsInStock </td>*@
                 <td>@(item.Product.UnitsInStock - UnitsReserved)</td>
                 <td>@item.Quantity </td>
-
                 <td>$@item.UnitPrice</td>
                 <td>@item.Discount </td>
                 <td>$@(totalPrice) </td>

@@ -23,6 +23,10 @@
 @if (Model == null || Model.OrderBase == null)
 {
     <div class="alert-danger">data is lost</div>
+
+    <a class="btn btn-danger" asp-action="CheckOrder" asp-controller="Orders"
+       style="margin-right:20px;">退回前一步</a>
+
     return;
 }
 
