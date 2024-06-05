@@ -92,14 +92,23 @@ else
                     <td>狀態</td>
                     <td>
                         @OrderInfo.Status
-                        @try
+                        @if (OrderInfo.Status == null)
                         {
-                            @EnumExtensions.GetDisplayName((VNW.Models.OrderStatusEnum)OrderInfo.Status)
+                            <span class="alert-danger">尚未設定</span>
                         }
-                        catch
+                        else
                         {
-                            <span class="alert-danger">異常或之前未設定</span>
+                            @try
+                            {
+                                @EnumExtensions.GetDisplayName((VNW.Models.OrderStatusEnum)OrderInfo.Status)
+                            }
+                            catch
+                            {
+                                <span class="alert-danger">異常</span>
+                            }
                         }
+
+
                     </td>
                 </tr>
             </table>
