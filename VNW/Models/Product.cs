@@ -31,7 +31,7 @@ namespace VNW.Models
         [Display(Name = "單價")]
         public decimal? UnitPrice { get; set; }
 
-        [Display(Name = "庫存量")]
+        [Display(Name = "店內庫存")]
         public short? UnitsInStock { get; set; }
 
         [Display(Name = "向供應商的訂購量")] //採購流程, 向供應商下訂單
@@ -50,7 +50,7 @@ namespace VNW.Models
         public string Description { get; set; }
 
         //::prepare UnitsReserved for more complex order system
-        [Display(Name = "預購量")] //預留標記
+        [Display(Name = "預訂購量")] //預留標記
         public short? UnitsReserved { get; set; }
 
         //::NP

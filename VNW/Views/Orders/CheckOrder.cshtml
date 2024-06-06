@@ -164,7 +164,7 @@ else
         @foreach (var item in Model.Ods) // OrderDetails)
         {
 
-            string CheckMark = " 通過初檢 ";
+            string CheckMark = ""; //" 通過初檢 ";
 
             decimal totalPrice = item.UnitPrice * item.Quantity;
             totalSum += totalPrice;

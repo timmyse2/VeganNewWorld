@@ -758,9 +758,12 @@ namespace VNW.Controllers
                     //::get temporary data of ShoppingCart from cookie
                     string pidJSON = null;
                     List<ShoppingCart> shoppingCarts = new List<ShoppingCart>();
+                    pidJSON = HttpContext.Request.Cookies["pidJSON"];
+
                     //::for checking issue such as overbooking
                     List<int> pids_issue = new List<int>();
-                    pidJSON = HttpContext.Request.Cookies["pidJSON"];
+                    List<string> pName_issue = new List<string>();
+
                     if (pidJSON == null)
                     {
                         TempData["td_serverWarning"] = "訂單是空的，請選擇商品";
@@ -826,22 +829,25 @@ namespace VNW.Controllers
                                          {
                                             //::show warning or error?
                                             pids_issue.Add(sc.Pid);
+                                            pName_issue.Add(p.ProductName);
                                         }
                                     }
                                 }
                                 Debug.WriteLine("\n EOD ");
 
                                 if (_isSaveAndUpdateDB)
-                                    if (pids_issue.Count > 0)
+                                {
+                                    if (pName_issue.Count > 0)
                                     {
                                         //::someting is worng                                        
                                         TempData["td_serverWarning"] += " 部份商品庫存不足, 訂單無法成立: ";
-                                        foreach(var pid in pids)
+                                        foreach (var pName in pName_issue)
                                         {
-                                            TempData["td_serverWarning"] += pid + ", " ;
+                                            TempData["td_serverWarning"] += " '" + pName + "', ";
                                         }
                                         return _ovm; //tbd
                                     }
+                                }
 
                                 //pass case
 
@@ -1195,8 +1201,18 @@ namespace VNW.Controllers
                             if (p != null)
                             {
                                 p.UnitsInStock -= od.Quantity;
-                                if (p.UnitsReserved == null) p.UnitsReserved = 0;                                
-                                p.UnitsReserved -= od.Quantity;                                
+                                if (p.UnitsReserved == null) p.UnitsReserved = 0;
+                                if (p.UnitsReserved >= od.Quantity)
+                                {
+                                    p.UnitsReserved -= od.Quantity;
+                                }
+                                else //::do not let reserved value become negative
+                                {
+                                    TempData["td_serverWarning"] = "預留數量不足，無法取消預留。(請與系統管理人聯絡)";
+                                    //throw new InvalidOperationException("預留數量不足，無法取消預留。");
+                                    //return View();
+                                    return RedirectToAction("OrderDetailsForShop/" + id, "orderdetails");
+                                }
                                 _context.Products.Update(p);
                                 //await _context.SaveChangesAsync();
                             }
@@ -1263,8 +1279,18 @@ namespace VNW.Controllers
                                 //p.UnitsInStock += od.Quantity;
                                 
                                 if (p.UnitsReserved == null) p.UnitsReserved = 0;
-                                p.UnitsReserved -= od.Quantity;
 
+                                if(p.UnitsReserved >= od.Quantity)
+                                {
+                                    p.UnitsReserved -= od.Quantity;
+                                }
+                                else //::do not let reserved value become negative
+                                {
+                                    TempData["td_serverWarning"] = "預留數量不足，無法取消預留。(請與系統管理人聯絡)";
+                                    throw new InvalidOperationException("預留數量不足，無法取消預留。");
+                                    //return View();
+                                    //return RedirectToAction("OrderDetailsForShop/" + id, "orderdetails");
+                                }
                                 _context.Products.Update(p);
                             }
                         }
@@ -1283,9 +1309,10 @@ namespace VNW.Controllers
                     //return Content(":)  This order is Cacencelled");
                     //return View();
                 }
-                catch
+                catch (Exception ex)
                 {
-                    return Content("Exception :(");
+                    return RedirectToAction("OrderDetailsForShop/" + id, "orderdetails");
+                    //return Content("Exception :( " + ex);                    
                 }
 
             }

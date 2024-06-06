@@ -101,7 +101,7 @@ else
                 </div>
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.UnitsReserved)
+                <div style="color:red">@Html.DisplayNameFor(model => model.UnitsReserved)*</div>                    
             </th>
             <th>
                 @Html.DisplayNameFor(model => model.ReorderLevel)
@@ -145,6 +145,10 @@ else
                     @if (item.UnitsReserved > item.UnitsInStock)
                     {
                         <span class="alert-danger">超賣(Overbooking)</span>
+                    }
+                    @if (item.UnitsReserved < 0)
+                    {
+                        <span class="alert-danger">異常</span>
                     }
                 </td>
                 <td>
