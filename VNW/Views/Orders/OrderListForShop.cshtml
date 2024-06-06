@@ -49,20 +49,31 @@
         </table>*@
 </div>
 <div id="div_condition" style="border:solid; border-width:1px; padding:2px;border-radius:5px;text-align:center;border-color:lightgray;">
-    <div class="btn btn-primary">三天內</div>
-    <div class="btn btn-info">三天外</div>
-    <div class="btn btn-danger">異常項目</div>
-    <div class="btn btn-success">已出貨</div>
+
+    @{
+        string condition = (string)ViewData["condition"];
+    }
+    <a class="btn btn-default" asp-route-condition="all">全部</a>
+    @if (condition != "tbd")
+    {<a class="btn btn-primary" asp-route-condition="tbd">待確認</a>}
+    @*<a class="btn btn-info" asp-route-condition="long">三天外</a>*@
+    @if (condition != "shipped")
+    {<a class="btn btn-success" asp-route-condition="shipped">已出貨</a>}
+    @if (condition != "cancel")
+    {<a class="btn btn-info" asp-route-condition="cancel">已取消</a>}
+    @if (condition != "error")
+    {<a class="btn btn-danger" asp-route-condition="error">異常</a>}
 </div>
 
 <div id="pageSelection">
     @{
         //:: page
-        int totalpage = 0; int ipp = 10;
+        int totalpage = 0; int ipp = 10; int totalCount = 0;
         int pageNum = (int)ViewData["page"];
         if (ViewData["totalCount"] != null)
         {
-            totalpage = (int)ViewData["totalCount"] / ipp + 1;
+            totalCount = (int)ViewData["totalCount"];
+            totalpage = totalCount / ipp + 1;
             <ul class="pagination">
                 @{
                     if (pageNum > 0)
@@ -99,6 +110,7 @@
                     }
                 }
             </ul>
+            <div>@Model.Count() / @totalCount 筆</div>
         }
     }
 </div>
@@ -165,7 +177,11 @@
                         TimeSpan difference = DateTime.Now - (DateTime)item.OrderDate;
                         if (difference.Days > 3)
                         {
-                            <span class="newMark"> >3 days </span>
+                            @*<span class="newMark"> >3 days </span>*@
+                        }
+                        else
+                        {
+                            <span class="newMark">新</span>
                         }
                     }
 
@@ -267,6 +283,7 @@
             border-radius: 5px;
             padding: 2px;
             margin: 2px;
+            font-size:10px;
         }
     </style>
 }

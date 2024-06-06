@@ -1087,7 +1087,7 @@ namespace VNW.Controllers
         }       
 
         //::Order List for Business Shop side
-        public async Task<IActionResult> OrderListForShop(int? page)
+        public async Task<IActionResult> OrderListForShop(int? page, string condition)
         {
             //::check Shop
             string UserLevel = _ms.GetMySession("UserLevel", HttpContext.Session);
@@ -1099,6 +1099,53 @@ namespace VNW.Controllers
 
             if (!_ms.LoginPrecheck(HttpContext.Session))
                 return RedirectToAction("Login", "Customers");
+
+            #region condition            
+            //::condition
+            IQueryable<Order> q0 = null;
+            //var q0 = _context.Products;
+
+            string _condition = null;
+            if (condition == null) //no condition in url            
+                _condition = HttpContext.Request.Cookies["condition_shopOrder"];
+            else
+                _condition = condition;
+            switch (_condition)
+            {
+                case "shipped":
+                    //q0 = _context.Products.Where(p => p.UnitsInStock <= 0 || p.UnitsInStock <= p.ReorderLevel);
+                    q0 = _context.Orders.Where(o => o.Status == OrderStatusEnum.Shipped || o.Status == OrderStatusEnum.Finish);
+                    break;
+                case "cancel":
+                    //q0 = _context.Products.Where(p => p.UnitsInStock <= 0 || p.UnitsInStock <= p.ReorderLevel);
+                    q0 = _context.Orders.Where(o=>o.Status == OrderStatusEnum.Canceling || o.Status == OrderStatusEnum.Cancelled);
+                    break;
+                case "tbd":
+                    q0 = _context.Orders.Where(o => o.ShippedDate == null && !(o.Status == OrderStatusEnum.Canceling || o.Status == OrderStatusEnum.Cancelled));
+                    // && o.OrderDate);                    
+                    //TimeSpan difference = DateTime.Now - (DateTime)item.OrderDate;
+                    //if (difference.Days > 3)
+                    break;
+                case "error": //error only 
+                    q0 = _context.Orders.Where(o => o.ShipVia == null);
+                    break;
+                case "all": //all with page  
+                    q0 = _context.Orders;
+                    //clear speical condition
+                    HttpContext.Response.Cookies.Append("condition_shopOrder", "");
+                    _condition = null;
+                    break;
+                default:
+                    //use condition from cookie
+                    q0 = _context.Orders;
+                    break;
+            }
+            if (_condition != null)
+                HttpContext.Response.Cookies.Append("condition_shopOrder", _condition);
+
+            ViewData["condition"] = _condition;
+            #endregion
+
 
             #region page
             int ipp = 10; // item per page
@@ -1123,7 +1170,8 @@ namespace VNW.Controllers
             }
             HttpContext.Response.Cookies.Append("page_shoporder", _page.ToString());
 
-            int totalCount = _context.Orders.Count();
+            int totalCount = q0.Count();
+                //_context.Orders.Count();
             int totalPages = totalCount / ipp;
             if (_page >= totalPages)
                 _page = totalPages; //::debug
@@ -1133,7 +1181,9 @@ namespace VNW.Controllers
             ViewData["totalCount"] = totalCount;
             #endregion
 
-            var q = _context.Orders.Include(o => o.Customer)                
+            var q = //_context.Orders
+                q0
+                .Include(o => o.Customer)                
                 .OrderByDescending(x => x.OrderId)
                 .Skip(_skip).Take(_take);
 
