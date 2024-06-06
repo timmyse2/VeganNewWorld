@@ -29,6 +29,14 @@ else
     </p>
 }
 
+    <div id="div_condition" style="border:solid; border-width:1px; padding:2px;border-radius:5px;text-align:center;border-color:lightgray;">
+        <a class="btn btn-default btn-toolbar" asp-route-condition="all">全部</a>
+        <a class="btn btn-primary" asp-route-condition="reserved">有預訂</a>
+        @*<div class="btn btn-info ">三天內</div>*@
+        <a class="btn btn-warning" asp-route-condition="less">缺貨</a>
+        <a class="btn btn-danger" asp-route-condition="error">異常項目</a>
+    </div>
+
 <div id="pageSelection">
     @{
         //:: page

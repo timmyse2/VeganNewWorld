@@ -27,12 +27,46 @@ namespace VNW.Controllers
         }
 
         // GET: Products
-        public async Task<IActionResult> Index(int? page)
+        public async Task<IActionResult> Index(int? page, string condition)
         {
             //::check admin
             string UserLevel = _ms.GetMySession("UserLevel", HttpContext.Session);
             if (!_ms.CheckAdmin(HttpContext.Session) && UserLevel != "2B")
                 return Content("You have no right to access this page");
+
+            //::condition
+            IQueryable<VNW.Models.Product> q0 = null;
+            //var q0 = _context.Products;
+
+            string _condition = null;
+            if (condition == null) //no condition in url            
+                _condition = HttpContext.Request.Cookies["condition_shopProduct"];            
+            else            
+                _condition = condition;                    
+            switch (_condition)
+            {
+                case "reserved":
+                    q0 = _context.Products.Where(p => p.UnitsReserved > 0);
+                    break;
+                case "less": 
+                    q0 = _context.Products.Where(p => p.UnitsInStock <= 0 || p.UnitsInStock <= p.ReorderLevel);
+                    break;
+                case "error": //error only 
+                    q0 = _context.Products.Where(p => p.UnitsReserved < 0 || p.UnitsReserved > p.UnitsInStock);
+                    break;
+                case "all": //all with page  
+                    q0 = _context.Products;
+                    //clear speical condition
+                    HttpContext.Response.Cookies.Append("condition_shopProduct", "");
+                    _condition = null;
+                    break;
+                default: 
+                    //use condition from cookie
+                    q0 = _context.Products;                    
+                    break;
+            }            
+            if(_condition != null)
+                HttpContext.Response.Cookies.Append("condition_shopProduct", _condition);
 
             #region page
             int ipp = 10; // item per page
@@ -56,8 +90,8 @@ namespace VNW.Controllers
                 }
             }
             HttpContext.Response.Cookies.Append("page_shopProduct", _page.ToString());
-
-            int totalCount = _context.Products.Count();
+            int totalCount = q0.Count();
+                //_context.Products.Count();
             int totalPages = totalCount / ipp;
             if (_page >= totalPages)
                 _page = totalPages; //::debug
@@ -70,17 +104,16 @@ namespace VNW.Controllers
 
             ViewBag.UserAccount =
                 _ms.GetMySession("UserAccount", HttpContext.Session);
-
             ViewBag.ShopAccount =
                 _ms.GetMySession("ShopAccount", HttpContext.Session);
             ViewBag.UserLevel = UserLevel;
 
-            var query = _context.Products
+            //var query = _context.Products
+            var query = q0
                 .Include(p => p.Category)
                 .OrderByDescending(x => x.UnitsReserved)
-                .ThenByDescending(x => x.ProductId)                
+                //.ThenByDescending(x => x.ProductId)                
                 .Skip(_skip).Take(_take);
-
             return View(await query.ToListAsync());
         }
 
