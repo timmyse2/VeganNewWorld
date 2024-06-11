@@ -1127,9 +1127,9 @@ namespace VNW.Controllers
                     DateTime specificDate = DateTime.Now.AddDays(-3);
                     q0 = _context.Orders.Where(o => o.OrderDate >= specificDate);
                     break;
-                //case "today":                    
-                //    q0 = _context.Orders.Where(o => o.OrderDate >= DateTime.Now.AddDays(-1));
-                //    break;
+                case "today":
+                    q0 = _context.Orders.Where(o => o.OrderDate >= DateTime.Now.AddDays(-1));
+                    break;
                 case "error": //error only 
                     q0 = _context.Orders.Where(o => o.ShipVia == null);
                     break;
@@ -1245,6 +1245,18 @@ namespace VNW.Controllers
                     var qOds = await _context.OrderDetails.Where(x => x.OrderId == id)
                         //.Include(x=>x.Product)
                         .ToListAsync();
+
+
+                    bool isNewFormatFrom2024Jun4 = true;
+                    DateTime specificDate = new DateTime(2024, 6, 4, 12, 0, 0);
+                    if (qO.OrderDate < specificDate)
+                        isNewFormatFrom2024Jun4 = false;
+                    if (!isNewFormatFrom2024Jun4)
+                    {
+                        TempData["td_serverWarning"] = "Error: 此訂單為舊格式測試用, 無法[出貨], 只能[取消] ";
+                        return RedirectToAction("OrderDetailsForShop//" + id, "orderDetails");
+                    }
+
                     if (qOds != null)
                     {
                         foreach (var od in qOds)
@@ -1255,18 +1267,28 @@ namespace VNW.Controllers
                             if (p != null)
                             {
                                 p.UnitsInStock -= od.Quantity;
-                                if (p.UnitsReserved == null) p.UnitsReserved = 0;
-                                if (p.UnitsReserved >= od.Quantity)
+                                if (p.UnitsReserved == null)
+                                    p.UnitsReserved = 0;
+
+                                if(isNewFormatFrom2024Jun4)
                                 {
-                                    p.UnitsReserved -= od.Quantity;
+                                    if (p.UnitsReserved >= od.Quantity)
+                                    {
+                                        p.UnitsReserved -= od.Quantity;
+                                    }
+                                    else //::do not let reserved value become negative
+                                    {
+                                        TempData["td_serverWarning"] = "預留數量不足，無法取消預留。(請與系統管理人聯絡)";
+                                        //throw new InvalidOperationException("預留數量不足，無法取消預留。");
+                                        //return View();
+                                        return RedirectToAction("OrderDetailsForShop/" + id, "orderdetails");
+                                    }
                                 }
-                                else //::do not let reserved value become negative
+                                else
                                 {
-                                    TempData["td_serverWarning"] = "預留數量不足，無法取消預留。(請與系統管理人聯絡)";
-                                    //throw new InvalidOperationException("預留數量不足，無法取消預留。");
-                                    //return View();
-                                    return RedirectToAction("OrderDetailsForShop/" + id, "orderdetails");
+                                    //old rule: do not reduce reserved
                                 }
+
                                 _context.Products.Update(p);
                                 //await _context.SaveChangesAsync();
                             }
@@ -1317,9 +1339,14 @@ namespace VNW.Controllers
                     }
 
                     //::o.detail, update product - stock, reserved
-                        var qOds = await _context.OrderDetails.Where(x => x.OrderId == id)
+                    var qOds = await _context.OrderDetails.Where(x => x.OrderId == id)
                         //.Include(x=>x.Product)
                         .ToListAsync();
+
+                    bool isNewFormatFrom2024Jun4 = true;
+                    DateTime specificDate = new DateTime(2024, 6, 4, 12, 0, 0);
+                    if (qO.OrderDate < specificDate)                    
+                        isNewFormatFrom2024Jun4 = false;                    
 
                     if (qOds != null)
                     {
@@ -1334,16 +1361,25 @@ namespace VNW.Controllers
                                 
                                 if (p.UnitsReserved == null) p.UnitsReserved = 0;
 
-                                if(p.UnitsReserved >= od.Quantity)
+                                if(isNewFormatFrom2024Jun4)
                                 {
-                                    p.UnitsReserved -= od.Quantity;
+                                    //new rule: reduce reserved value
+                                    if (p.UnitsReserved >= od.Quantity)
+                                    {
+                                        p.UnitsReserved -= od.Quantity;
+                                    }
+                                    else //::do not let reserved value become negative
+                                    {
+                                        TempData["td_serverWarning"] = "預留數量不足，無法取消預留。(請與系統管理人聯絡)";
+                                        throw new InvalidOperationException("預留數量不足，無法取消預留。");
+                                        //return View();
+                                        //return RedirectToAction("OrderDetailsForShop/" + id, "orderdetails");
+                                    }
                                 }
-                                else //::do not let reserved value become negative
+                                else
                                 {
-                                    TempData["td_serverWarning"] = "預留數量不足，無法取消預留。(請與系統管理人聯絡)";
-                                    throw new InvalidOperationException("預留數量不足，無法取消預留。");
-                                    //return View();
-                                    //return RedirectToAction("OrderDetailsForShop/" + id, "orderdetails");
+                                    //old rule: do not reduce reserved value
+                                    //just cancel order
                                 }
                                 _context.Products.Update(p);
                             }
