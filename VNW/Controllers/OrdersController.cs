@@ -1122,10 +1122,14 @@ namespace VNW.Controllers
                     break;
                 case "tbd":
                     q0 = _context.Orders.Where(o => o.ShippedDate == null && !(o.Status == OrderStatusEnum.Canceling || o.Status == OrderStatusEnum.Cancelled));
-                    // && o.OrderDate);                    
-                    //TimeSpan difference = DateTime.Now - (DateTime)item.OrderDate;
-                    //if (difference.Days > 3)
                     break;
+                case "3days":
+                    DateTime specificDate = DateTime.Now.AddDays(-3);
+                    q0 = _context.Orders.Where(o => o.OrderDate >= specificDate);
+                    break;
+                //case "today":                    
+                //    q0 = _context.Orders.Where(o => o.OrderDate >= DateTime.Now.AddDays(-1));
+                //    break;
                 case "error": //error only 
                     q0 = _context.Orders.Where(o => o.ShipVia == null);
                     break;
