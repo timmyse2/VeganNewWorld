@@ -187,7 +187,7 @@ namespace VNW.Controllers
             if (!_ms.CheckAdmin(HttpContext.Session))
                 return Content("You have no right to access this page");
             if (!_ms.LoginPrecheck(HttpContext.Session))
-                return RedirectToAction("Login", "Customers");
+                return RedirectToAction("Login", "Customers");            
 
             if (id == null)
             {
@@ -202,7 +202,7 @@ namespace VNW.Controllers
 
             //ViewData["CategoryId"] = new SelectList(_context.Set<Category>(), "CategoryId", "CategoryId", product.CategoryId);
             //::<udpate- show Name in select list>
-            ViewData["CategoryId"] = new SelectList(_context.Set<Category>(), "CategoryId", "CategoryName", product.CategoryId);            
+            ViewData["CategoryId"] = new SelectList(_context.Set<Category>(), "CategoryId", "CategoryName", product.CategoryId);
 
             return View(product);
         }
@@ -212,10 +212,18 @@ namespace VNW.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, 
-            [Bind("ProductId,ProductName,CategoryId,QuantityPerUnit,UnitPrice,UnitsInStock,UnitsOnOrder,ReorderLevel,Discontinued,Picture,Description"
+        public async Task<IActionResult> Edit(int id,
+            [Bind("ProductId,ProductName,CategoryId,QuantityPerUnit,UnitPrice,UnitsInStock,UnitsOnOrder,ReorderLevel,Discontinued,Picture,Description,UnitsReserved"
                 )] Product product)
         {
+            //::check Shop
+            string UserLevel = _ms.GetMySession("UserLevel", HttpContext.Session);
+            //::check admin
+            if (!_ms.CheckAdmin(HttpContext.Session))
+                return Content("You have no right to access this page");
+            if (!_ms.LoginPrecheck(HttpContext.Session))
+                return RedirectToAction("Login", "Customers");
+
             if (id != product.ProductId)
             {
                 return NotFound();
@@ -232,6 +240,8 @@ namespace VNW.Controllers
                         product.UnitsInStock = 0;
                     if (product.ReorderLevel == null)
                         product.ReorderLevel = 0;
+                    if (product.UnitsReserved == null)
+                        product.UnitsReserved = 0;
 
                     _context.Update(product);
                     await _context.SaveChangesAsync();
@@ -247,8 +257,11 @@ namespace VNW.Controllers
                         throw;
                     }
                 }
-                TempData["td_serverMessage"] = "Updated";
-                return RedirectToAction(nameof(Index));
+                //TempData["td_serverMessage"] = "Updated";
+                //return RedirectToAction(nameof(Index));
+                //return RedirectToAction(nameof(ProductDetailForShop));
+                //return RedirectToAction("ProductDetailForShop", product.ProductId);
+                return RedirectToAction("ProductDetailForShop//" + product.ProductId);
             }
             ViewData["CategoryId"] = new SelectList(_context.Set<Category>(), "CategoryId", "CategoryId", product.CategoryId);
             return View(product);
@@ -851,7 +864,7 @@ namespace VNW.Controllers
         {
             //::check Shop
             string UserLevel = _ms.GetMySession("UserLevel", HttpContext.Session);
-            if (UserLevel != "2B")
+            if (UserLevel != "2B" && UserLevel != "1A")
             {
                 //return Content("You have no right to access this");
                 return RedirectToAction("Login", "Customers");
@@ -889,7 +902,7 @@ namespace VNW.Controllers
             //::check 2B
             //::check Shop
             string UserLevel = _ms.GetMySession("UserLevel", HttpContext.Session);
-            if (UserLevel != "2B")
+            if (UserLevel != "2B" && UserLevel != "1A")
             {
                 //return Content("You have no right to access this");
                 return RedirectToAction("Login", "Customers");
@@ -924,7 +937,7 @@ namespace VNW.Controllers
         {
             //::check Shop
             string UserLevel = _ms.GetMySession("UserLevel", HttpContext.Session);
-            if (UserLevel != "2B")
+            if (UserLevel != "2B" && UserLevel != "1A")
             {
                 //return Content("You have no right to access this");
                 return RedirectToAction("Login", "Customers");

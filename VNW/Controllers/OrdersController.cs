@@ -1140,7 +1140,7 @@ namespace VNW.Controllers
         {
             //::check Shop
             string UserLevel = _ms.GetMySession("UserLevel", HttpContext.Session);
-            if (UserLevel != "2B")
+            if (UserLevel != "2B" && UserLevel != "1A")
             {
               //return Content("You have no right to access this");
               return RedirectToAction("Login", "Customers");
@@ -1252,7 +1252,7 @@ namespace VNW.Controllers
         {
             //::check Shop
             string UserLevel = _ms.GetMySession("UserLevel", HttpContext.Session);
-            if (UserLevel != "2B")
+            if (UserLevel != "2B" && UserLevel != "1A")
             {
                 //return Content("You have no right to access this");
                 return RedirectToAction("Login", "Customers");

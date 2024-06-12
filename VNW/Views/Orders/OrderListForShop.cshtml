@@ -64,7 +64,11 @@
     else
     {<a class="btn btn-default" style="border:solid;border-width:2px;" asp-route-condition="tbd">待確認</a>}
 
-    @*<a class="btn btn-info" asp-route-condition="long">三天外</a>*@
+    @if (condition != "3days")
+    {<a class="btn btn-warning" asp-route-condition="3days">三天內</a>}
+    else
+    {<a class="btn btn-default" style="border:solid;border-width:2px;" asp-route-condition="3days">三天內</a>}
+
     @if (condition != "shipped")
     {<a class="btn btn-success" asp-route-condition="shipped">已出貨</a>}
     else
@@ -188,7 +192,7 @@
                     @Html.DisplayFor(mi => item.Status)
                     @if (item.Status == null)
                     {
-                        <span class="text-danger">待確認</span>
+                        <span class="alert-danger">待確認</span>
                     }
 
                     @if (item.ShippedDate == null)

@@ -41,7 +41,7 @@ else
                 <li>註冊</li>
                 <li>忘記密碼|帳號</li>
 
-                @if (ViewBag.UserLevel == "2B")
+                @if (ViewBag.UserLevel == "2B" || ViewBag.IsAdmin)
                 {
                     <li>用戶資料維護(商家專用)</li>
                 }
@@ -73,7 +73,7 @@ else
             <h2>管理專用</h2>
             <ul>
 
-                @if ((string)ViewData["UserLevel"] == "2B")
+                @if ((string)ViewData["UserLevel"] == "2B" || ViewBag.IsAdmin)
                 {
                     <li>
                         <a asp-action="OrderListForShop" asp-controller="Orders" class="btn btn-success">本店訂單(商家專用*)</a>
