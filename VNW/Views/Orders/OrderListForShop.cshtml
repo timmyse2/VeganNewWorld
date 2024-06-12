@@ -48,21 +48,38 @@
             </tr>
         </table>*@
 </div>
-<div id="div_condition" style="border:solid; border-width:1px; padding:2px;border-radius:5px;text-align:center;border-color:lightgray;">
+<div id="div_condition" style="border:solid; border-width:1px; padding:2px;border-radius:5px;border-color:lightgray;">
 
     @{
         string condition = (string)ViewData["condition"];
     }
-    <a class="btn btn-default" asp-route-condition="all">全部</a>
+
+    @if (condition != null)
+    {<a class="btn btn-default" asp-route-condition="all">全部</a>}
+    else
+    {<a class="btn btn-default" style="border:solid;border-width:2px;" asp-route-condition="all">全部</a>}
+
     @if (condition != "tbd")
     {<a class="btn btn-primary" asp-route-condition="tbd">待確認</a>}
+    else
+    {<a class="btn btn-default" style="border:solid;border-width:2px;" asp-route-condition="tbd">待確認</a>}
+
     @*<a class="btn btn-info" asp-route-condition="long">三天外</a>*@
     @if (condition != "shipped")
     {<a class="btn btn-success" asp-route-condition="shipped">已出貨</a>}
+    else
+    {<a class="btn btn-default" style="border:solid;border-width:2px;" asp-route-condition="shipped">已出貨</a>}
+
     @if (condition != "cancel")
     {<a class="btn btn-info" asp-route-condition="cancel">已取消</a>}
+    else
+    {<a class="btn btn-default" style="border:solid;border-width:2px;" asp-route-condition="cancel">已取消</a>}
+
     @if (condition != "error")
     {<a class="btn btn-danger" asp-route-condition="error">異常</a>}
+    else
+    {<a class="btn btn-default" style="border:solid;border-width:2px;" asp-route-condition="error">異常</a>}
+
 </div>
 
 <div id="pageSelection">
@@ -120,6 +137,7 @@
     <thead>
         <tr>
             <th></th>
+            <th>狀態</th>
             <th>訂單編號</th>
             <th>訂貨人</th>
             <th>
@@ -162,115 +180,120 @@
     <tbody>
         @foreach (var item in Model)
         {
-            <tr>
-                <td><a asp-action="OrderDetailsForShop" asp-controller="orderDetails" asp-route-id="@item.OrderId" class="btn btn-primary">檢視</a></td>
-                <td>@item.OrderId  </td>
-                <td>
-                    @item.CustomerId | @Html.DisplayFor(modelItem => item.Customer.ContactName)
-                </td>
-
-                <td>
-                    @Html.DisplayFor(modelItem => item.OrderDate)
-
-                    @if (item.OrderDate != null)
-                    {
-                        TimeSpan difference = DateTime.Now - (DateTime)item.OrderDate;
-                        if (difference.Days > 3)
-                        {
-                            @*<span class="newMark"> >3 days </span>*@
-                        }
-                        else
-                        {
-                            <span class="newMark">新</span>
-                        }
-                    }
-
-                </td>
-                @*<td>
-                    @Html.DisplayFor(modelItem => item.RequiredDate)
-                    @if (item.ShippedDate == null)
-                    {
-                        <span class="alert-danger">未定</span>
-                    }
-                </td>*@
-                <td>
-                    @Html.DisplayFor(modelItem => item.ShippedDate)
-
-                    @if (item.ShippedDate == null)
-                    {
-                        <span class="alert-danger">尚未出貨</span>
-                    }
-
-                </td>
-                <td>
-                    (@Html.DisplayFor(modelItem => item.ShipVia))
-                    @try
-                    {
-                        if (item.ShipVia != null)
-                        {
-                            @EnumExtensions.GetDisplayName((ShipViaTypeEnum)item.ShipVia)
-                            @*@item.shipViaTypes[(int)item.ShipVia]*@
-                            @*@item.shipViaTypes.ElementAt((int)item.ShipVia)
-                                @item.shipViaTypes[(int)(@item.ShipVia)]*@
-                        }
-                        else
-                        {
-                            <span class="alert-danger lg">異常</span>
-                        }
-                    }
-                    catch
-                    {
-                        <span class="alert-danger lg">異常</span>
-                    }
-
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Freight)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.ShipName)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.ShipAddress)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.ShipCity)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.ShipPostalCode)
-                </td>
-                <td>
-                    @Html.DisplayFor(mi => item.Payment)
-
-                    @if (item.Payment == null)
-                    {
-                        <span class="alert-danger">未設</span>
-                    }
-
-                </td>
-                <td>
+        <tr>
+            <td><a asp-action="OrderDetailsForShop" asp-controller="orderDetails" asp-route-id="@item.OrderId" class="btn btn-primary">檢視</a></td>
+            <td>
+                <b>
                     @*@Html.DisplayFor(modelItem => item.ShipCountry)*@
-
                     @Html.DisplayFor(mi => item.Status)
+                    @if (item.Status == null)
+                    {
+                        <span class="text-danger">待確認</span>
+                    }
 
                     @if (item.ShippedDate == null)
                     {
                         @*@VNW.Common.EnumExtensions.GetDisplayName(OrderStatusEnum.Got)*@
+
                     }
                     else
                     {
                         @*@VNW.Common.EnumExtensions.GetDisplayName(OrderStatusEnum.Finish)*@
-                        <span>(已出貨)</span>
+                        @*<span>(已出貨)</span>*@
                     }
+                </b>
+            </td>
 
-                </td>
+            <td>@item.OrderId  </td>
+            <td>
+                @item.CustomerId | @Html.DisplayFor(modelItem => item.Customer.ContactName)
+            </td>
 
-                <td>
-                    @*<a asp-action="OrderCancelForShop" asp-route-id="@item.OrderId" class="btn btn-danger">取消</a>*@
+            <td>
+                @Html.DisplayFor(modelItem => item.OrderDate)
+
+                @if (item.OrderDate != null)
+                {
+                    TimeSpan difference = DateTime.Now - (DateTime)item.OrderDate;
+                    if (difference.Days > 3)
+                    {
+                        @*<span class="newMark"> >3 days </span>*@
+                    }
+                    else
+                    {
+                        <span class="newMark">新</span>
+                    }
+                }
+
+            </td>
+            @*<td>
+            @Html.DisplayFor(modelItem => item.RequiredDate)
+            @if (item.ShippedDate == null)
+            {
+                <span class="alert-danger">未定</span>
+            }
+        </td>*@
+            <td>
+                @Html.DisplayFor(modelItem => item.ShippedDate)
+
+                @if (item.ShippedDate == null)
+                {
+                    <span class="alert-danger">尚未出貨</span>
+                }
+
+            </td>
+            <td>
+                (@Html.DisplayFor(modelItem => item.ShipVia))
+                @try
+                {
+                    if (item.ShipVia != null)
+                    {
+                        @EnumExtensions.GetDisplayName((ShipViaTypeEnum)item.ShipVia)
+                        @*@item.shipViaTypes[(int)item.ShipVia]*@
+                        @*@item.shipViaTypes.ElementAt((int)item.ShipVia)
+                    @item.shipViaTypes[(int)(@item.ShipVia)]*@
+                    }
+                    else
+                    {
+                        <span class="alert-danger lg">異常</span>
+                    }
+                }
+                catch
+                {
+                    <span class="alert-danger lg">異常</span>
+                }
+
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Freight)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.ShipName)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.ShipAddress)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.ShipCity)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.ShipPostalCode)
+            </td>
+            <td>
+                @Html.DisplayFor(mi => item.Payment)
+
+                @if (item.Payment == null)
+                {
+                    <span class="alert-danger">未設</span>
+                }
+
+            </td>
+            <td>
+                @*<a asp-action="OrderCancelForShop" asp-route-id="@item.OrderId" class="btn btn-danger">取消</a>*@
 
 
-                </td>
-            </tr>
+            </td>
+        </tr>
         }
     </tbody>
 </table>

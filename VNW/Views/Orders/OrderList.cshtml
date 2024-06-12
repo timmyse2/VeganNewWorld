@@ -24,6 +24,32 @@ else
     @TempData["td_server"]
 </div>
 
+<div id="div_condition" style="border:solid; border-width:1px; padding:2px;margin:2px;border-radius:5px;border-color:lightgray;width:300px;">
+
+    @{
+        string condition = (string)ViewData["condition"];
+    }
+    @if (condition != null)
+    {<a class="btn btn-primary" asp-route-condition="all">全部</a>}
+    else
+    {<a class="btn btn-default" asp-route-condition="all" style="border:solid;border-width:2px;"><b>全部</b></a>}
+
+    @if (condition != "tbd")
+    {<a class="btn btn-warning" asp-route-condition="tbd">待確認</a>}
+    else
+    {<a class="btn btn-default" asp-route-condition="tbd" style="border:solid;border-width:2px;">待確認</a>}
+
+    @if (condition != "shipped")
+    {<a class="btn btn-success" asp-route-condition="shipped">已出貨</a>}
+    else
+    {<a class="btn btn-default" asp-route-condition="shipped" style="border:solid;border-width:2px;">已出貨</a>}
+
+    @if (condition != "cancel")
+    {<a class="btn btn-info" asp-route-condition="cancel">已取消</a>}
+    else
+    {<a class="btn btn-default" asp-route-condition="cancel" style="border:solid;border-width:2px;">已取消</a>}
+</div>
+
 <div id="pageSelection">
     @{
         //:: page
@@ -87,6 +113,9 @@ else
         <tr>
             <th></th>
             <th>
+                @Html.DisplayNameFor(m => m.Status)
+            </th>
+            <th>
                 @Html.DisplayNameFor(model => model.OrderId)
             </th>
             <th>
@@ -118,7 +147,7 @@ else
                 @Html.DisplayNameFor(m => m.Payment)
             </th>
             <th>
-                @Html.DisplayNameFor(m => m.Status)
+                @*@Html.DisplayNameFor(m => m.Status)*@
             </th>
         </tr>
     </thead>
@@ -128,7 +157,19 @@ else
             <tr>
                 <td>
                     <a asp-action="DetailList" asp-controller="OrderDetails"
-                       asp-route-oid="@item.OrderId" class="btn btn-primary">詳情</a>
+                       asp-route-oid="@item.OrderId" class="btn btn-primary">詳情</a>                    
+                </td>
+                <td>
+                    <b>
+                    @if (item.Status == null)
+                    {
+                        <span>待確認</span>
+                    }
+                    else
+                    {
+                        @Html.DisplayFor(mi => item.Status)
+                    }
+                    </b>
                 </td>
                 <td>
                     @*<a asp-action="Details" asp-route-id="@item.OrderId"> #@item.OrderId</a>*@
@@ -213,17 +254,17 @@ else
                 <td>
                     @*@Html.DisplayFor(modelItem => item.ShipCountry)*@
 
-                    @Html.DisplayFor(mi => item.Status)
+                    @*@Html.DisplayFor(mi => item.Status)*@
 
-                    @if (item.ShippedDate == null)
-                    {
+                    @*@if (item.ShippedDate == null)*@
+                    @*{*@
                         @*@VNW.Common.EnumExtensions.GetDisplayName(OrderStatusEnum.Got)*@
-                    }
-                    else
-                    {
+                    @*}*@
+                    @*else*@
+                    @*{*@
                         @*@VNW.Common.EnumExtensions.GetDisplayName(OrderStatusEnum.Finish)*@
-                        <span>(已出貨)</span>
-                    }
+                        @*<span>(已出貨)</span>*@
+                    @*}*@
                 </td>
                 <td>
                     @*<img src="~/images/delete.svg" />*@

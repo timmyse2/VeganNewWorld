@@ -273,7 +273,7 @@ namespace VNW.Controllers
         }
 
         //::UX for end user
-        public async Task<IActionResult> OrderList(int? page)
+        public async Task<IActionResult> OrderList(int? page, string condition)
         {
             if (!_ms.LoginPrecheck(HttpContext.Session))
                 return RedirectToAction("Login", "Customers");
@@ -281,6 +281,53 @@ namespace VNW.Controllers
             //::User ID
             string Userid = _ms.GetMySession("UserAccount", HttpContext.Session);            
             ViewBag.UserAccount = Userid;
+
+
+            #region condition            
+            //::condition
+            IQueryable<Order> q0 = null;           
+
+            string _condition = null;
+            if (condition == null) //no condition in url            
+                _condition = HttpContext.Request.Cookies["condition_Order"];
+            else
+                _condition = condition;
+            switch (_condition)
+            {
+                case "shipped":
+                    //q0 = _context.Products.Where(p => p.UnitsInStock <= 0 || p.UnitsInStock <= p.ReorderLevel);
+                    q0 = _context.Orders.Where(o => o.Status == OrderStatusEnum.Shipped || o.Status == OrderStatusEnum.Finish);
+                    break;
+                case "cancel":
+                    //q0 = _context.Products.Where(p => p.UnitsInStock <= 0 || p.UnitsInStock <= p.ReorderLevel);
+                    q0 = _context.Orders.Where(o => o.Status == OrderStatusEnum.Canceling || o.Status == OrderStatusEnum.Cancelled);
+                    break;
+                case "tbd":
+                    q0 = _context.Orders.Where(o => o.ShippedDate == null && !(o.Status == OrderStatusEnum.Canceling || o.Status == OrderStatusEnum.Cancelled));
+                    break;
+                case "3days":
+                    DateTime specificDate = DateTime.Now.AddDays(-3);
+                    q0 = _context.Orders.Where(o => o.OrderDate >= specificDate);
+                    break;
+                case "today":
+                    q0 = _context.Orders.Where(o => o.OrderDate >= DateTime.Now.AddDays(-1));
+                    break;
+                case "all": //all with page  
+                    q0 = _context.Orders;
+                    //clear speical condition
+                    HttpContext.Response.Cookies.Append("condition_Order", "");
+                    _condition = null;
+                    break;
+                default:
+                    //use condition from cookie
+                    q0 = _context.Orders;
+                    break;
+            }
+            if (_condition != null)
+                HttpContext.Response.Cookies.Append("condition_Order", _condition);
+
+            ViewData["condition"] = _condition;
+            #endregion
 
             //::page for order
             #region page
@@ -306,7 +353,8 @@ namespace VNW.Controllers
             }
             HttpContext.Response.Cookies.Append("page_customerOrder", _page.ToString());
 
-            int totalCount = _context.Orders
+            int totalCount = //_context.Orders
+                q0
                 .Where(o => o.CustomerId == Userid).Count();
 
             int totalPages = totalCount / ipp;
@@ -319,7 +367,8 @@ namespace VNW.Controllers
             ViewData["ipp"] = ipp;
             #endregion
 
-            var orders = _context.Orders
+            var orders = //_context.Orders
+                q0
                 .Where(o=> o.CustomerId == Userid) //sorted
                 .Include(o => o.Customer)
                 .Include(o => o.OrderDetails)  //get count of od
