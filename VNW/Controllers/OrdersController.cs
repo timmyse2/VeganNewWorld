@@ -866,10 +866,18 @@ namespace VNW.Controllers
                                         if (p.UnitsReserved != null)                                        
                                             UnitsReserved = (short)p.UnitsReserved;
                                         
+                                        //::Notice: issue case:  stock = 0-(-4) = 4
+                                        if(p.UnitsInStock <= 0 || p.UnitsReserved <0)
+                                        {
+                                            pids_issue.Add(sc.Pid);
+                                            pName_issue.Add(p.ProductName);
+                                        }
+
                                         if (sc.Stock != (short)(p.UnitsInStock - UnitsReserved))
                                         {
+                                            //::update
                                             sc.Stock = (short)(p.UnitsInStock - UnitsReserved);
-                                            //::show warning
+                                            ////::show warning
                                             ////pids_issue.Add(sc.Pid);
                                         }
 
@@ -877,6 +885,14 @@ namespace VNW.Controllers
                                         if (sc.Qty > sc.Stock)
                                          {
                                             //::show warning or error?
+                                            pids_issue.Add(sc.Pid);
+                                            pName_issue.Add(p.ProductName);
+                                        }
+                                        if (p.Discontinued)
+                                        {
+                                            //error case
+                                            //TempData["td_serverWarning"] = "部份商品已下架或暫不開放";
+                                            //return RedirectToAction("OrderDetailsForShop/" + id, "orderdetails");
                                             pids_issue.Add(sc.Pid);
                                             pName_issue.Add(p.ProductName);
                                         }
@@ -889,7 +905,7 @@ namespace VNW.Controllers
                                     if (pName_issue.Count > 0)
                                     {
                                         //::someting is worng                                        
-                                        TempData["td_serverWarning"] += " 部份商品庫存不足, 訂單無法成立: ";
+                                        TempData["td_serverWarning"] += " 部份商品庫存不足或暫不開放, 訂單無法成立: ";
                                         foreach (var pName in pName_issue)
                                         {
                                             TempData["td_serverWarning"] += " '" + pName + "', ";
@@ -1337,7 +1353,12 @@ namespace VNW.Controllers
                                 {
                                     //old rule: do not reduce reserved
                                 }
-
+                                if(p.Discontinued)
+                                {
+                                    //error case
+                                    TempData["td_serverWarning"] = "部份商品已下架或暫不開放";
+                                    return RedirectToAction("OrderDetailsForShop/" + id, "orderdetails");
+                                }
                                 _context.Products.Update(p);
                                 //await _context.SaveChangesAsync();
                             }

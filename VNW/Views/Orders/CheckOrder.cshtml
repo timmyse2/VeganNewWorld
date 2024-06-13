@@ -182,6 +182,18 @@ else
                 CheckMark = "庫存不足，請修改數量或取消";
             }
 
+            if (item.Product.UnitsInStock <= 0 || item.Product.UnitsReserved < 0)
+            {
+                isError = true;
+                CheckMark = "庫存或保留量不足，請修改數量或取消";
+            }
+
+            if (item.Product.Discontinued)
+            {
+                isError = true;
+                CheckMark += " 已下架, 或暫無法開放";
+            }
+
             <tr>
                 <td>@(++i)</td>
                 <td> <span class="text-warning">(會自動產生)</span> @*@item.OrderId*@</td>

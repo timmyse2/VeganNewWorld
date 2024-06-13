@@ -49,20 +49,27 @@
             @*@Html.DisplayFor(modelItem => item.QuantityPerUnit)*@
             <b>
                 $@item.UnitPrice
-                @{ 
+                @{
                     short UnitsReserved = 0;
                     if (item.UnitsReserved != null)
                     {
-                         UnitsReserved = (short)item.UnitsReserved;
+                        UnitsReserved = (short)item.UnitsReserved;
                     }
                 }
 
-                @if (item.UnitsInStock != null && (item.UnitsInStock - UnitsReserved) > 0)
+                @if (item.UnitsInStock != null && (item.UnitsInStock - UnitsReserved) > 0 && !item.Discontinued)
                 {
-                    @*<a class="btn btn-success" style="padding:1px;">預購</a>*@
-                    <a class="btn_AddProductInOrder"
-                       pid="@item.ProductId"
-                       >加入購物車</a>
+
+                    if (item.UnitsReserved < 0 || item.UnitsInStock <= 0)
+                    {
+                        <span class="alert-danger">預定量超標</span>
+                    }
+                    else
+                    {
+                        @*<a class="btn btn-success" style="padding:1px;">預購</a>*@
+                        <a class="btn_AddProductInOrder"
+                           pid="@item.ProductId">加入購物車</a>
+                    }
                 }
                 else
                 {
