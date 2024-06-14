@@ -989,21 +989,16 @@ namespace VNW.Controllers
                     if (product.UnitsReserved == null)
                         product.UnitsReserved = 0;
 
-                    //if (originalProduct.UnitsInStock != product.UnitsInStock)
-                    //{
-                    //}
-                    //if (originalProduct.UnitsReserved != product.UnitsReserved)
-                    //{
-                    //  return Content("someone changed Reserved!");
-                    //}
-
                     //::check timeStamp or RowVersion
                     if (originalProduct.LastModifiedTime.ToString() != product.LastModifiedTime.ToString())
                     {
-                        return Content("TimeStamp is not match! Someone changed data at the same time");
+                        //return Content("TimeStamp is not match! Someone changed data at the same time");
+                        string msg = "注意! 有其它用戶也在修改資料，發生衝突";
+                        TempData["td_serverWarning"] = msg;
+                        return View(product);
+                        //EditForShop
                     }
                     product.LastModifiedTime = DateTime.Now;
-
                     // _context.Entry(entity).OriginalValues["RowVersion"] 
 
                     //Debug.WriteLine(" " + _context.Entry(product).OriginalValues["UnitsReserved"]);
