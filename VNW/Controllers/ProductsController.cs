@@ -46,16 +46,21 @@ namespace VNW.Controllers
             switch (_condition)
             {
                 case "reserved":
-                    q0 = _context.Products.Where(p => p.UnitsReserved > 0);
+                    q0 = _context.Products.Where(p => p.UnitsReserved > 0)
+                        .OrderByDescending(x => x.UnitsReserved)
+                        ;
                     break;
                 case "less": 
-                    q0 = _context.Products.Where(p => p.UnitsInStock <= 0 || p.UnitsInStock <= p.ReorderLevel);
+                    q0 = _context.Products.Where(p => p.UnitsInStock <= 0 || p.UnitsInStock <= p.ReorderLevel)
+                        .OrderByDescending(x => x.LastModifiedTime);
                     break;
                 case "error": //error only 
-                    q0 = _context.Products.Where(p => p.UnitsReserved < 0 || p.UnitsReserved > p.UnitsInStock);
+                    q0 = _context.Products.Where(p => p.UnitsReserved < 0 || p.UnitsReserved > p.UnitsInStock)
+                        .OrderByDescending(x => x.LastModifiedTime)
+                        ;
                     break;
                 case "all": //all with page  
-                    q0 = _context.Products;
+                    q0 = _context.Products.OrderByDescending(x => x.ProductId);
                     //clear speical condition
                     HttpContext.Response.Cookies.Append("condition_shopProduct", "");
                     _condition = null;
@@ -67,6 +72,7 @@ namespace VNW.Controllers
             }            
             if(_condition != null)
                 HttpContext.Response.Cookies.Append("condition_shopProduct", _condition);
+            ViewData["condition"] = _condition;
 
             #region page
             int ipp = 10; // item per page
@@ -111,7 +117,7 @@ namespace VNW.Controllers
             //var query = _context.Products
             var query = q0
                 .Include(p => p.Category)
-                .OrderByDescending(x => x.UnitsReserved)
+                //.OrderByDescending(x => x.UnitsReserved)
                 //.ThenByDescending(x => x.ProductId)                
                 .Skip(_skip).Take(_take);
             return View(await query.ToListAsync());
@@ -199,6 +205,8 @@ namespace VNW.Controllers
             {
                 return NotFound();
             }
+
+            product.LastModifiedTime = DateTime.Now;//timestamp
 
             //ViewData["CategoryId"] = new SelectList(_context.Set<Category>(), "CategoryId", "CategoryId", product.CategoryId);
             //::<udpate- show Name in select list>
@@ -722,6 +730,11 @@ namespace VNW.Controllers
                                     if(q.UnitsReserved != null)
                                     {
                                         sc.Stock = (short)(q.UnitsInStock- q.UnitsReserved);
+                                        //for 
+                                        if(q.UnitsInStock <= 0 ||  q.UnitsReserved <0)
+                                        {
+                                            sc.Stock = 0;
+                                        }
                                     }
                                     else
                                         sc.Stock = (short)q.UnitsInStock;
@@ -791,9 +804,13 @@ namespace VNW.Controllers
                                 if (query != null)
                                 {
                                     if (query.UnitsReserved != null)
-                                    {                                        
+                                    {
                                         found.Stock = (short)
                                             (query.UnitsInStock - query.UnitsReserved);
+
+                                        //::try
+                                        if (query.UnitsReserved < 0 || query.UnitsInStock <= 0)
+                                            found.Stock = 0;
                                     }
                                     else
                                         found.Stock = (short)query.UnitsInStock;
@@ -932,7 +949,7 @@ namespace VNW.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> EditForShop(int id,
-            [Bind("ProductId,ProductName,CategoryId,QuantityPerUnit,UnitPrice,UnitsInStock,UnitsOnOrder,ReorderLevel,Discontinued,Picture,Description,UnitsReserved"
+            [Bind("ProductId,ProductName,CategoryId,QuantityPerUnit,UnitPrice,UnitsInStock,UnitsOnOrder,ReorderLevel,Discontinued,Picture,Description,UnitsReserved,LastModifiedTime"
                 )] Product product)
         {
             //::check Shop
@@ -952,6 +969,16 @@ namespace VNW.Controllers
             {
                 try
                 {
+                    //::precheck data be updated by another 
+                    var originalProduct = await _context.Products
+                        .AsNoTracking() //KEY
+                        .Where(x => x.ProductId == id)
+                        .FirstOrDefaultAsync();
+                    if (originalProduct == null)
+                    {
+                        return Content("Error: original data is null ");
+                    }
+
                     //::precheck then auto fine tune
                     if (product.UnitsOnOrder == null)
                         product.UnitsOnOrder = 0;
@@ -962,7 +989,29 @@ namespace VNW.Controllers
                     if (product.UnitsReserved == null)
                         product.UnitsReserved = 0;
 
+                    //if (originalProduct.UnitsInStock != product.UnitsInStock)
+                    //{
+                    //}
+                    //if (originalProduct.UnitsReserved != product.UnitsReserved)
+                    //{
+                    //  return Content("someone changed Reserved!");
+                    //}
+
+                    //::check timeStamp or RowVersion
+                    if (originalProduct.LastModifiedTime.ToString() != product.LastModifiedTime.ToString())
+                    {
+                        return Content("TimeStamp is not match! Someone changed data at the same time");
+                    }
+                    product.LastModifiedTime = DateTime.Now;
+
+                    // _context.Entry(entity).OriginalValues["RowVersion"] 
+
+                    //Debug.WriteLine(" " + _context.Entry(product).OriginalValues["UnitsReserved"]);
+                    //Debug.WriteLine(" " + _context.Entry(product).OriginalValues["UnitsOnOrder"]);
+
                     _context.Update(product);
+                    //_context.Products.Update(product); // indicate to product from View
+                    //_context.Entry(product).State = EntityState.Modified;
                     await _context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)

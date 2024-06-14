@@ -60,5 +60,9 @@ namespace VNW.Models
         //public Suppliers Supplier { get; set; }
         [Display(Name = "明細")]
         public ICollection<OrderDetail> OrderDetails { get; set; }
+
+        //::for Optimistic Concurrency Control
+        //public byte[] TimeStamp { get; set; } //RowVersion
+        public DateTime LastModifiedTime { get; set; }
     }
 }

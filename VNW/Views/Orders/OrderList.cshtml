@@ -29,11 +29,6 @@ else
     @{
         string condition = (string)ViewData["condition"];
     }
-    @if (condition != null)
-    {<a class="btn btn-primary" asp-route-condition="all">全部</a>}
-    else
-    {<a class="btn btn-default" asp-route-condition="all" style="border:solid;border-width:2px;"><b>全部</b></a>}
-
     @if (condition != "tbd")
     {<a class="btn btn-warning" asp-route-condition="tbd">待確認</a>}
     else
@@ -48,6 +43,10 @@ else
     {<a class="btn btn-info" asp-route-condition="cancel">已取消</a>}
     else
     {<a class="btn btn-default" asp-route-condition="cancel" style="border:solid;border-width:2px;">已取消</a>}
+    @if (condition != null)
+    {<a class="btn btn-primary" asp-route-condition="all">全部</a>}
+    else
+    {<a class="btn btn-default" asp-route-condition="all" style="border:solid;border-width:2px;"><b>全部</b></a>}
 </div>
 
 <div id="pageSelection">

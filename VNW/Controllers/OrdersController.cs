@@ -1047,8 +1047,9 @@ namespace VNW.Controllers
                                             }
                                             else //normal case
                                             {
-                                                //p.UnitsInStock -= od.Quantity;
+                                                ////p.UnitsInStock -= od.Quantity;
                                                 p.UnitsReserved += od.Quantity;
+                                                p.LastModifiedTime = DateTime.Now; //time stamp
 
                                                 //if (p.UnitsOnOrder == null)
                                                 //    p.UnitsOnOrder = 0;
@@ -1359,6 +1360,8 @@ namespace VNW.Controllers
                                     TempData["td_serverWarning"] = "部份商品已下架或暫不開放";
                                     return RedirectToAction("OrderDetailsForShop/" + id, "orderdetails");
                                 }
+
+                                p.LastModifiedTime = DateTime.Now;//time stamp
                                 _context.Products.Update(p);
                                 //await _context.SaveChangesAsync();
                             }
@@ -1451,6 +1454,7 @@ namespace VNW.Controllers
                                     //old rule: do not reduce reserved value
                                     //just cancel order
                                 }
+                                p.LastModifiedTime = DateTime.Now;//timestamp
                                 _context.Products.Update(p);
                             }
                         }

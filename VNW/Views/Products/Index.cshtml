@@ -30,12 +30,30 @@ else
 }
 
     <div id="div_condition" style="border:solid; border-width:1px; padding:2px;border-radius:5px;border-color:lightgray;">
+        @{
+            string condition = (string)ViewData["condition"];
+        }
+        @*@condition*@
+        @if (condition != "reserved")
+        {<a class="btn btn-primary" asp-route-condition="reserved">有預訂</a>}
+        else
+        {<a class="btn btn-default" style="border:solid;border-width:2px;" asp-route-condition="reserved">有預訂</a>}
 
-        <a class="btn btn-default" asp-route-condition="all">全部</a>
-        <a class="btn btn-primary" asp-route-condition="reserved">有預訂</a>
-        @*<div class="btn btn-info ">三天內</div>*@
-        <a class="btn btn-warning" asp-route-condition="less">缺貨</a>
-        <a class="btn btn-danger" asp-route-condition="error">異常項目</a>
+        @if (condition != "less")
+        {<a class="btn btn-warning" asp-route-condition="less">缺貨</a>}
+        else
+        {<a class="btn btn-default" style="border:solid;border-width:2px;" asp-route-condition="less">缺貨</a>}
+
+        @if (condition != "error")
+        {<a class="btn btn-danger" asp-route-condition="error">異常項目</a>}
+        else
+        {<a class="btn btn-default" style="border:solid;border-width:2px;" asp-route-condition="error">異常項目</a>}
+
+        @if (condition == null)
+        {<a class="btn btn-default" style="border:solid;border-width:2px;" asp-route-condition="all">全部</a>}
+        else
+        {<a class="btn btn-default" asp-route-condition="all">全部</a>}
+
     </div>
 
 <div id="pageSelection">
