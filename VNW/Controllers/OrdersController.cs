@@ -183,7 +183,7 @@ namespace VNW.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("OrderId,CustomerId,OrderDate,RequiredDate,ShippedDate,ShipVia,Freight,ShipName,ShipAddress,ShipCity,ShipPostalCode,ShipCountry,Payment,Status")] Order order)
+        public async Task<IActionResult> Edit(int id, [Bind("OrderId,CustomerId,OrderDate,RequiredDate,ShippedDate,ShipVia,Freight,ShipName,ShipAddress,ShipCity,ShipPostalCode,ShipCountry,Payment,Status,TimeStamp")] Order order)
         {
             //::check admin
             string UserLevel = _ms.GetMySession("UserLevel", HttpContext.Session);
@@ -204,6 +204,12 @@ namespace VNW.Controllers
             {
                 try
                 {
+                    Debug.WriteLine(" timeStamp:" + order.TimeStamp);
+                    /*
+                    var existingOrder = await _context.Orders.
+                        AsNoTracking().Where(x=>x.OrderId == id).FirstOrDefaultAsync();
+                    _context.Entry(existingOrder).OriginalValues["TimeStamp"] = order.TimeStamp;
+                    */
                     _context.Update(order);
                     await _context.SaveChangesAsync();
                 }

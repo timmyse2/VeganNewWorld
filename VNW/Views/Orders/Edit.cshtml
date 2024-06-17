@@ -87,6 +87,18 @@
             </div>
 
             <div class="form-group">
+                <label class="control-label">time stamp (testing)</label>
+                <label class="form-control">
+                    @*@Model.TimeStamp*@
+                    @foreach (byte b in Model.TimeStamp)
+                    {
+                        @b
+                    }
+                </label>
+                <input type="hidden" asp-for="TimeStamp" />                
+            </div>
+
+            <div class="form-group">
                 <input type="submit" value="Save" class="btn btn-default" />
             </div>
         </form>

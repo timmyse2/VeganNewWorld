@@ -28,6 +28,13 @@ namespace VNW.Models
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            //::time stamp sample from AI
+            modelBuilder.Entity<Order>()
+                .Property(o => o.TimeStamp)
+                .IsRowVersion() //::key, otherwise DbUpdateConcurrencyException
+                .IsConcurrencyToken()
+                ;
+
             //::OD table has compsite PK
             modelBuilder.Entity<OrderDetail>(entity =>
             {

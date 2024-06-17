@@ -13,6 +13,7 @@
         <form asp-action="Edit">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <input type="hidden" asp-for="ProductId" />
+            <input type="hidden" asp-for="LastModifiedTime" />
             <div class="form-group">
                 <label asp-for="ProductName" class="control-label"></label>
                 <input asp-for="ProductName" class="form-control" />
@@ -38,7 +39,7 @@
                 <input asp-for="UnitsInStock" class="form-control" />
                 <span asp-validation-for="UnitsInStock" class="text-danger"></span>
             </div>
-            <div class="form-group">                
+            <div class="form-group">
                 <label asp-for="UnitsReserved" class="control-label"></label><b class="alert-danger">(*留意: 直接修改可能造成問題)</b>
                 <input asp-for="UnitsReserved" class="form-control" />
                 <span asp-validation-for="UnitsReserved" class="text-danger"></span>
@@ -74,7 +75,7 @@
                 <span asp-validation-for="Picture" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <a class="btn btn-default" asp-action="ProductDetailForShop" asp-route-id="@Model.ProductId">取消</a>
+                <a class="btn btn-default" asp-action="Edit" asp-route-id="@Model.ProductId">取消</a>
 
                 <input type="submit" value="送出變更" class="btn btn-danger" />
 

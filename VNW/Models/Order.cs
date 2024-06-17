@@ -56,6 +56,9 @@ namespace VNW.Models
         public VNW.Common.PayEnum? Payment { get; set; }
         //public int? Payment { get; set; }
 
+        //::for Optimistic Concurrency Control
+        public byte[] TimeStamp { get; set; } //RowVersion
+
         //::NP
         [Display(Name = "客戶")]
         public Customer Customer { get; set; }

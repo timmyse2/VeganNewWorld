@@ -97,6 +97,13 @@ else
                         @EnumExtensions.GetDisplayName((VNW.Models.OrderStatusEnum)OrderInfo.Status)
                     }
                     (@OrderInfo.Status)
+                    <div style="border:solid;border-width:1px;">
+                    @*@Convert.ToBase64String(OrderInfo.TimeStamp)*@
+                        @foreach(var b in OrderInfo.TimeStamp)
+                        {
+                            @b
+                        }
+                    </div>                    
                 </td>
             </tr>
         </table>
@@ -136,8 +143,8 @@ else
             </th>
             <th>小記</th>
             <th></th>
-            <th><span style="color:blue">店內庫存</span></th>
-            <th><span style="color:blue">預購總量</span></th>
+            <th><span style="color:blue">店內庫存<br/>(不是訂單的內容)</span></th>
+            <th><span style="color:blue">預購總量<br />(不是訂單的內容)</span></th>
         </tr>
     </thead>
     <tbody>

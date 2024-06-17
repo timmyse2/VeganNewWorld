@@ -199,14 +199,11 @@ namespace VNW.Controllers
             {
                 return NotFound();
             }
-
             var product = await _context.Products.FindAsync(id);
             if (product == null)
             {
                 return NotFound();
-            }
-
-            product.LastModifiedTime = DateTime.Now;//timestamp
+            }            
 
             //ViewData["CategoryId"] = new SelectList(_context.Set<Category>(), "CategoryId", "CategoryId", product.CategoryId);
             //::<udpate- show Name in select list>
@@ -221,7 +218,7 @@ namespace VNW.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id,
-            [Bind("ProductId,ProductName,CategoryId,QuantityPerUnit,UnitPrice,UnitsInStock,UnitsOnOrder,ReorderLevel,Discontinued,Picture,Description,UnitsReserved"
+            [Bind("ProductId,ProductName,CategoryId,QuantityPerUnit,UnitPrice,UnitsInStock,UnitsOnOrder,ReorderLevel,Discontinued,Picture,Description,UnitsReserved,LastModifiedTime"
                 )] Product product)
         {
             //::check Shop
@@ -241,6 +238,22 @@ namespace VNW.Controllers
             {
                 try
                 {
+                    //::precheck data be updated by another 
+                    var originalProduct = await _context.Products
+                        .AsNoTracking() //KEY
+                        .Where(x => x.ProductId == id)
+                        .Select(x => new { x.ProductId, x.LastModifiedTime})
+                        .FirstOrDefaultAsync();
+                    if (originalProduct == null)
+                    {
+                        return Content("Error: original data is null ");
+                    }
+                    //::check timeStamp or RowVersion
+                    if (originalProduct.LastModifiedTime.ToString() != product.LastModifiedTime.ToString())
+                    {
+                        return Content("TimeStamp is not match! Someone changed data at the same time");
+                    }
+
                     //::precheck then auto fine tune
                     if (product.UnitsOnOrder == null)
                         product.UnitsOnOrder = 0;
@@ -250,6 +263,8 @@ namespace VNW.Controllers
                         product.ReorderLevel = 0;
                     if (product.UnitsReserved == null)
                         product.UnitsReserved = 0;
+
+                    product.LastModifiedTime = DateTime.Now;//timestamp
 
                     _context.Update(product);
                     await _context.SaveChangesAsync();
@@ -973,6 +988,7 @@ namespace VNW.Controllers
                     var originalProduct = await _context.Products
                         .AsNoTracking() //KEY
                         .Where(x => x.ProductId == id)
+                        .Select(x => new { x.ProductId, x.LastModifiedTime })
                         .FirstOrDefaultAsync();
                     if (originalProduct == null)
                     {
