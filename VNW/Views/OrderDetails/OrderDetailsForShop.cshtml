@@ -45,7 +45,7 @@ else
                 <tr><td>訂單編號</td><td>TJ2024_<b>@OrderInfo.OrderId</b></td></tr>
 
                 <tr><td>訂貨日期</td><td>@OrderInfo.OrderDate</td></tr>
-                <tr><td>出貨地標(公司|組織)</td><td>@OrderInfo.ShipName</td></tr>
+
                 <tr>
                     <td>出貨時間</td>
                     <td>
@@ -61,7 +61,7 @@ else
 
                     </td>
                 </tr>
-                <tr><td>出貨地址</td><td>@OrderInfo.ShipAddress</td></tr>
+
                 <tr>
                     <td>送貨方式</td>
                     <td>
@@ -96,31 +96,37 @@ else
                     {
                         @EnumExtensions.GetDisplayName((VNW.Models.OrderStatusEnum)OrderInfo.Status)
                     }
-                    (@OrderInfo.Status)
+                    (@OrderInfo.Status)  
+                </td>
+            </tr>
+            <tr>
+                <td>時間戳記(Row Version)</td>
+                <td>
                     <div style="border:solid;border-width:1px;">
-                    @*@Convert.ToBase64String(OrderInfo.TimeStamp)*@
-                        @foreach(var b in OrderInfo.TimeStamp)
+                        @*@Convert.ToBase64String(OrderInfo.TimeStamp)*@
+                        @foreach (var b in OrderInfo.TimeStamp)
                         {
                             @b
                         }
-                    </div>                    
+                    </div>
                 </td>
             </tr>
         </table>
     </div>
-    <div class="col-md-6 col-sm-6 col-xs-6">
-        <h4>客戶資訊</h4>
-        <table class="table">
-            <tr><td>帳號</td><td>@OrderInfo.CustomerId</td></tr>
+        <div class="col-md-6 col-sm-6 col-xs-6">
+            <h4>客戶資訊</h4>
+            <table class="table">
+                <tr><td>帳號</td><td>@OrderInfo.CustomerId</td></tr>
 
-            @if (@OrderInfo.Customer != null)
-            {
-                <tr><td>聯絡人姓名</td><td>@OrderInfo.Customer.ContactName</td></tr>
-                <tr><td>電話</td><td>@OrderInfo.Customer.Phone</td></tr>
-            }
-
-        </table>
-    </div>
+                @if (@OrderInfo.Customer != null)
+                {
+                    <tr><td>聯絡人姓名</td><td>@OrderInfo.Customer.ContactName</td></tr>
+                    <tr><td>電話</td><td>@OrderInfo.Customer.Phone</td></tr>
+                }
+                <tr><td>出貨地標(公司|組織)</td><td>@OrderInfo.ShipName</td></tr>
+                <tr><td>出貨地址</td><td>@OrderInfo.ShipAddress</td></tr>
+            </table>
+        </div>
 </div>
 }
 

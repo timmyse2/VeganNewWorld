@@ -205,11 +205,16 @@ namespace VNW.Controllers
                 try
                 {
                     Debug.WriteLine(" timeStamp:" + order.TimeStamp);
-                    /*
+                    
                     var existingOrder = await _context.Orders.
                         AsNoTracking().Where(x=>x.OrderId == id).FirstOrDefaultAsync();
-                    _context.Entry(existingOrder).OriginalValues["TimeStamp"] = order.TimeStamp;
-                    */
+                    //if(_context.Entry(existingOrder).OriginalValues["TimeStamp"] != Convert.ToBase64String(order.TimeStamp))
+                    //
+                    if (Convert.ToBase64String(existingOrder.TimeStamp) != Convert.ToBase64String(order.TimeStamp))
+                    {
+                        return Content("Concurrency Error due to RowVersion or TimeStamp is mismatched!");
+                    }
+                    
                     _context.Update(order);
                     await _context.SaveChangesAsync();
                 }
@@ -1416,6 +1421,14 @@ namespace VNW.Controllers
                         //return RedirectToAction("OrderDetailsForShop", "orderdetails", id);
                         return RedirectToAction("OrderDetailsForShop/" + id, "orderdetails");
                     }
+                    if (qO.Status == OrderStatusEnum.Shipped
+                        || qO.Status == OrderStatusEnum.Finish)
+                    {
+                        //return Content("Order was cancelled before, it could not be cancelled again");
+                        TempData["td_serverWarning"] = "訂單之前已出貨，不能直接取消";
+                        //return RedirectToAction("OrderDetailsForShop", "orderdetails", id);
+                        return RedirectToAction("OrderDetailsForShop/" + id, "orderdetails");
+                    }
 
                     //::o.detail, update product - stock, reserved
                     var qOds = await _context.OrderDetails.Where(x => x.OrderId == id)
@@ -1479,12 +1492,17 @@ namespace VNW.Controllers
                     //return Content(":)  This order is Cacencelled");
                     //return View();
                 }
+                catch (DbUpdateConcurrencyException)
+                {
+                    TempData["td_serverWarning"] = "發生並行處理錯誤，可能有其它用戶也正在修改資料!!";
+                    return RedirectToAction("OrderDetailsForShop/" + id, "orderdetails");
+                }
                 catch (Exception ex)
                 {
+                    TempData["td_serverWarning"] = "發生錯誤 " + ex.ToString();
                     return RedirectToAction("OrderDetailsForShop/" + id, "orderdetails");
                     //return Content("Exception :( " + ex);                    
                 }
-
             }
         }
 

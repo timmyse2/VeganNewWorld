@@ -6,7 +6,7 @@
 
 <div>
     <h3 class="alert-info">@TempData["td_serverMessage"]</h3>
-    <h3 class="alert-danger">@TempData["td_serverWarning"]</h3>
+    <h3 class="alert-danger" id="td_serverWarning">@TempData["td_serverWarning"]</h3>
 </div>
 
 
@@ -43,10 +43,29 @@
             @Html.DisplayNameFor(model => model.UnitsInStock)
         </dt>
         <dd>
-            @Html.DisplayFor(model => model.UnitsInStock)
+            @*@Html.DisplayFor(model => model.UnitsInStock)*@
+            <span id="txt_Stock">@Model.UnitsInStock</span>
+
+            <div style="border:solid;border-width:1px;border-color:lightgray;">
+                <b>快速進貨設定 (測試中的功能)</b>
+                <div id="quantitylist">
+                    @*<div class="qtyminus"></div>*@
+                    <input type="number" id="num_addStock" value="1" />
+                    @*<div class="qtyplus"></div>*@
+                </div>
+
+                @*<div class="btn btn-primary" id="btn_addOne">+1</div>*@
+                <div class="btn btn-primary" id="btn_addTen">+10</div>
+                @*<div class="btn btn-danger">-1</div>
+            <div class="btn btn-danger">-10</div>*@
+
+                <div class="btn btn-danger" id="btn_addStock">加庫存量</div>
+            </div>
+
         </dd>
         <dt>
-            @Html.DisplayNameFor(model => model.UnitsReserved)
+            @*@Html.DisplayNameFor(model => model.UnitsReserved)*@
+            客戶預訂量
             <span style="color:mediumvioletred">(新測試功能)</span>
         </dt>
         <dd>
@@ -101,10 +120,13 @@
         </dd>
 
         <dt>時間戳記</dt>
-        <dd><span style="border:solid;border-width:1px;border-radius:2px;padding:2px;"> @Model.LastModifiedTime</span></dd>
+        <dd><span id="txt_timeStamp" style="border:solid;border-width:1px;border-radius:2px;padding:2px;">
+            @Model.LastModifiedTime</span>
+        </dd>
 
     </dl>
 </div>
+
 
 @*<a class="btn btn-danger">下架</a>*@
 <div>
@@ -112,3 +134,72 @@
 </div>
 
 
+
+
+<p />
+
+
+
+@section endJS{
+    <script type="text/javascript" src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+    <script>
+        console.log("jquery start");
+
+        var btn_addStock = $('#btn_addStock');
+        var num_addStock = $('#num_addStock');
+        //var btn_addOne = $('#btn_addOne');
+        var btn_addTen = $('#btn_addTen');
+
+        btn_addStock.click(function () {
+            console.log("add Stock " + num_addStock.val());
+
+            var surl = "../QuickAddStock";
+            $.ajax({
+                url: surl,
+                type: "POST",
+                dateType: "json",
+                data: {
+                    pid: @Model.ProductId,
+                    qty: num_addStock.val()
+                },
+                success: function (data) {
+                    console.log("get data")
+                    console.log(data)
+                    if (data.result == "PASS") {
+                        console.log("PASS ");
+                        $('#txt_timeStamp').html(data.timeStamp);                        
+                        $('#txt_Stock').html(data.newStock);
+                        SetReady();
+                    }
+                    else {
+                        //::fail case
+                        console.log("fail case");
+                        $("#td_serverWarning").text("未得到正確回應");
+                        SetReady();
+                    }
+                }, //success
+                error: function (xhr, ajaxOptions, thrownError) {
+                    console.log(xhr)
+                    $("#td_serverWarning").text("發生未知錯誤");
+                    SetReady();
+                }//error
+            });
+            
+        });
+
+        btn_addTen.click(function () {
+            //console.log("add Stock " + num_addStock.val());
+            var oldVal = num_addStock.val();
+            num_addStock.val(+oldVal + 10); // '+' number increase
+        });
+
+        function SetReady() {
+
+        }
+        function SetBusy() {
+
+        }
+
+        console.log("jquery end");
+    </script>
+}

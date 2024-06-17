@@ -1046,6 +1046,86 @@ namespace VNW.Controllers
             return View(product);
         }
 
+        //::API for shop, add stock value quick
+        public async Task<IActionResult> QuickAddStock(int pid, int qty)
+        {
+            string _result = "tbc", _detail = "tbc";
+            int _NewStock = 0; string _timeStamp = "";
+
+            //::check Shop
+            string UserLevel = _ms.GetMySession("UserLevel", HttpContext.Session);
+            if (UserLevel != "2B" && UserLevel != "1A")
+            {
+                _result = "FAIL"; _detail = "you have no right to access it";
+                var res0 = new
+                {
+                    result = _result,
+                    detail = _detail,
+                    NewStock = _NewStock,
+                    timeStamp = _timeStamp
+                };
+                return Json(res0);
+            }
+
+            //::check pid and qty (add stock)
+            //int _pid;
+            if (pid == 0 || pid == null || qty == null || qty == 0)
+            {
+                //var res = new { result = "FAIL", detail = "id is null" };
+                //return Json(res);
+                _result = "FAIL"; _detail = "id or key value is null";
+            }
+            else if (qty <= 0 || qty > 100)
+            {
+                _result = "FAIL"; _detail = "acc qty is over range";
+            }
+            else
+            {
+                //::query p
+                var p = await _context.Products.Where(x => x.ProductId == pid)
+                    .FirstOrDefaultAsync();
+                if(p != null)
+                {
+
+                    var oldp = await _context.Products.Where(x => x.ProductId == pid)
+                        .Select(x => new {x.ProductId, x.LastModifiedTime})
+                        .FirstOrDefaultAsync();
+
+                    if(oldp.LastModifiedTime.ToString() != p.LastModifiedTime.ToString())
+                    {
+                        //error
+                        var res0 = new
+                        {
+                            result = _result,
+                            detail = _detail,
+                            NewStock = _NewStock,
+                            timeStamp = _timeStamp
+                        };
+                        return Json(res0);
+                    }
+
+                    //::update p (add stock...)
+                    p.UnitsInStock += (short)qty;
+                    //p.UnitsOnOrder -= (short)qty; //not now
+                    p.LastModifiedTime = DateTime.Now;
+                    _context.Update(p);
+                    await _context.SaveChangesAsync();
+                    //::get new stock, and timestamp
+                    _NewStock = (int)p.UnitsInStock;                    
+                    _timeStamp = p.LastModifiedTime.ToString();                    
+                    _result = "PASS"; _detail = "done";
+                }
+                else
+                {
+                    _result = "FAIL"; _detail = "can not find data";
+                }                
+            }
+            var res = new {
+                result = _result, detail = _detail,
+                NewStock = _NewStock, timeStamp = _timeStamp
+            };
+            return Json(res);
+        }
 
     }
 }
