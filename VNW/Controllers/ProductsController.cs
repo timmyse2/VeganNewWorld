@@ -919,6 +919,11 @@ namespace VNW.Controllers
             string _catName = ms.GetMySession("catName", HttpContext.Session);
             ViewBag.catName = _catName;
 
+            //var currentUrl = $"{HttpContext.Request.Scheme}://{HttpContext.Request.Host}{HttpContext.Request.Path}{HttpContext.Request.QueryString}";
+            //ViewData["currentUrl"] = currentUrl;
+            //ViewData["currentPath"] = $"{HttpContext.Request.Scheme}://{HttpContext.Request.Host}{HttpContext.Request.Path}";
+            ViewData["currentHost"] = $"{HttpContext.Request.Scheme}://{HttpContext.Request.Host}";
+
             return View(product);
         }
 
@@ -1040,7 +1045,9 @@ namespace VNW.Controllers
                 //return RedirectToAction(nameof(Index));
                 //return RedirectToAction(nameof(ProductDetailForShop));
                 //return RedirectToAction("ProductDetailForShop", product.ProductId);
-                return RedirectToAction("ProductDetailForShop//" + product.ProductId);
+                //return RedirectToAction("ProductDetailForShop//" + product.ProductId);
+                //return RedirectToAction($"ProductDetailForShop?id=" + product.ProductId);
+                return RedirectToAction("ProductDetailForShop", new { id = product.ProductId });
             }
             ViewData["CategoryId"] = new SelectList(_context.Set<Category>(), "CategoryId", "CategoryId", product.CategoryId);
             return View(product);
