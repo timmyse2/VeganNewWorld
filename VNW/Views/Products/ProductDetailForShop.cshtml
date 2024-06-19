@@ -13,7 +13,7 @@
 <a asp-action="Index" class="btn btn-success">返回清單(店家)</a>
 <a asp-controller="Categories" asp-action="CategoryList" class="btn btn-info">商品分類(消費者)</a>
 <a asp-action="Index" class="btn btn-default">返回前一頁</a>
-
+<p/>
 @*<div>
     @{
         var currentUrl = ViewBag.currentUrl;
@@ -24,10 +24,7 @@
 </div>*@
 
 <div>
-
-    <hr />
-    <h4>@Model.ProductName</h4>
-    <table class="table">
+    <table class="table" id="table_data" style="max-width:70%;min-width:520px;">
         <tr>
             <td>
                 @Html.DisplayNameFor(model => model.ProductName)
@@ -36,8 +33,6 @@
                 @Html.DisplayFor(model => model.ProductName)
             </td>
         </tr>
-
-
         <tr>
             <td>
                 @Html.DisplayNameFor(model => model.QuantityPerUnit)
@@ -60,22 +55,14 @@
             </td>
             <td>
                 @*@Html.DisplayFor(model => model.UnitsInStock)*@
-                <span id="txt_Stock">@Model.UnitsInStock</span>
+                <span id="txt_Stock" style="font-size:20px;">@Model.UnitsInStock</span>
 
-                <div style="border:solid;border-width:1px;border-color:lightgray;">
-                    <b>快速進貨設定 (測試中的功能)</b>
-                    <div id="quantitylist">
-                        @*<div class="qtyminus"></div>*@
-                        <input type="number" id="num_addStock" value="1" />
-                        @*<div class="qtyplus"></div>*@
-                    </div>
-
-                    @*<div class="btn btn-primary" id="btn_addOne">+1</div>*@
+                <div style="border:solid;border-width:1px;border-color:lightgray;border-radius:5px;max-width:300px;">
+                    <b>快速進貨設定 <span style="color:mediumvioletred">(新測試功能)</span></b>
+                    <input type="number" id="num_addStock" value="1" class="form-control" style="font-size:20px;max-width:200px;text-align:center;"/>                    
                     <div class="btn btn-primary" id="btn_addTen">+10</div>
-                    @*<div class="btn btn-danger">-1</div>
-                    <div class="btn btn-danger">-10</div>*@
-
-                    <div class="btn btn-danger" id="btn_addStock">加庫存量</div>
+                    <div class="btn btn-danger" id="btn_addStock">直接只加庫存量</div>
+                    @*<div class="btn btn-warning" id="btn_addStock">加庫存量並減訂購</div>*@
                 </div>
 
             </td>
@@ -83,8 +70,7 @@
         <tr>
             <td>
                 @*@Html.DisplayNameFor(model => model.UnitsReserved)*@
-                客戶預訂量
-                <span style="color:mediumvioletred">(新測試功能)</span>
+                客戶預訂量                
             </td>
             <td>
                 @Html.DisplayFor(model => model.UnitsReserved)
@@ -158,14 +144,12 @@
                 </span>
             </td>
         </tr>
-
     </table>
+    <img src="~/images/loading.gif" id="img_loading" style="width:300px;display:none;"/>
 </div>
 
-
-@*<a class="btn btn-danger">下架</a>*@
 <div>
-    <a class="btn btn-success btn-lg" asp-action="EditForShop" asp-route-id="@Model.ProductId">編輯(商家專用*)</a>
+    <a id="btn_EditForShop" class="btn btn-success btn-lg" asp-action="EditForShop" asp-route-id="@Model.ProductId">編輯(商家專用*)</a>
 </div>
 <p />
 
@@ -181,11 +165,13 @@
 
         btn_addStock.click(function () {
             console.log("add Stock " + num_addStock.val());
-
+            $("#td_serverMessage").text("");
+            $("#td_serverWarning").text("執行中...");
+            SetBusy();
             var surl = "";
             //surl = "../QuickAddStock"; //ok for /39
             //surl = "QuickAddStock";  // ok for ?id=39
-            surl =  '@ViewBag.currentHost' + '/products/QuickAddStock';
+            surl = '@ViewBag.currentHost' + '/products/QuickAddStock';            
             $.ajax({
                 url: surl,
                 type: "POST",
@@ -201,13 +187,17 @@
                         console.log("PASS ");
                         $('#txt_timeStamp').html(data.timeStamp);                        
                         $('#txt_Stock').html(data.newStock);
-                        $('#td_serverMessage').html('已增量至' + data.newStock);
+                        //$('#txt_Stock').focus();
+                        $(window).scrollTop(0);
+                        $('#td_serverMessage').html('已增量至' + data.newStock);                        
+                        $("#td_serverWarning").text("");
+                        //fadeout effect...
                         SetReady();
                     }
                     else {
                         //::fail case
                         console.log("fail case");
-                        $("#td_serverWarning").text("未得到正確回應");
+                        $("#td_serverWarning").text("API未得到正確回應 " + data.detail);
                         SetReady();
                     }
                 }, //success
@@ -224,13 +214,39 @@
             //console.log("add Stock " + num_addStock.val());
             var oldVal = num_addStock.val();
             num_addStock.val(+oldVal + 10); // '+' number increase
+            if (num_addStock.val() >= 100) {
+                num_addStock.val(100);
+            }
+        });
+
+        num_addStock.change(function (event) {
+            console.log('num change');
+            if ($(this).val() <= 0) {
+                //num_addStock.val(1);
+                $(this).val(1);
+                event.preventDefault(); // 阻止事件默認行為
+                return false; // 結束事件處理
+            }
+            else if (num_addStock.val() >= 100) {
+                //num_addStock.val(100);
+                $(this).val(100);
+                event.preventDefault(); // 阻止事件默認行為
+                return false; // 結束事件處理
+            }
         });
 
         function SetReady() {
+            $('#table_data').show();
+            $('#btn_EditForShop').show();
 
+            $('#img_loading').hide();
+            
         }
         function SetBusy() {
+            $('#table_data').hide();
+            $('#btn_EditForShop').hide();
 
+            $('#img_loading').show();            
         }
 
         console.log("jquery end");

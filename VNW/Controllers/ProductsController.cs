@@ -1100,6 +1100,8 @@ namespace VNW.Controllers
 
                     if(oldp.LastModifiedTime.ToString() != p.LastModifiedTime.ToString())
                     {
+                        _result = "fail";
+                        _detail = "可能同時有人在修改資料";
                         //error
                         var res0 = new
                         {
