@@ -1014,8 +1014,9 @@ namespace VNW.Controllers
                     if (originalProduct.LastModifiedTime.ToString() != product.LastModifiedTime.ToString())
                     {
                         //return Content("TimeStamp is not match! Someone changed data at the same time");
-                        string msg = "注意! 有其它用戶也在修改資料，發生衝突";
+                        string msg = "注意! 有其它用戶也在修改資料，發生衝突。(建議按[取消]並先另記錄目前的數據)";
                         TempData["td_serverWarning"] = msg;
+                        ViewData["CategoryId"] = new SelectList(_context.Set<Category>(), "CategoryId", "CategoryName", product.CategoryId);
                         return View(product);
                         //EditForShop
                     }
@@ -1049,7 +1050,8 @@ namespace VNW.Controllers
                 //return RedirectToAction($"ProductDetailForShop?id=" + product.ProductId);
                 return RedirectToAction("ProductDetailForShop", new { id = product.ProductId });
             }
-            ViewData["CategoryId"] = new SelectList(_context.Set<Category>(), "CategoryId", "CategoryId", product.CategoryId);
+            //ViewData["CategoryId"] = new SelectList(_context.Set<Category>(), "CategoryId", "CategoryId", product.CategoryId);
+            ViewData["CategoryId"] = new SelectList(_context.Set<Category>(), "CategoryId", "CategoryName", product.CategoryId);
             return View(product);
         }
 
