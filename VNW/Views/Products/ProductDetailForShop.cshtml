@@ -57,11 +57,15 @@
                 @*@Html.DisplayFor(model => model.UnitsInStock)*@
                 <span id="txt_Stock" style="font-size:20px;">@Model.UnitsInStock</span>
 
-                <div style="border:solid;border-width:1px;border-color:lightgray;border-radius:5px;max-width:300px;">
+                <div style="border-width:1px;border-color:lightgray;border-radius:5px;max-width:300px;text-align:center;">
                     <b>快速進貨設定 <span style="color:mediumvioletred">(新測試功能)</span></b>
-                    <input type="number" id="num_addStock" value="1" class="form-control" style="font-size:20px;max-width:200px;text-align:center;"/>                    
-                    <div class="btn btn-primary" id="btn_addTen">+10</div>
+                    <input type="number" id="num_addStock" value="1" class="form-control" 
+                           style="font-size:16px;text-align:center;margin:2px;width:90%;"/>
+
+                    @*style="font-size:16px;max-width:200px;text-align:center;border-radius:5px;border-width:1px;padding:4px;border-color:lightgray;"*@
+
                     <div class="btn btn-danger" id="btn_addStock">直接只加庫存量</div>
+                    @*<div class="btn btn-primary" id="btn_addTen">+10</div>*@
                     @*<div class="btn btn-warning" id="btn_addStock">加庫存量並減訂購</div>*@
                 </div>
 
@@ -74,9 +78,11 @@
             </td>
             <td>
                 @Html.DisplayFor(model => model.UnitsReserved)
-                @if (Model.UnitsInStock < Model.UnitsReserved)
+                @*<span id="UnitsReserved" style="font-size:20px;">@Model.UnitsReserved</span>*@
+
+                @if (Model.UnitsInStock < Model.UnitsReserved || Model.UnitsReserved < 0)
                 {
-                    <span class="alert-danger">超賣(Overbooking)</span>
+                    <span class="alert-danger" id="warning_Overbooking">超賣(Overbooking)或異常</span>
                 }
             </td>
         </tr>
@@ -86,10 +92,11 @@
             </td>
             <td>
                 @Html.DisplayFor(model => model.ReorderLevel)
+                @*<span id="ReorderLevel" style="font-size:20px;">@Model.ReorderLevel</span>*@
 
                 @if (Model.UnitsInStock <= Model.ReorderLevel || Model.UnitsInStock <= 0)
                 {
-                    <span class="alert-danger">留意庫存, 請補貨</span>
+                    <span class="alert-danger" id="warning_ReorderLevel">留意庫存, 請補貨</span>
                 }
             </td>
         </tr>
@@ -192,6 +199,31 @@
                         $('#td_serverMessage').html('已增量至' + data.newStock);                        
                         $("#td_serverWarning").text("");
                         //fadeout effect...
+
+
+                        var ReorderLevel = @Model.ReorderLevel;
+                        var UnitsReserved = @Model.UnitsReserved;
+                        console.log("data.newStock: " + data.newStock);
+                        console.log("ReorderLevel: " + ReorderLevel);
+                        console.log("UnitsReserved: " + UnitsReserved);
+
+                        if (ReorderLevel >= data.newStock) {
+                            $("#warning_ReorderLevel").text("不足");
+                        }
+                        else {
+                            $("#warning_ReorderLevel").text("");
+                        }
+
+                        if (UnitsReserved > data.newStock) {
+                            $("#warning_Overbooking").text("超賣 (Overbooking)");
+                        }
+                        else if (UnitsReserved < 0) {
+                            $("#warning_Overbooking").text("異常");
+                        }
+                        else {
+                            $("#warning_Overbooking").text("");
+                        }
+
                         SetReady();
                     }
                     else {
