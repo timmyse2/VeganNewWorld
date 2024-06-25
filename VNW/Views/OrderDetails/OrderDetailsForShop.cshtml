@@ -86,7 +86,8 @@ else
                 <tr>
                     <td>付款方式</td>
                     <td>
-                        @EnumExtensions.GetDisplayName((PayEnum)0)
+                        @*@EnumExtensions.GetDisplayName((PayEnum)0)*@
+                        @EnumExtensions.GetDisplayName((PayEnum)OrderInfo.Payment)
                     </td>
                 </tr>
                 <tr>
@@ -102,7 +103,7 @@ else
                 <tr>
                     <td>時間戳記(Row Version)</td>
                     <td>
-                        <div style="border:solid;border-width:1px;">
+                        <div>
                             @*@Convert.ToBase64String(OrderInfo.TimeStamp)*@
                             @foreach (var b in OrderInfo.TimeStamp)
                             {
@@ -219,9 +220,6 @@ else
 }
 else
 {
-
-
-
     @if (OrderInfo.Status != OrderStatusEnum.Canceling && OrderInfo.Status != OrderStatusEnum.Cancelled)
     {
         <div style="text-align:right">
@@ -235,6 +233,7 @@ else
         <div>
             <a asp-action="OrderEditForShop" asp-controller="orders"
                asp-route-id="@OrderInfo.OrderId" class="btn btn-primary btn-lg">修改訂單</a>
+            <span class="text-danger">留意：修改訂單前需先與客戶聯絡確認，送貨方式等變更會調整運費</span>
         </div>
         <hr />
         <div>

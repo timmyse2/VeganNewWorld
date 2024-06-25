@@ -77,8 +77,8 @@
                 客戶預訂量                
             </td>
             <td>
-                @Html.DisplayFor(model => model.UnitsReserved)
-                @*<span id="UnitsReserved" style="font-size:20px;">@Model.UnitsReserved</span>*@
+                @*@Html.DisplayFor(model => model.UnitsReserved)*@
+                <span id="UnitsReserved" style="font-size:20px;">@Model.UnitsReserved</span>
 
                 @if (Model.UnitsInStock < Model.UnitsReserved || Model.UnitsReserved < 0)
                 {
@@ -91,8 +91,8 @@
                 @Html.DisplayNameFor(model => model.ReorderLevel)
             </td>
             <td>
-                @Html.DisplayFor(model => model.ReorderLevel)
-                @*<span id="ReorderLevel" style="font-size:20px;">@Model.ReorderLevel</span>*@
+                @*@Html.DisplayFor(model => model.ReorderLevel)*@
+                <span id="ReorderLevel" style="font-size:20px;">@Model.ReorderLevel</span>
 
                 @if (Model.UnitsInStock <= Model.ReorderLevel || Model.UnitsInStock <= 0)
                 {

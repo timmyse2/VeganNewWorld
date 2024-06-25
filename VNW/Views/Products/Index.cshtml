@@ -123,12 +123,12 @@ else
                 @Html.DisplayNameFor(model => model.UnitPrice)
             </th>
             <th>
-                <div style="color:red">
+                <div style="color:blue">
                     @Html.DisplayNameFor(model => model.UnitsInStock)
                 </div>
             </th>
             <th>
-                <div style="color:red">@Html.DisplayNameFor(model => model.UnitsReserved)*</div>                    
+                <div style="color:blue">@Html.DisplayNameFor(model => model.UnitsReserved)*</div>                    
             </th>
             <th>
                 @Html.DisplayNameFor(model => model.ReorderLevel)
@@ -167,7 +167,7 @@ else
                     }
                 </td>
                 <td>
-                    @Html.DisplayFor(modelItem => item.UnitsReserved)
+                    <span style="font-size:20px;">@Html.DisplayFor(modelItem => item.UnitsReserved)</span>
 
                     @if (item.UnitsReserved > item.UnitsInStock)
                     {
