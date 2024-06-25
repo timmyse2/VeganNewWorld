@@ -81,38 +81,38 @@ else
                     <td>運費</td>
                     <td>
                         @OrderInfo.Freight
-                </td>
-            </tr>
-            <tr>
-                <td>付款方式</td>
-                <td>
-                    @EnumExtensions.GetDisplayName((PayEnum)0)
-                </td>
-            </tr>
-            <tr>
-                <td>狀態</td>
-                <td>
-                    @if (OrderInfo.Status != null)
-                    {
-                        @EnumExtensions.GetDisplayName((VNW.Models.OrderStatusEnum)OrderInfo.Status)
-                    }
-                    (@OrderInfo.Status)  
-                </td>
-            </tr>
-            <tr>
-                <td>時間戳記(Row Version)</td>
-                <td>
-                    <div style="border:solid;border-width:1px;">
-                        @*@Convert.ToBase64String(OrderInfo.TimeStamp)*@
-                        @foreach (var b in OrderInfo.TimeStamp)
+                    </td>
+                </tr>
+                <tr>
+                    <td>付款方式</td>
+                    <td>
+                        @EnumExtensions.GetDisplayName((PayEnum)0)
+                    </td>
+                </tr>
+                <tr>
+                    <td>狀態</td>
+                    <td>
+                        @if (OrderInfo.Status != null)
                         {
-                            @b
+                            @EnumExtensions.GetDisplayName((VNW.Models.OrderStatusEnum)OrderInfo.Status)
                         }
-                    </div>
-                </td>
-            </tr>
-        </table>
-    </div>
+                        (@OrderInfo.Status)
+                    </td>
+                </tr>
+                <tr>
+                    <td>時間戳記(Row Version)</td>
+                    <td>
+                        <div style="border:solid;border-width:1px;">
+                            @*@Convert.ToBase64String(OrderInfo.TimeStamp)*@
+                            @foreach (var b in OrderInfo.TimeStamp)
+                            {
+                                @b
+                            }
+                        </div>
+                    </td>
+                </tr>
+            </table>
+        </div>
         <div class="col-md-6 col-sm-6 col-xs-6">
             <h4>客戶資訊</h4>
             <table class="table">
@@ -127,7 +127,7 @@ else
                 <tr><td>出貨地址</td><td>@OrderInfo.ShipAddress</td></tr>
             </table>
         </div>
-</div>
+    </div>
 }
 
 <h4>訂單內容</h4>
@@ -149,7 +149,7 @@ else
             </th>
             <th>小記</th>
             <th></th>
-            <th><span style="color:blue">店內庫存<br/>(不是訂單的內容)</span></th>
+            <th><span style="color:blue">店內庫存<br />(不是訂單的內容)</span></th>
             <th><span style="color:blue">預購總量<br />(不是訂單的內容)</span></th>
         </tr>
     </thead>
@@ -198,7 +198,7 @@ else
                 </td>
                 <td>
                     @item.Product.UnitsReserved
-                    @if(item.Product.UnitsInStock < item.Product.UnitsReserved)
+                    @if (item.Product.UnitsInStock < item.Product.UnitsReserved)
                     {
                         <span class="alert-danger">超賣(Overbooking)</span>
                     }
@@ -222,17 +222,22 @@ else
 
 
 
-    @if (OrderInfo.Status != OrderStatusEnum.Canceling  && OrderInfo.Status != OrderStatusEnum.Cancelled)
+    @if (OrderInfo.Status != OrderStatusEnum.Canceling && OrderInfo.Status != OrderStatusEnum.Cancelled)
     {
         <div style="text-align:right">
             @*<a class="btn btn-success btn-lg">確認接單</a>*@
             <a class="btn btn-success btn-lg" asp-action="ShipOrderForShop"
                asp-controller="Orders" asp-route-id="@OrderInfo.OrderId">準備完成 : 出貨</a>
-            <br/>
+            <br />
             註: 按下[準備完成]代表正式出貨!!
         </div>
+        <hr />
         <div>
-
+            <a asp-action="OrderEditForShop" asp-controller="orders"
+               asp-route-id="@OrderInfo.OrderId" class="btn btn-primary btn-lg">修改訂單</a>
+        </div>
+        <hr />
+        <div>
             <p></p>
             <label class="form-control-static">理由</label>
             <select class="form-control">
@@ -247,9 +252,7 @@ else
 
         <hr />
 
-        <div>
-            <a class="btn btn-primary btn-lg">修改訂單</a>
-        </div>
+
     }
 }
 

@@ -1,0 +1,64 @@
+﻿@model VNW.ViewModels.OrderViewModel
+
+@{
+    ViewData["Title"] = "訂單修改(商家模式)";
+}
+
+<h2>@ViewData["Title"]</h2>
+
+<hr />
+
+@if(Model == null)
+{
+    return;
+}
+
+<a asp-action="OrderDetailsForShop" asp-controller="orderDetails" asp-route-id="@Model.OrderId" class="btn btn-lg btn-default">取消修改</a>
+
+<h4>訂單</h4>
+
+<table class="table table-bordered">
+    <tr>
+        <td>ID</td>
+        <td>@Model.OrderId</td>
+    </tr>
+
+    <tr>
+        <td>User ID</td>
+        <td>@Model.OrderBase.CustomerId</td>
+    </tr>
+
+</table>
+
+
+<h4>內容</h4>
+
+@if(Model.Ods != null)
+{
+    <table class="table table-bordered">
+        <tr>
+            <td> 商品ID-名稱 </td>
+            <td> Qty @Html.DisplayNameFor(model => model.Ods.FirstOrDefault().Quantity)</td>
+            <td> Price @Html.DisplayNameFor(model => model.Ods.First().UnitPrice) </td>
+            <td></td>
+            <td> 店內總庫存</td>
+            <td> 店內總預訂量</td>
+        </tr>
+
+
+        @foreach(var item in Model.Ods)
+        {
+        <tr>
+            <td> @item.ProductId - @item.Product.ProductName </td>
+            <td> @item.Quantity </td>
+            <td> @item.UnitPrice </td>
+
+            <td></td>
+            <td> @item.Product.UnitsInStock </td>
+            <td> @item.Product.UnitsReserved </td>
+
+        </tr>
+        }
+    </table>
+
+}

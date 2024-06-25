@@ -1586,5 +1586,48 @@ namespace VNW.Controllers
             //return View("VMEditTest", ovm);
             //return View("VMTest", ovm);
         }
+
+        //::for 2B
+        public async Task<IActionResult> OrderEditForShop(int id)
+        {
+            //::check Shop
+            string UserLevel = _ms.GetMySession("UserLevel", HttpContext.Session);
+            if (UserLevel != "2B" && UserLevel != "1A")
+            {
+                //return Content("You have no right to access this");
+                return RedirectToAction("Login", "Customers");
+            }
+
+            ViewModels.OrderViewModel ovm = null;
+
+            if (id == null)
+            {
+                //error case
+                return View();
+            }
+
+            var o = //Models.Order o =
+                await _context.Orders.Where(x => x.OrderId == id).FirstOrDefaultAsync();
+            if(o == null)
+            {
+                //error case
+                return View();
+            }
+            ovm = new OrderViewModel()
+            {
+                OrderBase = o,
+                OrderId = o.OrderId
+            };
+            //ovm.OrderBase = (Models.Order) o;
+            //ovm.OrderId = o.OrderId;
+
+            var ods = await _context.OrderDetails.Where(x => x.OrderId == id)
+                .Include(x=>x.Product)
+                .ToListAsync();
+            ovm.Ods = ods;
+
+            return View(ovm);
+        }
+
     }
 }
