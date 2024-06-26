@@ -10,6 +10,11 @@
 
 <hr />
 
+<div>
+    <h3 class="alert-info" id="td_serverMessage">@TempData["td_serverMessage"]</h3>
+    <h3 class="alert-danger" id="td_serverWarning">@TempData["td_serverWarning"]</h3>
+</div>
+
 @if (Model == null)
 {
     return;
@@ -19,6 +24,8 @@
    class="btn btn-lg btn-default">取消修改|返回前頁</a>
 
 
+<form action="OrderEditForShop" method="post">
+    <input name="id" asp-for="@Model.OrderId" type="hidden"/>
 <div class="row">
     <div class="col-md-6 col-sm-6 col-xs-6">
         <h4>訂單資訊</h4>
@@ -52,7 +59,7 @@
                         @*@VNW.Common.EnumExtensions.GetDisplayName((VNW.Models.ShipViaTypeEnum)Model.OrderBase.ShipVia)*@
                         @*@EnumExtensions.GetDisplayName((ShipViaTypeEnum)Model.OrderBase.ShipVia)
                             <select id="ShipVia" name="ShipVia"></select>*@
-                        <select asp-for="OrderBase.ShipVia" asp-items="@Html.GetEnumSelectList(typeof(VNW.Models.ShipViaTypeEnum))"
+                        <select name="ShipVia" asp-for="OrderBase.ShipVia" asp-items="@Html.GetEnumSelectList(typeof(VNW.Models.ShipViaTypeEnum))"
                                 class="form-control" id="sel_ShipVia"></select>
 
                     }
@@ -66,6 +73,7 @@
             <tr>
                 <td>運費</td>
                 <td>
+                    <input name="Freight" id="Freight" value="@Model.OrderBase.Freight" readonly class="form-control"/>
                     <span id="txt_Freight">@Model.OrderBase.Freight</span>
                 </td>
             </tr>
@@ -75,7 +83,7 @@
                     @*@EnumExtensions.GetDisplayName((PayEnum)0)*@
                     @*@EnumExtensions.GetDisplayName((PayEnum)Model.OrderBase.Payment)
                         <select id="payment" name="payment"></select>*@
-                    <select asp-for="OrderBase.Payment" asp-items="@Html.GetEnumSelectList(typeof(VNW.Common.PayEnum))"
+                    <select name="Payment" asp-for="OrderBase.Payment" asp-items="@Html.GetEnumSelectList(typeof(VNW.Common.PayEnum))"
                             class="form-control" id="sel_Payment"></select>
                     <span id="validate_Payment" class="text-danger"></span>
                 </td>
@@ -96,7 +104,7 @@
                 <td>發票處理方式</td>
                 <td>
                     @Model.Invoice
-                    <select asp-for="Invoice" asp-items="@Html.GetEnumSelectList(typeof(InvoiceEnum))"
+                    <select name="Invoice" asp-for="Invoice" asp-items="@Html.GetEnumSelectList(typeof(InvoiceEnum))"
                             class="form-control" id="sel_Invoice"></select>
                 </td>
             </tr>
@@ -110,6 +118,7 @@
                         {
                             @b
                         }
+                        <input name="TimeStamp" type="hidden" value="@Convert.ToBase64String(Model.OrderBase.TimeStamp)"/>
                     </div>
                 </td>
             </tr>
@@ -157,11 +166,28 @@
         {
             decimal QtyByPrice = item.Quantity * item.UnitPrice; ;
             totalSum += QtyByPrice;            
+            int allowToBuy = (int)item.Product.UnitsInStock - (int)item.Product.UnitsReserved;
+
             <tr>
-                <td><input type="checkbox" name="" class="form-control" checked /> </td>
+                <td><input type="checkbox" name="" class="form-control" checked readonly/> </td>
                 <td><img src="~/images/@item.Product.Picture" style="width:80px; " /></td>
                 <td>(@item.ProductId) @item.Product.ProductName</td>
-                <td>@item.Quantity </td>
+                <td>@*@item.Quantity*@  
+                    <select class="form-control">
+                        @for (int i = 0; i < allowToBuy; i++)
+                        {
+                            if (item.Quantity == i + 1)
+                            {
+                                <option selected>@(i + 1)</option>
+                            }
+                            else
+                            {
+                                <option>@(i + 1)</option>
+                            }
+
+                        }
+                    </select>  
+                </td>
                 <td>@item.UnitPrice </td>
                 <td>@QtyByPrice</td>
                 <td></td>
@@ -179,9 +205,14 @@
         <h3>
             總計(含運費): NT$<span id="txt_TotalPriceSumPlus">@totalSum</span>
         </h3>
-        <a asp-controller="orders" asp-route-id="@Model.OrderId" class="btn btn-lg btn-danger">送出修改</a>
+        @*<a asp-controller="orders" asp-route-id="@Model.OrderId" class="btn btn-lg btn-danger">送出修改</a>*@
+
+        <input type="submit" value="送出修改" class="btn btn-lg btn-danger"/>
+
     </div>
 }
+
+</form>
 
 @section endJS{
     <script type="text/javascript" src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
@@ -228,6 +259,7 @@
                     //console.log("default");
                     break;
             }
+            $('#Freight').val(Freight);
             $('#txt_TotalPriceSumPlus').text(totalSum + Freight);
 
             //console.log("e o s");

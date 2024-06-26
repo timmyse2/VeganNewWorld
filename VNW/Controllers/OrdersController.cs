@@ -1629,5 +1629,68 @@ namespace VNW.Controllers
             return View(ovm);
         }
 
+        [HttpPost]
+        public async Task<IActionResult> OrderEditForShop(int id, Order orderUpdated)
+        {
+            //::check Shop
+            string UserLevel = _ms.GetMySession("UserLevel", HttpContext.Session);
+            if (UserLevel != "2B" && UserLevel != "1A")
+            {
+                //return Content("You have no right to access this");
+                return RedirectToAction("Login", "Customers");
+            }
+            
+            if (id == null)
+            {
+                //error case
+                return Content("id is null");
+            }
+
+            Order qO = await _context.Orders.Where(x => x.OrderId == id).FirstOrDefaultAsync();
+            if(qO == null)
+            {
+                //error case
+                return Content("data is null");
+            }
+
+
+            //ViewModels.OrderViewModel ovm = null;
+            //return View(ovm);
+            try
+            {
+                qO.ShipVia = orderUpdated.ShipVia;
+                qO.Payment = orderUpdated.Payment;
+                qO.Freight = orderUpdated.Freight;
+
+
+                //if(qO.TimeStamp != orderUpdated.TimeStamp )
+                if (Convert.ToBase64String(qO.TimeStamp) != Convert.ToBase64String(orderUpdated.TimeStamp))
+                {
+                    TempData["td_serverWarning"] = "Timestamp is mismatch";
+                    //return Content("Timestamp is mismatch");
+                    return View();
+                }
+
+                //_context.Update(order);
+                _context.Update(qO);
+                await _context.SaveChangesAsync();
+
+                return RedirectToAction("OrderDetailsForShop", "OrderDetails", new { id = id});
+                //return Content("Done");
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                TempData["td_serverWarning"] = "DbUpdateConcurrencyException";
+                return View();
+                //return Content("DbUpdateConcurrencyException");
+            }
+            catch (Exception ex)
+            {
+                //return Content("exception " + ex);
+                TempData["td_serverWarning"] = "Exception ";
+                return View();
+            }
+            
+        }
     }
 }
