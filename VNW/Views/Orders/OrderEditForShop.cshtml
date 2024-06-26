@@ -177,9 +177,11 @@
                     <td>@*<input type="checkbox" name="" class="form-control" checked readonly />*@ </td>
                     <td><img src="~/images/@item.Product.Picture" style="width:80px; " /></td>
                     <td>
+                        <input name="Ods[@irow].ProductId" value="@item.ProductId" type="hidden" />
                         (@item.ProductId)<br>
                         @item.Product.ProductName<br>
-                            [@{foreach(var b in item.RowVersion){ @b }}]
+                        [@{foreach (var b in item.RowVersion)
+                            { @b }}]
                     </td>
                     <td>
                         @*@item.Quantity*@

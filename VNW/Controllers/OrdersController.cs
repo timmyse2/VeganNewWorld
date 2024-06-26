@@ -1691,12 +1691,50 @@ namespace VNW.Controllers
                         TempData["td_serverWarning"] = "detail is empy";
                         return View();
                     }
-                    foreach (var od in ovmUpdated.Ods)
+                    foreach (var nod in ovmUpdated.Ods)
                     {
-                        Debug.WriteLine(" " + od.Quantity);
+                        //Debug.WriteLine(" " + nod.Quantity);
+                        OrderDetail ood = await _context.OrderDetails
+                            .Where(x => x.ProductId == nod.ProductId && x.OrderId == id)
+                            .FirstOrDefaultAsync();
 
-                        //check od (stock)(rowVersion)
-                        //update od
+                        if(ood == null)
+                        {
+                            //error case
+                            return Content("error due ood is null");
+                        }
+
+                        //::update p (reserved)
+                        Product p = await _context.Products.FindAsync(ood.ProductId);
+                        if(p == null)
+                        {
+                            return Content("error: ood is null");
+                        }
+
+                        //::check p.stock ...
+                        if(nod.Quantity > (p.UnitsInStock - p.UnitsReserved) )
+                        {
+                            return Content("error: overbooking maybe");
+                        }
+                        if (nod.Quantity != ood.Quantity)
+                        {
+                            p.UnitsReserved += (short)(nod.Quantity - ood.Quantity);
+                            p.LastModifiedTime = DateTime.Now;
+                            //check (rowVersion)
+                            _context.Update(p);
+
+                            //::update od - just set qty
+                            ood.Quantity = nod.Quantity;
+
+                            //check rowVersion
+                            //if(Convert.ToBase64String(ood.RowVersion) != Convert.ToBase64String((nod.RowVersion))
+                            //if (ood.RowVersion != nod.RowVersion)
+                            //{
+                            //    return Content("error: od row version is mismatch");
+                            //}
+                            _context.Update(ood);
+                            await _context.SaveChangesAsync();
+                        }
                     }
 
                     //_context.Update(order);
@@ -1704,7 +1742,6 @@ namespace VNW.Controllers
                     await _context.SaveChangesAsync();
 
                     transaction.Commit();//key
-
                     return RedirectToAction("OrderDetailsForShop", "OrderDetails", new { id = id });
                     //return Content("Done");
                 }
