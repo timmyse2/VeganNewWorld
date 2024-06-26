@@ -1653,26 +1653,38 @@ namespace VNW.Controllers
                 return Content("data is null");
             }
 
-
-            //ViewModels.OrderViewModel ovm = null;
-            //return View(ovm);
+            ViewModels.OrderViewModel ovm = null;
             try
             {
+                //::check status first 
+                if (qO.Status == null) qO.Status = OrderStatusEnum.Got;
+                if ((int)qO.Status >= 20)
+                {
+                    TempData["td_serverWarning"] = "商品已出貨或取消, 不可直接更改";
+                    //ovm = new OrderViewModel();
+                    //ovm.OrderId = id;
+                    //ovm.OrderBase = qO;
+                    //return View(ovm);
+                    return RedirectToAction("OrderDetailsForShop", "OrderDetails", new { id = id });
+                }
+
                 qO.ShipVia = orderUpdated.ShipVia;
                 qO.Payment = orderUpdated.Payment;
-                qO.Freight = orderUpdated.Freight;
-
+                qO.Freight = orderUpdated.Freight; //::re-caculate with payment
+                
 
                 //if(qO.TimeStamp != orderUpdated.TimeStamp )
                 if (Convert.ToBase64String(qO.TimeStamp) != Convert.ToBase64String(orderUpdated.TimeStamp))
                 {
-                    TempData["td_serverWarning"] = "Timestamp is mismatch";
+                    TempData["td_serverWarning"] = "可能有其他用戶同時修改資料中 (Timestamp is mismatched)";                    
+                    ovm = new OrderViewModel();
+                    ovm.OrderId = id;
+                    return View(ovm);
                     //return Content("Timestamp is mismatch");
-                    return View();
                 }
 
                 //_context.Update(order);
-                _context.Update(qO);
+                _context.Update(qO); //::issue - this is not a good method or ...
                 await _context.SaveChangesAsync();
 
                 return RedirectToAction("OrderDetailsForShop", "OrderDetails", new { id = id});
@@ -1680,14 +1692,14 @@ namespace VNW.Controllers
             }
             catch (DbUpdateConcurrencyException)
             {
-                TempData["td_serverWarning"] = "DbUpdateConcurrencyException";
+                TempData["td_serverWarning"] = "可能有其他用戶同時修改資料中 (DbUpdate Concurrency Exception)";
                 return View();
                 //return Content("DbUpdateConcurrencyException");
             }
             catch (Exception ex)
             {
                 //return Content("exception " + ex);
-                TempData["td_serverWarning"] = "Exception ";
+                TempData["td_serverWarning"] = "Exception " + ex;
                 return View();
             }
             

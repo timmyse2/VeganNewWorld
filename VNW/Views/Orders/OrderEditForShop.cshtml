@@ -24,155 +24,161 @@
    class="btn btn-lg btn-default">取消修改|返回前頁</a>
 
 
-<form action="OrderEditForShop" method="post">
-    <input name="id" asp-for="@Model.OrderId" type="hidden"/>
-<div class="row">
-    <div class="col-md-6 col-sm-6 col-xs-6">
-        <h4>訂單資訊</h4>
-        <table class="table">
-            <tr><td>訂單編號</td><td><b>@Model.OrderBase.OrderId</b></td></tr>
-
-            <tr><td>訂貨日期</td><td>@Model.OrderBase.OrderDate</td></tr>
-
-            <tr>
-                <td>出貨時間</td>
-                <td>
-                    @if (Model.OrderBase.ShippedDate != null)
-                    {
-
-                        <span class="alert-success"><b>@Model.OrderBase.ShippedDate</b></span>
-                    }
-                    else
-                    {
-                        <span class="alert-danger"><b>尚未出貨</b></span>
-                    }
-
-                </td>
-            </tr>
-
-            <tr>
-                <td>送貨方式</td>
-                <td>
-                    @try
-                    {
-                        @*@Model.OrderBase.shipViaTypes[(int)Model.OrderBase.ShipVia]*@
-                        @*@VNW.Common.EnumExtensions.GetDisplayName((VNW.Models.ShipViaTypeEnum)Model.OrderBase.ShipVia)*@
-                        @*@EnumExtensions.GetDisplayName((ShipViaTypeEnum)Model.OrderBase.ShipVia)
-                            <select id="ShipVia" name="ShipVia"></select>*@
-                        <select name="ShipVia" asp-for="OrderBase.ShipVia" asp-items="@Html.GetEnumSelectList(typeof(VNW.Models.ShipViaTypeEnum))"
-                                class="form-control" id="sel_ShipVia"></select>
-
-                    }
-                    catch
-                    {
-                        <span class="alert-danger lg">異常</span>
-                    }
-                    <span id="validate_ShipVia" class="text-danger"></span>
-                </td>
-            </tr>
-            <tr>
-                <td>運費</td>
-                <td>
-                    <input name="Freight" id="Freight" value="@Model.OrderBase.Freight" readonly class="form-control"/>
-                    <span id="txt_Freight">@Model.OrderBase.Freight</span>
-                </td>
-            </tr>
-            <tr>
-                <td>付款方式</td>
-                <td>
-                    @*@EnumExtensions.GetDisplayName((PayEnum)0)*@
-                    @*@EnumExtensions.GetDisplayName((PayEnum)Model.OrderBase.Payment)
-                        <select id="payment" name="payment"></select>*@
-                    <select name="Payment" asp-for="OrderBase.Payment" asp-items="@Html.GetEnumSelectList(typeof(VNW.Common.PayEnum))"
-                            class="form-control" id="sel_Payment"></select>
-                    <span id="validate_Payment" class="text-danger"></span>
-                </td>
-            </tr>
-            <tr>
-                <td>狀態</td>
-                <td>
-                    @if (Model.OrderBase.Status != null)
-                    {
-                        @EnumExtensions.GetDisplayName((VNW.Models.OrderStatusEnum)Model.OrderBase.Status)
-                    }
-                    (@Model.OrderBase.Status)
-                </td>
-            </tr>
-
-
-            <tr>
-                <td>發票處理方式</td>
-                <td>
-                    @Model.Invoice
-                    <select name="Invoice" asp-for="Invoice" asp-items="@Html.GetEnumSelectList(typeof(InvoiceEnum))"
-                            class="form-control" id="sel_Invoice"></select>
-                </td>
-            </tr>
-
-            <tr>
-                <td>時間戳記(Row Version)</td>
-                <td>
-                    <div>
-                        @*@Convert.ToBase64String(Model.OrderBase.TimeStamp)*@
-                        @foreach (var b in Model.OrderBase.TimeStamp)
-                        {
-                            @b
-                        }
-                        <input name="TimeStamp" type="hidden" value="@Convert.ToBase64String(Model.OrderBase.TimeStamp)"/>
-                    </div>
-                </td>
-            </tr>
-        </table>
-    </div>
-
-    <div class="col-md-6 col-sm-6 col-xs-6">
-        <h4>客戶資訊</h4>
-        <table class="table">
-            <tr><td>帳號</td><td>@Model.OrderBase.CustomerId</td></tr>
-
-            @if (@Model.OrderBase.Customer != null)
-            {
-                <tr><td>聯絡人姓名</td><td>@Model.OrderBase.Customer.ContactName</td></tr>
-                <tr><td>電話</td><td>@Model.OrderBase.Customer.Phone</td></tr>
-            }
-            <tr><td>出貨地標(公司|組織)</td><td>@Model.OrderBase.ShipName</td></tr>
-            <tr><td>出貨地址</td><td>@Model.OrderBase.ShipAddress</td></tr>
-        </table>
-    </div>
-</div>
-
-<span class="text-danger">留意：修改訂單前需先與客戶聯絡確認，送貨方式等變更會調整運費</span>
-
-<h4>內容</h4>
-
-@if (Model.Ods != null)
+@if (Model.OrderBase == null)
 {
+    return;
+}
 
-    <table class="table table">
-        <thead>
-            <tr>
-                <td></td>
-                <td>商品</td>
-                <td>(ID)名稱</td>
-                <td>@Html.DisplayNameFor(model => model.Ods.FirstOrDefault().Quantity)</td>
-                <td>@Html.DisplayNameFor(model => model.Ods.First().UnitPrice) </td>
-                <td>小記</td>
-                <td></td>
-                <td>店內總庫存</td>
-                <td>店內總預訂量</td>
-            </tr>
-        </thead>
-        @foreach (var item in Model.Ods)
-        {
-            decimal QtyByPrice = item.Quantity * item.UnitPrice; ;
-            totalSum += QtyByPrice;            
-            int allowToBuy = (int)item.Product.UnitsInStock - (int)item.Product.UnitsReserved;
+<form action="OrderEditForShop" method="post">
+    <input name="id" asp-for="@Model.OrderId" type="hidden" />
+    <div class="row">
+        <div class="col-md-6 col-sm-6 col-xs-6">
+            <h4>訂單資訊</h4>
+            <table class="table">
+                <tr><td>訂單編號</td><td><b>@Model.OrderBase.OrderId</b></td></tr>
 
-            <tr>
-                <td><input type="checkbox" name="" class="form-control" checked readonly/> </td>
-                <td><img src="~/images/@item.Product.Picture" style="width:80px; " /></td>
-                <td>(@item.ProductId) @item.Product.ProductName</td>
-                <td>@*@item.Quantity*@  
+                <tr><td>訂貨日期</td><td>@Model.OrderBase.OrderDate</td></tr>
+
+                <tr>
+                    <td>出貨時間</td>
+                    <td>
+                        @if (Model.OrderBase.ShippedDate != null)
+                        {
+
+                            <span class="alert-success"><b>@Model.OrderBase.ShippedDate</b></span>
+                        }
+                        else
+                        {
+                            <span class="alert-danger"><b>尚未出貨</b></span>
+                        }
+
+                    </td>
+                </tr>
+
+                <tr>
+                    <td>送貨方式</td>
+                    <td>
+                        @try
+                        {
+                            @*@Model.OrderBase.shipViaTypes[(int)Model.OrderBase.ShipVia]*@
+                            @*@VNW.Common.EnumExtensions.GetDisplayName((VNW.Models.ShipViaTypeEnum)Model.OrderBase.ShipVia)*@
+                            @*@EnumExtensions.GetDisplayName((ShipViaTypeEnum)Model.OrderBase.ShipVia)
+                                <select id="ShipVia" name="ShipVia"></select>*@
+                            <select name="ShipVia" asp-for="OrderBase.ShipVia" asp-items="@Html.GetEnumSelectList(typeof(VNW.Models.ShipViaTypeEnum))"
+                                    class="form-control" id="sel_ShipVia"></select>
+
+                        }
+                        catch
+                        {
+                            <span class="alert-danger lg">異常</span>
+                        }
+                        <span id="validate_ShipVia" class="text-danger"></span>
+                    </td>
+                </tr>
+                <tr>
+                    <td>運費</td>
+                    <td>
+                        <input name="Freight" id="Freight" value="@Model.OrderBase.Freight" readonly class="form-control" />
+                        <span id="txt_Freight">@Model.OrderBase.Freight</span>
+                    </td>
+                </tr>
+                <tr>
+                    <td>付款方式</td>
+                    <td>
+                        @*@EnumExtensions.GetDisplayName((PayEnum)0)*@
+                        @*@EnumExtensions.GetDisplayName((PayEnum)Model.OrderBase.Payment)
+                            <select id="payment" name="payment"></select>*@
+                        <select name="Payment" asp-for="OrderBase.Payment" asp-items="@Html.GetEnumSelectList(typeof(VNW.Common.PayEnum))"
+                                class="form-control" id="sel_Payment"></select>
+                        <span id="validate_Payment" class="text-danger"></span>
+                    </td>
+                </tr>
+                <tr>
+                    <td>狀態</td>
+                    <td>
+                        @if (Model.OrderBase.Status != null)
+                        {
+                            @EnumExtensions.GetDisplayName((VNW.Models.OrderStatusEnum)Model.OrderBase.Status)
+                        }
+                        (@Model.OrderBase.Status)
+                    </td>
+                </tr>
+
+
+                <tr>
+                    <td>發票處理方式</td>
+                    <td>
+                        @Model.Invoice
+                        <select name="Invoice" asp-for="Invoice" asp-items="@Html.GetEnumSelectList(typeof(InvoiceEnum))"
+                                class="form-control" id="sel_Invoice"></select>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td>時間戳記(Row Version)</td>
+                    <td>
+                        <div>
+                            @*@Convert.ToBase64String(Model.OrderBase.TimeStamp)*@
+                            @foreach (var b in Model.OrderBase.TimeStamp)
+                            {
+                                @b
+                            }
+                            <input name="TimeStamp" type="hidden" value="@Convert.ToBase64String(Model.OrderBase.TimeStamp)" />
+                        </div>
+                    </td>
+                </tr>
+            </table>
+        </div>
+
+        <div class="col-md-6 col-sm-6 col-xs-6">
+            <h4>客戶資訊</h4>
+            <table class="table">
+                <tr><td>帳號</td><td>@Model.OrderBase.CustomerId</td></tr>
+
+                @if (@Model.OrderBase.Customer != null)
+                {
+                    <tr><td>聯絡人姓名</td><td>@Model.OrderBase.Customer.ContactName</td></tr>
+                    <tr><td>電話</td><td>@Model.OrderBase.Customer.Phone</td></tr>
+                }
+                <tr><td>出貨地標(公司|組織)</td><td>@Model.OrderBase.ShipName</td></tr>
+                <tr><td>出貨地址</td><td>@Model.OrderBase.ShipAddress</td></tr>
+            </table>
+        </div>
+    </div>
+
+    <span class="text-danger">留意：修改訂單前需先與客戶聯絡確認，送貨方式等變更會調整運費</span>
+
+    <h4>內容</h4>
+
+    @if (Model.Ods != null)
+    {
+
+        <table class="table table">
+            <thead>
+                <tr>
+                    <td></td>
+                    <td>商品</td>
+                    <td>(ID)名稱</td>
+                    <td>@Html.DisplayNameFor(model => model.Ods.FirstOrDefault().Quantity)</td>
+                    <td>@Html.DisplayNameFor(model => model.Ods.First().UnitPrice) </td>
+                    <td>小記</td>
+                    <td></td>
+                    <td>店內總庫存</td>
+                    <td>店內總預訂量</td>
+                </tr>
+            </thead>
+            @foreach (var item in Model.Ods)
+            {
+                decimal QtyByPrice = item.Quantity * item.UnitPrice; ;
+                totalSum += QtyByPrice;
+                int allowToBuy = (int)item.Product.UnitsInStock - (int)item.Product.UnitsReserved;
+
+                <tr>
+                    <td><input type="checkbox" name="" class="form-control" checked readonly /> </td>
+                    <td><img src="~/images/@item.Product.Picture" style="width:80px; " /></td>
+                    <td>(@item.ProductId) @item.Product.ProductName</td>
+                    <td>
+                        @*@item.Quantity*@
                     <select class="form-control">
                         @for (int i = 0; i < allowToBuy; i++)
                         {
@@ -186,7 +192,7 @@
                             }
 
                         }
-                    </select>  
+                    </select>
                 </td>
                 <td>@item.UnitPrice </td>
                 <td>@QtyByPrice</td>
@@ -195,24 +201,27 @@
                 <td>@item.Product.UnitsReserved </td>
             </tr>
         }
-    </table>
-    @*<div class="btn btn-primary">+</div><btn class="btn btn-danger">-</btn>*@
+        </table>
+        @*<div class="btn btn-primary">+</div><btn class="btn btn-danger">-</btn>*@
 
-    <div style="text-align:right;">        
-        <h3>
-            訂單金額: NT$<span id="txt_TotalPriceSum">@totalSum</span>
-        </h3>
-        <h3>
-            總計(含運費): NT$<span id="txt_TotalPriceSumPlus">@totalSum</span>
-        </h3>
-        @*<a asp-controller="orders" asp-route-id="@Model.OrderId" class="btn btn-lg btn-danger">送出修改</a>*@
+        <div style="text-align:right;">
+            <h3>
+                訂單金額: NT$<span id="txt_TotalPriceSum">@totalSum</span>
+            </h3>
+            <h3>
+                總計(含運費): NT$<span id="txt_TotalPriceSumPlus">@totalSum</span>
+            </h3>
+            @*<a asp-controller="orders" asp-route-id="@Model.OrderId" class="btn btn-lg btn-danger">送出修改</a>*@
 
-        <input type="submit" value="送出修改" class="btn btn-lg btn-danger"/>
+            <input type="submit" value="送出修改" class="btn btn-lg btn-danger" />
 
-    </div>
-}
+        </div>
+    }
 
 </form>
+
+<a asp-action="OrderDetailsForShop" asp-controller="orderDetails" asp-route-id="@Model.OrderId"
+   class="btn btn-lg btn-default">取消修改|返回前頁</a>
 
 @section endJS{
     <script type="text/javascript" src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
