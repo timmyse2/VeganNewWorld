@@ -1630,7 +1630,7 @@ namespace VNW.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> OrderEditForShop(int id, Order orderUpdated)
+        public async Task<IActionResult> OrderEditForShop(int id, OrderViewModel ovmUpdated)
         {
             //::check Shop
             string UserLevel = _ms.GetMySession("UserLevel", HttpContext.Session);
@@ -1639,7 +1639,6 @@ namespace VNW.Controllers
                 //return Content("You have no right to access this");
                 return RedirectToAction("Login", "Customers");
             }
-            
             if (id == null)
             {
                 //error case
@@ -1654,55 +1653,74 @@ namespace VNW.Controllers
             }
 
             ViewModels.OrderViewModel ovm = null;
-            try
+            using (var transaction = _context.Database.BeginTransaction())
             {
-                //::check status first 
-                if (qO.Status == null) qO.Status = OrderStatusEnum.Got;
-                if ((int)qO.Status >= 20)
+                try
                 {
-                    TempData["td_serverWarning"] = "商品已出貨或取消, 不可直接更改";
-                    //ovm = new OrderViewModel();
-                    //ovm.OrderId = id;
-                    //ovm.OrderBase = qO;
-                    //return View(ovm);
+                    //::check status first 
+                    if (qO.Status == null) qO.Status = OrderStatusEnum.Got;
+                    if ((int)qO.Status >= 20)
+                    {
+                        TempData["td_serverWarning"] = "商品已出貨或取消, 不可直接更改";
+                        //ovm = new OrderViewModel();
+                        //ovm.OrderId = id;
+                        //ovm.OrderBase = qO;
+                        //return View(ovm);
+                        return RedirectToAction("OrderDetailsForShop", "OrderDetails", new { id = id });
+                    }
+
+                    qO.ShipVia = ovmUpdated.OrderBase.ShipVia;
+                    qO.Payment = ovmUpdated.OrderBase.Payment;
+                    //::re-caculate with payment
+                    qO.Freight = ovmUpdated.OrderBase.Freight;
+
+                    //if(qO.TimeStamp != orderUpdated.TimeStamp )
+                    if (Convert.ToBase64String(qO.TimeStamp) != Convert.ToBase64String(ovmUpdated.OrderBase.TimeStamp))
+                    {
+                        TempData["td_serverWarning"] = "可能有其他用戶同時修改資料中 (Timestamp is mismatched)";
+                        ovm = new OrderViewModel();
+                        ovm.OrderId = id;
+                        return View(ovm);
+                        //return Content("Timestamp is mismatch");
+                    }
+
+                    //::update qty of od
+                    if (ovmUpdated.Ods == null)
+                    {
+                        //error case
+                        TempData["td_serverWarning"] = "detail is empy";
+                        return View();
+                    }
+                    foreach (var od in ovmUpdated.Ods)
+                    {
+                        Debug.WriteLine(" " + od.Quantity);
+
+                        //check od (stock)(rowVersion)
+                        //update od
+                    }
+
+                    //_context.Update(order);
+                    _context.Update(qO); //::issue - this is not a good method or ...
+                    await _context.SaveChangesAsync();
+
+                    transaction.Commit();//key
+
                     return RedirectToAction("OrderDetailsForShop", "OrderDetails", new { id = id });
+                    //return Content("Done");
                 }
-
-                qO.ShipVia = orderUpdated.ShipVia;
-                qO.Payment = orderUpdated.Payment;
-                qO.Freight = orderUpdated.Freight; //::re-caculate with payment
-                
-
-                //if(qO.TimeStamp != orderUpdated.TimeStamp )
-                if (Convert.ToBase64String(qO.TimeStamp) != Convert.ToBase64String(orderUpdated.TimeStamp))
+                catch (DbUpdateConcurrencyException)
                 {
-                    TempData["td_serverWarning"] = "可能有其他用戶同時修改資料中 (Timestamp is mismatched)";                    
-                    ovm = new OrderViewModel();
-                    ovm.OrderId = id;
-                    return View(ovm);
-                    //return Content("Timestamp is mismatch");
+                    TempData["td_serverWarning"] = "可能有其他用戶同時修改資料中 (DbUpdate Concurrency Exception)";
+                    return View();
+                    //return Content("DbUpdateConcurrencyException");
                 }
-
-                //_context.Update(order);
-                _context.Update(qO); //::issue - this is not a good method or ...
-                await _context.SaveChangesAsync();
-
-                return RedirectToAction("OrderDetailsForShop", "OrderDetails", new { id = id});
-                //return Content("Done");
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                TempData["td_serverWarning"] = "可能有其他用戶同時修改資料中 (DbUpdate Concurrency Exception)";
-                return View();
-                //return Content("DbUpdateConcurrencyException");
-            }
-            catch (Exception ex)
-            {
-                //return Content("exception " + ex);
-                TempData["td_serverWarning"] = "Exception " + ex;
-                return View();
-            }
-            
+                catch (Exception ex)
+                {
+                    //return Content("exception " + ex);
+                    TempData["td_serverWarning"] = "Exception " + ex;
+                    return View();
+                } //try
+            } //transaction
         }
-    }
-}
+    } //class
+} //namespace

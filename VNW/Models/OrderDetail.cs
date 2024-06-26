@@ -20,6 +20,7 @@ namespace VNW.Models
         public short Quantity { get; set; }
         [Display(Name = "折扣")]
         public float Discount { get; set; }
+        public byte[] RowVersion { get; set; }
 
         //NP
         [Display(Name = "購物車訂單")]

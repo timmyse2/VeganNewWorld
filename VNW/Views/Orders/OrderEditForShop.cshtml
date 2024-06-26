@@ -64,7 +64,7 @@
                             @*@VNW.Common.EnumExtensions.GetDisplayName((VNW.Models.ShipViaTypeEnum)Model.OrderBase.ShipVia)*@
                             @*@EnumExtensions.GetDisplayName((ShipViaTypeEnum)Model.OrderBase.ShipVia)
                                 <select id="ShipVia" name="ShipVia"></select>*@
-                            <select name="ShipVia" asp-for="OrderBase.ShipVia" asp-items="@Html.GetEnumSelectList(typeof(VNW.Models.ShipViaTypeEnum))"
+                            <select name="OrderBase.ShipVia" asp-for="OrderBase.ShipVia" asp-items="@Html.GetEnumSelectList(typeof(VNW.Models.ShipViaTypeEnum))"
                                     class="form-control" id="sel_ShipVia"></select>
 
                         }
@@ -78,7 +78,7 @@
                 <tr>
                     <td>運費</td>
                     <td>
-                        <input name="Freight" id="Freight" value="@Model.OrderBase.Freight" readonly class="form-control" />
+                        <input name="OrderBase.Freight" id="Freight" value="@Model.OrderBase.Freight" readonly class="form-control" />
                         <span id="txt_Freight">@Model.OrderBase.Freight</span>
                     </td>
                 </tr>
@@ -88,7 +88,7 @@
                         @*@EnumExtensions.GetDisplayName((PayEnum)0)*@
                         @*@EnumExtensions.GetDisplayName((PayEnum)Model.OrderBase.Payment)
                             <select id="payment" name="payment"></select>*@
-                        <select name="Payment" asp-for="OrderBase.Payment" asp-items="@Html.GetEnumSelectList(typeof(VNW.Common.PayEnum))"
+                        <select name="OrderBase.Payment" asp-for="OrderBase.Payment" asp-items="@Html.GetEnumSelectList(typeof(VNW.Common.PayEnum))"
                                 class="form-control" id="sel_Payment"></select>
                         <span id="validate_Payment" class="text-danger"></span>
                     </td>
@@ -109,7 +109,7 @@
                     <td>發票處理方式</td>
                     <td>
                         @Model.Invoice
-                        <select name="Invoice" asp-for="Invoice" asp-items="@Html.GetEnumSelectList(typeof(InvoiceEnum))"
+                        <select name="OrderBase.Invoice" asp-for="Invoice" asp-items="@Html.GetEnumSelectList(typeof(InvoiceEnum))"
                                 class="form-control" id="sel_Invoice"></select>
                     </td>
                 </tr>
@@ -123,7 +123,7 @@
                             {
                                 @b
                             }
-                            <input name="TimeStamp" type="hidden" value="@Convert.ToBase64String(Model.OrderBase.TimeStamp)" />
+                            <input name="OrderBase.TimeStamp" type="hidden" value="@Convert.ToBase64String(Model.OrderBase.TimeStamp)" />
                         </div>
                     </td>
                 </tr>
@@ -151,14 +151,14 @@
     <h4>內容</h4>
 
     @if (Model.Ods != null)
-    {
-
+        {
+            int irow = 0;
         <table class="table table">
             <thead>
                 <tr>
                     <td></td>
                     <td>商品</td>
-                    <td>(ID)名稱</td>
+                    <td>(ID)名稱 [變更戳記]</td>
                     <td>@Html.DisplayNameFor(model => model.Ods.FirstOrDefault().Quantity)</td>
                     <td>@Html.DisplayNameFor(model => model.Ods.First().UnitPrice) </td>
                     <td>小記</td>
@@ -174,12 +174,16 @@
                 int allowToBuy = (int)item.Product.UnitsInStock - (int)item.Product.UnitsReserved;
 
                 <tr>
-                    <td><input type="checkbox" name="" class="form-control" checked readonly /> </td>
+                    <td>@*<input type="checkbox" name="" class="form-control" checked readonly />*@ </td>
                     <td><img src="~/images/@item.Product.Picture" style="width:80px; " /></td>
-                    <td>(@item.ProductId) @item.Product.ProductName</td>
+                    <td>
+                        (@item.ProductId)<br>
+                        @item.Product.ProductName<br>
+                            [@{foreach(var b in item.RowVersion){ @b }}]
+                    </td>
                     <td>
                         @*@item.Quantity*@
-                    <select class="form-control">
+                    <select class="form-control" name="Ods[@irow].Quantity">
                         @for (int i = 0; i < allowToBuy; i++)
                         {
                             if (item.Quantity == i + 1)
@@ -200,6 +204,7 @@
                 <td>@item.Product.UnitsInStock </td>
                 <td>@item.Product.UnitsReserved </td>
             </tr>
+            irow++;
         }
         </table>
         @*<div class="btn btn-primary">+</div><btn class="btn btn-danger">-</btn>*@
