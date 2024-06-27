@@ -87,7 +87,11 @@ else
                     <td>付款方式</td>
                     <td>
                         @*@EnumExtensions.GetDisplayName((PayEnum)0)*@
-                        @EnumExtensions.GetDisplayName((PayEnum)OrderInfo.Payment)
+                        @if (OrderInfo.Payment != null)
+                        {
+                            @EnumExtensions.GetDisplayName((PayEnum)OrderInfo.Payment)
+                        }
+
                     </td>
                 </tr>
                 <tr>

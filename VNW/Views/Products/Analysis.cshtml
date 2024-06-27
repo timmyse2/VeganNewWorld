@@ -1,0 +1,92 @@
+﻿
+@{
+    ViewData["Title"] = "Product Analysis";
+    Product p = null;
+    IEnumerable<OrderDetail> ods = null;
+}
+
+<h2>@ViewData["Title"]</h2>
+
+@if (ViewData["p"] != null)
+{
+    p = (Product)ViewData["p"];
+
+    <h4>商品資訊</h4>
+    <table class="table table-bordered">
+        <tr>
+            <td>ID</td>
+            <td>Name</td>
+            <td>Stock 庫存</td>
+            <td>Reserved 目前預訂量</td>
+            <td>可再下單數量</td>
+        </tr>
+        <tr>
+            <td>
+                #@p.ProductId
+            </td>
+            <td>
+                @p.ProductName
+                <img src="~/images/@p.Picture" style="width:80px; " />
+            </td>
+            <td>
+                @p.UnitsInStock
+            </td>
+            <td>@p.UnitsReserved</td>
+
+            <td>@(p.UnitsInStock - p.UnitsReserved)</td>
+        </tr>
+    </table>
+}
+
+
+@if (ViewData["ods"] != null)
+{
+    ods = (IEnumerable<OrderDetail>)ViewData["ods"];
+    <h4>待處理的訂單 (未出貨|未取消)</h4>
+    <table class="table table-bordered">
+        <tr>
+            <td></td>
+            <td>Order Id</td>
+            <td>User Id</td>
+            <td>數量(商品在該訂單的預訂量)</td>
+            <td>Order Date</td>
+            <td>Status</td>
+        </tr>
+        @{
+            int i = 0;
+            int accQty = 0;
+        }
+        @foreach (var od in ods)
+        {
+            accQty += od.Quantity;
+            i++;
+            <tr>
+                <td>@i @*@od.ProductId*@</td>
+                <td>@od.OrderId</td>
+                <td>@od.Order.CustomerId</td>
+                <td>@od.Quantity</td>
+                <td>@od.Order.OrderDate</td>
+                <td>@od.Order.Status</td>
+            </tr>
+        }
+        <tr></tr>
+        <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td>
+                <b>@accQty</b><br /> (合計需與Reserved一致)
+                @if (accQty == p.UnitsReserved)
+                {
+                    <h4><span class="alert-success">相符</span></h4>
+                }
+                else
+                {
+                    <h4><span class="alert-danger">不相符!</span></h4>
+                }
+            </td>
+        </tr>
+
+    </table>
+}
+

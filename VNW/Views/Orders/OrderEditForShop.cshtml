@@ -184,8 +184,8 @@
                             { @b }}]
                     </td>
                     <td>
-                        @*@item.Quantity*@
-                    <select class="form-control" name="Ods[@irow].Quantity">
+                        @item.Quantity
+                    @*<select class="form-control" name="Ods[@irow].Quantity" >
                         @for (int i = 0; i < allowToBuy; i++)
                         {
                             if (item.Quantity == i + 1)
@@ -198,7 +198,12 @@
                             }
 
                         }
-                    </select>
+                    </select>*@
+                        <input name="Ods[@irow].Quantity" type="number"
+                               class="form-control" value="@item.Quantity" />
+
+
+
                 </td>
                 <td>@item.UnitPrice </td>
                 <td>@QtyByPrice</td>
