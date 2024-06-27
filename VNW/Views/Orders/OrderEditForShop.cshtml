@@ -165,13 +165,15 @@
                     <td></td>
                     <td>店內總庫存</td>
                     <td>店內總預訂量</td>
+                    <td>可再下單量</td>
                 </tr>
             </thead>
             @foreach (var item in Model.Ods)
             {
                 decimal QtyByPrice = item.Quantity * item.UnitPrice; ;
                 totalSum += QtyByPrice;
-                int allowToBuy = (int)item.Product.UnitsInStock - (int)item.Product.UnitsReserved;
+                int allowToBuy = (int)item.Product.UnitsInStock - (int)item.Product.UnitsReserved
+                    + item.Quantity; //::for 
 
                 <tr>
                     <td>@*<input type="checkbox" name="" class="form-control" checked readonly />*@ </td>
@@ -180,39 +182,39 @@
                         <input name="Ods[@irow].ProductId" value="@item.ProductId" type="hidden" />
                         (@item.ProductId)<br>
                         @item.Product.ProductName<br>
-                        [@{foreach (var b in item.RowVersion)
-                            { @b }}]
+                        [@{foreach (var b in item.RowVersion){ @b }}]<br>
+                        [@item.Product.LastModifiedTime]
                     </td>
                     <td>
-                        @item.Quantity
-                    @*<select class="form-control" name="Ods[@irow].Quantity" >
-                        @for (int i = 0; i < allowToBuy; i++)
-                        {
-                            if (item.Quantity == i + 1)
+                        <span style="font-size:20px;">@item.Quantity</span>
+                        @*<input name="Ods[@irow].Quantity" type="number"
+                               class="form-control" value="@item.Quantity" />*@
+                        <select class="form-control" name="Ods[@irow].Quantity" style="min-width:80px;">
+                            @for (int i = 0; i < allowToBuy; i++)
                             {
-                                <option selected>@(i + 1)</option>
+                                if (item.Quantity == i + 1)
+                                {
+                                    <option selected>@(i + 1)</option>
+                                }
+                                else
+                                {
+                                    <option>@(i + 1)</option>
+                                }
+
                             }
-                            else
-                            {
-                                <option>@(i + 1)</option>
-                            }
-
-                        }
-                    </select>*@
-                        <input name="Ods[@irow].Quantity" type="number"
-                               class="form-control" value="@item.Quantity" />
+                        </select>
 
 
-
-                </td>
+                    </td>
                 <td>@item.UnitPrice </td>
                 <td>@QtyByPrice</td>
                 <td></td>
                 <td>@item.Product.UnitsInStock </td>
                 <td>@item.Product.UnitsReserved </td>
+                <td>@(item.Product.UnitsInStock- item.Product.UnitsReserved) </td>
             </tr>
             irow++;
-        }
+            }
         </table>
         @*<div class="btn btn-primary">+</div><btn class="btn btn-danger">-</btn>*@
 

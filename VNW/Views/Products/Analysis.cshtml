@@ -11,6 +11,8 @@
 {
     p = (Product)ViewData["p"];
 
+    <a asp-action="ProductDetailForShop" asp-route-id="@p.ProductId" class="btn btn-default">回商品細節</a>
+
     <h4>商品資訊</h4>
     <table class="table table-bordered">
         <tr>
@@ -31,7 +33,7 @@
             <td>
                 @p.UnitsInStock
             </td>
-            <td>@p.UnitsReserved</td>
+            <td><b style="font-size:20px;">@p.UnitsReserved</b></td>
 
             <td>@(p.UnitsInStock - p.UnitsReserved)</td>
         </tr>
@@ -46,6 +48,7 @@
     <table class="table table-bordered">
         <tr>
             <td></td>
+            <td>P id</td>
             <td>Order Id</td>
             <td>User Id</td>
             <td>數量(商品在該訂單的預訂量)</td>
@@ -61,7 +64,8 @@
             accQty += od.Quantity;
             i++;
             <tr>
-                <td>@i @*@od.ProductId*@</td>
+                <td>@i</td>
+                <td>@od.ProductId</td>
                 <td>@od.OrderId</td>
                 <td>@od.Order.CustomerId</td>
                 <td>@od.Quantity</td>
@@ -74,19 +78,22 @@
             <td></td>
             <td></td>
             <td></td>
+            <td></td>
             <td>
-                <b>@accQty</b><br /> (合計需與Reserved一致)
+                <b style="font-size:20px;">@accQty</b><br /> (合計需與Reserved一致)
                 @if (accQty == p.UnitsReserved)
                 {
-                    <h4><span class="alert-success">相符</span></h4>
+                    <h4><span class="alert-success">相符 : )</span></h4>
                 }
                 else
                 {
-                    <h4><span class="alert-danger">不相符!</span></h4>
+                    <h4><span class="alert-danger">不相符! : (</span></h4>
                 }
             </td>
         </tr>
 
     </table>
 }
+
+
 

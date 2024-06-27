@@ -1694,6 +1694,7 @@ namespace VNW.Controllers
                     foreach (var nod in ovmUpdated.Ods)
                     {
                         //Debug.WriteLine(" " + nod.Quantity);
+                        //::load original orderDetail (again)
                         OrderDetail ood = await _context.OrderDetails
                             .Where(x => x.ProductId == nod.ProductId && x.OrderId == id)
                             .FirstOrDefaultAsync();
@@ -1701,24 +1702,35 @@ namespace VNW.Controllers
                         if(ood == null)
                         {
                             //error case
-                            return Content("error due ood is null");
+                            return Content("error: original od is null");
                         }
 
-                        //::update p (reserved)
+                        //::load p.stock... and update p.reserved
                         Product p = await _context.Products.FindAsync(ood.ProductId);
                         if(p == null)
                         {
-                            return Content("error: ood is null");
+                            return Content("error: product is null");
                         }
 
                         //::check p.stock ...
-                        if(nod.Quantity > (p.UnitsInStock - p.UnitsReserved) )
-                        {
-                            return Content("error: overbooking maybe");
-                        }
+                        //if(nod.Quantity > (p.UnitsInStock - p.UnitsReserved) )
+                        //{
+                        //    return Content("error: overbooking maybe");
+                        //}
+
+                        //::if new qty != original qty  update od.qty, p.reserved
                         if (nod.Quantity != ood.Quantity)
                         {
-                            p.UnitsReserved += (short)(nod.Quantity - ood.Quantity);
+                            //::check stock
+                            short qtyDiff = (short)(nod.Quantity - ood.Quantity);
+                            short allowToBuy = (short)(p.UnitsInStock - p.UnitsReserved + ood.Quantity);
+                            //::NOTICE the caculation is different from 'Customer Create Order'
+                            if (nod.Quantity > allowToBuy )
+                            {
+                                return Content("error: overbooking maybe");
+                            }
+
+                            p.UnitsReserved += qtyDiff;
                             p.LastModifiedTime = DateTime.Now;
                             //check (rowVersion)
                             _context.Update(p);
