@@ -79,7 +79,7 @@
                     <td>運費</td>
                     <td>
                         <input name="OrderBase.Freight" id="Freight" value="@Model.OrderBase.Freight" readonly class="form-control" />
-                        <span id="txt_Freight">@Model.OrderBase.Freight</span>
+                        @*<span id="txt_Freight">@Model.OrderBase.Freight</span>*@
                     </td>
                 </tr>
                 <tr>
@@ -174,13 +174,13 @@
                 totalSum += QtyByPrice;
                 int allowToBuy = (int)item.Product.UnitsInStock - (int)item.Product.UnitsReserved
                     + item.Quantity; //::for 
-
+                if (allowToBuy >= 100) {allowToBuy = 100;}
                 <tr>
                     <td>@*<input type="checkbox" name="" class="form-control" checked readonly />*@ </td>
                     <td><img src="~/images/@item.Product.Picture" style="width:80px; " /></td>
                     <td>
                         <input name="Ods[@irow].ProductId" value="@item.ProductId" type="hidden" />
-                        (@item.ProductId)<br>
+                        (#@item.ProductId)<br>
                         @item.Product.ProductName<br>
                         [@{foreach (var b in item.RowVersion){ @b }}]<br>
                         [@item.Product.LastModifiedTime]
@@ -189,25 +189,24 @@
                         <span style="font-size:20px;">@item.Quantity</span>
                         @*<input name="Ods[@irow].Quantity" type="number"
                                class="form-control" value="@item.Quantity" />*@
-                        <select class="form-control" name="Ods[@irow].Quantity" style="min-width:80px;">
-                            @for (int i = 0; i < allowToBuy; i++)
+                        <select class="selectQty form-control" name="Ods[@irow].Quantity" style="min-width:80px;" pid="@item.ProductId", OldQty="@item.Quantity">
+                            @for (int i = 0; i <= allowToBuy; i++)
                             {
-                                if (item.Quantity == i + 1)
+                                if (item.Quantity == i)
                                 {
-                                    <option selected>@(i + 1)</option>
+                                    <option selected>@(i)</option>
                                 }
                                 else
                                 {
-                                    <option>@(i + 1)</option>
+                                    <option>@(i)</option>
                                 }
-
                             }
                         </select>
 
 
                     </td>
-                <td>@item.UnitPrice </td>
-                <td>@QtyByPrice</td>
+                <td><span class="unitPrice @item.ProductId">@item.UnitPrice</span></td>
+                <td><span class="TotalPrice @item.ProductId">@QtyByPrice</span></td>
                 <td></td>
                 <td>@item.Product.UnitsInStock </td>
                 <td>@item.Product.UnitsReserved </td>
@@ -220,10 +219,13 @@
 
         <div style="text-align:right;">
             <h3>
-                訂單金額: NT$<span id="txt_TotalPriceSum">@totalSum</span>
+                原訂單金額: NT$@((int)totalSum)<br />
+                修改後訂單金額: NT$<span id="txt_TotalPriceSum">@((int)totalSum)</span><br>
+
             </h3>
             <h3>
-                總計(含運費): NT$<span id="txt_TotalPriceSumPlus">@totalSum</span>
+                運費: NT$<span id="txt_Freight">@Model.OrderBase.Freight</span><br/>
+                總計(含運費): NT$<span id="txt_TotalPriceSumPlus">@(totalSum + Model.OrderBase.Freight)</span>
             </h3>
             @*<a asp-controller="orders" asp-route-id="@Model.OrderId" class="btn btn-lg btn-danger">送出修改</a>*@
 
@@ -245,14 +247,13 @@
         var sel_ShipVia = $('#sel_ShipVia');
         var sel_Payment = $('#sel_Payment');
         var sel_Invoice = $('#sel_Invoice');
-
+        var Freight = @Model.OrderBase.Freight;
 
         sel_ShipVia.change(sel_ShipVia_UpdateFreight);
         function sel_ShipVia_UpdateFreight() {
             var totalSum = @totalSum;
             var thisValue = sel_ShipVia.val(); //$(this).val();//  sel_ShipVia.val();
             console.log("sel_ShipVia change " + thisValue);
-            var Freight = 0;
             switch (thisValue) { //::notice: ths val() is 'string'
                 case '0':
                     Freight = 0;
@@ -307,7 +308,33 @@
 
         }
 
+        $('.selectQty').on('change', function () {
+            var newQtyValue = $(this).val();
+            console.log("newQtyValue: " + newQtyValue);
+            var pid = this.getAttribute("pid");
+            console.log("pid " + pid);
 
+            var OldQtyValue = 0;
+            OldQtyValue = parseInt(this.getAttribute('OldQty'));
+            console.log("OldQtyValue: " + OldQtyValue);
+
+            //::update total price for this product
+            var unitPrice = parseInt($('.unitPrice.' + pid).text());
+            console.log(" unitPrice" + unitPrice);
+            var totalPrice = newQtyValue * unitPrice;
+            console.log(" 小記 " + totalPrice);
+            $('.TotalPrice.' + pid).text(totalPrice +'*');
+            $('.TotalPrice.' + pid).addClass("alert-warning");
+
+            var TotalPriceSum = 0;
+            TotalPriceSum = parseInt($('#txt_TotalPriceSum').text());
+            console.log(" sum " + TotalPriceSum);
+            TotalPriceSum += (newQtyValue - OldQtyValue) * unitPrice; 
+            $('#txt_TotalPriceSum').text(TotalPriceSum);
+
+            this.setAttribute('OldQty', newQtyValue);
+            $('#txt_TotalPriceSumPlus').text(TotalPriceSum + Freight);
+        });
         console.log("jquery end");
     </script>
 }    

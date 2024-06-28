@@ -1,6 +1,6 @@
 ﻿
 @{
-    ViewData["Title"] = "Product Analysis";
+    ViewData["Title"] = "分析商品預訂量";
     Product p = null;
     IEnumerable<OrderDetail> ods = null;
 }
@@ -28,7 +28,8 @@
             </td>
             <td>
                 @p.ProductName
-                <img src="~/images/@p.Picture" style="width:80px; " />
+                <img src="~/images/@p.Picture" style="width:80px; " /><br/>
+                @p.LastModifiedTime
             </td>
             <td>
                 @p.UnitsInStock
@@ -39,7 +40,6 @@
         </tr>
     </table>
 }
-
 
 @if (ViewData["ods"] != null)
 {
@@ -54,6 +54,8 @@
             <td>數量(商品在該訂單的預訂量)</td>
             <td>Order Date</td>
             <td>Status</td>
+            <td>Order Time Stamp</td>
+            <td>Detail Time Stamp</td>
         </tr>
         @{
             int i = 0;
@@ -71,6 +73,8 @@
                 <td>@od.Quantity</td>
                 <td>@od.Order.OrderDate</td>
                 <td>@od.Order.Status</td>
+                <td>@foreach(var b in od.Order.TimeStamp) {@b}</td>
+                <td>@foreach(var b in od.RowVersion) {@b}</td>
             </tr>
         }
         <tr></tr>
@@ -91,9 +95,5 @@
                 }
             </td>
         </tr>
-
     </table>
 }
-
-
-
