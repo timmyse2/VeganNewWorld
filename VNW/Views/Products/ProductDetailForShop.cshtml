@@ -60,12 +60,13 @@
 
                 <div style="border-width:1px;border-color:lightgray;border-radius:5px;max-width:300px;text-align:center;">
                     <b>快速進貨設定 <span style="color:mediumvioletred">(新測試功能)</span></b>
+                    <div id="btn_showQuickFunction" class="btn btn-sm btn-success">></div>
                     <input type="number" id="num_addStock" value="1" class="form-control" 
-                           style="font-size:16px;text-align:center;margin:2px;width:90%;"/>
+                           style="font-size:16px;text-align:center;margin:2px;width:90%;display:none;"/>
 
                     @*style="font-size:16px;max-width:200px;text-align:center;border-radius:5px;border-width:1px;padding:4px;border-color:lightgray;"*@
 
-                    <div class="btn btn-danger" id="btn_addStock">直接只加庫存量</div>
+                    <div class="btn btn-danger" id="btn_addStock" style="display:none;">直接只加庫存量</div>
                     @*<div class="btn btn-primary" id="btn_addTen">+10</div>*@
                     @*<div class="btn btn-warning" id="btn_addStock">加庫存量並減訂購</div>*@
                 </div>
@@ -171,6 +172,7 @@
         var num_addStock = $('#num_addStock');
         //var btn_addOne = $('#btn_addOne');
         var btn_addTen = $('#btn_addTen');
+        var btn_showQuickFunction = $('#btn_showQuickFunction');
 
         btn_addStock.click(function () {
             console.log("add Stock " + num_addStock.val());
@@ -283,6 +285,22 @@
             $('#img_loading').show();            
         }
 
+
+        btn_showQuickFunction.click(btn_showQuickFunction_click);
+        //btn_showQuickFunction_click();
+        function btn_showQuickFunction_click() {
+            //console.log("" + btn_showQuickFunction.text());
+            if (btn_showQuickFunction.text() == "<") {
+                btn_addStock.hide();
+                num_addStock.hide();
+                btn_showQuickFunction.text(">");
+            }
+            else {
+                btn_addStock.show();
+                num_addStock.show();
+                btn_showQuickFunction.text("<");
+            }
+        }
         console.log("jquery end");
     </script>
 }

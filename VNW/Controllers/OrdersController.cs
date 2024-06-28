@@ -1678,10 +1678,11 @@ namespace VNW.Controllers
                     if (Convert.ToBase64String(qO.TimeStamp) != Convert.ToBase64String(ovmUpdated.OrderBase.TimeStamp))
                     {
                         TempData["td_serverWarning"] = "可能有其他用戶同時修改資料中 (Timestamp is mismatched)";
-                        ovm = new OrderViewModel();
-                        ovm.OrderId = id;
-                        return View(ovm);
+                        //ovm = new OrderViewModel();
+                        //ovm.OrderId = id;
+                        //return View(ovm);
                         //return Content("Timestamp is mismatch");
+                        return RedirectToAction("OrderDetailsForShop", "OrderDetails", new { id = id });
                     }
 
                     //::update qty of od
@@ -1727,7 +1728,11 @@ namespace VNW.Controllers
                             //::NOTICE the caculation is different from 'Customer Create Order'
                             if (nod.Quantity > allowToBuy )
                             {
-                                return Content("error: overbooking maybe");
+                                string msg = "無法更新; 部份商品庫存不足，或已被預定；可能發生超賣(overbooking)";
+                                //return Content(msg);
+                                TempData["td_serverWarning"] = msg;
+                                //return View();
+                                return RedirectToAction("OrderDetailsForShop", "OrderDetails", new { id = id });
                             }
 
                             p.UnitsReserved += qtyDiff;
@@ -1760,8 +1765,9 @@ namespace VNW.Controllers
                 catch (DbUpdateConcurrencyException)
                 {
                     TempData["td_serverWarning"] = "可能有其他用戶同時修改資料中 (DbUpdate Concurrency Exception)";
-                    return View();
+                    //return View();
                     //return Content("DbUpdateConcurrencyException");
+                    return RedirectToAction("OrderDetailsForShop", "OrderDetails", new { id = id });
                 }
                 catch (Exception ex)
                 {
