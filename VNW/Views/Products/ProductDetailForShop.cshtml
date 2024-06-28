@@ -14,12 +14,13 @@
 <a asp-controller="Categories" asp-action="CategoryList" class="btn btn-info">商品分類(消費者)</a>
 <a asp-action="Index" class="btn btn-default">返回前一頁</a>
 <p/>
-@*<div>
+@*<div id="urlDebug">
     @{
         var currentUrl = ViewBag.currentUrl;
-        @currentUrl <br />
-        @ViewBag.currentPath <br />
-        @ViewBag.currentHost <br />
+        <b>URL</b> @currentUrl <br />
+        <b>Path</b> @ViewBag.currentPath <br />
+        <b>Host</b> @ViewBag.currentHost <br />
+        <b>Base</b> @ViewData["currentBase"]<br/>
     }
 </div>*@
 
@@ -179,7 +180,7 @@
             var surl = "";
             //surl = "../QuickAddStock"; //ok for /39
             //surl = "QuickAddStock";  // ok for ?id=39
-            surl = '@ViewBag.currentHost' + '/products/QuickAddStock';            
+            surl = '@(ViewBag.currentHost+ViewBag.currentBase)/products/QuickAddStock';
             $.ajax({
                 url: surl,
                 type: "POST",

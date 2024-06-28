@@ -923,7 +923,8 @@ namespace VNW.Controllers
             //ViewData["currentUrl"] = currentUrl;
             //ViewData["currentPath"] = $"{HttpContext.Request.Scheme}://{HttpContext.Request.Host}{HttpContext.Request.Path}";
             ViewData["currentHost"] = $"{HttpContext.Request.Scheme}://{HttpContext.Request.Host}";
-
+            ViewData["currentBase"] = $"{HttpContext.Request.PathBase}";
+            //ViewData["currentBody"] = $"{HttpContext.Request.Body }";
             return View(product);
         }
 
