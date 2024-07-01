@@ -891,6 +891,53 @@ namespace VNW.Controllers
         }
 
 
+        //::api for get StockReserved
+        public async Task<IActionResult> GetStockReserved(int? id)
+        {
+            string _result = "tbc", _detail = "tbc";
+            short stock = 0, reserved = 0;
+            //check user level
+
+            //::check pid
+            int _pid;
+            if (id == 0 || id == null)
+            {
+                _result = "FAIL"; _detail = "id or key value is null";
+            }
+            else
+            {
+                try
+                {
+                    _pid = (int)id;
+                    //string pidJSON = null;
+                    var query = await _context.Products
+                      .Where(x => x.ProductId == _pid)
+                      .AsNoTracking()
+                      .Select(x => new { x.ProductId, x.UnitsInStock, x.UnitsReserved })
+                      .FirstOrDefaultAsync();
+
+                    if(query != null)
+                    {
+                        stock = (short)query.UnitsInStock;
+                        reserved = (short)query.UnitsReserved;
+                        _result = "PASS"; _detail = "";
+                    }
+                    else
+                    {
+                        _result = "FAIL"; _detail = "product data is null";
+                    }
+
+                }
+                catch (Exception ex)
+                {
+                    _result = "ERROR"; _detail = "" + ex.ToString();
+                }
+
+            }
+            var res = new { result = _result, detail = _detail, stock, reserved};
+            return Json(res);
+        }
+
         //::for level 2B Shop
         public async Task<IActionResult> ProductDetailForShop(int? id)
         {

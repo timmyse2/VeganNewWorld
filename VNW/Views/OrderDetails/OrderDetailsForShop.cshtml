@@ -154,8 +154,9 @@ else
             </th>
             <th>小記</th>
             <th></th>
-            <th><span style="color:blue">店內庫存<br />(不是訂單的內容)</span></th>
-            <th><span style="color:blue">預購總量<br />(不是訂單的內容)</span></th>
+            <th><span style="color:blue">店內庫存<br /></span></th>
+            <th><span style="color:blue">預購總量<br /></span></th>
+            <th><span style="color:blue">可下單量<br /></span></th>
         </tr>
     </thead>
     <tbody>
@@ -208,6 +209,7 @@ else
                         <span class="alert-danger">超賣(Overbooking)</span>
                     }
                 </td>
+                <td>@(item.Product.UnitsInStock - item.Product.UnitsReserved)</td>
             </tr>
         }
     </tbody>
@@ -258,12 +260,3 @@ else
 
     }
 }
-
-
-
-
-
-
-
-
-

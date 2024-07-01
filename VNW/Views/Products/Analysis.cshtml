@@ -68,7 +68,7 @@
             <tr>
                 <td>@i</td>
                 <td>@od.ProductId</td>
-                <td>@od.OrderId</td>
+                <td><a asp-controller="orderDetails" asp-action="OrderDetailsForShop" asp-route-id="@od.OrderId">@od.OrderId</a>  </td>
                 <td>@od.Order.CustomerId</td>
                 <td>@od.Quantity</td>
                 <td>@od.Order.OrderDate</td>

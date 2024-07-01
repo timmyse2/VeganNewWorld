@@ -153,7 +153,7 @@
     @if (Model.Ods != null)
         {
             int irow = 0;
-        <table class="table table">
+        <table class="table table-bordered">
             <thead>
                 <tr>
                     <td></td>
@@ -165,7 +165,7 @@
                     <td></td>
                     <td>店內總庫存</td>
                     <td>店內總預訂量</td>
-                    <td>可再下單量</td>
+                    <td>估計可再下單量</td>
                 </tr>
             </thead>
             @foreach (var item in Model.Ods)
@@ -205,17 +205,19 @@
 
 
                     </td>
-                <td><span class="unitPrice @item.ProductId">@item.UnitPrice</span></td>
+                <td><span class="UnitPrice @item.ProductId">@item.UnitPrice</span></td>
                 <td><span class="TotalPrice @item.ProductId">@QtyByPrice</span></td>
                 <td></td>
-                <td>@item.Product.UnitsInStock </td>
-                <td>@item.Product.UnitsReserved </td>
-                <td>@(item.Product.UnitsInStock- item.Product.UnitsReserved) </td>
+                <td><span class="Stock @item.ProductId">@item.Product.UnitsInStock</span></td>
+                <td><span class="Reserved @item.ProductId">@item.Product.UnitsReserved</span></td>
+                <td><span class="Boundary @item.ProductId">@(item.Product.UnitsInStock - item.Product.UnitsReserved)</span></td>
             </tr>
             irow++;
             }
         </table>
         @*<div class="btn btn-primary">+</div><btn class="btn btn-danger">-</btn>*@
+
+        <span class="text-primary">Tip: 將商品數量設為0代表取消，但一張訂單至少要有一件商品</span>
 
         <div style="text-align:right;">
             <h3>
@@ -229,8 +231,8 @@
             </h3>
             @*<a asp-controller="orders" asp-route-id="@Model.OrderId" class="btn btn-lg btn-danger">送出修改</a>*@
 
-            <input type="submit" value="送出修改" class="btn btn-lg btn-danger" />
-
+            <input type="submit" value="送出修改" id="btn_submit" class="btn btn-lg btn-danger" />
+            <span id="warningBeforeSubmit" class="text-danger" style="font-size:16px;"></span>
         </div>
     }
 
@@ -319,8 +321,8 @@
             console.log("OldQtyValue: " + OldQtyValue);
 
             //::update total price for this product
-            var unitPrice = parseInt($('.unitPrice.' + pid).text());
-            console.log(" unitPrice" + unitPrice);
+            var unitPrice = parseInt($('.UnitPrice.' + pid).text());
+            console.log(" UnitPrice" + unitPrice);
             var totalPrice = newQtyValue * unitPrice;
             console.log(" 小記 " + totalPrice);
             $('.TotalPrice.' + pid).text(totalPrice +'*');
@@ -334,7 +336,69 @@
 
             this.setAttribute('OldQty', newQtyValue);
             $('#txt_TotalPriceSumPlus').text(TotalPriceSum + Freight);
+
+            if (TotalPriceSum <= 0) {
+                $('#btn_submit').hide();
+                $('#warningBeforeSubmit').html("提示：總價少於0，至少要買一件商品");
+            }
+            else {
+                $('#btn_submit').show();
+                $('#warningBeforeSubmit').html("");
+            }
+
+            //::load current stock|reserved from DB
+            SetBusy();
+            var surl = "../../Products/GetStockReserved";
+            $.ajax({
+                url: surl,
+                type: "POST",
+                dateType: "json",
+                data: {
+                    id: pid,
+                },
+                success: function (data) {
+                    console.log("get data from " + surl);
+                    console.log(data);
+                    if (data.result == "PASS") {
+                        console.log("PASS ");
+                        console.log(" detail:" + data.detail);
+                        //var i = 0;
+                        var stock = parseInt(data.stock);
+                        var reserved = parseInt(data.reserved);
+                        console.log(" stock:" + stock);
+                        console.log(" reserved:" + reserved);
+                        //::show values
+                        $('.Stock.' + pid).text(stock);
+                        $('.Stock.' + pid).addClass("alert-warning");
+                        $('.Reserved.' + pid).text(reserved);
+                        $('.Reserved.' + pid).addClass("alert-warning");
+                        $('.Boundary.' + pid).text(stock - reserved);
+                        $('.Boundary.' + pid).addClass("alert-warning");
+                        SetReady();
+                    }
+                    else {
+                        //::fail case
+                        console.log("fail case");
+                        $("#td_serverWarning").text("未得到正確回應");
+                        SetReady();
+                    }
+                }, //success
+                error: function (xhr, ajaxOptions, thrownError) {
+                    console.log(xhr)
+                    //$("#td_serverWarning").text("發生未知錯誤");
+                    SetReady();
+                }//error
+            });
         });
+
+        function SetReady(){
+
+        }
+        function SetBusy() {
+
+        }
+
+
         console.log("jquery end");
     </script>
 }    
