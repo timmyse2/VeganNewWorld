@@ -24,12 +24,18 @@
    class="btn btn-lg btn-default">取消修改|返回前頁</a>
 
 
+<div id="MaskWindow"
+     style="opacity:0.05;background:#000;width:200%;height:200%;z-index:99;position:absolute;top:0;left:0;cursor:no-drop;display:none;"></div>
+<div id="img_loading" style="z-index:100;position:fixed;border:none;width:100%;height:100%;left:0;top:50%-250px;cursor:no-drop;display:none;">
+    <center><h3><b>處理中...</b></h3><img src="~/images/wait.gif" style="width:250px;" /></center>
+</div>
+
 @if (Model.OrderBase == null)
 {
     return;
 }
 
-<form action="OrderEditForShop" method="post">
+<form action="OrderEditForShop" method="post" id="form_OrderEdit">
     <input name="id" asp-for="@Model.OrderId" type="hidden" />
     <div class="row">
         <div class="col-md-6 col-sm-6 col-xs-6">
@@ -151,9 +157,9 @@
     <h4>內容</h4>
 
     @if (Model.Ods != null)
-        {
-            int irow = 0;
-        <table class="table table-bordered">
+    {
+        int irow = 0;
+        <table class="table table-bordered" id="table_ods">
             <thead>
                 <tr>
                     <td></td>
@@ -173,8 +179,8 @@
                 decimal QtyByPrice = item.Quantity * item.UnitPrice; ;
                 totalSum += QtyByPrice;
                 int allowToBuy = (int)item.Product.UnitsInStock - (int)item.Product.UnitsReserved
-                    + item.Quantity; //::for 
-                if (allowToBuy >= 100) {allowToBuy = 100;}
+                    + item.Quantity; //::for
+                if (allowToBuy >= 100) { allowToBuy = 100; }
                 <tr>
                     <td>@*<input type="checkbox" name="" class="form-control" checked readonly />*@ </td>
                     <td><img src="~/images/@item.Product.Picture" style="width:80px; " /></td>
@@ -182,14 +188,15 @@
                         <input name="Ods[@irow].ProductId" value="@item.ProductId" type="hidden" />
                         (#@item.ProductId)<br>
                         @item.Product.ProductName<br>
-                        [@{foreach (var b in item.RowVersion){ @b }}]<br>
+                        [@{foreach (var b in item.RowVersion)
+                            { @b }}]<br>
                         [@item.Product.LastModifiedTime]
                     </td>
                     <td>
                         <span style="font-size:20px;">@item.Quantity</span>
                         @*<input name="Ods[@irow].Quantity" type="number"
-                               class="form-control" value="@item.Quantity" />*@
-                        <select class="selectQty form-control" name="Ods[@irow].Quantity" style="min-width:80px;" pid="@item.ProductId", OldQty="@item.Quantity">
+                            class="form-control" value="@item.Quantity" />*@
+                        <select class="selectQty form-control" name="Ods[@irow].Quantity" style="min-width:80px;" pid="@item.ProductId" , OldQty="@item.Quantity">
                             @for (int i = 0; i <= allowToBuy; i++)
                             {
                                 if (item.Quantity == i)
@@ -205,19 +212,18 @@
 
 
                     </td>
-                <td><span class="UnitPrice @item.ProductId">@item.UnitPrice</span></td>
-                <td><span class="TotalPrice @item.ProductId">@QtyByPrice</span></td>
-                <td></td>
-                <td><span class="Stock @item.ProductId">@item.Product.UnitsInStock</span></td>
-                <td><span class="Reserved @item.ProductId">@item.Product.UnitsReserved</span></td>
-                <td><span class="Boundary @item.ProductId">@(item.Product.UnitsInStock - item.Product.UnitsReserved)</span></td>
-            </tr>
-            irow++;
+                    <td><span class="UnitPrice @item.ProductId">@item.UnitPrice</span></td>
+                    <td><span class="TotalPrice @item.ProductId">@QtyByPrice</span></td>
+                    <td></td>
+                    <td><span class="Stock @item.ProductId">@item.Product.UnitsInStock</span></td>
+                    <td><span class="Reserved @item.ProductId">@item.Product.UnitsReserved</span></td>
+                    <td><span class="Boundary @item.ProductId">@(item.Product.UnitsInStock - item.Product.UnitsReserved)</span></td>
+                </tr>
+                irow++;
             }
         </table>
-        @*<div class="btn btn-primary">+</div><btn class="btn btn-danger">-</btn>*@
-
         <span class="text-primary">Tip: 將商品數量設為0代表取消，但一張訂單至少要有一件商品</span>
+        <br /><div class="btn btn-primary" name="btn_AddMoreItem">+ 加入商品 (Beta)</div>
 
         <div style="text-align:right;">
             <h3>
@@ -226,7 +232,7 @@
 
             </h3>
             <h3>
-                運費: NT$<span id="txt_Freight">@Model.OrderBase.Freight</span><br/>
+                運費: NT$<span id="txt_Freight">@Model.OrderBase.Freight</span><br />
                 總計(含運費): NT$<span id="txt_TotalPriceSumPlus">@(totalSum + Model.OrderBase.Freight)</span>
             </h3>
             @*<a asp-controller="orders" asp-route-id="@Model.OrderId" class="btn btn-lg btn-danger">送出修改</a>*@
@@ -238,8 +244,9 @@
 
 </form>
 
+
 <a asp-action="OrderDetailsForShop" asp-controller="orderDetails" asp-route-id="@Model.OrderId"
-   class="btn btn-lg btn-default">取消修改|返回前頁</a>
+   class="btn btn-lg btn-default" id="btn_cancel">取消修改|返回前頁</a>
 
 @section endJS{
     <script type="text/javascript" src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
@@ -310,10 +317,12 @@
 
         }
 
+        //::qty change - with API via ajax
         $('.selectQty').on('change', function () {
             var newQtyValue = $(this).val();
             console.log("newQtyValue: " + newQtyValue);
             var pid = this.getAttribute("pid");
+            var keepThis = $(this);
             console.log("pid " + pid);
 
             var OldQtyValue = 0;
@@ -331,7 +340,7 @@
             var TotalPriceSum = 0;
             TotalPriceSum = parseInt($('#txt_TotalPriceSum').text());
             console.log(" sum " + TotalPriceSum);
-            TotalPriceSum += (newQtyValue - OldQtyValue) * unitPrice; 
+            TotalPriceSum += (newQtyValue - OldQtyValue) * unitPrice;
             $('#txt_TotalPriceSum').text(TotalPriceSum);
 
             this.setAttribute('OldQty', newQtyValue);
@@ -375,27 +384,39 @@
                         $('.Boundary.' + pid).text(stock - reserved);
                         $('.Boundary.' + pid).addClass("alert-warning");
                         SetReady();
+                        $('#btn_cancel').focus();
+                        keepThis.focus();
                     }
                     else {
                         //::fail case
                         console.log("fail case");
                         $("#td_serverWarning").text("未得到正確回應");
                         SetReady();
+                        $('#btn_cancel').focus();
+                        keepThis.focus();
                     }
                 }, //success
                 error: function (xhr, ajaxOptions, thrownError) {
                     console.log(xhr)
                     //$("#td_serverWarning").text("發生未知錯誤");
                     SetReady();
+                    $('#btn_cancel').focus();
+                    keepThis.focus();
                 }//error
             });
         });
 
-        function SetReady(){
+        function SetReady() {
+            //$('#form_OrderEdit').show();
 
+            $('#img_loading').hide();
+            $('#MaskWindow').hide();
         }
         function SetBusy() {
+            //$('#form_OrderEdit').hide();
 
+            $('#img_loading').show();
+            $('#MaskWindow').show();
         }
 
 

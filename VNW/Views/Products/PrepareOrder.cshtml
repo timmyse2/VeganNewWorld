@@ -29,8 +29,11 @@
         <a asp-action="CategoryList" asp-controller="Categories">商品分類</a>
     }*@
 
-<div id="img_loading" style=""><center>處理中...<img src="~/images/loading.gif" style="width:150px;" /></center></div>
-<div id="MaskWindow" style="opacity:0.05;background:#0f0;width:120%;height:120%;z-index:99;position:absolute;top:0;left:0;cursor:no-drop;"></div>
+<div id="MaskWindow"
+     style="opacity:0.05;background:#000;width:200%;height:200%;z-index:99;position:absolute;top:0;left:0;cursor:no-drop;display:none;"></div>
+<div id="img_loading" style="z-index:100;position:fixed;border:none;width:100%;height:100%;left:0;top:50%-250px;cursor:no-drop;display:none;">
+    <center><h3><b>處理中...</b></h3><img src="~/images/wait.gif" style="width:250px;" /></center>
+</div>
 
 @*<div class="modal-overlay js-modal-cancel"></div>*@
 <div class="modal-overlay"></div>
@@ -111,7 +114,7 @@
 
                                     @for (int i = 1; i <= item.Stock; i++)
                                     {
-                                        if ((i == @item.Qty) || (item.Stock < item.Qty && i== item.Stock))
+                                        if ((i == @item.Qty) || (item.Stock < item.Qty && i == item.Stock))
                                         {
                                             <option selected value="@i">@i</option>
                                         }
@@ -188,26 +191,26 @@
             opacity: 0.9;
         }
 
-        .modal-box header {
-            padding: 1.5em;
-            border-bottom: 1px solid #ddd;
-        }
-
-            .modal-box header h3,
-            .modal-box header h4 {
-                margin: 0;
+            .modal-box header {
+                padding: 1.5em;
+                border-bottom: 1px solid #ddd;
             }
 
-        .modal-box footer {
-            padding: 1em;
-            border-top: 1px solid #ddd;
-            text-align: right;
-        }
+                .modal-box header h3,
+                .modal-box header h4 {
+                    margin: 0;
+                }
 
-        .modal-box .modal-body {
-            padding: 2em 1.5em;
-            /*font-size: 2em;*/
-        }
+            .modal-box footer {
+                padding: 1em;
+                border-top: 1px solid #ddd;
+                text-align: right;
+            }
+
+            .modal-box .modal-body {
+                padding: 2em 1.5em;
+                /*font-size: 2em;*/
+            }
 
         .modal-overlay {
             /*display:none;*/ /*try*/
@@ -218,7 +221,7 @@
             z-index: 900;
             width: 120%; /*try to set large*/
             height: 120%;
-            background: rgba(0,0,0,0.5) !important;            
+            background: rgba(0,0,0,0.5) !important;
         }
 
         a.closeBtn { /*change name from close to closeBtn*/
@@ -231,10 +234,10 @@
             color: #bbb;
         }
 
-        a.closeBtn:hover {
-            color: #222;
-            /*transition: color1s ease;*/
-        }
+            a.closeBtn:hover {
+                color: #222;
+                /*transition: color1s ease;*/
+            }
     </style>
 }
 
@@ -250,9 +253,9 @@
                 $('#td_serverWarning').text("沒結完帳不會讓你離開的!");
                 return ("沒結完帳不會讓你離開的!");
             }
-        }		
+        }
 
-        //::disable F5, Alt+<, Alt+> 
+        //::disable F5, Alt+<, Alt+>
         //$(window.document).keydown(disableF5InnerFunc);
         function disableF5InnerFunc(event) {
             var e;
@@ -476,12 +479,12 @@
                     if (data.result == "PASS") {
                         console.log("PASS ");
 
-                        //::update Stock to <option>                                                
+                        //::update Stock to <option>
                         keepThis.empty(); //remove sub <option>
                         //keepSelectObj.remove(); //No, it includes <select>
                         console.log(" stock:" + data.detail);
                         var i = 0;
-                        var _stock = parseInt(data.detail);                        
+                        var _stock = parseInt(data.detail);
                         //:: notice Int? or Short?
 
                         if (newQtyValue > _stock) {
@@ -494,8 +497,8 @@
                                 console.log('remove warning');
                                 keepThis.parent().find('b').remove();
                             }
-                        }                        
-                        
+                        }
+
                         for (i = 0; i < _stock; i++) {
                             //console.log(" " + i + " " + keepThis.val());
                             if ((i+1) == newQtyValue) {
@@ -503,7 +506,7 @@
                             }
                             else {
                                 keepThis.append('<option value="' + (i + 1) + '">' + (i + 1) + '</option>');
-                            }                            
+                            }
                         }
 
                         //:: Total Price Sum
@@ -612,7 +615,7 @@
                 height: $(window).outerHeight() * window.devicePixelRatio
             });
             */
-        }); 
+        });
 
         $('#btn_SendOrder').click(function () {
             //$(this).hide();
