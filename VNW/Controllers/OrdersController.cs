@@ -1704,6 +1704,11 @@ namespace VNW.Controllers
                         {
                             //error case
                             return Content("error: original od is null");
+
+                            //::new function - add more Od in Order
+                            //_context.Add(nod);
+                            //await _context.SaveChangesAsync();
+
                         }
 
                         //::load p.stock... and update p.reserved

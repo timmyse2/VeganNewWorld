@@ -891,11 +891,11 @@ namespace VNW.Controllers
         }
 
 
-        //::api for get StockReserved
+        //::api for get StockReserved 2B
         public async Task<IActionResult> GetStockReserved(int? id)
         {
-            string _result = "tbc", _detail = "tbc";
-            short stock = 0, reserved = 0;
+            string _result = "tbc", _detail = "tbc", productName = "";
+            short stock = 0, reserved = 0, unitPrice = 0;
             //check user level
 
             //::check pid
@@ -913,13 +913,15 @@ namespace VNW.Controllers
                     var query = await _context.Products
                       .Where(x => x.ProductId == _pid)
                       .AsNoTracking()
-                      .Select(x => new { x.ProductId, x.UnitsInStock, x.UnitsReserved })
+                      .Select(x => new { x.ProductId, x.UnitsInStock, x.UnitsReserved, x.ProductName, x.UnitPrice })
                       .FirstOrDefaultAsync();
 
                     if(query != null)
                     {
                         stock = (short)query.UnitsInStock;
                         reserved = (short)query.UnitsReserved;
+                        productName = query.ProductName;
+                        unitPrice = (short) query.UnitPrice;
                         _result = "PASS"; _detail = "";
                     }
                     else
@@ -934,7 +936,24 @@ namespace VNW.Controllers
                 }
 
             }
-            var res = new { result = _result, detail = _detail, stock, reserved};
+            var res = new { result = _result, detail = _detail, stock, reserved, productName, unitPrice };
+            return Json(res);
+        }
+
+        //::api for get add new product item rder for 2B
+        public async Task<IActionResult> GetProductReadyList()
+        {
+            string _result = "tbc", _detail = "tbc";
+
+            var q0 = _context.Products
+                .Take(100) //top limit
+                .Where(x => (x.UnitsInStock - x.UnitsReserved) > 0 &&
+                    x.Discontinued == false
+                    );
+            int rowCount = q0.Select(x => new {x.UnitsInStock }).Count(); // x.UnitsReserved,
+            var ps = await q0.ToArrayAsync();
+
+            var res = new { result = _result, detail = _detail, rowCount, ps };
             return Json(res);
         }
 
