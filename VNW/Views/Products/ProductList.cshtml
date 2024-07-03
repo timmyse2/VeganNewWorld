@@ -10,11 +10,27 @@
     <a asp-action="Index" asp-controller="Home">首頁</a>
     > <a asp-action="CategoryList" asp-controller="categories">商品分類</a>
     > @(ViewBag.catName)
+    @if (ViewBag.searchKey != null)
+    {
+        <span>關鍵字查詢:"@ViewBag.searchKey"</span>
+    }
 </p>
 <h2>@ViewBag.catName</h2>
 
-<div style="text-align:right">    
+<div style="text-align:right">
     <a class="btn btn-danger" id="btn_shippingCart" asp-action="PrepareOrder">購物車(0)</a><br />
+</div>
+
+<div>
+    <form asp-action="ProductList" asp-controller="products">
+        <h4>用關鍵字找商品(可輸入1~20個字) </h4>
+        <table>
+            <tr>
+                <td><input id="input_search" name="search" class="form-control" style="" value="@ViewBag.searchKey" /></td>
+                <td><input type="submit" value="查詢" class="btn btn-primary" /></td>
+            </tr>
+        </table>
+    </form>
 </div>
 
 <div id="txt_PassMessage"></div>
@@ -81,6 +97,7 @@
     }
 </div>
 
+
 @section topCSS{
     <style>
         #txt_PassMessage {
@@ -110,7 +127,7 @@
             padding: 10px;
             color: black;
             display: none; /**/
-            background-color:orangered;
+            background-color: orangered;
         }
 
         .btn_AddProductInOrder {
@@ -119,11 +136,12 @@
             background-color: forestgreen;
             color: white;
         }
-        .btn_AddProductInOrder:hover {                        
-            color:yellow;
-            background-color:darkseagreen;
-            cursor:pointer;
-        }
+
+            .btn_AddProductInOrder:hover {
+                color: yellow;
+                background-color: darkseagreen;
+                cursor: pointer;
+            }
     </style>
 }
 
@@ -174,7 +192,7 @@
                             console.log("prodCount " + data.prodCount);
 
                             $("#txt_PassMessage").fadeIn(0, function () {
-                                $("#txt_PassMessage").fadeOut(3000);                                
+                                $("#txt_PassMessage").fadeOut(3000);
                             });
                             //btn_GetCount_click();
                             $('#btn_shippingCart').text("購物車 (" + data.prodCount + ")");
@@ -246,7 +264,7 @@
                         console.log(xhr)
                         $('#btn_shippingCart').text("購物車 (0)");
 
-                    }//error                    
+                    }//error
                 });
                 return;
             }
