@@ -894,7 +894,7 @@ namespace VNW.Controllers
         //::api for get StockReserved 2B
         public async Task<IActionResult> GetStockReserved(int? id)
         {
-            string _result = "tbc", _detail = "tbc", productName = "";
+            string _result = "tbc", _detail = "tbc", productName = "", picture = "";
             short stock = 0, reserved = 0, unitPrice = 0;
             //check user level
 
@@ -913,7 +913,8 @@ namespace VNW.Controllers
                     var query = await _context.Products
                       .Where(x => x.ProductId == _pid)
                       .AsNoTracking()
-                      .Select(x => new { x.ProductId, x.UnitsInStock, x.UnitsReserved, x.ProductName, x.UnitPrice })
+                      .Select(x => new { x.ProductId, x.UnitsInStock, x.UnitsReserved,
+                          x.ProductName, x.UnitPrice, x.Picture })
                       .FirstOrDefaultAsync();
 
                     if(query != null)
@@ -922,6 +923,7 @@ namespace VNW.Controllers
                         reserved = (short)query.UnitsReserved;
                         productName = query.ProductName;
                         unitPrice = (short) query.UnitPrice;
+                        picture = query.Picture;
                         _result = "PASS"; _detail = "";
                     }
                     else
@@ -936,7 +938,7 @@ namespace VNW.Controllers
                 }
 
             }
-            var res = new { result = _result, detail = _detail, stock, reserved, productName, unitPrice };
+            var res = new { result = _result, detail = _detail, stock, reserved, productName, unitPrice, picture };
             return Json(res);
         }
 

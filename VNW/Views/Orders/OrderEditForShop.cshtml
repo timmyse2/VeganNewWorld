@@ -229,14 +229,14 @@
 
         </table>
         <span class="text-primary">Tip: 將商品數量設為0代表取消，但一張訂單至少要有一件商品</span>
-
-        <h4>補加商品(Alpha)</h4>
-
-        <div>
+        <hr/>
+        <h4>補加商品(新測試功能Alpha) <div class="btn btn-info" id="btn_showAddMoreItem">v</div></h4>
+        <div id="div_AddMoreItem" style="display:none;">
             輸入產品ID
             <input type="number" id="input_pidNew" value="1" class="form-control" style="width:50%"/>
             <div class="btn btn-info" id="btn_IdFindProduct">查詢並帶出商品資訊</div>
             <div class="btn btn-primary" id="btn_AddMoreItem">將該商品加入訂單</div>
+            <p/><span id="warning_findProductId" class="alert-danger"></span>
             <table class="table table-bordered" id="table_temp_ods" style="display:none;">
                 <tr>
                     <td></td>
@@ -248,7 +248,6 @@
                 </tr>
                 <tr id="tr_temp_ods"></tr>
             </table>
-            <span id="warning_findProductId" class="alert-danger"></span>
             <table class="table table-bordered" id="table_new_ods" style="display:none;">
                 <tr>
                     <td></td>
@@ -263,8 +262,6 @@
                     <td></td>
                 </tr>
             </table>
-
-
         </div>
 
 
@@ -464,7 +461,7 @@
         }
 
         $('#btn_IdFindProduct').click(function () {
-            var pid = $('#input_pidNew').val();
+            var pid = parseInt($('#input_pidNew').val())
             console.log("find product by id " + pid);
             SetBusy();
             $('#btn_AddMoreItem').hide();
@@ -484,16 +481,25 @@
                     console.log(data);
                     if (data.result == "PASS") {
                         console.log("PASS ");
+                        var image = '<img src="../../images/' + data.picture + '" style="width:80px;"/>';
                         rowData = 
-                            '<td></td><td>'
+                            '<td>' + image+ '</td><td>'
                             + pid + '</td><td>'
                             + data.productName + '</td><td>'
                             + data.unitPrice + '</td><td>'
                             + data.stock + '</td><td>'
                             + data.reserved + '</td>';
                         $("#tr_temp_ods").append(rowData);
-                        $('#btn_AddMoreItem').show();
                         SetReady();
+
+                        //::if pid is existed in order then do NOT add it
+                        console.log("UnitPrice pid class is exist?: " + $('.UnitPrice.' + pid).length);
+                        if ($('.UnitPrice.' + pid).length > 0) {
+                            $('#warning_findProductId').text("※此商品已在訂單中，不可再加入");
+                        }
+                        else {
+                            $('#btn_AddMoreItem').show();
+                        }
                     }
                     else {
                         //::fail case
@@ -513,8 +519,9 @@
         $('#btn_AddMoreItem').click(function () {
             console.log("add more item");
             //$("#table_new_ods").show();
+            $('#table_temp_ods').hide();
             $('#tr_temp_ods').html("");
-            var pid = $('#input_pidNew').val();
+            var pid = parseInt($('#input_pidNew').val());
             var surl = "../../Products/GetStockReserved";
             $.ajax({
                 url: surl,
@@ -530,9 +537,9 @@
                         console.log("PASS ");
                         var rowData = '';                                               
                         var pidInput = '<input name="Ods[' + OdsRowCount + '].ProductId" value="' + pid + '" type="hidden"/>  (#' + pid + ')';
-                        var nameInput = data.productName;                        
-                        var price = '<input name="Ods[' + OdsRowCount + '].UnitPrice" value="' + data.unitPrice + '" type="hidden"/>  ' + data.unitPrice ;
-                        var totalPrice = data.unitPrice;
+                        var nameInput = data.productName;
+                        var price = '<input name="Ods[' + OdsRowCount + '].UnitPrice" value="' + data.unitPrice + '" type="hidden" /><span class="UnitPrice ' + pid + '">'  + (data.unitPrice) +'</span>' ;
+                        var totalPrice = '<span class="TotalPrice ' + pid + '">0<span/>'; //data.unitPrice;
                         var qtyUpBoundary = data.stock - data.reserved;
                         var qtySelect = '<select class="form-control" name="Ods[' + OdsRowCount + '].Quantity">';
                         //for (var i = 0; i <= qtyUpBoundary; i++) {
@@ -540,10 +547,11 @@
                         //}                        
                         qtySelect += '<option>0</option>';
                         qtySelect += '</select>';
-
+                        var image = '<img src="../../images/' + data.picture +'" style="width:80px;"/>';
                         console.log(data.productName);
                         rowData =
-                            '<tr><td><b>NEW ' + (OdsRowCount+1) + '</b></td><td></td><td>'
+                            '<tr><td>' + (OdsRowCount + 1) + ' <b class="text-danger">NEW</b></td><td>'
+                            + image + '</td><td>'
                             + pidInput + ' '
                             + nameInput + '</td><td>'
                             + qtySelect + '</td><td>'
@@ -577,6 +585,10 @@
         $('#btn_AddMoreItem').hide();
         //$("#table_new_ods").hide();
 
+        $('#btn_showAddMoreItem').click(function () {
+            $('#div_AddMoreItem').show();
+            $('#btn_showAddMoreItem').text("<");
+        });
 
         console.log("jquery end");
     </script>

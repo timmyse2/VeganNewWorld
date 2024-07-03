@@ -14,22 +14,26 @@
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <input type="hidden" asp-for="OrderId" />
             <input type="hidden" asp-for="ProductId" />
-
+            <input type="hidden" asp-for="RowVersion" />
+            @*<input asp-for="RowVersion" readonly/>*@
             <div class="form-group">
-                @*<label asp-for="OrderId" class="control-label"></label>
-                <label class="form-control">@Model.OrderId</label>*@
-                <label class="control-label">訂單ID: #@Model.OrderId</label>
+                <label class="control-label">Row Version</label>
+                <input class="form-control" value="@Convert.ToBase64String(Model.RowVersion)" readonly/>
             </div>
             <div class="form-group">
-                @*<label asp-for="ProductId" class="control-label"></label>*@                
-                <label  class="control-label">
-                    產品ID: #@Model.ProductId
-                    @if (Model.Product != null)
-                    {
-                        @Model.Product.ProductName
-                    }
-                </label>                
-            </div>           
+                <label class="control-label">訂單ID</label>
+                <input class="form-control" value="@Model.OrderId" readonly />
+            </div>
+            <div class="form-group">
+                @*<label asp-for="ProductId" class="control-label"></label>*@
+                <label class="control-label">產品ID</label>
+                <input class="form-control" value="@Model.ProductId" readonly />
+                @if (Model.Product != null)
+                {
+                    @Model.Product.ProductName
+                }
+
+            </div>
 
             <div class="form-group">
                 <label asp-for="UnitPrice" class="control-label"></label>

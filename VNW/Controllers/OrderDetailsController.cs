@@ -195,7 +195,7 @@ namespace VNW.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int OrderId, [Bind("OrderId,ProductId,UnitPrice,Quantity,Discount")] OrderDetail orderDetail)
+        public async Task<IActionResult> Edit(int OrderId, [Bind("OrderId,ProductId,UnitPrice,Quantity,Discount,RowVersion")] OrderDetail orderDetail)
         {
             //if (id != orderDetail.OrderId)
             if (OrderId != orderDetail.OrderId)
