@@ -1652,7 +1652,7 @@ namespace VNW.Controllers
                 return Content("data is null");
             }
 
-            ViewModels.OrderViewModel ovm = null;
+            //ViewModels.OrderViewModel ovm = null;
             using (var transaction = _context.Database.BeginTransaction())
             {
                 try
@@ -1703,12 +1703,16 @@ namespace VNW.Controllers
                         if(ood == null)
                         {
                             //error case
-                            return Content("error: original od is null");
+                            //return Content("error: original od is null");
 
+                            #region Add new Od
                             //::new function - add more Od in Order
-                            //_context.Add(nod);
-                            //await _context.SaveChangesAsync();
-
+                            nod.OrderId = id;
+                            nod.Quantity = 0; //set zero 1st then it does not need to update p
+                            ood = nod;
+                            _context.Add(nod);
+                            await _context.SaveChangesAsync();
+                            #endregion
                         }
 
                         //::load p.stock... and update p.reserved
