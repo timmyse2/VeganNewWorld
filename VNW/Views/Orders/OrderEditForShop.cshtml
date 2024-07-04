@@ -184,7 +184,10 @@
                 if (allowToBuy >= 100) { allowToBuy = 100; }
                 <tr>
                     <td>@(irow + 1) @*<input type="checkbox" name="" class="form-control" checked readonly />*@ </td>
-                    <td><img src="~/images/@item.Product.Picture" style="width:80px; " /></td>
+                    <td>
+                        <img src="~/images/@item.Product.Picture" style="width:80px; " />
+                        @*<div class="btn_removeItem btn btn-danger" pid="@item.ProductId"><img src="~/images/delete.svg" />REMOVE</div>*@
+                    </td>
                     <td>
                         <input name="Ods[@irow].ProductId" value="@item.ProductId" type="hidden" />
                         (#@item.ProductId)<br>
@@ -284,6 +287,8 @@
 
 </form>
 
+@*<div class="btn_removeItem 99 btn btn-danger" pid="99"><img src="~/images/delete.svg" />REMOVE</div>
+<div class="btn_removeItem 100 btn btn-danger" pid="100"><img src="~/images/delete.svg" />REMOVE</div>*@
 
 <a asp-action="OrderDetailsForShop" asp-controller="orderDetails" asp-route-id="@Model.OrderId"
    class="btn btn-lg btn-default" id="btn_cancel">取消修改|返回前頁</a>
@@ -359,7 +364,8 @@
         }
 
         //::qty change - with API via ajax
-        $('.selectQty').on('change', function () {
+        $("body").on('change', '.selectQty', function () {
+        //$('.selectQty').on('change', function () {
             var newQtyValue = $(this).val();
             console.log("newQtyValue: " + newQtyValue);
             var pid = this.getAttribute("pid");
@@ -541,7 +547,7 @@
                         var price = '<input name="Ods[' + OdsRowCount + '].UnitPrice" value="' + data.unitPrice + '" type="hidden" /><span class="UnitPrice ' + pid + '">'  + (data.unitPrice) +'</span>' ;
                         var totalPrice = '<span class="TotalPrice ' + pid + '">0<span/>'; //data.unitPrice;
                         var qtyUpBoundary = data.stock - data.reserved;
-                        var qtySelect = '<select class="form-control" name="Ods[' + OdsRowCount + '].Quantity">';
+                        var qtySelect = '<select class="selectQty form-control" name="Ods[' + OdsRowCount + '].Quantity" pid="' + pid + '">';
                         //for (var i = 0; i <= qtyUpBoundary; i++) {
                         //    qtySelect += '<option>' + i + '</option>';
                         //}                        
@@ -550,7 +556,9 @@
                         var image = '<img src="../../images/' + data.picture +'" style="width:80px;"/>';
                         console.log(data.productName);
                         rowData =
-                            '<tr><td>' + (OdsRowCount + 1) + ' <b class="text-danger">NEW</b></td><td>'
+                            '<tr class="tr_newP ' + pid + '">'
+                            + '<td>' + (OdsRowCount + 1) + ' <b class="text-danger">NEW</b> '
+                            + '<div class="btn_removeItem btn btn-default" pid="' + pid + '"><img src="../../images/delete.svg"/></div>' + '</td><td>'
                             + image + '</td><td>'
                             + pidInput + ' '
                             + nameInput + '</td><td>'
@@ -587,9 +595,32 @@
 
         $('#btn_showAddMoreItem').click(function () {
             $('#div_AddMoreItem').show();
-            $('#btn_showAddMoreItem').text("<");
+            //$('#btn_showAddMoreItem').text("<");
+            $('#btn_showAddMoreItem').hide();
+            $('#warning_findProductId').text("※提示：此為測試中的功能；請勿一次加入過多非必要的商品");
         });
 
+        /*PS: 因動態產生的元素無法被選擇器觸發, 補加上作法 */
+        $("body").on('click', '.btn_removeItem', function () {
+        //$('.btn_removeItem').on('click', function () {
+            console.log("body .btn_removeItem click");
+            var pid = this.getAttribute("pid");
+            console.log("pid " + pid);
+
+            //$('.btn_removeItem.' + pid).remove();
+            console.log(" tr_newP with pid is exist or not? " + $('.tr_newP.' + pid).length);
+            console.log(" tr_newP is exist or not? " + $('.tr_newP').length);
+
+
+            $('#warning_findProductId').text("※提示：刪除功能尚未完成");
+
+            return; //it causes in issue so we do not open it first;
+            if ($('.tr_newP.' + pid).length > 0) {
+                $('.tr_newP.' + pid).remove();
+                OdsRowCount--;
+                console.log("removed tr");
+            }
+        });
         console.log("jquery end");
     </script>
 }    
