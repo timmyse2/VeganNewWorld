@@ -550,14 +550,14 @@
                         var qtySelect = '<select class="selectQty form-control" name="Ods[' + OdsRowCount + '].Quantity" pid="' + pid + '">';
                         //for (var i = 0; i <= qtyUpBoundary; i++) {
                         //    qtySelect += '<option>' + i + '</option>';
-                        //}                        
+                        //}
                         qtySelect += '<option>0</option>';
                         qtySelect += '</select>';
                         var image = '<img src="../../images/' + data.picture +'" style="width:80px;"/>';
                         console.log(data.productName);
                         rowData =
                             '<tr class="tr_newP ' + pid + '">'
-                            + '<td>' + (OdsRowCount + 1) + ' <b class="text-danger">NEW</b> '
+                            + '<td><span name="OdsRow">' + (OdsRowCount + 1) + '</span> <b class="text-danger">NEW</b> '
                             + '<div class="btn_removeItem btn btn-default" pid="' + pid + '"><img src="../../images/delete.svg"/></div>' + '</td><td>'
                             + image + '</td><td>'
                             + pidInput + ' '
@@ -574,7 +574,7 @@
                         $('#warning_findProductId').text("※暫先將數量設為0，不累計在總金額");
                         SetReady();
                         OdsRowCount++;
-                        CorrectNewItemNameRow();
+                        //CorrectNewItemNameRow();
                     }
                     else {
                         //::fail case
@@ -612,30 +612,40 @@
             console.log(" tr_newP with pid is exist or not? " + $('.tr_newP.' + pid).length);
             console.log(" tr_newP is exist or not? " + $('.tr_newP').length);
 
-
             $('#warning_findProductId').text("※提示：刪除功能尚未完成");
-
             //return; //it causes in issue so we do not open it first;
             if ($('.tr_newP.' + pid).length > 0) {
                 $('.tr_newP.' + pid).remove();
                 OdsRowCount--;
                 console.log("removed tr");
+                CorrectNewItemNameRow(); //::key
             }
-
-            CorrectNewItemNameRow();
         });
 
+        //::Key function to update index of name in <input>. Otherwise, removed added items might cause in data lost...
         function CorrectNewItemNameRow() {            
             console.log(" orignal item count: " + OriginalOdsRowCount);
             console.log(" current item count: " + OdsRowCount);
             console.log(" new item count: " + $('.tr_newP').length);
-            var i = 0;
-            for (i = 0; i < $('.tr_newP').length; i++) {
-                console.log(' ' + i + ':' + $('.tr_newP')[i].getAttribute("class"));
-            }
-
+            //var i = 0;
+            //for (i = 0; i < $('.tr_newP').length; i++) {
+            //    console.log(' ' + i + ':' + $('.tr_newP')[i].getAttribute("class"));
+            //}
+            //::use each()
+            $('.tr_newP').each(function (index) {
+                console.log(' each: ' + index);
+                //::find name="Ods[index].ProductId": "Ods[" ... "].ProductId"
+                //::then udpate the index with corrected row count
+                console.log(' name: ' + $(this).find('[name^="Ods["][name$="].ProductId"]').attr('name'));
+                $(this).find('[name^="Ods["][name$="].ProductId"]').attr('name',
+                    'Ods[' + (index + OriginalOdsRowCount) + '].ProductId');
+                $(this).find('[name^="Ods["][name$="].Quantity"]').attr('name',
+                    'Ods[' + (index + OriginalOdsRowCount) + '].Quantity');
+                $(this).find('[name^="Ods["][name$="].UnitPrice"]').attr('name',
+                    'Ods[' + (index + OriginalOdsRowCount) + '].UnitPrice');
+                $(this).find('[name^="OdsRow"]').text(index + OriginalOdsRowCount + 1);
+            });
         }
-
         console.log("jquery end");
     </script>
 }    
