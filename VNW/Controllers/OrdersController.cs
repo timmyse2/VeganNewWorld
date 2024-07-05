@@ -1674,6 +1674,9 @@ namespace VNW.Controllers
                     //::re-caculate with payment
                     qO.Freight = ovmUpdated.OrderBase.Freight;
 
+                    qO.ShipAddress = ovmUpdated.OrderBase.ShipAddress;
+                    qO.ShipName = ovmUpdated.OrderBase.ShipName;
+
                     //if(qO.TimeStamp != orderUpdated.TimeStamp )
                     if (Convert.ToBase64String(qO.TimeStamp) != Convert.ToBase64String(ovmUpdated.OrderBase.TimeStamp))
                     {
