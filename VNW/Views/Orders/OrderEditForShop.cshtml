@@ -575,6 +575,7 @@
                         SetReady();
                         OdsRowCount++;
                         //CorrectNewItemNameRow();
+                        //updateProductIndexes();
                     }
                     else {
                         //::fail case
@@ -612,18 +613,21 @@
             console.log(" tr_newP with pid is exist or not? " + $('.tr_newP.' + pid).length);
             console.log(" tr_newP is exist or not? " + $('.tr_newP').length);
 
-            $('#warning_findProductId').text("※提示：刪除功能尚未完成");
+            //$('#warning_findProductId').text("※提示：刪除功能尚未完成");
             //return; //it causes in issue so we do not open it first;
             if ($('.tr_newP.' + pid).length > 0) {
                 $('.tr_newP.' + pid).remove();
                 OdsRowCount--;
                 console.log("removed tr");
-                CorrectNewItemNameRow(); //::key
+                //CorrectNewItemNameRow(); //::key
+                updateProductIndexes();
             }
         });
 
         //::Key function to update index of name in <input>. Otherwise, removed added items might cause in data lost...
+        
         function CorrectNewItemNameRow() {            
+            console.log("CorrectNewItemNameRow");
             console.log(" orignal item count: " + OriginalOdsRowCount);
             console.log(" current item count: " + OdsRowCount);
             console.log(" new item count: " + $('.tr_newP').length);
@@ -646,6 +650,37 @@
                 $(this).find('[name^="OdsRow"]').text(index + OriginalOdsRowCount + 1);
             });
         }
+        
         console.log("jquery end");
+
+
+
+
     </script>
+
+    <script>
+        /*use original JS here*/
+        console.log('js start');
+        function updateProductIndexes() {
+            console.log('In updateProductIndexes');
+            var products = document.querySelectorAll('.tr_newP');
+            console.log('  tr_newP length: ' + products.length);
+            
+            products.forEach(function (product, index) {                
+                console.log('    index: ' + index);                
+                var newIndex = index + OriginalOdsRowCount;
+                console.log('    newIndex: ' + newIndex);
+                product.querySelector('[name^="OdsRow"]').textContent = newIndex + 1;
+                product.querySelector('[name^="Ods["][name$="].ProductId"]').name
+                    = `Ods[${newIndex}].ProductId`;
+                product.querySelector('[name^="Ods["][name$="].Quantity"]').name
+                    = `Ods[${newIndex}].Quantity`;
+                product.querySelector('[name^="Ods["][name$="].UnitPrice"]').name
+                    = `Ods[${newIndex}].UnitPrice`;
+            });
+            console.log("end of updateProductIndexes");
+        }
+        console.log('js end');
+    </script>
+
 }    

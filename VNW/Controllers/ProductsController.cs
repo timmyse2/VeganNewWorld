@@ -928,7 +928,7 @@ namespace VNW.Controllers
                     _pid = (int)id;
                     //string pidJSON = null;
                     var query = await _context.Products
-                      .Where(x => x.ProductId == _pid)
+                      .Where(x => x.ProductId == _pid && x.Picture != null)
                       .AsNoTracking()
                       .Select(x => new { x.ProductId, x.UnitsInStock, x.UnitsReserved,
                           x.ProductName, x.UnitPrice, x.Picture })

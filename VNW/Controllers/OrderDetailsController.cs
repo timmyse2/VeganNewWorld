@@ -382,6 +382,7 @@ namespace VNW.Controllers
                 .Where(d => d.OrderId == oid) //
                 //.Include(o => o.Order) //try
                 .Include(p => p.Product)
+                .OrderBy(od=>od.RowVersion) //try
                 ;
 
             if (ods == null) //
