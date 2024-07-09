@@ -147,7 +147,7 @@
                     <tr><td>電話</td><td>@Model.OrderBase.Customer.Phone</td></tr>
                 }
                 <tr><td>出貨地標(公司|組織)</td><td><input asp-for="@Model.OrderBase.ShipName" class="form-control" /></td></tr>
-                <tr><td>出貨地址</td><td><input asp-for="@Model.OrderBase.ShipAddress" class="form-control"/></td></tr>
+                <tr><td>出貨地址</td><td><input asp-for="@Model.OrderBase.ShipAddress" class="form-control" /></td></tr>
             </table>
         </div>
     </div>
@@ -174,71 +174,73 @@
                     <td>估計可再下單量</td>
                 </tr>
             </thead>
-            @foreach (var item in Model.Ods)
-            {
-                decimal QtyByPrice = item.Quantity * item.UnitPrice; ;
-                totalSum += QtyByPrice;
-                int allowToBuy = (int)item.Product.UnitsInStock - (int)item.Product.UnitsReserved
-                    + item.Quantity; //::for
-                if (allowToBuy >= 100) { allowToBuy = 100; }
-                <tr>
-                    <td>@(irow + 1) @*<input type="checkbox" name="" class="form-control" checked readonly />*@ </td>
-                    <td>
-                        <img src="~/images/@item.Product.Picture" style="width:80px; " />
-                        @*<div class="btn_removeItem btn btn-danger" pid="@item.ProductId"><img src="~/images/delete.svg" />REMOVE</div>*@
-                    </td>
-                    <td>
-                        <input name="Ods[@irow].ProductId" value="@item.ProductId" type="hidden" />
-                        (#@item.ProductId)<br>
-                        @item.Product.ProductName<br>
-                        [@{foreach (var b in item.RowVersion)
-                            { @b }}]<br>
-                        [@item.Product.LastModifiedTime]
-                    </td>
-                    <td>
-                        <span style="font-size:20px;">@item.Quantity</span>
-                        @*<input name="Ods[@irow].Quantity" type="number"
-                            class="form-control" value="@item.Quantity" />*@
-                        <select class="selectQty form-control" name="Ods[@irow].Quantity" style="min-width:80px;" pid="@item.ProductId" , OldQty="@item.Quantity">
-                            @for (int i = 0; i <= allowToBuy; i++)
-                            {
-                                if (item.Quantity == i)
+
+            <tbody id="table_ods_body">
+                @foreach (var item in Model.Ods)
+                {
+                    decimal QtyByPrice = item.Quantity * item.UnitPrice; ;
+                    totalSum += QtyByPrice;
+                    int allowToBuy = (int)item.Product.UnitsInStock - (int)item.Product.UnitsReserved
+                        + item.Quantity; //::for
+                    if (allowToBuy >= 100) { allowToBuy = 100; }
+                    <tr>
+                        <td>@(irow + 1) @*<input type="checkbox" name="" class="form-control" checked readonly />*@ </td>
+                        <td>
+                            <img src="~/images/@item.Product.Picture" style="width:80px; " />
+                            @*<div class="btn_removeItem btn btn-danger" pid="@item.ProductId"><img src="~/images/delete.svg" />REMOVE</div>*@
+                        </td>
+                        <td>
+                            <input name="Ods[@irow].ProductId" value="@item.ProductId" type="hidden" />
+                            (#@item.ProductId)<br>
+                            @item.Product.ProductName<br>
+                            [@{foreach (var b in item.RowVersion)
+                                { @b }}]<br>
+                            [@item.Product.LastModifiedTime]
+                        </td>
+                        <td>
+                            <span style="font-size:20px;">@item.Quantity</span>
+                            @*<input name="Ods[@irow].Quantity" type="number"
+                                class="form-control" value="@item.Quantity" />*@
+                            <select class="selectQty form-control" name="Ods[@irow].Quantity" style="min-width:80px;" pid="@item.ProductId" , OldQty="@item.Quantity">
+                                @for (int i = 0; i <= allowToBuy; i++)
                                 {
-                                    <option selected>@(i)</option>
+                                    if (item.Quantity == i)
+                                    {
+                                        <option selected>@(i)</option>
+                                    }
+                                    else
+                                    {
+                                        <option>@(i)</option>
+                                    }
                                 }
-                                else
-                                {
-                                    <option>@(i)</option>
-                                }
-                            }
-                        </select>
+                            </select>
 
 
-                    </td>
-                    <td><span class="UnitPrice @item.ProductId">@item.UnitPrice</span></td>
-                    <td><span class="TotalPrice @item.ProductId">@QtyByPrice</span></td>
-                    <td></td>
-                    <td><span class="Stock @item.ProductId">@item.Product.UnitsInStock</span></td>
-                    <td><span class="Reserved @item.ProductId">@item.Product.UnitsReserved</span></td>
-                    <td><span class="Boundary @item.ProductId">@(item.Product.UnitsInStock - item.Product.UnitsReserved)</span></td>
-                </tr>
-                irow++;
-            }
-
+                        </td>
+                        <td><span class="UnitPrice p@(item.ProductId)">@item.UnitPrice</span></td>
+                        <td><span class="TotalPrice p@(item.ProductId)">@QtyByPrice</span></td>
+                        <td></td>
+                        <td><span class="Stock p@(item.ProductId)">@item.Product.UnitsInStock</span></td>
+                        <td><span class="Reserved p@(item.ProductId)">@item.Product.UnitsReserved</span></td>
+                        <td><span class="Boundary p@(item.ProductId)">@(item.Product.UnitsInStock - item.Product.UnitsReserved)</span></td>
+                    </tr>
+                    irow++;
+                }
+            </tbody>
             @{
                 OdsRowCount = irow; //::got original ods count generated by Backend, keep this value for frontend jQuery
             }
 
         </table>
         <span class="text-primary">Tip: 將商品數量設為0代表取消，但一張訂單至少要有一件商品</span>
-        <hr/>
+        <hr />
         <h4>補加商品(新測試功能Alpha) <btn class="btn btn-info" id="btn_showAddMoreItem">v</btn></h4>
         <div id="div_AddMoreItem" style="display:none;">
             輸入產品ID
-            <input type="number" id="input_pidNew" value="1" class="form-control" style="width:50%"/>
-            <div class="btn btn-info" id="btn_IdFindProduct">查詢並帶出商品資訊</div>
+            <input type="number" id="input_pidNew" value="1" class="form-control" style="width:50%" />
+            <div class="btn btn-info" id="btn_FindProductById">查詢並帶出商品資訊</div>
             <div class="btn btn-primary" id="btn_AddMoreItem">將該商品加入訂單</div>
-            <p/><span id="warning_findProductId" class="alert-danger"></span>
+            <p /><span id="warning_findProductId" class="alert-danger"></span>
             <table class="table table-bordered" id="table_temp_ods" style="display:none;">
                 <tr>
                     <td></td>
@@ -279,7 +281,7 @@
             </h3>
             @*<a asp-controller="orders" asp-route-id="@Model.OrderId" class="btn btn-lg btn-danger">送出修改</a>*@
 
-            <input type="submit" value="送出修改" id="btn_submit" class="btn btn-lg btn-danger" />
+            <input type="submit" value="送出修改" id="btn_submit" class="btn btn-lg btn-danger" style="display:none;" />
             <span id="warningBeforeSubmit" class="text-danger" style="font-size:16px;"></span>
         </div>
     }
@@ -287,14 +289,14 @@
 </form>
 
 @*<div class="btn_removeItem 99 btn btn-danger" pid="99"><img src="~/images/delete.svg" />REMOVE</div>
-<div class="btn_removeItem 100 btn btn-danger" pid="100"><img src="~/images/delete.svg" />REMOVE</div>*@
+    <div class="btn_removeItem 100 btn btn-danger" pid="100"><img src="~/images/delete.svg" />REMOVE</div>*@
 
 <a asp-action="OrderDetailsForShop" asp-controller="orderDetails" asp-route-id="@Model.OrderId"
    class="btn btn-lg btn-default" id="btn_cancel">取消修改|返回前頁</a>
 
 @section endJS{
-    <script type="text/javascript" src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
-    <script>
+    @*<script type="text/javascript" src="https://code.jquery.com/jquery-3.3.1.min.js"></script>*@
+    @*<script>
         console.log("jquery start");
         var isError = false;
         var sel_ShipVia = $('#sel_ShipVia');
@@ -488,7 +490,7 @@
                     if (data.result == "PASS") {
                         console.log("PASS ");
                         var image = '<img src="../../images/' + data.picture + '" style="width:80px;"/>';
-                        rowData = 
+                        rowData =
                             '<td>' + image+ '</td><td>'
                             + pid + '</td><td>'
                             + data.productName + '</td><td>'
@@ -541,7 +543,7 @@
                     console.log(data);
                     if (data.result == "PASS") {
                         console.log("PASS ");
-                        var rowData = '';                                               
+                        var rowData = '';
                         var pidInput = '<input name="Ods[' + OdsRowCount + '].ProductId" value="' + pid + '" type="hidden"/>  (#' + pid + ')';
                         var nameInput = data.productName;
                         var price = '<input name="Ods[' + OdsRowCount + '].UnitPrice" value="' + data.unitPrice + '" type="hidden" /><span class="UnitPrice ' + pid + '">'  + (data.unitPrice) +'</span>' ;
@@ -625,8 +627,8 @@
         });
 
         //::Key function to update index of name in <input>. Otherwise, removed added items might cause in data lost...
-        
-        function CorrectNewItemNameRow() {            
+
+        function CorrectNewItemNameRow() {
             console.log("CorrectNewItemNameRow");
             console.log(" orignal item count: " + OriginalOdsRowCount);
             console.log(" current item count: " + OdsRowCount);
@@ -650,26 +652,409 @@
                 $(this).find('[name^="OdsRow"]').text(index + OriginalOdsRowCount + 1);
             });
         }
-        
+
         console.log("jquery end");
-
-
-
-
-    </script>
+    </script>*@
 
     <script>
         /*use original JS here*/
         console.log('js start');
+
+        var isError = false;
+        var sel_ShipVia =  document.getElementById('sel_ShipVia');
+        //var sel_Payment = $('#sel_Payment');
+        var sel_Invoice = document.getElementById('sel_Invoice');
+        var Freight = @Model.OrderBase.Freight;
+        var OdsRowCount = @OdsRowCount;
+        var OriginalOdsRowCount = @OdsRowCount;
+
+        var txt_Freight = document.getElementById('txt_Freight');
+        var txt_TotalPriceSumPlus = document.getElementById('txt_TotalPriceSumPlus');
+        var validate_ShipVia = document.getElementById('validate_ShipVia');
+
+        sel_ShipVia.addEventListener('change', sel_ShipVia_UpdateFreight);
+        function sel_ShipVia_UpdateFreight() {
+            var totalSum = @totalSum;
+            var thisValue = sel_ShipVia.value; //$(this).val();//  sel_ShipVia.val();
+
+            console.log("sel_ShipVia change " + thisValue);
+            switch (thisValue) { //::notice: ths val() is 'string'
+                case '0':
+                    Freight = 0;
+                    txt_Freight.innerHTML = Freight;   //.html(Freight);
+                    txt_Freight.classList.remove('alert-danger');  //.removeClass("alert-danger");
+                    txt_TotalPriceSumPlus.classList.remove('alert-danger'); //.removeClass("alert-danger");
+                    validate_ShipVia.innerHTML = '註: 為確認您在家，送貨員會先與您連絡';
+                    break;
+                case '1':
+                    Freight = 50;
+                    txt_Freight.innerHTML = Freight + '*'; //.html(Freight+'*');
+                    txt_Freight.classList.add('alert-danger');  //.addClass("alert-danger");
+                    txt_TotalPriceSumPlus.classList.add('alert-danger'); //.addClass("alert-danger");
+                    validate_ShipVia.innerHTML = '註: 冷凍、冷凍、體積過大的商品無法由[超商取貨]';
+                    break;
+                case '2':
+                    Freight = 100;
+                    console.log("Freight " + Freight);
+                    txt_Freight.innerHTML = Freight + '*';
+                    txt_Freight.classList.add("alert-danger");  // .addClass("alert-danger");
+                    txt_TotalPriceSumPlus.classList.add("alert-danger"); //.addClass("alert-danger");
+                    validate_ShipVia.innerHTML = '註: 小魔女會加收100元小費，不受理體積過大的商品';
+                    break;
+                default:
+                    //console.log("default");
+                    break;
+            }
+            txt_Freight.value = Freight;
+            txt_TotalPriceSumPlus.textContent = (totalSum + Freight);
+            //console.log("e o s");
+        }
+
+        document.getElementById('btn_AddMoreItem').style.display = 'none'; //hide
+        document.getElementById('btn_submit').style.display = ''; //show
+
+        function SetBusy() {
+            document.getElementById('img_loading').style.display = '';
+            document.getElementById('MaskWindow').style.display = '';
+        }
+        function SetReady() {
+            document.getElementById('img_loading').style.display = 'none';
+            document.getElementById('MaskWindow').style.display = 'none';
+        }
+
+        //::qty change - with API via ajax
+        //$("body").on('change', '.selectQty', function () {
+            //$('.selectQty').on('change', function () {
+        //document.getElementsByClassName('selectQty')
+          //  .addEventListener('change', selectQty_Change);
+        document.body
+        //document.body.querySelector('.selectQty')
+            .addEventListener('change', function () {
+            if (event.target.matches('.selectQty')) {
+                selectQty_Change(event.target);
+            }
+        });
+        function selectQty_Change(target) {
+            var newQtyValue = target.value;
+            //var newQtyValue = $(this).val();
+            console.log("newQtyValue: " + newQtyValue);
+            var pid = target.getAttribute('pid');
+            var keepThis = target;  //$(this);
+            console.log("pid " + pid);
+            var OldQtyValue = 0;
+            OldQtyValue = parseInt(target.getAttribute('OldQty'));
+            console.log("OldQtyValue: " + OldQtyValue);
+
+            //::update total price for this product
+            var element = document.querySelector('.UnitPrice.p' + pid);
+            //var unitPrice = parseInt($('.UnitPrice.' + pid).text());
+            var unitPrice = parseInt(element.textContent);
+            console.log(" UnitPrice" + unitPrice);
+            var totalPrice = newQtyValue * unitPrice;
+            console.log(" 小記 " + totalPrice);
+            document.querySelector('.TotalPrice.p' + pid).textContent = totalPrice + '*';
+            document.querySelector('.TotalPrice.p' + pid).classList.add('alert-warning');
+
+            var txt_TotalPriceSum = document.getElementById('txt_TotalPriceSum');
+            var TotalPriceSum = 0;
+
+            TotalPriceSum =
+                parseInt(txt_TotalPriceSum.textContent);
+                //parseInt($('#txt_TotalPriceSum').text());
+            console.log(" sum " + TotalPriceSum);
+
+            TotalPriceSum += (newQtyValue - OldQtyValue) * unitPrice;
+            txt_TotalPriceSum.textContent = (TotalPriceSum);
+
+            target.setAttribute('OldQty', newQtyValue);
+            //this.setAttribute('OldQty', newQtyValue);
+            document.getElementById('txt_TotalPriceSumPlus')
+                .textContent = TotalPriceSum + Freight;
+
+            if (TotalPriceSum <= 0) {
+                document.getElementById('btn_submit').style.display = 'none';
+                document.getElementById('warningBeforeSubmit').innerHTML =  ("提示：總價少於0，至少要買一件商品");
+            }
+            else {
+                document.getElementById('btn_submit').style.display = '';
+                document.getElementById('warningBeforeSubmit').innerHTML = '';
+            }
+
+            //::load current stock|reserved from DB
+            SetBusy();
+            var surl = "../../Products/GetStockReserved";
+            var xhr = new XMLHttpRequest();
+            //var postData = JSON.stringify({ id: pid });
+            //console.log(' postData: ' + postData);
+            surl = surl + '?id=' + encodeURIComponent(pid);
+
+            xhr.open('POST', surl, true);
+            //xhr.open('GET', surl, true);
+            xhr.setRequestHeader('Content-Type', 'application/json;charset=UTF-8');
+            xhr.onload = function () {
+                if (xhr.status >= 200 && xhr.status < 300) {
+                    var data = JSON.parse(xhr.responseText);
+                    //document.getElementById('result').innerText = JSON.stringify(data);
+                    console.log(' xhr.responseText data' + JSON.stringify(data));
+                    console.log(" detail:" + data.detail);
+                    if (data.result == "PASS") {
+                        //pass case
+                        console.log("PASS case");
+                        var stock = parseInt(data.stock);
+                        var reserved = parseInt(data.reserved);
+                        console.log(" stock:" + stock);
+                        console.log(" reserved:" + reserved);
+                        document.querySelector('.Stock.p' + pid).textContent = stock;
+                        document.querySelector('.Stock.p' + pid).classList.add('alert-warning');
+                        document.querySelector('.Reserved.p' + pid).textContent = reserved;
+                        document.querySelector('.Reserved.p' + pid).classList.add('alert-warning');
+                        document.querySelector('.Boundary.p' + pid).textContent = stock - reserved;
+                        document.querySelector('.Boundary.p' + pid).classList.add('alert-warning');
+                        SetReady();
+                        document.getElementById('td_serverWarning').textContent = '';
+                        document.getElementById('btn_cancel').focus();
+                        keepThis.focus();
+                    }
+                    else {
+                        console.log("fail case");
+                        document.getElementById('td_serverWarning').textContent = '未得到正確回應';
+                        //SetReady();
+                        keepThis.focus();
+                    }
+                } else {
+                    console.error('Request failed with status: ' + xhr.status);
+                    document.getElementById('td_serverWarning').textContent = '發生未知問題';
+                }
+            };
+            xhr.onerror = function () {
+                console.error('Request failed');
+                document.getElementById('td_serverWarning').textContent = '發生未知問題';
+                //SetReady();
+                //$('#btn_cancel').focus();
+                //keepThis.focus();
+            };
+            //xhr.send(postData);
+            xhr.send();
+        }
+
+        var sel_Payment = document.getElementById('sel_Payment');
+        sel_Payment.addEventListener('change', sel_PaymentChange);
+        function sel_PaymentChange() {
+            var msg = "";
+            console.log("sel_Payment change " + sel_Payment.value);
+            switch (sel_Payment.value) {
+                case '0': msg = "只接受VISA卡，不能用美國運通、黑卡、提款卡";
+                    break;
+                case '1': msg = "不會主動要求您去操作ATM提款或反戰車飛彈";
+                    break;
+                case '2': msg = "超商店員、送貨員或小魔女會向您收費，建議備好零錢";
+                    break;
+                default:
+                    msg = "someting is wrong";
+                    break;
+            }
+            document.getElementById('validate_Payment').innerHTML = msg;
+        }
+
+        document.getElementById('btn_showAddMoreItem').addEventListener('click', function () {
+            document.getElementById('div_AddMoreItem').style.display = '';
+            document.getElementById('btn_showAddMoreItem').style.display = 'none';
+            document.getElementById('warning_findProductId').textContent = '※提示：此為測試中的功能；請勿一次加入過多非必要的商品';
+        });
+
+        document.getElementById('btn_FindProductById').addEventListener('click', function () {
+            var pid = parseInt(document.getElementById('input_pidNew').value);
+            console.log("find product by id " + pid);
+            SetBusy();
+            document.getElementById('btn_AddMoreItem').style.display = 'none';
+            document.getElementById('table_temp_ods').style.display = '';
+            document.getElementById('tr_temp_ods').innerHTML = '';
+            document.getElementById('warning_findProductId').textContent = '';
+            var surl = "../../Products/GetStockReserved";
+            var xhr = new XMLHttpRequest();
+            //var postData = JSON.stringify({ id: pid });
+            //console.log(' postData: ' + postData);
+            surl = surl + '?id=' + encodeURIComponent(pid);
+
+            xhr.open('POST', surl, true);
+            //xhr.open('GET', surl, true);
+            xhr.setRequestHeader('Content-Type', 'application/json;charset=UTF-8');
+            xhr.onload = function () {
+                if (xhr.status >= 200 && xhr.status < 300) {
+                    var data = JSON.parse(xhr.responseText);
+                    //document.getElementById('result').innerText = JSON.stringify(data);
+                    console.log(' xhr.responseText data' + JSON.stringify(data));
+                    console.log(" detail:" + data.detail);
+                    if (data.result == "PASS") {
+                        //pass case
+                        console.log("PASS case");
+                        var image = '<img src="../../images/' + data.picture + '" style="width:80px;"/>';
+                        rowData =
+                            '<td>' + image + '</td><td>'
+                            + pid + '</td><td>'
+                            + data.productName + '</td><td>'
+                            + data.unitPrice + '</td><td>'
+                            + data.stock + '</td><td>'
+                            + data.reserved + '</td>';
+                        //document.getElementById('tr_temp_ods').append(rowData);
+                        document.getElementById('tr_temp_ods').innerHTML = rowData;
+                        SetReady();
+
+                        //::if pid is existed in order then do NOT add it
+                        if (document.querySelectorAll('.UnitPrice.p' + pid).length > 0) {
+                            document.getElementById('warning_findProductId').textContent = '※此商品已在訂單中，不可再加入';
+                        }
+                        else {
+                            document.getElementById('btn_AddMoreItem').style.display = '';
+                        }
+                    }
+                    else {
+                        console.log("fail case");
+                        document.getElementById('warning_findProductId').textContent = '※找不到符合資訊';
+                        SetReady();
+                        document.getElementById('btn_cancel').focus();
+                    }
+                } else {
+                    console.error('Request failed with status: ' + xhr.status);
+                    document.getElementById('warning_findProductId').textContent = '發生未知問題';
+                    //SetReady();
+                    document.getElementById('btn_cancel').focus();
+                }
+            };
+            xhr.onerror = function () {
+                console.error('Request failed');
+                document.getElementById('warning_findProductId').textContent = '發生未知問題';
+                //SetReady();
+                document.getElementById('btn_cancel').focus();
+            };
+            //xhr.send(postData);
+            xhr.send();
+        });
+
+        document.getElementById('input_pidNew').addEventListener('change', function () {
+            document.getElementById('btn_AddMoreItem').style.display = 'none';
+        });
+
+        document.getElementById('btn_AddMoreItem').addEventListener('click', function () {
+            var pid = parseInt(document.getElementById('input_pidNew').value);
+            console.log("add product by id " + pid);
+            SetBusy();
+            document.getElementById('btn_AddMoreItem').style.display = 'none';
+            document.getElementById('table_temp_ods').style.display = 'none';
+            document.getElementById('warning_findProductId').textContent = '';
+
+            var surl = "../../Products/GetStockReserved";
+            var xhr = new XMLHttpRequest();
+            //var postData = JSON.stringify({ id: pid });
+            //console.log(' postData: ' + postData);
+            surl = surl + '?id=' + encodeURIComponent(pid);
+
+            xhr.open('POST', surl, true);
+            //xhr.open('GET', surl, true);
+            xhr.setRequestHeader('Content-Type', 'application/json;charset=UTF-8');
+            xhr.onload = function () {
+                if (xhr.status >= 200 && xhr.status < 300) {
+                    var data = JSON.parse(xhr.responseText);
+
+                    console.log(' xhr.responseText data' + JSON.stringify(data));
+                    console.log(" detail:" + data.detail);
+                    if (data.result == "PASS") {
+                        //pass case
+                        console.log("PASS case");
+
+                        var rowData = '';
+                        var pidInput = '<input name="Ods[' + OdsRowCount + '].ProductId" value="' + pid + '" type="hidden"/>  (#' + pid + ')';
+                        var nameInput = data.productName;
+                        var price = '<input name="Ods[' + OdsRowCount + '].UnitPrice" value="' + data.unitPrice + '" type="hidden" /><span class="UnitPrice p' + pid + '">' + (data.unitPrice) + '</span>';
+                        var totalPrice = '<span class="TotalPrice p' + pid + '">0<span/>'; //data.unitPrice;
+                        var qtyUpBoundary = data.stock - data.reserved;
+                        var qtySelect = '<select class="selectQty form-control" name="Ods[' + OdsRowCount + '].Quantity" pid="' + pid + '">';
+                        //for (var i = 0; i <= qtyUpBoundary; i++) {
+                        //    qtySelect += '<option>' + i + '</option>';
+                        //}
+                        qtySelect += '<option>0</option>';
+                        qtySelect += '</select>';
+                        var image = '<img src="../../images/' + data.picture + '" style="width:80px;"/>';
+
+                        console.log(data.productName);
+                        rowData =
+                            '<tr class="tr_newP p' + pid + '">'
+                            + '<td><span name="OdsRow">' + (OdsRowCount + 1) + '</span> <b class="text-danger">NEW</b> '
+                        + '<div class="btn_removeItem btn btn-default" pid="' + pid + '">-</div>' + '</td><td>' //<img src="../../images/delete.svg"/>
+                            + image + '</td><td>'
+                            + pidInput + ' '
+                            + nameInput + '</td><td>'
+                            + qtySelect + '</td><td>'
+                            + price + '</td><td>'
+                            + totalPrice + '</td><td></td><td>'
+                            + data.stock + '</td><td>'
+                            + data.reserved + '</td><td>'
+                            + qtyUpBoundary + '</td></tr>';
+
+                        //$("#table_ods").append(rowData);
+                        //document.getElementById('table_ods').append(rowData);
+                        //document.getElementById('table_ods_body').append(rowData);
+                        //document.getElementById('table_ods_body').appendChild(rowData);
+                        //document.getElementById('table_ods').appendChild(rowData);
+                        //document.getElementById('table_ods').insertAdjacentHTML('beforeend',rowData);
+                        document.getElementById('table_ods_body').insertAdjacentHTML('beforeend',rowData);
+                        SetReady();
+                        OdsRowCount++;
+                        //CorrectNewItemNameRow();
+                    }
+                    else {
+                        console.log("fail case");
+                        document.getElementById('warning_findProductId').textContent = '※找不到符合資訊';
+                        SetReady();
+                        document.getElementById('btn_cancel').focus();
+                    }
+                } else {
+                    console.error('Request failed with status: ' + xhr.status);
+                    document.getElementById('warning_findProductId').textContent = '發生未知問題';
+                    //SetReady();
+                    document.getElementById('btn_cancel').focus();
+                }
+            };
+            xhr.onerror = function () {
+                console.error('Request failed');
+                document.getElementById('warning_findProductId').textContent = '發生未知問題';
+                //SetReady();
+                document.getElementById('btn_cancel').focus();
+            };
+            //xhr.send(postData);
+            xhr.send();
+
+
+        });
+
+        document.body.addEventListener('click', function (event) {
+            //console.log('原生JS Click ' + event.target);
+            // 檢查點擊的元素是否具有 .btn_removeItem 類
+            if (event.target.matches('.btn_removeItem')) {
+                // 事件處理程序代碼
+                console.log("body .btn_removeItem click");
+                //var pid = this.getAttribute("pid");
+                var pid = event.target.getAttribute("pid");
+                console.log("pid " + pid);
+
+                var tr_newP = document.querySelector('.tr_newP');
+                if (tr_newP) {
+                    tr_newP.remove();
+                    OdsRowCount--;
+                    console.log("removed tr");
+                    //CorrectNewItemNameRow(); //::key
+                    updateProductIndexes();
+                }
+            }
+        });
         function updateProductIndexes() {
             console.log('In updateProductIndexes');
             var products = document.querySelectorAll('.tr_newP');
             console.log('  tr_newP length: ' + products.length);
-            
-            products.forEach(function (product, index) {                
-                console.log('    index: ' + index);                
+            products.forEach(function (product, index) {
+                //console.log('    index: ' + index);
                 var newIndex = index + OriginalOdsRowCount;
-                console.log('    newIndex: ' + newIndex);
+                //console.log('    newIndex: ' + newIndex);
                 product.querySelector('[name^="OdsRow"]').textContent = newIndex + 1;
                 product.querySelector('[name^="Ods["][name$="].ProductId"]').name
                     = `Ods[${newIndex}].ProductId`;
@@ -678,8 +1063,9 @@
                 product.querySelector('[name^="Ods["][name$="].UnitPrice"]').name
                     = `Ods[${newIndex}].UnitPrice`;
             });
-            console.log("end of updateProductIndexes");
+            //console.log("end of updateProductIndexes");
         }
+
         console.log('js end');
     </script>
 

@@ -909,6 +909,7 @@ namespace VNW.Controllers
 
 
         //::api for get StockReserved 2B
+        [HttpPost]        
         public async Task<IActionResult> GetStockReserved(int? id)
         {
             string _result = "tbc", _detail = "tbc", productName = "", picture = "";
