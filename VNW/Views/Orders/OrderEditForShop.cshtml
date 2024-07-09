@@ -273,7 +273,6 @@
             <h3>
                 原訂單金額: NT$@((int)totalSum)<br />
                 修改後訂單金額: NT$<span id="txt_TotalPriceSum">@((int)totalSum)</span><br>
-
             </h3>
             <h3>
                 運費: NT$<span id="txt_Freight">@Model.OrderBase.Freight</span><br />
@@ -281,7 +280,8 @@
             </h3>
             @*<a asp-controller="orders" asp-route-id="@Model.OrderId" class="btn btn-lg btn-danger">送出修改</a>*@
 
-            <input type="submit" value="送出修改" id="btn_submit" class="btn btn-lg btn-danger" style="display:none;" />
+            <div class="btn btn-danger btn-lg" id="btn_submit">提交修改</div>
+            @*<input type="submit" value="送出修改" id="btn_submit" class="btn btn-lg btn-danger" style="display:none;" />*@
             <span id="warningBeforeSubmit" class="text-danger" style="font-size:16px;"></span>
         </div>
     }
@@ -296,7 +296,8 @@
 
 @section endJS{
     @*<script type="text/javascript" src="https://code.jquery.com/jquery-3.3.1.min.js"></script>*@
-    @*<script>
+    <script>
+    @*
         console.log("jquery start");
         var isError = false;
         var sel_ShipVia = $('#sel_ShipVia');
@@ -654,7 +655,8 @@
         }
 
         console.log("jquery end");
-    </script>*@
+    *@
+    </script>
 
     <script>
         /*use original JS here*/
@@ -662,8 +664,9 @@
 
         var isError = false;
         var sel_ShipVia =  document.getElementById('sel_ShipVia');
-        //var sel_Payment = $('#sel_Payment');
+        var sel_Payment = document.getElementById('sel_Payment');
         var sel_Invoice = document.getElementById('sel_Invoice');
+
         var Freight = @Model.OrderBase.Freight;
         var OdsRowCount = @OdsRowCount;
         var OriginalOdsRowCount = @OdsRowCount;
@@ -676,7 +679,6 @@
         function sel_ShipVia_UpdateFreight() {
             var totalSum = @totalSum;
             var thisValue = sel_ShipVia.value; //$(this).val();//  sel_ShipVia.val();
-
             console.log("sel_ShipVia change " + thisValue);
             switch (thisValue) { //::notice: ths val() is 'string'
                 case '0':
@@ -711,7 +713,7 @@
         }
 
         document.getElementById('btn_AddMoreItem').style.display = 'none'; //hide
-        document.getElementById('btn_submit').style.display = ''; //show
+        //document.getElementById('btn_submit').style.display = ''; //show
 
         function SetBusy() {
             document.getElementById('img_loading').style.display = '';
@@ -835,9 +837,7 @@
             };
             //xhr.send(postData);
             xhr.send();
-        }
-
-        var sel_Payment = document.getElementById('sel_Payment');
+        }        
         sel_Payment.addEventListener('change', sel_PaymentChange);
         function sel_PaymentChange() {
             var msg = "";
@@ -969,27 +969,29 @@
                         var totalPrice = '<span class="TotalPrice p' + pid + '">0<span/>'; //data.unitPrice;
                         var qtyUpBoundary = data.stock - data.reserved;
                         var qtySelect = '<select class="selectQty form-control" name="Ods[' + OdsRowCount + '].Quantity" pid="' + pid + '">';
-                        //for (var i = 0; i <= qtyUpBoundary; i++) {
-                        //    qtySelect += '<option>' + i + '</option>';
-                        //}
-                        qtySelect += '<option>0</option>';
+                        for (var i = 0; i <= qtyUpBoundary; i++) {
+                            qtySelect += '<option>' + i + '</option>';
+                        }
+                        //qtySelect += '<option>0</option>';
                         qtySelect += '</select>';
                         var image = '<img src="../../images/' + data.picture + '" style="width:80px;"/>';
 
                         console.log(data.productName);
                         rowData =
-                            '<tr class="tr_newP p' + pid + '">'
-                            + '<td><span name="OdsRow">' + (OdsRowCount + 1) + '</span> <b class="text-danger">NEW</b> '
+                        '<tr class="tr_newP p' + pid + '">'
+                        + '<td><span name="OdsRow">' + (OdsRowCount + 1) + '</span> <b class="text-danger">NEW</b> '
                         + '<div class="btn_removeItem btn btn-default" pid="' + pid + '">-</div>' + '</td><td>' //<img src="../../images/delete.svg"/>
-                            + image + '</td><td>'
-                            + pidInput + ' '
-                            + nameInput + '</td><td>'
-                            + qtySelect + '</td><td>'
-                            + price + '</td><td>'
-                            + totalPrice + '</td><td></td><td>'
-                            + data.stock + '</td><td>'
-                            + data.reserved + '</td><td>'
-                            + qtyUpBoundary + '</td></tr>';
+                        + image + '</td><td>'
+                        + pidInput + ' '
+                        + nameInput + '</td><td>'
+                        + qtySelect + '</td><td>'
+                        + price + '</td><td>'
+                        + totalPrice + '</td><td></td><td>'
+                        + '<span class="Stock p' + pid + '">' + data.stock + '</span></td><td>'
+                        + '<span class="Reserved p' + pid + '">' + data.reserved + '</td><td>'
+                        + '<span class="Boundary p' + pid + '">' + qtyUpBoundary + '</td></tr>';
+
+                        
 
                         //$("#table_ods").append(rowData);
                         //document.getElementById('table_ods').append(rowData);
@@ -1047,6 +1049,8 @@
                 }
             }
         });
+
+        //::update index after remove added items
         function updateProductIndexes() {
             console.log('In updateProductIndexes');
             var products = document.querySelectorAll('.tr_newP');
@@ -1066,6 +1070,13 @@
             //console.log("end of updateProductIndexes");
         }
 
+        document.getElementById('btn_submit').addEventListener('click',
+            function () {
+                //this.style.display = 'none';
+                //document.getElementById('btn_submit').style.display = '';
+                document.getElementById('form_OrderEdit').submit();
+            }
+        );
         console.log('js end');
     </script>
 

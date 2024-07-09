@@ -1711,7 +1711,7 @@ namespace VNW.Controllers
                             #region Add new Od
                             //::new function - add more Od in Order
                             nod.OrderId = id;
-                            nod.Quantity = 0; //set zero 1st then it does not need to update p
+                            //nod.Quantity = 0; //set zero 1st then it does not need to update p
                             ood = nod;
                             _context.Add(nod);
                             await _context.SaveChangesAsync();
