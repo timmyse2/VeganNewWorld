@@ -909,10 +909,10 @@ namespace VNW.Controllers
 
 
         //::api for get StockReserved 2B
-        [HttpPost]        
+        //[HttpPost]        
         public async Task<IActionResult> GetStockReserved(int? id)
         {
-            string _result = "tbc", _detail = "tbc", productName = "", picture = "";
+            string _result = "tbc", _detail = "tbc";
             short stock = 0, reserved = 0, unitPrice = 0;
             //check user level
 
@@ -938,9 +938,63 @@ namespace VNW.Controllers
                     if(query != null)
                     {
                         stock = (short)query.UnitsInStock;
+                        reserved = (short)query.UnitsReserved;                        
+                        unitPrice = (short) query.UnitPrice;                        
+                        _result = "PASS"; _detail = "";
+                    }
+                    else
+                    {
+                        _result = "FAIL"; _detail = "product data is null";
+                    }
+                }
+                catch (Exception ex)
+                {
+                    _result = "ERROR"; _detail = "" + ex.ToString();
+                }
+            }
+            var res = new { result = _result, detail = _detail, stock, reserved, unitPrice};
+            return Json(res);
+        }
+
+        //[HttpPost]
+        public async Task<IActionResult> GetProduct(int? Id, string key)        
+        //public async Task<IActionResult> GetProduct([FromBody] LoginRequest request)//Core8
+        {
+            string _result = "tbc", _detail = "tbc", productName = "", picture = "";
+            short stock = 0, reserved = 0, unitPrice = 0;
+            //check user level           
+
+            //::check pid
+            int _pid;
+            if (Id == 0 || Id == null)
+            {
+                _result = "FAIL"; _detail = "id or key value is null";
+            }
+            else
+            {
+                try
+                {
+                    _pid = (int)Id;
+                    //string pidJSON = null;
+                    var query = await _context.Products
+                      .Where(x => x.ProductId == _pid && x.Picture != null)
+                      .AsNoTracking()
+                      .Select(x => new {
+                          x.ProductId,
+                          x.UnitsInStock,
+                          x.UnitsReserved,
+                          x.ProductName,
+                          x.UnitPrice,
+                          x.Picture
+                      })
+                      .FirstOrDefaultAsync();
+
+                    if (query != null)
+                    {
+                        stock = (short)query.UnitsInStock;
                         reserved = (short)query.UnitsReserved;
                         productName = query.ProductName;
-                        unitPrice = (short) query.UnitPrice;
+                        unitPrice = (short)query.UnitPrice;
                         picture = query.Picture;
                         _result = "PASS"; _detail = "";
                     }

@@ -1356,6 +1356,8 @@ namespace VNW.Controllers
                                     else //::do not let reserved value become negative
                                     {
                                         TempData["td_serverWarning"] = "預留數量不足，無法取消預留。(請與系統管理人聯絡)";
+                                        TempData["td_serverWarning"] += " (ID:" + p.ProductId + ") 商品" + p.ProductName;
+
                                         //throw new InvalidOperationException("預留數量不足，無法取消預留。");
                                         //return View();
                                         return RedirectToAction("OrderDetailsForShop/" + id, "orderdetails");
@@ -1703,6 +1705,7 @@ namespace VNW.Controllers
                             .Where(x => x.ProductId == nod.ProductId && x.OrderId == id)
                             .FirstOrDefaultAsync();
 
+                        bool AddNewItem = false;
                         if(ood == null)
                         {
                             //error case
@@ -1713,6 +1716,7 @@ namespace VNW.Controllers
                             nod.OrderId = id;
                             //nod.Quantity = 0; //set zero 1st then it does not need to update p
                             ood = nod;
+                            AddNewItem = true;
                             _context.Add(nod);
                             await _context.SaveChangesAsync();
                             #endregion
@@ -1731,6 +1735,13 @@ namespace VNW.Controllers
                         //    return Content("error: overbooking maybe");
                         //}
 
+                        if(AddNewItem)
+                        {
+                            p.UnitsReserved += nod.Quantity;
+                            p.LastModifiedTime = DateTime.Now;                            
+                            _context.Update(p);
+                        }
+                        else
                         //::if new qty != original qty  update od.qty, p.reserved
                         if (nod.Quantity != ood.Quantity)
                         {
