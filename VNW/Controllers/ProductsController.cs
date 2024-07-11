@@ -956,7 +956,7 @@ namespace VNW.Controllers
             return Json(res);
         }
 
-        //[HttpPost]
+        [HttpPost]
         public async Task<IActionResult> GetProduct(int? Id, string key)        
         //public async Task<IActionResult> GetProduct([FromBody] LoginRequest request)//Core8
         {

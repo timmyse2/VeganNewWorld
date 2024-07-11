@@ -1625,6 +1625,7 @@ namespace VNW.Controllers
 
             var ods = await _context.OrderDetails.Where(x => x.OrderId == id)
                 .Include(x=>x.Product)
+                .OrderBy(od => od.RowVersion) //ordered by timeStamp for Od create|update
                 .ToListAsync();
             ovm.Ods = ods;
 

@@ -823,13 +823,16 @@
             SetBusy();
             var surl = "../../Products/GetStockReserved";
             var xhr = new XMLHttpRequest();
+
+            var postData = 'id=' + pid;
             //var postData = JSON.stringify({ id: pid });
             //console.log(' postData: ' + postData);
-            surl = surl + '?id=' + encodeURIComponent(pid);
+            //surl = surl + '?id=' + encodeURIComponent(pid);
 
             xhr.open('POST', surl, true);
             //xhr.open('GET', surl, true);
-            xhr.setRequestHeader('Content-Type', 'application/json;charset=UTF-8');
+            xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+            //xhr.setRequestHeader('Content-Type', 'application/json;charset=UTF-8');            
             xhr.onload = function () {
                 if (xhr.status >= 200 && xhr.status < 300) {
                     var data = JSON.parse(xhr.responseText);
@@ -872,8 +875,8 @@
                 //$('#btn_cancel').focus();
                 //keepThis.focus();
             };
-            //xhr.send(postData);
-            xhr.send();
+            xhr.send(postData);
+            //xhr.send();
         }
 
         sel_Payment.addEventListener('change', sel_PaymentChange);
@@ -894,15 +897,13 @@
             document.getElementById('validate_Payment').innerHTML = msg;
         }
 
-        document.getElementById
-            ('btn_showAddMoreItem').addEventListener('click', function () {
+        document.getElementById('btn_showAddMoreItem').addEventListener('click', function () {
             document.getElementById('div_AddMoreItem').style.display = '';
             document.getElementById('btn_showAddMoreItem').style.display = 'none';
             document.getElementById('warning_findProductId').textContent = '※提示：此為測試中的功能；請勿一次加入過多非必要的商品';
         });
 
-        document.getElementById
-            ('btn_FindProductById').addEventListener('click', function () {
+        document.getElementById('btn_FindProductById').addEventListener('click', function () {
             var pid = parseInt(document.getElementById('input_pidNew').value);
             console.log("find product by id " + pid);
             SetBusy();
@@ -912,20 +913,17 @@
             document.getElementById('warning_findProductId').textContent = '';
             var surl = "../../Products/GetProduct";
             var xhr = new XMLHttpRequest();
+            var postData = 'id=' + encodeURIComponent(pid) + '&key=' + encodeURIComponent('植物');
             //var postData = JSON.stringify({ Id:pid, search:'未來' });
-            //console.log(' postData: ' + postData);
+            console.log('postData: ' + postData);
+
             //surl = surl + '?id=' + encodeURIComponent(pid);
-            surl = surl + '?id=' + encodeURIComponent(pid) + '&key=未來';
+            //surl = surl + '?id=' + encodeURIComponent(pid) + '&key=未來';
             console.log('surl' + surl);
 
-            xhr.open('POST', surl); //, true);
-            //xhr.open('GET', surl, true);
-            xhr.setRequestHeader('Content-Type', 'application/json; charset=utf-8');
-            //xhr.setRequestHeader('Content-Type', 'application/json;charset=UTF-8');
-            //xhr.setRequestHeader('Content-Type', 'application/json');
-            //xhr.setRequestHeader('content-type', 'application/json');            
-            //xhr.responseType = "json";            
-
+            xhr.open('POST', surl); //, true);                        
+            xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded",);	
+            //xhr.setRequestHeader('Content-Type', 'application/json; charset=utf-8');    
             xhr.onload = function () {
                 if (xhr.status >= 200 && xhr.status < 300) {
                     var data = JSON.parse(xhr.responseText);
@@ -974,18 +972,15 @@
                 //SetReady();
                 document.getElementById('input_pidNew').focus();
             };
-            //xhr.send(postData);
-            xhr.send();
-            //xhr.send('?id='+pid);
+            xhr.send(postData);            
+            //xhr.send();
         });
 
-        document.getElementById
-            ('input_pidNew').addEventListener('change', function () {
+        document.getElementById('input_pidNew').addEventListener('change', function () {
             document.getElementById('btn_AddMoreItem').style.display = 'none';
         });
 
-        document.getElementById
-            ('btn_AddMoreItem').addEventListener('click', function () {
+        document.getElementById('btn_AddMoreItem').addEventListener('click', function () {
             var pid = parseInt(document.getElementById('input_pidNew').value);
             console.log("add product by id " + pid);
             SetBusy();
@@ -995,13 +990,16 @@
 
             var surl = "../../Products/GetProduct";
             var xhr = new XMLHttpRequest();
-            //var postData = JSON.stringify({ id: pid });
-            //console.log(' postData: ' + postData);
-            surl = surl + '?id=' + encodeURIComponent(pid);
+            //var postData = JSON.stringify({ id: pid, key: '蛋白' });
+            var postData = 'id=' + pid + '&key=麥';
+            console.log(' postData: ' + postData);
+            //surl = surl + '?id=' + encodeURIComponent(pid);
 
             xhr.open('POST', surl, true);
             //xhr.open('GET', surl, true);
-            xhr.setRequestHeader('Content-Type', 'application/json;charset=UTF-8');
+            //xhr.setRequestHeader("Content-Type", "application/json");
+            xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+            //xhr.setRequestHeader('Content-Type', 'application/json;charset=UTF-8');            
             xhr.onload = function () {
                 if (xhr.status >= 200 && xhr.status < 300) {
                     var data = JSON.parse(xhr.responseText);
@@ -1071,8 +1069,8 @@
                 //SetReady();
                 document.getElementById('btn_cancel').focus();
             };
-            //xhr.send(postData);
-            xhr.send();
+            xhr.send(postData);
+            //xhr.send();
         });
 
         document.body.addEventListener('click', function (event) {
