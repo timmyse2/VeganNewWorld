@@ -1336,6 +1336,8 @@ namespace VNW.Controllers
 
                     if (qOds != null)
                     {
+                        decimal totalPriceSum = 0;
+
                         foreach (var od in qOds)
                         {
                             //od.ProductId
@@ -1343,9 +1345,17 @@ namespace VNW.Controllers
                             //::update product: 
                             if (p != null)
                             {
-                                p.UnitsInStock -= od.Quantity;
                                 if (p.UnitsReserved == null)
                                     p.UnitsReserved = 0;
+                                
+                                //::
+                                if (p.UnitsReserved > p.UnitsInStock || p.UnitsInStock < 0)
+                                {
+                                    TempData["td_serverWarning"] = "異常: 部份商品可能發生超賣 ";
+                                    TempData["td_serverWarning"] += " (ID:" + p.ProductId + ") 商品" + p.ProductName;
+                                    return RedirectToAction("OrderDetailsForShop/" + id, "orderdetails");
+                                }
+                                p.UnitsInStock -= od.Quantity;
 
                                 if(isNewFormatFrom2024Jun4)
                                 {
@@ -1355,7 +1365,7 @@ namespace VNW.Controllers
                                     }
                                     else //::do not let reserved value become negative
                                     {
-                                        TempData["td_serverWarning"] = "預留數量不足，無法取消預留。(請與系統管理人聯絡)";
+                                        TempData["td_serverWarning"] = "異常: 預留數量不足，無法取消預留。(請與系統管理人聯絡)";
                                         TempData["td_serverWarning"] += " (ID:" + p.ProductId + ") 商品" + p.ProductName;
 
                                         //throw new InvalidOperationException("預留數量不足，無法取消預留。");
@@ -1370,14 +1380,22 @@ namespace VNW.Controllers
                                 if(p.Discontinued)
                                 {
                                     //error case
-                                    TempData["td_serverWarning"] = "部份商品已下架或暫不開放";
+                                    TempData["td_serverWarning"] = "異常: 部份商品已下架或暫不開放 (" + p.ProductId + ": "+ p.ProductName + ")" ;
                                     return RedirectToAction("OrderDetailsForShop/" + id, "orderdetails");
                                 }
 
                                 p.LastModifiedTime = DateTime.Now;//time stamp
                                 _context.Products.Update(p);
                                 //await _context.SaveChangesAsync();
+
+                                totalPriceSum += od.UnitPrice * od.Quantity;
                             }
+                        }
+                        //::check total price sum > 0
+                        if(totalPriceSum <= 0)
+                        {
+                            TempData["td_serverWarning"] = "總額小於0";
+                            return RedirectToAction("OrderDetailsForShop/" + id, "orderdetails");
                         }
                     }
                     #endregion

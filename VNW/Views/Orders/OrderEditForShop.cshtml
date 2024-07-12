@@ -284,7 +284,7 @@
             </h3>
             @*<a asp-controller="orders" asp-route-id="@Model.OrderId" class="btn btn-lg btn-danger">送出修改</a>*@
 
-            <div class="btn btn-danger btn-lg" id="btn_submit">提交修改</div>
+            <div class="btn btn-danger btn-lg" id="btn_submit" style="display:none;">提交修改</div>
             @*<input type="submit" value="送出修改" id="btn_submit" class="btn btn-lg btn-danger" style="display:none;" />*@
             <span id="warningBeforeSubmit" class="text-danger" style="font-size:16px;"></span>
         </div>
@@ -707,6 +707,7 @@
 
         var input_Freight = document.getElementById('input_Freight');
         var txt_Freight = document.getElementById('txt_Freight');
+        var txt_TotalPriceSum = document.getElementById('txt_TotalPriceSum');
         var txt_TotalPriceSumPlus = document.getElementById('txt_TotalPriceSumPlus');
         var validate_ShipVia = document.getElementById('validate_ShipVia');
 
@@ -790,10 +791,9 @@
             console.log(" UnitPrice" + unitPrice);
             var totalPrice = newQtyValue * unitPrice;
             console.log(" 小記 " + totalPrice);
-            document.querySelector('.TotalPrice.p' + pid).textContent = totalPrice + '*';
+            document.querySelector('.TotalPrice.p' + pid).textContent = totalPrice; // + '*';
             document.querySelector('.TotalPrice.p' + pid).classList.add('alert-warning');
-
-            var txt_TotalPriceSum = document.getElementById('txt_TotalPriceSum');
+            
             var TotalPriceSum = 0;
 
             TotalPriceSum =
@@ -809,22 +809,15 @@
             document.getElementById('txt_TotalPriceSumPlus')
                 .textContent = TotalPriceSum + Freight;
 
-            if (TotalPriceSum <= 0) {
-                document.getElementById('btn_submit').style.display = 'none';
-                document.getElementById('warningBeforeSubmit').innerHTML =  ("提示：總價少於0，至少要買一件商品");
-            }
-            else {
-                document.getElementById('btn_submit').style.display = '';
-                document.getElementById('warningBeforeSubmit').innerHTML = '';
-            }
             totalSum = TotalPriceSum; //updated to global var
+            CheckTotalPriceSum();
 
             //::load current stock|reserved from DB
             SetBusy();
             var surl = "../../Products/GetStockReserved";
             var xhr = new XMLHttpRequest();
 
-            var postData = 'id=' + pid;
+            var postData = 'id=' + encodeURIComponent(pid);
             //var postData = JSON.stringify({ id: pid });
             //console.log(' postData: ' + postData);
             //surl = surl + '?id=' + encodeURIComponent(pid);
@@ -991,7 +984,7 @@
             var surl = "../../Products/GetProduct";
             var xhr = new XMLHttpRequest();
             //var postData = JSON.stringify({ id: pid, key: '蛋白' });
-            var postData = 'id=' + pid + '&key=麥';
+            var postData = 'id=' + encodeURIComponent(pid) + '&key=麥';
             console.log(' postData: ' + postData);
             //surl = surl + '?id=' + encodeURIComponent(pid);
 
@@ -1085,11 +1078,19 @@
 
                 var tr_newP = document.querySelector('.tr_newP');
                 if (tr_newP) {
+
+                    console.log(" TotalPrice " + document.querySelector('.TotalPrice.p' + pid).textContent);
+                    var TotalPrice = parseInt(document.querySelector('.TotalPrice.p' + pid).textContent);
+                    totalSum -= TotalPrice; //qty * price
+                    txt_TotalPriceSum.textContent = totalSum;
+                    txt_TotalPriceSumPlus.textContent = (totalSum + Freight);
+
                     tr_newP.remove();
                     OdsRowCount--;
                     console.log("removed tr");
                     //CorrectNewItemNameRow(); //::key
                     updateProductIndexes();
+                    CheckTotalPriceSum();
                 }
             }
         });
@@ -1115,8 +1116,7 @@
         }
 
         //::Do NOT let <input submit> works immediately after user pressed ENTER
-        document.getElementById
-            ('btn_submit').addEventListener('click',
+        document.getElementById('btn_submit').addEventListener('click',
             function () {
                 //this.style.display = 'none';
                 //document.getElementById('btn_submit').style.display = '';
@@ -1125,6 +1125,7 @@
         );
 
         //::study only, not ready
+        //document.getElementById('btn_FetchTest').style.display = 'block';
         document.getElementById('btn_FetchTest').addEventListener('click',function () {
             console.log('btn_FetchTest');
             var surl = "../../Products/GetProduct";            
@@ -1143,13 +1144,15 @@
             //console.log('surl: ' + surl);
             //surl = encodeURI(surl);
             console.log('surl: ' + surl);
-            const inputData = { id: 39, key: 'zero' };
+            //const inputData = { id: 39, key: 'zero' };
             fetch(surl, {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json'
+                    //'Content-Type': 'application/json'
+                    'Content-Type': 'application/x-www-form-urlencoded'
                 },
-                body: JSON.stringify(inputData)
+                //body: JSON.stringify(inputData)
+                body: ('id=' + 36)
             })
             .then(response => {
                 if (!response.ok) {
@@ -1165,6 +1168,19 @@
                 console.error('Fetch operation failed:', error);
             });
         });       
+
+        CheckTotalPriceSum();
+        function CheckTotalPriceSum() {
+            console.log('CheckTotalPriceSum: ' + totalSum);
+            if (totalSum <= 0) {
+                document.getElementById('btn_submit').style.display = 'none';
+                document.getElementById('warningBeforeSubmit').innerHTML = ("提示：總價少於0，至少要買一件商品");
+            }
+            else {
+                document.getElementById('btn_submit').style.display = '';
+                document.getElementById('warningBeforeSubmit').innerHTML = '';
+            }
+        }        
 
         console.log('js end');
     </script>
