@@ -695,16 +695,17 @@
         /*use original JS here*/
         console.log('js start');
 
-        var isError = false;
-        var sel_ShipVia =  document.getElementById('sel_ShipVia');
-        var sel_Payment = document.getElementById('sel_Payment');
-        var sel_Invoice = document.getElementById('sel_Invoice');
-
+        //::var shared
         var Freight = @Model.OrderBase.Freight;
         var OdsRowCount = @OdsRowCount;
         var OriginalOdsRowCount = @OdsRowCount;
-        var totalSum = @totalSum;
+        var TotalPriceSum = @totalSum;
+        var isError = false;
 
+        //::elements
+        var sel_ShipVia =  document.getElementById('sel_ShipVia');
+        var sel_Payment = document.getElementById('sel_Payment');
+        var sel_Invoice = document.getElementById('sel_Invoice');        
         var input_Freight = document.getElementById('input_Freight');
         var txt_Freight = document.getElementById('txt_Freight');
         var txt_TotalPriceSum = document.getElementById('txt_TotalPriceSum');
@@ -712,8 +713,7 @@
         var validate_ShipVia = document.getElementById('validate_ShipVia');
 
         sel_ShipVia.addEventListener('change', sel_ShipVia_UpdateFreight);
-        function sel_ShipVia_UpdateFreight() {
-            //var totalSum = @totalSum;
+        function sel_ShipVia_UpdateFreight() {            
             var thisValue = sel_ShipVia.value; //$(this).val();//  sel_ShipVia.val();
             console.log("sel_ShipVia change " + thisValue);
             switch (thisValue) { //::notice: ths val() is 'string'
@@ -745,7 +745,7 @@
             }
             input_Freight.value = Freight; //lost before
             txt_Freight.value = Freight;
-            txt_TotalPriceSumPlus.textContent = (totalSum + Freight);
+            txt_TotalPriceSumPlus.textContent = (TotalPriceSum + Freight);
             //console.log("e o s");
         }
 
@@ -794,22 +794,20 @@
             document.querySelector('.TotalPrice.p' + pid).textContent = totalPrice; // + '*';
             document.querySelector('.TotalPrice.p' + pid).classList.add('alert-warning');
             
-            var TotalPriceSum = 0;
-
-            TotalPriceSum =
-                parseInt(txt_TotalPriceSum.textContent);
+            //var TotalPriceSum = 0;
+            //TotalPriceSum = totalSum;
+            //    parseInt(txt_TotalPriceSum.textContent);
                 //parseInt($('#txt_TotalPriceSum').text());
-            console.log(" sum " + TotalPriceSum);
-
+            console.log(" sum before:" + TotalPriceSum);
             TotalPriceSum += (newQtyValue - OldQtyValue) * unitPrice;
+            console.log(" sum after: " + TotalPriceSum);
             txt_TotalPriceSum.textContent = (TotalPriceSum);
 
             target.setAttribute('OldQty', newQtyValue);
             //this.setAttribute('OldQty', newQtyValue);
-            document.getElementById('txt_TotalPriceSumPlus')
-                .textContent = TotalPriceSum + Freight;
+            txt_TotalPriceSumPlus.textContent = TotalPriceSum + Freight;
 
-            totalSum = TotalPriceSum; //updated to global var
+            //totalSum = TotalPriceSum; //updated to global var
             CheckTotalPriceSum();
 
             //::load current stock|reserved from DB
@@ -1007,11 +1005,14 @@
                         var pidInput = '<input name="Ods[' + OdsRowCount + '].ProductId" value="' + pid + '" type="hidden"/>  (#' + pid + ')';
                         var nameInput = data.productName;
                         var price = '<input name="Ods[' + OdsRowCount + '].UnitPrice" value="' + data.unitPrice + '" type="hidden" /><span class="UnitPrice p' + pid + '">' + (data.unitPrice) + '</span>';
-                        var totalPrice = '<span class="TotalPrice p' + pid + '">0<span/>'; //data.unitPrice;
+                        var totalPrice = '<span class="TotalPrice p' + pid + '">' + data.unitPrice + '<span/>'; //data.unitPrice;
                         var qtyUpBoundary = data.stock - data.reserved;
-                        var qtySelect = '<select class="selectQty form-control" name="Ods[' + OdsRowCount + '].Quantity" pid="' + pid + '" OldQty="0">';
+                        var qtySelect = '<select class="selectQty form-control" name="Ods[' + OdsRowCount + '].Quantity" pid="' + pid + '" OldQty="1">';
                         for (var i = 0; i <= qtyUpBoundary; i++) {
-                            qtySelect += '<option>' + i + '</option>';
+                            if (i == 1) 
+                                qtySelect += '<option selected>' + i + '</option>';
+                            else
+                                qtySelect += '<option>' + i + '</option>';
                         }
                         //qtySelect += '<option>0</option>';
                         qtySelect += '</select>';
@@ -1038,7 +1039,11 @@
                         //document.getElementById('table_ods_body').append(rowData);
                         //document.getElementById('table_ods_body').appendChild(rowData);
                         //document.getElementById('table_ods').appendChild(rowData);
-                        //document.getElementById('table_ods').insertAdjacentHTML('beforeend',rowData);                        
+                        //document.getElementById('table_ods').insertAdjacentHTML('beforeend',rowData);
+                        TotalPriceSum += data.unitPrice * 1;
+                        txt_TotalPriceSum.textContent = TotalPriceSum;
+                        txt_TotalPriceSumPlus.textContent = (TotalPriceSum + Freight);
+                        CheckTotalPriceSum();
                         SetReady();
                         OdsRowCount++;
                         //CorrectNewItemNameRow();
@@ -1081,9 +1086,9 @@
 
                     console.log(" TotalPrice " + document.querySelector('.TotalPrice.p' + pid).textContent);
                     var TotalPrice = parseInt(document.querySelector('.TotalPrice.p' + pid).textContent);
-                    totalSum -= TotalPrice; //qty * price
-                    txt_TotalPriceSum.textContent = totalSum;
-                    txt_TotalPriceSumPlus.textContent = (totalSum + Freight);
+                    TotalPriceSum -= TotalPrice; //qty * price
+                    txt_TotalPriceSum.textContent = TotalPriceSum;
+                    txt_TotalPriceSumPlus.textContent = (TotalPriceSum + Freight);
 
                     tr_newP.remove();
                     OdsRowCount--;
@@ -1171,8 +1176,8 @@
 
         CheckTotalPriceSum();
         function CheckTotalPriceSum() {
-            console.log('CheckTotalPriceSum: ' + totalSum);
-            if (totalSum <= 0) {
+            console.log('CheckTotalPriceSum: ' + TotalPriceSum);
+            if (TotalPriceSum <= 0) {
                 document.getElementById('btn_submit').style.display = 'none';
                 document.getElementById('warningBeforeSubmit').innerHTML = ("提示：總價少於0，至少要買一件商品");
             }
