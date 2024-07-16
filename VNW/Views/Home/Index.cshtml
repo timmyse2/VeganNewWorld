@@ -10,7 +10,14 @@
 else
 {
     <p>
-        @ViewBag.UserAccount
+        @if (ViewBag.ShopAccount != "")
+        {
+            <b>店家員工</b> @ViewBag.ShopAccount
+        }
+        else
+        {
+            @ViewBag.UserAccount
+        }
         <a asp-action="logout" asp-controller="Customers">登出</a>
     </p>    
 }

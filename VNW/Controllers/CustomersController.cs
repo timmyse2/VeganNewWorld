@@ -239,6 +239,7 @@ namespace VNW.Controllers
         }
 
         //::for Admin
+        //[HttpPost]
         public async Task<IActionResult> AdminLogin(string account, string password, string pin, string role)
         //public IActionResult AdminLogin(string account, string password, string pin, string role)
         {
@@ -253,20 +254,51 @@ namespace VNW.Controllers
             return Json(new { result = "PASS", detail = "admin login" });
         }
 
-        //[HttpPost]
+        [HttpPost]
         public async Task<IActionResult> ShopLogin(string account, string password, string pin, string role)
         {
-            string ShopAccount = "wolf2024@vwn.tw";
+            string ShopAccount = "";
+            string result = "", detail = "";
+
             await Task.Run(() =>
             {
-                //::pass case
-                _ms.SetMySession("IsUserLogin", "NO", HttpContext.Session);
+                if(account == "" || password == "")
+                {
+                    //fail case
+                    result = "fail";
+                    detail = "lost some parameters";
+                    ShopAccount = "unknown";
+                }
+                else
+                {
+                    //::DB access
+                    //::pwd decode
+
+                    //::data matched
+                    if (account == "wolf2024@vwn.tw" && password == "17258")
+                    {
+                        //::pass case
+                        ShopAccount = account;
+                        _ms.SetMySession("IsUserLogin", "NO", HttpContext.Session);
+                        _ms.SetMySession("UserLevel", "2B", HttpContext.Session);
+                        //_ms.SetMySession("UserAccount", "Illyasviel@Einzbern2017", HttpContext.Session);
+                        _ms.SetMySession("UserAccount", ShopAccount, HttpContext.Session);
+                        _ms.SetMySession("ShopAccount", ShopAccount, HttpContext.Session);
+                        result = "PASS";
+                        detail = "vender login at " + DateTime.Now;
+                        ShopAccount = "wolf2024@vwn.tw";
+                    }
+                    else
+                    {
+                        result = "fail";
+                        detail = "no matched record";
+                        ShopAccount = account;
+                    }
+                }                
                 
-                _ms.SetMySession("UserLevel", "2B", HttpContext.Session);
-                _ms.SetMySession("UserAccount", "Illyasviel@Einzbern2017", HttpContext.Session);                
-                _ms.SetMySession("ShopAccount", ShopAccount, HttpContext.Session);
-            });
-            return Json(new { result = "PASS", detail = "shop side login " + ShopAccount + " " + DateTime.Now });
+            });            
+            //return Json(new { result = "PASS", detail = "shop side login at " + DateTime.Now, shopAccount = ShopAccount });
+            return Json(new { result , detail, shopAccount = ShopAccount });
         }
     }
 }

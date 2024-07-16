@@ -5,7 +5,7 @@
 
 <h2>會員登入</h2>
 
-<div class="alert-danger">
+<div class="alert-danger" id="warning_server">
     @TempData["td_server"]
 </div>
 
@@ -71,6 +71,7 @@
         var isPass = false;
         $("#btn_test").click(btn_test_click);
         $("#btn_login_ajax").hide();
+        
 
         var msg = "";
 
@@ -155,48 +156,102 @@
 
             if (isPass) { //precheck pass
                 //ajax
-                try {
-                    console.log("getjson...");
-                    var surl = "Login";
 
-                    $.ajax({
-                        url: surl,
-                        type: "POST",
-                        dateType: "json",
-                        data: {
-                            account: $("#account").val(),
-                            password: $("#password").val(),
-                            pin: $("#pin").val(),
-                        },
-                        success: function (datar) {
-                            console.log("receive datar")
-                            console.log(datar)
+                //::check role {1A:admin, 2B:shop, 3C:customer}
+                var role = $('#role').val();
+                console.log('role: ' + role);
+                switch (role) {
+                    case 'Admin':
+                        console.log('admin');
+                        return;
+                        break;
+                    case 'Vender':
+                        console.log('vender shop');
+                        var surl = "shoplogin";
 
-                            if (datar.result == "PASS") {
-                                //login pass
+                        $.ajax({
+                            url: surl,
+                            type: "POST",
+                            dateType: "json",
+                            data: {
+                                account: $("#account").val(),
+                                password: $("#password").val(),
+                                pin: $("#pin").val(),
+                            },
+                            success: function (datar) {
+                                console.log("receive datar")
+                                console.log(datar)
 
-                                $("#all_validate").text("※提示：成功了!!");
-                                //window.location.href = "../Comics"; //:: for IIS deploy
-                                window.location.href = "../";
-                            }
-                            else {
-                                //fail case
-                                var failMessage = "※提示：找不到符合您輸入的資料! 留意大小寫!";
-                                $("#all_validate").text(failMessage);
-                                //$("#all_validate").text(failMessage + datar.detail);
-                            }
-                            $("#btn_login_ajax").show();
+                                if (datar.result == "PASS") {
+                                    //login pass
+                                    $("#all_validate").text("※提示：商家" + datar.shopAccount + "登入成功了!!");
+                                    $('#warning_server').text("");
 
-                        }, //success
-                        error: function (xhr, ajaxOptions, thrownError) {
-                            console.log(xhr)
-                        }//error
-                    });
-                    return;
-                }
-                catch (err) {
-                    console.log("exception " + err);
-                    return;
+                                    //::tansfer to 
+                                    window.location.href = "../";
+                                }
+                                else {
+                                    //fail case
+                                    var failMessage = "※提示：找不到符合您輸入的資料! 留意大小寫!";
+                                    $("#all_validate").text(failMessage);                                    
+                                }
+                                $("#btn_login_ajax").show();
+
+                            }, //success
+                            error: function (xhr, ajaxOptions, thrownError) {
+                                console.log(xhr)
+                            }//error
+                        });
+                        return;
+                        break;
+                    
+                    case 'Cusomter':
+                    default:
+                        try {
+                            console.log("getjson...");
+                            var surl = "Login";
+
+                            $.ajax({
+                                url: surl,
+                                type: "POST",
+                                dateType: "json",
+                                data: {
+                                    account: $("#account").val(),
+                                    password: $("#password").val(),
+                                    pin: $("#pin").val(),
+                                },
+                                success: function (datar) {
+                                    console.log("receive datar")
+                                    console.log(datar)
+
+                                    if (datar.result == "PASS") {
+                                        //login pass
+
+                                        $("#all_validate").text("※提示：成功了!!");
+                                        //window.location.href = "../Comics"; //:: for IIS deploy
+                                        window.location.href = "../";
+                                    }
+                                    else {
+                                        //fail case
+                                        var failMessage = "※提示：找不到符合您輸入的資料! 留意大小寫!";
+                                        $("#all_validate").text(failMessage);
+                                        //$("#all_validate").text(failMessage + datar.detail);
+                                    }
+                                    $("#btn_login_ajax").show();
+
+                                }, //success
+                                error: function (xhr, ajaxOptions, thrownError) {
+                                    console.log(xhr)
+                                }//error
+                            });
+                            return;
+                        }
+                        catch (err) {
+                            console.log("exception " + err);
+                            return;
+                        }
+
+                        break;
                 }
             }
             console.log("end of btn_login_ajax");
