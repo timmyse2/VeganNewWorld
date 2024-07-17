@@ -192,7 +192,7 @@
                                 }
                                 else {
                                     //fail case
-                                    var failMessage = "※提示：找不到符合您輸入的資料! 留意大小寫!";
+                                    var failMessage = "※提示：找不到符合您輸入的資料! 留意大小寫! " + datar.detail;
                                     $("#all_validate").text(failMessage);
                                     $('#warning_server').text("");
                                 }
@@ -200,7 +200,10 @@
 
                             }, //success
                             error: function (xhr, ajaxOptions, thrownError) {
-                                console.log(xhr)
+                                console.log(xhr);
+                                var failMessage = '發生未知錯誤';
+                                $("#all_validate").text(failMessage);
+                                $('#warning_server').text('');
                             }//error
                         });
                         return;

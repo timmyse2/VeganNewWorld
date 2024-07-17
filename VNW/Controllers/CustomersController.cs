@@ -276,15 +276,14 @@ namespace VNW.Controllers
                 else
                 {
                     //::DB access, find account
-                    var employee = _context.Customer.Where(x => x.CustomerId == account).FirstOrDefault();
-                    
+                    var employee = _context.Employees
+                        .Where(e => e.Email == account).FirstOrDefault(); ;
+
                     //::find matched account
                     if (employee != null)
-                    //if (account == "wolf2024@vnw.tw")
                     {
                         #region hash pwd
                         string secretKey = "vnw2024";
-                        //string Pwd_Original = "17258";
                         HMACSHA1 hmac = new HMACSHA1(Encoding.UTF8.GetBytes(secretKey));
                         //byte[] Pwd_Encoded = hmac.ComputeHash(Encoding.UTF8.GetBytes(Pwd_Original));
                         //Debug.WriteLine("key: " + secretKey);
