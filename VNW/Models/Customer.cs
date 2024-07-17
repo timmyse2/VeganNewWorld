@@ -14,7 +14,8 @@ namespace VNW.Models
         //::PK
         [Display(Name = "客戶ID")]
         public string CustomerId { get; set; }
-
+        //[Display(Name = "密碼")]
+        //public string PasswordEncoded { set; get; }
         [Display(Name = "公司組織名稱")]
         public string CompanyName { get; set; }
         [Display(Name = "聯絡人姓名")]
