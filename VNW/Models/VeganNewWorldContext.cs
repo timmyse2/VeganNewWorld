@@ -19,6 +19,7 @@ namespace VNW.Models
         public virtual DbSet<Product> Products { get; set; }
         public virtual DbSet<Order> Orders { get; set; }
         public virtual DbSet<OrderDetail> OrderDetails { get; set; }
+        public virtual DbSet<Employee> Employees { get; set; }
 
         //::auto created by vs
         public DbSet<VNW.Models.Category> Category { get; set; }

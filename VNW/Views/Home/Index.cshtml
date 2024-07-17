@@ -10,13 +10,13 @@
 else
 {
     <p>
-        @if (ViewBag.ShopAccount != "")
+        @if (ViewBag.ShopAccount != "" && ViewBag.ShopAccount != null)
         {
             <b>店家員工</b> @ViewBag.ShopAccount
         }
         else
         {
-            @ViewBag.UserAccount
+            <b>客戶</b> @ViewBag.UserAccount
         }
         <a asp-action="logout" asp-controller="Customers">登出</a>
     </p>    

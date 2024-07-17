@@ -235,6 +235,7 @@ namespace VNW.Controllers
                 HttpContext.Session.Remove("IsUserLogin");
                 HttpContext.Session.Remove("UserAccount");
                 HttpContext.Session.Remove("UserLevel");
+                HttpContext.Session.Remove("ShopAccount");
                 TempData["td_server"] = "已登出"; //::
             });
             return RedirectToAction("Login");
@@ -274,16 +275,12 @@ namespace VNW.Controllers
                 }
                 else
                 {
-                    //::DB access, find account                   
-                    //var emp = _context.
+                    //::DB access, find account
                     var employee = _context.Customer.Where(x => x.CustomerId == account).FirstOrDefault();
-                    if(employee == null)
-                    {
-                        //::fail case
-                        Debug.WriteLine("can not find employee account");
-                    }
+                    
                     //::find matched account
-                    if (account == "wolf2024@vnw.tw")
+                    if (employee != null)
+                    //if (account == "wolf2024@vnw.tw")
                     {
                         #region hash pwd
                         string secretKey = "vnw2024";
@@ -305,8 +302,11 @@ namespace VNW.Controllers
                         Debug.WriteLine("Pwd_Encoded String: " + BitConverter.ToString(Pwd_Encoded));
                         Debug.WriteLine("Pwd_Encoded String: " + BitConverter.ToString(Pwd_Encoded).Replace("-", string.Empty));                        
                         */
-                        string expectPasswordEncoded = "TEaDO6tjVVcTcUNZ0pAMkuLMDV8=";
+                        string expectPasswordEncoded
+                            = employee.PasswordEncoded;
+                            //= "TEaDO6tjVVcTcUNZ0pAMkuLMDV8=";
                             //Convert.ToBase64String(Pwd_Encoded);
+
                         //Debug.WriteLine("Pwd_Encoded Base64Bit: " + expectPasswordEncoded);
                         string inputPasswordEncoded =
                             Convert.ToBase64String(hmac.ComputeHash(Encoding.UTF8.GetBytes(password)));
@@ -341,8 +341,7 @@ namespace VNW.Controllers
                         ShopAccount = account;
                     }
                 }                
-                
-            });            
+            });
             //return Json(new { result = "PASS", detail = "shop side login at " + DateTime.Now, shopAccount = ShopAccount });
             return Json(new { result , detail, shopAccount = ShopAccount });
         }
