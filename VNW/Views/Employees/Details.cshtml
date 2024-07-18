@@ -1,0 +1,84 @@
+﻿@model VNW.Models.Employee
+
+@{
+    ViewData["Title"] = "Details";
+}
+
+<h2>Details</h2>
+
+<div>
+    <h4>Employee</h4>
+    <hr />
+    <dl class="dl-horizontal">
+        <dt>
+            @Html.DisplayNameFor(model => model.Email)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Email)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.PasswordEncoded)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.PasswordEncoded)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Name)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Name)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Title)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Title)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Extension)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Extension)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.ReportsTo)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.ReportsTo)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.PhotoPath)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.PhotoPath)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.ReportsToNavigation)
+        </dt>
+        <dd>
+            @if (Model.ReportsToNavigation != null)
+            {
+                <span>@Model.ReportsToNavigation.Email (@Model.ReportsToNavigation.Name)</span>
+            }
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.InverseReportsToNavigation)
+        </dt>
+        <dd>
+            @if (Model.InverseReportsToNavigation != null)
+            {
+                foreach(var e in Model.InverseReportsToNavigation)
+                {
+                    <ul>
+                        <li>@e.Name</li>
+                    </ul>                    
+                }
+            }
+        </dd>
+    </dl>
+</div>
+<div>
+    <a asp-action="Edit" asp-route-id="@Model.Id">Edit</a> |
+    <a asp-action="Index">Back to List</a>
+</div>
