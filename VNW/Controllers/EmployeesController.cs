@@ -12,6 +12,8 @@ namespace VNW.Controllers
     public class EmployeesController : Controller
     {
         private readonly VeganNewWorldContext _context;
+        //::set session common interface
+        VNW.Common.MySession _ms = new Common.MySession();
 
         public EmployeesController(VeganNewWorldContext context)
         {
@@ -21,12 +23,26 @@ namespace VNW.Controllers
         // GET: Employees
         public async Task<IActionResult> Index()
         {
+            string UserLevel = _ms.GetMySession("UserLevel", HttpContext.Session);
+            if (UserLevel != "2B" && UserLevel != "1A")
+            {
+                TempData["td_server"] = "該頁面只有管理者*或商家員工*可使用，請先登入";
+                return RedirectToAction("Login", "Customers");
+            }
+            ViewBag.ShopAccount = _ms.GetMySession("ShopAccount", HttpContext.Session);
             return View(await _context.Employees.ToListAsync());
         }
 
         // GET: Employees/Details/5
         public async Task<IActionResult> Details(int? id)
         {
+            string UserLevel = _ms.GetMySession("UserLevel", HttpContext.Session);
+            if (UserLevel != "2B" && UserLevel != "1A")
+            {
+                TempData["td_server"] = "該頁面只有管理者*或商家員工*可使用，請先登入";
+                return RedirectToAction("Login", "Customers");
+            }
+
             if (id == null)
             {
                 return NotFound();
@@ -38,6 +54,8 @@ namespace VNW.Controllers
             {
                 return NotFound();
             }
+
+            ViewBag.ShopAccount = _ms.GetMySession("ShopAccount", HttpContext.Session);
 
             //::set NP
             if (employee.ReportsTo != null)
@@ -72,6 +90,13 @@ namespace VNW.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("Id,Email,PasswordEncoded,Name,Title,Extension,ReportsTo,PhotoPath")] Employee employee)
         {
+            string UserLevel = _ms.GetMySession("UserLevel", HttpContext.Session);
+            if (UserLevel != "2B" && UserLevel != "1A")
+            {
+                TempData["td_server"] = "該頁面只有管理者*或商家員工*可使用，請先登入";
+                return RedirectToAction("Login", "Customers");
+            }
+
             if (ModelState.IsValid)
             {
                 _context.Add(employee);
@@ -84,16 +109,31 @@ namespace VNW.Controllers
         // GET: Employees/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
+            string UserLevel = _ms.GetMySession("UserLevel", HttpContext.Session);
+            if (UserLevel != "2B" && UserLevel != "1A")
+            {
+                TempData["td_server"] = "該頁面只有管理者*或商家員工*可使用，請先登入";
+                return RedirectToAction("Login", "Customers");
+            }
             if (id == null)
             {
                 return NotFound();
             }
+
+            ViewBag.ShopAccount = _ms.GetMySession("ShopAccount", HttpContext.Session);
 
             var employee = await _context.Employees.FindAsync(id);
             if (employee == null)
             {
                 return NotFound();
             }
+
+            //::
+            if(ViewBag.ShopAccount != employee.Email )
+            {
+                return Content("You have no right to update other members info");
+            }
+
             return View(employee);
         }
 
@@ -104,6 +144,12 @@ namespace VNW.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, [Bind("Id,Email,PasswordEncoded,Name,Title,Extension,ReportsTo,PhotoPath")] Employee employee)
         {
+            string UserLevel = _ms.GetMySession("UserLevel", HttpContext.Session);
+            if (UserLevel != "2B" && UserLevel != "1A")
+            {
+                TempData["td_server"] = "該頁面只有管理者*或商家員工*可使用，請先登入";
+                return RedirectToAction("Login", "Customers");
+            }
             if (id != employee.Id)
             {
                 return NotFound();
@@ -135,6 +181,12 @@ namespace VNW.Controllers
         // GET: Employees/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
+            string UserLevel = _ms.GetMySession("UserLevel", HttpContext.Session);
+            if (UserLevel != "1A")
+            {
+                TempData["td_server"] = "該頁面只有管理者*可使用，請先登入";
+                return RedirectToAction("Login", "Customers");
+            }
             if (id == null)
             {
                 return NotFound();
@@ -155,6 +207,12 @@ namespace VNW.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
+            string UserLevel = _ms.GetMySession("UserLevel", HttpContext.Session);
+            if (UserLevel != "2B" && UserLevel != "1A")
+            {
+                TempData["td_server"] = "該頁面只有管理者*可使用，請先登入";
+                return RedirectToAction("Login", "Customers");
+            }
             var employee = await _context.Employees.FindAsync(id);
             _context.Employees.Remove(employee);
             await _context.SaveChangesAsync();

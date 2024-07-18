@@ -1,13 +1,14 @@
 ﻿@model VNW.Models.Employee
 
 @{
-    ViewData["Title"] = "Details";
+    ViewData["Title"] = "員工個人資料";
 }
 
-<h2>Details</h2>
+<h2>@ViewData["Title"]</h2>
 
-<div>
-    <h4>Employee</h4>
+@if(false)
+{
+<div>    
     <hr />
     <dl class="dl-horizontal">
         <dt>
@@ -15,12 +16,6 @@
         </dt>
         <dd>
             @Html.DisplayFor(model => model.Email)
-        </dd>
-        <dt>
-            @Html.DisplayNameFor(model => model.PasswordEncoded)
-        </dt>
-        <dd>
-            @Html.DisplayFor(model => model.PasswordEncoded)
         </dd>
         <dt>
             @Html.DisplayNameFor(model => model.Name)
@@ -40,12 +35,7 @@
         <dd>
             @Html.DisplayFor(model => model.Extension)
         </dd>
-        <dt>
-            @Html.DisplayNameFor(model => model.ReportsTo)
-        </dt>
-        <dd>
-            @Html.DisplayFor(model => model.ReportsTo)
-        </dd>
+
         <dt>
             @Html.DisplayNameFor(model => model.PhotoPath)
         </dt>
@@ -54,13 +44,19 @@
         </dd>
 
         <dt>
-            @Html.DisplayNameFor(model => model.ReportsToNavigation)
+            @Html.DisplayNameFor(model => model.ReportsTo)
         </dt>
         <dd>
-            @if (Model.ReportsToNavigation != null)
-            {
-                <span>@Model.ReportsToNavigation.Email (@Model.ReportsToNavigation.Name)</span>
-            }
+            <ul>
+                <li>
+                    @*@Html.DisplayFor(model => model.ReportsTo)*@
+                    @if (Model.ReportsToNavigation != null)
+                    {
+                        @Model.ReportsToNavigation.Name
+                        <span>(@Model.ReportsToNavigation.Email)</span>
+                    }
+                </li>
+            </ul>            
         </dd>
         <dt>
             @Html.DisplayNameFor(model => model.InverseReportsToNavigation)
@@ -68,17 +64,109 @@
         <dd>
             @if (Model.InverseReportsToNavigation != null)
             {
-                foreach(var e in Model.InverseReportsToNavigation)
+                foreach (var e in Model.InverseReportsToNavigation)
                 {
                     <ul>
-                        <li>@e.Name</li>
-                    </ul>                    
+                        <li>@e.Name <a>(@e.Email)</a> </li>
+                    </ul>
                 }
             }
         </dd>
     </dl>
 </div>
+}
+
+<p></p>
+<div class="row">
+    <div class="col-md-4">        
+        <table class="table table-hover table-striped">
+            <tr>
+                <td>
+                    <b>ID</b>
+                </td>
+                <td>
+                    @Html.DisplayFor(model => model.Id)
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <b>@Html.DisplayNameFor(model => model.Email)</b>
+                </td>
+                <td>
+                    @Html.DisplayFor(model => model.Email)
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <b>@Html.DisplayNameFor(model => model.Name)</b>
+                </td>
+                <td>
+                    @Html.DisplayFor(model => model.Name)
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <b>@Html.DisplayNameFor(model => model.Title)</b>
+                </td>
+                <td>
+                    @Html.DisplayFor(model => model.Title)
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <b>@Html.DisplayNameFor(model => model.Extension)</b>
+                </td>
+                <td>
+                    @Html.DisplayFor(model => model.Extension)
+                </td>
+            </tr>
+
+            <tr>
+                <td>
+                    <b>@Html.DisplayNameFor(model => model.PhotoPath)</b>
+                </td>
+                <td>
+                    @Html.DisplayFor(model => model.PhotoPath)
+                </td>
+            </tr>
+
+            <tr>
+                <td>
+                    <b>@Html.DisplayNameFor(model => model.ReportsTo)</b>
+                </td>
+                <td>
+                    @*@Html.DisplayFor(model => model.ReportsTo)*@
+                    @if (Model.ReportsToNavigation != null)
+                    {
+                        @Model.ReportsToNavigation.Name
+                        <span>(@Model.ReportsToNavigation.Email)</span>
+                    }
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <b>@Html.DisplayNameFor(model => model.InverseReportsToNavigation)</b>
+                </td>
+                <td>
+                    @if (Model.InverseReportsToNavigation != null)
+                    {
+                        foreach (var e in Model.InverseReportsToNavigation)
+                        {
+
+                            @e.Name <a>(@e.Email)</a><br />
+
+                        }
+                    }
+                </td>
+            </tr>
+        </table>
+    </div>
+</div>
+
 <div>
-    <a asp-action="Edit" asp-route-id="@Model.Id">Edit</a> |
-    <a asp-action="Index">Back to List</a>
+    <a asp-action="Index" class="btn btn-info">Back to List</a>
+    @if (ViewBag.ShopAccount == Model.Email)
+    {
+        <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary">Edit</a>
+    }
 </div>

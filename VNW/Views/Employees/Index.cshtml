@@ -1,25 +1,22 @@
 ﻿@model IEnumerable<VNW.Models.Employee>
 
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "員工清單";
 }
 
-<h2>Index</h2>
+<h2>@ViewData["Title"]</h2>
 
 <p>
-    <a asp-action="Create">Create New</a>
+    @*<a asp-action="Create">Create New</a>*@
 </p>
 <table class="table">
     <thead>
         <tr>
             <th>
-                @Html.DisplayNameFor(model => model.Email)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.PasswordEncoded)
-            </th>
-            <th>
                 @Html.DisplayNameFor(model => model.Name)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Email)
             </th>
             <th>
                 @Html.DisplayNameFor(model => model.Title)
@@ -30,23 +27,27 @@
             <th>
                 @Html.DisplayNameFor(model => model.ReportsTo)
             </th>
-            <th>
+            @*<th>
                 @Html.DisplayNameFor(model => model.PhotoPath)
-            </th>
+            </th>*@
             <th></th>
         </tr>
     </thead>
     <tbody>
+
 @foreach (var item in Model) {
+    bool isSelf = false;
+    if (ViewBag.ShopAccount == item.Email)
+    {
+        isSelf = true;
+    }
         <tr>
             <td>
+                <a asp-action="Details" asp-route-id="@item.Id">@item.Name</a>
+                @Html.DisplayFor(modelItem => item.PhotoPath)
+            </td>
+            <td>
                 @Html.DisplayFor(modelItem => item.Email)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.PasswordEncoded)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Name)
             </td>
             <td>
                 @Html.DisplayFor(modelItem => item.Title)
@@ -57,13 +58,14 @@
             <td>
                 @Html.DisplayFor(modelItem => item.ReportsTo)
             </td>
-            <td>
+            @*<td>
                 @Html.DisplayFor(modelItem => item.PhotoPath)
-            </td>
+            </td>*@
             <td>
-                <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
+                @if (isSelf)
+                {
+                    <a asp-action="Edit" class="btn btn-primary" asp-route-id="@item.Id">Edit</a>
+                }
             </td>
         </tr>
 }

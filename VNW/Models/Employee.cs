@@ -46,7 +46,7 @@ namespace VNW.Models
         //public string HomePhone { get; set; }
         //public byte[] Photo { get; set; }
         //public string Notes { get; set; }
-        [Display(Name = "管理者")] //歸屬於
+        [Display(Name = "上司")]
         public int? ReportsTo { get; set; }
         [Display(Name = "相片")]
         public string PhotoPath { get; set; }
