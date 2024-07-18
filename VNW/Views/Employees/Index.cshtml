@@ -25,7 +25,7 @@
                 @Html.DisplayNameFor(model => model.Extension)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.ReportsTo)
+                部門主管 @*@Html.DisplayNameFor(model => model.ReportsTo)*@
             </th>
             @*<th>
                 @Html.DisplayNameFor(model => model.PhotoPath)
@@ -43,8 +43,13 @@
     }
         <tr>
             <td>
-                <a asp-action="Details" asp-route-id="@item.Id">@item.Name</a>
-                @Html.DisplayFor(modelItem => item.PhotoPath)
+                <a asp-action="Details" asp-route-id="@item.Id">
+                    @item.Name
+                    @if (item.PhotoPath != null)
+                    {
+                        <img src="~/images/employee/@item.PhotoPath" style="width:100px;border-radius:100px;" />
+                    }
+                </a>
             </td>
             <td>
                 @Html.DisplayFor(modelItem => item.Email)

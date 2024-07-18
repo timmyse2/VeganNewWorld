@@ -30,7 +30,13 @@ namespace VNW.Controllers
                 return RedirectToAction("Login", "Customers");
             }
             ViewBag.ShopAccount = _ms.GetMySession("ShopAccount", HttpContext.Session);
-            return View(await _context.Employees.ToListAsync());
+            //return View(await _context.Employees.ToListAsync());
+
+            var emps = await _context.Employees
+                .Take(10)
+                .ToListAsync();
+
+            return View(emps);
         }
 
         // GET: Employees/Details/5
@@ -118,9 +124,7 @@ namespace VNW.Controllers
             if (id == null)
             {
                 return NotFound();
-            }
-
-            ViewBag.ShopAccount = _ms.GetMySession("ShopAccount", HttpContext.Session);
+            }            
 
             var employee = await _context.Employees.FindAsync(id);
             if (employee == null)
@@ -129,11 +133,11 @@ namespace VNW.Controllers
             }
 
             //::
-            if(ViewBag.ShopAccount != employee.Email )
+            ViewBag.ShopAccount = _ms.GetMySession("ShopAccount", HttpContext.Session);
+            if (UserLevel == "2B" & ViewBag.ShopAccount != employee.Email )
             {
-                return Content("You have no right to update other members info");
+                return Content("You have no right to update other employee's info");
             }
-
             return View(employee);
         }
 
@@ -152,8 +156,31 @@ namespace VNW.Controllers
             }
             if (id != employee.Id)
             {
-                return NotFound();
+                //return NotFound();
+                return Content("Your account is not match!");
             }
+            //::
+            ViewBag.ShopAccount = _ms.GetMySession("ShopAccount", HttpContext.Session);
+            if (UserLevel == "2B" & ViewBag.ShopAccount != employee.Email)
+            {
+                return Content("You have no right to update other employee's info");
+            }
+
+            #region keep origin password
+            //:: do not let password show in view or frontend
+            if (employee.PasswordEncoded == null || employee.PasswordEncoded == "")
+            {
+                var employee_original = await _context.Employees.Where(e => e.Id == id)
+                    .AsNoTracking().FirstOrDefaultAsync();
+                if(employee_original == null)
+                {
+                    return Content("can not find origin data");
+                }
+                employee.PasswordEncoded = employee_original.PasswordEncoded;
+                //return Content("Notice: password is miss!");
+            }
+            #endregion
+
 
             if (ModelState.IsValid)
             {
@@ -177,6 +204,25 @@ namespace VNW.Controllers
             }
             return View(employee);
         }
+
+
+        public async Task<IActionResult> EditPassword(int? id)
+        {
+            var emp = await _context.Employees.Where(e => e.Id  == id).FirstOrDefaultAsync();
+            if (emp == null)
+            {
+                return Content("no matched data");
+            }
+            return View(emp);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> EditPassword(int? id, string OldPassword, string NewPassword)
+        {
+            return View();
+        }
+
+
 
         // GET: Employees/Delete/5
         public async Task<IActionResult> Delete(int? id)

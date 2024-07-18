@@ -126,7 +126,11 @@
                     <b>@Html.DisplayNameFor(model => model.PhotoPath)</b>
                 </td>
                 <td>
-                    @Html.DisplayFor(model => model.PhotoPath)
+                    @*@Html.DisplayFor(model => model.PhotoPath)*@
+                    @if(Model.PhotoPath != null)
+                    {
+                        <img src="~/images/employee/@Model.PhotoPath" style="width:100px;"/>
+                    }
                 </td>
             </tr>
 
