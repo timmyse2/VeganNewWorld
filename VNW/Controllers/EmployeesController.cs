@@ -7,6 +7,9 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using VNW.Models;
 
+using System.Security.Cryptography; //for hash password
+using System.Text; //for encoding
+
 namespace VNW.Controllers
 {
     public class EmployeesController : Controller
@@ -217,12 +220,79 @@ namespace VNW.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> EditPassword(int? id, string OldPassword, string NewPassword)
+        [ValidateAntiForgeryToken] //?
+        public async Task<IActionResult> EditPassword(int? id, string OldPassword, string NewPassword, string NewPassword_Confirm, string Captcha)
         {
+            var emp = await _context.Employees.Where(e => e.Id == id).FirstOrDefaultAsync();
+            if (emp == null)
+            {
+                //return Content("no matched data");
+                TempData["td_serverWarning"] = "找不到相符的資料!";
+                return View();
+            }
+
+            //::check pwd length, format...
+
+            //::compare password
+            string secretKey = "vnw2024";
+            HMACSHA1 hmac = new HMACSHA1(Encoding.UTF8.GetBytes(secretKey));
+            string OldPassword_Encoded =
+                Convert.ToBase64String(hmac.ComputeHash(Encoding.UTF8.GetBytes(OldPassword)));
+
+            if (emp.PasswordEncoded != OldPassword_Encoded)
+            {
+                //error
+                TempData["td_serverWarning"] = "舊密碼不符合";
+                return View(emp);
+            }
+
+            if (NewPassword != NewPassword_Confirm)
+            {
+                //error
+                TempData["td_serverWarning"] = "新密碼與新密碼確認不一致";
+                return View(emp);
+            }
+
+            string NewPassword_Encoded =
+                Convert.ToBase64String(hmac.ComputeHash(Encoding.UTF8.GetBytes(NewPassword)));
+
+            if (Captcha != "1314")
+            {
+                //error
+                TempData["td_serverWarning"] = "驗證碼不符";
+                return View(emp);
+            }
+
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    //update pwd in DB
+                    emp.PasswordEncoded = NewPassword_Encoded;
+                    _context.Update(emp);
+                    await _context.SaveChangesAsync();                    
+
+                    //pass case
+                    TempData["td_serverWarning"] = "";
+                    TempData["td_serverMessage"] = "已更新密碼";
+                    //return View(emp);
+                    return RedirectToAction("Details", new { id });
+                }
+                catch (DbUpdateConcurrencyException)
+                {
+                    TempData["td_serverWarning"] = "DbUpdateConcurrencyException";
+                    return View();
+                }
+                catch
+                {
+                    TempData["td_serverWarning"] = "Exception";
+                    return View();
+                }
+            }
+
+            TempData["td_serverWarning"] = "Unknown problem";
             return View();
         }
-
-
 
         // GET: Employees/Delete/5
         public async Task<IActionResult> Delete(int? id)

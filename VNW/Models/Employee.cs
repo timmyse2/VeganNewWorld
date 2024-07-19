@@ -15,18 +15,21 @@ namespace VNW.Models
             //Orders = new HashSet<Orders>();
         }
         //::PK        
+        [Required]
         public int Id { get; set; }
         //public string EmployeeId { get; set; }
+        [Required]
         [Display(Name = "郵件帳號")]
         public string Email { set; get; }
 
         [Display(Name = "密碼")]
         public string PasswordEncoded { set; get; }
+        [Required]
         [Display(Name = "姓名")]
         public string Name { get; set; }
         [Display(Name = "職稱")]
         public string Title { get; set; }
-        
+
         //[Display(Name = "層級")]
         //public int Level { get; set; }
 
@@ -40,6 +43,7 @@ namespace VNW.Models
         //public string Region { get; set; }
         //public string PostalCode { get; set; }
         //public string Country { get; set; }
+        [Required]
         [Display(Name = "分機")]
         public string Extension { get; set; }
         //[Display(Name = "家裡電話")]
@@ -61,7 +65,6 @@ namespace VNW.Models
 
         //[Display(Name = "接手的訂單")]                
         //public ICollection<Order> Orders { get; set; }
-
         //[Display(Name = "管區")]
         //public ICollection<EmployeeTerritories> EmployeeTerritories { get; set; }
     }

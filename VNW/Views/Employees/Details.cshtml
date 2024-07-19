@@ -6,79 +6,83 @@
 
 <h2>@ViewData["Title"]</h2>
 
-@if(false)
+
+<h3 class="alert-info">@TempData["td_serverMessage"]</h3>
+<h3 class="alert-danger">@TempData["td_serverWarning"]</h3>
+
+@if (false)
 {
-<div>    
-    <hr />
-    <dl class="dl-horizontal">
-        <dt>
-            @Html.DisplayNameFor(model => model.Email)
-        </dt>
-        <dd>
-            @Html.DisplayFor(model => model.Email)
-        </dd>
-        <dt>
-            @Html.DisplayNameFor(model => model.Name)
-        </dt>
-        <dd>
-            @Html.DisplayFor(model => model.Name)
-        </dd>
-        <dt>
-            @Html.DisplayNameFor(model => model.Title)
-        </dt>
-        <dd>
-            @Html.DisplayFor(model => model.Title)
-        </dd>
-        <dt>
-            @Html.DisplayNameFor(model => model.Extension)
-        </dt>
-        <dd>
-            @Html.DisplayFor(model => model.Extension)
-        </dd>
+    <div>
+        <hr />
+        <dl class="dl-horizontal">
+            <dt>
+                @Html.DisplayNameFor(model => model.Email)
+            </dt>
+            <dd>
+                @Html.DisplayFor(model => model.Email)
+            </dd>
+            <dt>
+                @Html.DisplayNameFor(model => model.Name)
+            </dt>
+            <dd>
+                @Html.DisplayFor(model => model.Name)
+            </dd>
+            <dt>
+                @Html.DisplayNameFor(model => model.Title)
+            </dt>
+            <dd>
+                @Html.DisplayFor(model => model.Title)
+            </dd>
+            <dt>
+                @Html.DisplayNameFor(model => model.Extension)
+            </dt>
+            <dd>
+                @Html.DisplayFor(model => model.Extension)
+            </dd>
 
-        <dt>
-            @Html.DisplayNameFor(model => model.PhotoPath)
-        </dt>
-        <dd>
-            @Html.DisplayFor(model => model.PhotoPath)
-        </dd>
+            <dt>
+                @Html.DisplayNameFor(model => model.PhotoPath)
+            </dt>
+            <dd>
+                @Html.DisplayFor(model => model.PhotoPath)
+            </dd>
 
-        <dt>
-            @Html.DisplayNameFor(model => model.ReportsTo)
-        </dt>
-        <dd>
-            <ul>
-                <li>
-                    @*@Html.DisplayFor(model => model.ReportsTo)*@
-                    @if (Model.ReportsToNavigation != null)
-                    {
-                        @Model.ReportsToNavigation.Name
-                        <span>(@Model.ReportsToNavigation.Email)</span>
-                    }
-                </li>
-            </ul>            
-        </dd>
-        <dt>
-            @Html.DisplayNameFor(model => model.InverseReportsToNavigation)
-        </dt>
-        <dd>
-            @if (Model.InverseReportsToNavigation != null)
-            {
-                foreach (var e in Model.InverseReportsToNavigation)
+            <dt>
+                @Html.DisplayNameFor(model => model.ReportsTo)
+            </dt>
+            <dd>
+                <ul>
+                    <li>
+                        @*@Html.DisplayFor(model => model.ReportsTo)*@
+                        @if (Model.ReportsToNavigation != null)
+                        {
+                            @Model.ReportsToNavigation.Name
+                            <span>(@Model.ReportsToNavigation.Email)</span>
+                        }
+                    </li>
+                </ul>
+            </dd>
+            <dt>
+                @Html.DisplayNameFor(model => model.InverseReportsToNavigation)
+            </dt>
+            <dd>
+                @if (Model.InverseReportsToNavigation != null)
                 {
-                    <ul>
-                        <li>@e.Name <a>(@e.Email)</a> </li>
-                    </ul>
+                    foreach (var e in Model.InverseReportsToNavigation)
+                    {
+                        <ul>
+                            <li>@e.Name <a>(@e.Email)</a> </li>
+                        </ul>
+                    }
                 }
-            }
-        </dd>
-    </dl>
-</div>
+            </dd>
+        </dl>
+    </div>
 }
 
 <p></p>
 <div class="row">
-    <div class="col-md-4">        
+    <div class="col-md-4">
         <table class="table table-hover table-striped">
             <tr>
                 <td>
@@ -127,9 +131,9 @@
                 </td>
                 <td>
                     @*@Html.DisplayFor(model => model.PhotoPath)*@
-                    @if(Model.PhotoPath != null)
+                    @if (Model.PhotoPath != null)
                     {
-                        <img src="~/images/employee/@Model.PhotoPath" style="width:100px;"/>
+                        <img src="~/images/employee/@Model.PhotoPath" style="width:100px;" />
                     }
                 </td>
             </tr>
@@ -168,9 +172,10 @@
 </div>
 
 <div>
-    <a asp-action="Index" class="btn btn-info">Back to List</a>
+    <a asp-action="Index" class="btn btn-info">回到員工清單</a>
     @if (ViewBag.ShopAccount == Model.Email)
     {
-        <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary">Edit</a>
+        <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary">修改基本資料</a>
+        <a asp-action="EditPassword" asp-route-id="@Model.Id" class="btn btn-danger">修改密碼</a>
     }
 </div>
