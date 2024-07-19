@@ -232,7 +232,11 @@ namespace VNW.Controllers
             }
 
             //::check pwd length, format...
-
+            if (OldPassword == null || OldPassword.Length > 20)
+            {
+                TempData["td_serverWarning"] = "舊密碼未輸入或格式不合";
+                return View(emp);
+            }
             //::compare password
             string secretKey = "vnw2024";
             HMACSHA1 hmac = new HMACSHA1(Encoding.UTF8.GetBytes(secretKey));
@@ -246,6 +250,18 @@ namespace VNW.Controllers
                 return View(emp);
             }
 
+            if (NewPassword == null || NewPassword.Length < 5 || NewPassword.Length > 20)
+            {
+                TempData["td_serverWarning"] = "新密碼長度過短、長";
+                return View(emp);
+            }
+            if(false)
+            {
+                //:: 0~9, a~z, A~Z 
+                TempData["td_serverWarning"] = "新密碼格式不符";
+                return View(emp);
+            }
+
             if (NewPassword != NewPassword_Confirm)
             {
                 //error
@@ -256,6 +272,11 @@ namespace VNW.Controllers
             string NewPassword_Encoded =
                 Convert.ToBase64String(hmac.ComputeHash(Encoding.UTF8.GetBytes(NewPassword)));
 
+            if (Captcha == null || Captcha.Length != 4)
+            {
+                TempData["td_serverWarning"] = "驗證碼長度錯誤";
+                return View(emp);
+            }
             if (Captcha != "1314")
             {
                 //error

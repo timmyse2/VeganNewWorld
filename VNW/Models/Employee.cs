@@ -23,9 +23,12 @@ namespace VNW.Models
         public string Email { set; get; }
 
         [Display(Name = "密碼")]
+        //[RegularExpression(@"^\d{4}\-?\d{3}\-?\d{3}$", ErrorMessage = "需為09xx-xxx-xxx格式")]
         public string PasswordEncoded { set; get; }
+
         [Required]
         [Display(Name = "姓名")]
+        [StringLength(20, MinimumLength = 2, ErrorMessage = "最少需2個字元!")]
         public string Name { get; set; }
         [Display(Name = "職稱")]
         public string Title { get; set; }
@@ -44,6 +47,7 @@ namespace VNW.Models
         //public string PostalCode { get; set; }
         //public string Country { get; set; }
         [Required]
+        [StringLength(5)]
         [Display(Name = "分機")]
         public string Extension { get; set; }
         //[Display(Name = "家裡電話")]

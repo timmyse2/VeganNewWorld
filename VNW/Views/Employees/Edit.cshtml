@@ -15,13 +15,13 @@
             <input type="hidden" asp-for="Id" />
             <div class="form-group">
                 <label asp-for="Email" class="control-label"></label> (不可修改)
-                <input asp-for="Email" class="form-control" readonly/>
+                <input asp-for="Email" class="form-control" readonly />
                 <span asp-validation-for="Email" class="text-danger"></span>
             </div>
             <div class="form-group">
                 @*<label asp-for="PasswordEncoded" class="control-label"></label> (暫不開放修改)*@
                 @*<input asp-for="PasswordEncoded" class="form-control" type="password" readonly/>*@
-                @*<input type="password" id="oldPassword" class="form-control" readonly value="@Model.PasswordEncoded" />*@                
+                @*<input type="password" id="oldPassword" class="form-control" readonly value="@Model.PasswordEncoded" />*@
                 @*<input type="hidden" asp-for="PasswordEncoded" />*@
                 @*<span asp-validation-for="PasswordEncoded" class="text-danger"></span>*@
                 @*<br/><a class="btn btn-danger" asp-action="EditPassword" asp-route-id="@Model.Id">修改密碼</a>*@
@@ -43,7 +43,7 @@
             </div>
             <div class="form-group">
                 <label asp-for="ReportsTo" class="control-label"></label>
-                <input asp-for="ReportsTo" class="form-control" readonly/>
+                <input asp-for="ReportsTo" class="form-control" readonly />
                 <span asp-validation-for="ReportsTo" class="text-danger"></span>
             </div>
             <div class="form-group">
@@ -60,7 +60,21 @@
 </div>
 
 <div>
-    <a asp-action="Index">回到清單</a> | 
+    <a asp-action="Index">回到清單</a> |
     <a asp-action="Details" asp-route-id="@Model.Id">回到細節</a>
 </div>
 
+
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}
+
+@section topCSS{
+    <style>
+    </style>
+}
+
+@section endJS{
+
+}
