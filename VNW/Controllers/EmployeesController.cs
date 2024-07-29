@@ -211,6 +211,13 @@ namespace VNW.Controllers
 
         public async Task<IActionResult> EditPassword(int? id)
         {
+            string UserLevel = _ms.GetMySession("UserLevel", HttpContext.Session);
+            if (UserLevel != "2B" && UserLevel != "1A")
+            {
+                TempData["td_server"] = "該頁面只有管理者*或商家員工*可使用，請先登入";
+                return RedirectToAction("Login", "Customers");
+            }
+
             var emp = await _context.Employees.Where(e => e.Id  == id).FirstOrDefaultAsync();
             if (emp == null)
             {
@@ -258,6 +265,7 @@ namespace VNW.Controllers
             if(false)
             {
                 //:: 0~9, a~z, A~Z 
+                // '^(?=.*[0-9])(?=.*[A-Za-z]).{5,20}$'
                 TempData["td_serverWarning"] = "新密碼格式不符";
                 return View(emp);
             }
@@ -316,36 +324,44 @@ namespace VNW.Controllers
         }
 
         //::api for 2B
-        [HttpPost]
+        //[HttpPost]
         public async Task<IActionResult> CheckOldPassword(int? id, string OldPassword)
         {
             string Result = "", Detail ="";
 
-            //::retry over 3 times
-            int retryCount = 0; //from session
-            if (retryCount >= 3)
+            string UserLevel = _ms.GetMySession("UserLevel", HttpContext.Session);
+            if (UserLevel != "2B" && UserLevel != "1A")
             {
-                Result = "Fail"; Detail = "Retry over 3 times";
-                retryCount++; //save in session
+                Result = "Fail"; Detail = "Access Deny";
                 return Json(new { Result, Detail });
-            }
-            else
-            {
-                retryCount = 0;
-                //reset session
             }
 
-            if(OldPassword == null || OldPassword.Length <= 3)
+            //::retry over 3 times
+            int retryCount = 0; //from session
+            string sRtryCount = _ms.GetMySession("retryCount", HttpContext.Session);
+            if (sRtryCount == null)            
+                retryCount = 0;            
+            else            
+                retryCount = int.Parse(sRtryCount);
+            if (retryCount >= 3)
+            {
+                Result = "Fail"; Detail = "Halt! Retry over 3 times";                
+                return Json(new { Result, Detail, retryCount });
+            }
+            retryCount++;
+            _ms.SetMySession("retryCount", retryCount.ToString(), HttpContext.Session);
+
+            if (OldPassword == null || OldPassword.Length <= 3)
             {
                 Result = "Fail"; Detail = "PWD is empty or wrong";
-                return Json(new { Result, Detail });
+                return Json(new { Result, Detail, retryCount });
             }
 
             var emp = await _context.Employees.Where(e => e.Id == id).FirstOrDefaultAsync();
             if (emp == null)
             {
                 Result = "Fail"; Detail = "No matched data";
-                return Json(new { Result, Detail });
+                return Json(new { Result, Detail, retryCount });
             }
 
             string secretKey = "vnw2024";
@@ -356,11 +372,16 @@ namespace VNW.Controllers
             if (emp.PasswordEncoded == OldPassword_Encoded)
             {
                 Result = "PASS"; Detail = "";
-                return Json(new { Result, Detail });
+
+                //::reset session
+                HttpContext.Session.Remove("retryCount");
+                retryCount = 0;
+
+                return Json(new { Result, Detail, retryCount });
             }
 
             Result = "Fail"; Detail = "pwd is mismatched";
-            return Json(new { Result, Detail });
+            return Json(new { Result, Detail, retryCount });
         }
 
         // GET: Employees/Delete/5
