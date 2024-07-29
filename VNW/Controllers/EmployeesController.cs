@@ -315,6 +315,54 @@ namespace VNW.Controllers
             return View();
         }
 
+        //::api for 2B
+        [HttpPost]
+        public async Task<IActionResult> CheckOldPassword(int? id, string OldPassword)
+        {
+            string Result = "", Detail ="";
+
+            //::retry over 3 times
+            int retryCount = 0; //from session
+            if (retryCount >= 3)
+            {
+                Result = "Fail"; Detail = "Retry over 3 times";
+                retryCount++; //save in session
+                return Json(new { Result, Detail });
+            }
+            else
+            {
+                retryCount = 0;
+                //reset session
+            }
+
+            if(OldPassword == null || OldPassword.Length <= 3)
+            {
+                Result = "Fail"; Detail = "PWD is empty or wrong";
+                return Json(new { Result, Detail });
+            }
+
+            var emp = await _context.Employees.Where(e => e.Id == id).FirstOrDefaultAsync();
+            if (emp == null)
+            {
+                Result = "Fail"; Detail = "No matched data";
+                return Json(new { Result, Detail });
+            }
+
+            string secretKey = "vnw2024";
+            HMACSHA1 hmac = new HMACSHA1(Encoding.UTF8.GetBytes(secretKey));
+            string OldPassword_Encoded =
+                Convert.ToBase64String(hmac.ComputeHash(Encoding.UTF8.GetBytes(OldPassword)));
+
+            if (emp.PasswordEncoded == OldPassword_Encoded)
+            {
+                Result = "PASS"; Detail = "";
+                return Json(new { Result, Detail });
+            }
+
+            Result = "Fail"; Detail = "pwd is mismatched";
+            return Json(new { Result, Detail });
+        }
+
         // GET: Employees/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
