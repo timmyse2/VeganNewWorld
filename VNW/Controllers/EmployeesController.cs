@@ -245,10 +245,11 @@ namespace VNW.Controllers
                 return View(emp);
             }
             //::compare password
-            string secretKey = "vnw2024";
-            HMACSHA1 hmac = new HMACSHA1(Encoding.UTF8.GetBytes(secretKey));
-            string OldPassword_Encoded =
-                Convert.ToBase64String(hmac.ComputeHash(Encoding.UTF8.GetBytes(OldPassword)));
+            //string secretKey = "vnw2024";
+            //HMACSHA1 hmac = new HMACSHA1(Encoding.UTF8.GetBytes(secretKey));
+            //string OldPassword_Encoded =
+            //  Convert.ToBase64String(hmac.ComputeHash(Encoding.UTF8.GetBytes(OldPassword)));
+            string OldPassword_Encoded = PasswordSalt(OldPassword, "1234567890");
 
             if (emp.PasswordEncoded != OldPassword_Encoded)
             {
@@ -277,8 +278,9 @@ namespace VNW.Controllers
                 return View(emp);
             }
 
-            string NewPassword_Encoded =
-                Convert.ToBase64String(hmac.ComputeHash(Encoding.UTF8.GetBytes(NewPassword)));
+            //string NewPassword_Encoded =
+            //  Convert.ToBase64String(hmac.ComputeHash(Encoding.UTF8.GetBytes(NewPassword)));
+            string NewPassword_Encoded = PasswordSalt(NewPassword, "1234567890");
 
             if (Captcha == null || Captcha.Length != 4)
             {
@@ -328,6 +330,10 @@ namespace VNW.Controllers
         public async Task<IActionResult> CheckOldPassword(int? id, string OldPassword)
         {
             string Result = "", Detail ="";
+            
+            //::try try
+            //string saltTestRes = PasswordSalt(OldPassword, "1234567890");
+            //return Content(saltTestRes);
 
             string UserLevel = _ms.GetMySession("UserLevel", HttpContext.Session);
             if (UserLevel != "2B" && UserLevel != "1A")
@@ -364,10 +370,11 @@ namespace VNW.Controllers
                 return Json(new { Result, Detail, retryCount });
             }
 
-            string secretKey = "vnw2024";
-            HMACSHA1 hmac = new HMACSHA1(Encoding.UTF8.GetBytes(secretKey));
-            string OldPassword_Encoded =
-                Convert.ToBase64String(hmac.ComputeHash(Encoding.UTF8.GetBytes(OldPassword)));
+            //string secretKey = "vnw2024";
+            //HMACSHA1 hmac = new HMACSHA1(Encoding.UTF8.GetBytes(secretKey));
+            //string OldPassword_Encoded =
+            //  Convert.ToBase64String(hmac.ComputeHash(Encoding.UTF8.GetBytes(OldPassword)));
+            string OldPassword_Encoded = PasswordSalt(OldPassword, "1234567890");
 
             if (emp.PasswordEncoded == OldPassword_Encoded)
             {
@@ -383,6 +390,29 @@ namespace VNW.Controllers
             Result = "Fail"; Detail = "pwd is mismatched";
             return Json(new { Result, Detail, retryCount });
         }
+
+        //function
+        public static string PasswordSalt(string password, string salt)
+        {
+            string PasswordEncoded = "";
+            //fail case
+            if(salt == null | password == null)
+            {
+                return null;
+            }
+            string secretKey = "vnw2024";
+            HMACSHA256 hmac2 = new HMACSHA256(Encoding.UTF8.GetBytes(secretKey));
+            PasswordEncoded = password + salt;
+
+            //PasswordEncoded = BitConverter.ToString(
+            //  hmac2.ComputeHash(Encoding.UTF8.GetBytes(PasswordEncoded))); //.Replace("-", string.Empty);               
+
+            PasswordEncoded = Convert.ToBase64String(
+                hmac2.ComputeHash(Encoding.UTF8.GetBytes(PasswordEncoded)));
+
+            return PasswordEncoded;            
+        }     
+
 
         // GET: Employees/Delete/5
         public async Task<IActionResult> Delete(int? id)

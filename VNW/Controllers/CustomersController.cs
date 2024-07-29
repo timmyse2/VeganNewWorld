@@ -283,8 +283,9 @@ namespace VNW.Controllers
                     if (employee != null)
                     {
                         #region hash pwd
-                        string secretKey = "vnw2024";
-                        HMACSHA1 hmac = new HMACSHA1(Encoding.UTF8.GetBytes(secretKey));
+                        //string secretKey = "vnw2024";
+                        //HMACSHA1 hmac = new HMACSHA1(Encoding.UTF8.GetBytes(secretKey));
+
                         //byte[] Pwd_Encoded = hmac.ComputeHash(Encoding.UTF8.GetBytes(Pwd_Original));
                         //Debug.WriteLine("key: " + secretKey);
                         //Debug.Write("hmac key: ");
@@ -307,8 +308,11 @@ namespace VNW.Controllers
                             //Convert.ToBase64String(Pwd_Encoded);
 
                         //Debug.WriteLine("Pwd_Encoded Base64Bit: " + expectPasswordEncoded);
-                        string inputPasswordEncoded =
-                            Convert.ToBase64String(hmac.ComputeHash(Encoding.UTF8.GetBytes(password)));
+                        //string inputPasswordEncoded =
+                          //  Convert.ToBase64String(hmac.ComputeHash(Encoding.UTF8.GetBytes(password)));
+                        
+                        string inputPasswordEncoded = //VNW.Controllers.
+                            EmployeesController.PasswordSalt(password, "1234567890");
 
                         #endregion
                         //::pwd decode
