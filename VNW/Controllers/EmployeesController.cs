@@ -149,7 +149,7 @@ namespace VNW.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Email,PasswordEncoded,Name,Title,Extension,ReportsTo,PhotoPath")] Employee employee)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,Email,PasswordEncoded,Name,Title,Extension,ReportsTo,PhotoPath,Salt")] Employee employee)
         {
             string UserLevel = _ms.GetMySession("UserLevel", HttpContext.Session);
             if (UserLevel != "2B" && UserLevel != "1A")
@@ -180,6 +180,7 @@ namespace VNW.Controllers
                     return Content("can not find origin data");
                 }
                 employee.PasswordEncoded = employee_original.PasswordEncoded;
+                employee.Salt = employee_original.Salt;
                 //return Content("Notice: password is miss!");
             }
             #endregion
@@ -249,8 +250,8 @@ namespace VNW.Controllers
             //HMACSHA1 hmac = new HMACSHA1(Encoding.UTF8.GetBytes(secretKey));
             //string OldPassword_Encoded =
             //  Convert.ToBase64String(hmac.ComputeHash(Encoding.UTF8.GetBytes(OldPassword)));
-            string OldPassword_Encoded = PasswordSalt(OldPassword, "1234567890");
-
+            string OldPassword_Encoded = PasswordSalt(OldPassword, emp.Salt);
+            
             if (emp.PasswordEncoded != OldPassword_Encoded)
             {
                 //error
@@ -278,9 +279,11 @@ namespace VNW.Controllers
                 return View(emp);
             }
 
+            //::udpate new Salt, 10 chars randomly
+            emp.Salt = GenerateSalt();
             //string NewPassword_Encoded =
             //  Convert.ToBase64String(hmac.ComputeHash(Encoding.UTF8.GetBytes(NewPassword)));
-            string NewPassword_Encoded = PasswordSalt(NewPassword, "1234567890");
+            string NewPassword_Encoded = PasswordSalt(NewPassword, emp.Salt);
 
             if (Captcha == null || Captcha.Length != 4)
             {
@@ -325,15 +328,25 @@ namespace VNW.Controllers
             return View();
         }
 
+        //::generate 10 chars randomly
+        public static string GenerateSalt()
+        {
+            string res = ""; // "0987654321";
+            var rand = new Random();
+            for (int i = 0; i <= 9; i++)
+            {
+                res += rand.Next(0, 9);
+            }
+            return res;
+        }
+
         //::api for 2B
         //[HttpPost]
         public async Task<IActionResult> CheckOldPassword(int? id, string OldPassword)
         {
             string Result = "", Detail ="";
-            
-            //::try try
-            //string saltTestRes = PasswordSalt(OldPassword, "1234567890");
-            //return Content(saltTestRes);
+
+            //return Content(GenerateSalt());
 
             string UserLevel = _ms.GetMySession("UserLevel", HttpContext.Session);
             if (UserLevel != "2B" && UserLevel != "1A")
@@ -374,7 +387,7 @@ namespace VNW.Controllers
             //HMACSHA1 hmac = new HMACSHA1(Encoding.UTF8.GetBytes(secretKey));
             //string OldPassword_Encoded =
             //  Convert.ToBase64String(hmac.ComputeHash(Encoding.UTF8.GetBytes(OldPassword)));
-            string OldPassword_Encoded = PasswordSalt(OldPassword, "1234567890");
+            string OldPassword_Encoded = PasswordSalt(OldPassword, emp.Salt);
 
             if (emp.PasswordEncoded == OldPassword_Encoded)
             {
@@ -391,7 +404,7 @@ namespace VNW.Controllers
             return Json(new { Result, Detail, retryCount });
         }
 
-        //function
+        //:: static function method
         public static string PasswordSalt(string password, string salt)
         {
             string PasswordEncoded = "";
@@ -403,13 +416,10 @@ namespace VNW.Controllers
             string secretKey = "vnw2024";
             HMACSHA256 hmac2 = new HMACSHA256(Encoding.UTF8.GetBytes(secretKey));
             PasswordEncoded = password + salt;
-
             //PasswordEncoded = BitConverter.ToString(
             //  hmac2.ComputeHash(Encoding.UTF8.GetBytes(PasswordEncoded))); //.Replace("-", string.Empty);               
-
             PasswordEncoded = Convert.ToBase64String(
                 hmac2.ComputeHash(Encoding.UTF8.GetBytes(PasswordEncoded)));
-
             return PasswordEncoded;            
         }     
 

@@ -25,6 +25,8 @@ namespace VNW.Models
         [Display(Name = "密碼")]
         //[RegularExpression(@"^\d{4}\-?\d{3}\-?\d{3}$", ErrorMessage = "需為09xx-xxx-xxx格式")]
         public string PasswordEncoded { set; get; }
+        //::
+        public string Salt { set; get; }
 
         [Required]
         [Display(Name = "姓名")]

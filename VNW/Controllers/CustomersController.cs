@@ -304,15 +304,17 @@ namespace VNW.Controllers
                         */
                         string expectPasswordEncoded
                             = employee.PasswordEncoded;
-                            //= "TEaDO6tjVVcTcUNZ0pAMkuLMDV8=";
-                            //Convert.ToBase64String(Pwd_Encoded);
+                        //= "TEaDO6tjVVcTcUNZ0pAMkuLMDV8=";
+                        //Convert.ToBase64String(Pwd_Encoded);
 
                         //Debug.WriteLine("Pwd_Encoded Base64Bit: " + expectPasswordEncoded);
                         //string inputPasswordEncoded =
-                          //  Convert.ToBase64String(hmac.ComputeHash(Encoding.UTF8.GetBytes(password)));
-                        
+                        //  Convert.ToBase64String(hmac.ComputeHash(Encoding.UTF8.GetBytes(password)));
+
+                        if (employee.Salt == null)
+                            employee.Salt = "";
                         string inputPasswordEncoded = //VNW.Controllers.
-                            EmployeesController.PasswordSalt(password, "1234567890");
+                            EmployeesController.PasswordSalt(password, employee.Salt);
 
                         #endregion
                         //::pwd decode
@@ -348,7 +350,6 @@ namespace VNW.Controllers
             //return Json(new { result = "PASS", detail = "shop side login at " + DateTime.Now, shopAccount = ShopAccount });
             return Json(new { result , detail, shopAccount = ShopAccount });
         }
-
 
         //::refer to github xxx    
         public static string HexStringFromBytes(byte[] bytes)
