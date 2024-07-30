@@ -264,10 +264,13 @@ namespace VNW.Controllers
                 TempData["td_serverWarning"] = "新密碼長度過短、長";
                 return View(emp);
             }
-            if(false)
+
+            //:: 0~9, a~z, A~Z 
+            string pattern = "^(?=.*[0-9])(?=.*[A-Za-z]).{5,20}$";
+            System.Text.RegularExpressions.Regex regex
+                = new System.Text.RegularExpressions.Regex(pattern);
+            if (!regex.IsMatch(NewPassword))
             {
-                //:: 0~9, a~z, A~Z 
-                // '^(?=.*[0-9])(?=.*[A-Za-z]).{5,20}$'
                 TempData["td_serverWarning"] = "新密碼格式不符";
                 return View(emp);
             }
@@ -341,12 +344,10 @@ namespace VNW.Controllers
         }
 
         //::api for 2B
-        //[HttpPost]
+        [HttpPost]
         public async Task<IActionResult> CheckOldPassword(int? id, string OldPassword)
         {
             string Result = "", Detail ="";
-
-            //return Content(GenerateSalt());
 
             string UserLevel = _ms.GetMySession("UserLevel", HttpContext.Session);
             if (UserLevel != "2B" && UserLevel != "1A")
