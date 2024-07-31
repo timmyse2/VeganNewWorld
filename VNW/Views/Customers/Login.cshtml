@@ -167,8 +167,8 @@
                         break;
                     case 'Vender':
                         console.log('vender shop');
-                        var surl = "shoplogin";
-
+                        //var surl = "../../Employees/shoplogin";
+                        var surl = '@(ViewBag.currentHost+ViewBag.currentBase)/Employees/shoplogin'
                         $.ajax({
                             url: surl,
                             type: "POST",

@@ -405,7 +405,7 @@ namespace VNW.Controllers
             return Json(new { Result, Detail, retryCount });
         }
 
-        //:: static function method
+        //:: static function method - HMACSHA256 with Salt
         public static string PasswordSalt(string password, string salt)
         {
             string PasswordEncoded = "";
@@ -469,6 +469,99 @@ namespace VNW.Controllers
         private bool EmployeeExists(int id)
         {
             return _context.Employees.Any(e => e.Id == id);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> ShopLogin(string account, string password, string pin, string role)
+        {
+            string ShopAccount = "";
+            string result = "", detail = "";
+
+            await Task.Run(() =>
+            {
+                if (account == "" || password == "")
+                {
+                    //fail case
+                    result = "fail";
+                    detail = "lost some parameters";
+                    ShopAccount = "unknown";
+                }
+                else
+                {
+                    //::DB access, find account
+                    var employee = _context.Employees
+                        .Where(e => e.Email == account).FirstOrDefault(); ;
+
+                    //::find matched account
+                    if (employee != null)
+                    {
+                        #region hash pwd
+                        //string secretKey = "vnw2024";
+                        //HMACSHA1 hmac = new HMACSHA1(Encoding.UTF8.GetBytes(secretKey));
+
+                        //byte[] Pwd_Encoded = hmac.ComputeHash(Encoding.UTF8.GetBytes(Pwd_Original));
+                        //Debug.WriteLine("key: " + secretKey);
+                        //Debug.Write("hmac key: ");
+                        //foreach(var b in hmac.Key)                        
+                        //    Debug.Write(" " + b);
+                        //Debug.WriteLine("");
+                        //Debug.WriteLine("Pwd_Original: " + Pwd_Original);
+                        /*
+                        Debug.WriteLine("Pwd_Encoded: " + Convert.ToBase64String(Pwd_Encoded));
+                        Debug.Write("Pwd_Encoded: " );
+                        foreach (var b in Pwd_Encoded)
+                            Debug.Write(" " + b);
+                        Debug.WriteLine("");
+                        Debug.WriteLine("Pwd_Encoded String: " + BitConverter.ToString(Pwd_Encoded));
+                        Debug.WriteLine("Pwd_Encoded String: " + BitConverter.ToString(Pwd_Encoded).Replace("-", string.Empty));                        
+                        */
+                        string expectPasswordEncoded
+                            = employee.PasswordEncoded;
+                        //= "TEaDO6tjVVcTcUNZ0pAMkuLMDV8=";
+                        //Convert.ToBase64String(Pwd_Encoded);
+
+                        //Debug.WriteLine("Pwd_Encoded Base64Bit: " + expectPasswordEncoded);
+                        //string inputPasswordEncoded =
+                        //  Convert.ToBase64String(hmac.ComputeHash(Encoding.UTF8.GetBytes(password)));
+
+                        if (employee.Salt == null)
+                            employee.Salt = "";
+                        string inputPasswordEncoded = //VNW.Controllers.
+                            EmployeesController.PasswordSalt(password, employee.Salt);
+
+                        #endregion
+                        //::pwd decode
+                        //if (password == Pwd_Decoded)
+                        if (inputPasswordEncoded == expectPasswordEncoded)
+                        {
+                            //::pass case
+                            ShopAccount = account;
+                            _ms.SetMySession("IsUserLogin", "NO", HttpContext.Session);
+                            _ms.SetMySession("UserLevel", "2B", HttpContext.Session);
+                            //_ms.SetMySession("UserAccount", "Illyasviel@Einzbern2017", HttpContext.Session);
+                            _ms.SetMySession("UserAccount", ShopAccount, HttpContext.Session);
+                            _ms.SetMySession("ShopAccount", ShopAccount, HttpContext.Session);
+                            result = "PASS";
+                            detail = "vender login at " + DateTime.Now;
+                            ShopAccount = "wolf2024@vwn.tw";
+                        }
+                        else
+                        {
+                            result = "fail";
+                            detail = "password is mismatched";
+                            ShopAccount = "";
+                        }
+                    }
+                    else
+                    {
+                        result = "fail";
+                        detail = "There is no matched user";
+                        ShopAccount = account;
+                    }
+                }
+            });
+            //return Json(new { result = "PASS", detail = "shop side login at " + DateTime.Now, shopAccount = ShopAccount });
+            return Json(new { result, detail, shopAccount = ShopAccount });
         }
     }
 }
