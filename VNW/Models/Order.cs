@@ -62,7 +62,7 @@ namespace VNW.Models
         //::NP
         [Display(Name = "客戶")]
         public Customer Customer { get; set; }
-        //[Display(Name = "員工")]
+        //[Display(Name = "負責員工")]
         //public Employees Employee { get; set; }
         //public Shippers ShipViaNavigation { get; set; }
         [Display(Name = "訂單明細")]

@@ -10,76 +10,6 @@
 <h3 class="alert-info">@TempData["td_serverMessage"]</h3>
 <h3 class="alert-danger">@TempData["td_serverWarning"]</h3>
 
-@if (false)
-{
-    <div>
-        <hr />
-        <dl class="dl-horizontal">
-            <dt>
-                @Html.DisplayNameFor(model => model.Email)
-            </dt>
-            <dd>
-                @Html.DisplayFor(model => model.Email)
-            </dd>
-            <dt>
-                @Html.DisplayNameFor(model => model.Name)
-            </dt>
-            <dd>
-                @Html.DisplayFor(model => model.Name)
-            </dd>
-            <dt>
-                @Html.DisplayNameFor(model => model.Title)
-            </dt>
-            <dd>
-                @Html.DisplayFor(model => model.Title)
-            </dd>
-            <dt>
-                @Html.DisplayNameFor(model => model.Extension)
-            </dt>
-            <dd>
-                @Html.DisplayFor(model => model.Extension)
-            </dd>
-
-            <dt>
-                @Html.DisplayNameFor(model => model.PhotoPath)
-            </dt>
-            <dd>
-                @Html.DisplayFor(model => model.PhotoPath)
-            </dd>
-
-            <dt>
-                @Html.DisplayNameFor(model => model.ReportsTo)
-            </dt>
-            <dd>
-                <ul>
-                    <li>
-                        @*@Html.DisplayFor(model => model.ReportsTo)*@
-                        @if (Model.ReportsToNavigation != null)
-                        {
-                            @Model.ReportsToNavigation.Name
-                            <span>(@Model.ReportsToNavigation.Email)</span>
-                        }
-                    </li>
-                </ul>
-            </dd>
-            <dt>
-                @Html.DisplayNameFor(model => model.InverseReportsToNavigation)
-            </dt>
-            <dd>
-                @if (Model.InverseReportsToNavigation != null)
-                {
-                    foreach (var e in Model.InverseReportsToNavigation)
-                    {
-                        <ul>
-                            <li>@e.Name <a>(@e.Email)</a> </li>
-                        </ul>
-                    }
-                }
-            </dd>
-        </dl>
-    </div>
-}
-
 <p></p>
 <div class="row">
     <div class="col-md-4">
@@ -140,29 +70,34 @@
 
             <tr>
                 <td>
-                    <b>@Html.DisplayNameFor(model => model.ReportsTo)</b>
+                    <b>直屬主管 @*@Html.DisplayNameFor(model => model.ReportsTo)*@</b>
                 </td>
                 <td>
                     @*@Html.DisplayFor(model => model.ReportsTo)*@
                     @if (Model.ReportsToNavigation != null)
                     {
-                        @Model.ReportsToNavigation.Name
-                        <span>(@Model.ReportsToNavigation.Email)</span>
+
+                        <a asp-action="Details" asp-route-id="@Model.ReportsToNavigation.Id">
+                            @Model.ReportsToNavigation.Name
+                            (分機 @Model.ReportsToNavigation.Extension)
+                        </a>
                     }
                 </td>
             </tr>
             <tr>
                 <td>
-                    <b>@Html.DisplayNameFor(model => model.InverseReportsToNavigation)</b>
+                    <b>直屬下屬@*@Html.DisplayNameFor(model => model.InverseReportsToNavigation)*@</b>
                 </td>
                 <td>
                     @if (Model.InverseReportsToNavigation != null)
                     {
                         foreach (var e in Model.InverseReportsToNavigation)
                         {
-
-                            @e.Name <a>(@e.Email)</a><br />
-
+                            <div>
+                                <a asp-action="Details" asp-route-id="@e.Id">
+                                    @e.Name (分機 @e.Extension)
+                                </a>
+                            </div>
                         }
                     }
                 </td>

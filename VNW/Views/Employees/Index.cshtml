@@ -37,19 +37,27 @@
 
 @foreach (var item in Model) {
     bool isSelf = false;
+    string ProfitStyle = "width:100px;border-radius:100px;";
     if (ViewBag.ShopAccount == item.Email)
     {
         isSelf = true;
+        ProfitStyle = "width:100px;border-radius:100px;border-width:2px;border:solid;";
     }
         <tr>
             <td>
-                <a asp-action="Details" asp-route-id="@item.Id">
-                    @item.Name
-                    @if (item.PhotoPath != null)
+                <p style="text-align:center;">
+                    <a asp-action="Details" asp-route-id="@item.Id">
+                        @item.Name <br/>
+                        @if (item.PhotoPath != null)
+                        {
+                            <img src="~/images/employee/@item.PhotoPath" style="@ProfitStyle" />
+                        }
+                    </a>
+                    @if (isSelf)
                     {
-                        <img src="~/images/employee/@item.PhotoPath" style="width:100px;border-radius:100px;" />
+                        @*<br /><a asp-action="Edit" class="btn btn-primary" asp-route-id="@item.Id">編輯</a>*@
                     }
-                </a>
+                </p>
             </td>
             <td>
                 @Html.DisplayFor(modelItem => item.Email)
@@ -61,16 +69,20 @@
                 @Html.DisplayFor(modelItem => item.Extension)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.ReportsTo)
+                @*@Html.DisplayFor(modelItem => item.ReportsTo)*@
+
+                @if(item.ReportsToNavigation != null)
+                {
+                <a asp-route-id="@item.ReportsTo" asp-action="details">
+                    @item.ReportsToNavigation.Name
+                </a>
+                }
             </td>
             @*<td>
                 @Html.DisplayFor(modelItem => item.PhotoPath)
             </td>*@
             <td>
-                @if (isSelf)
-                {
-                    <a asp-action="Edit" class="btn btn-primary" asp-route-id="@item.Id">Edit</a>
-                }
+
             </td>
         </tr>
 }

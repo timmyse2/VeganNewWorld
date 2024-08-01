@@ -9,6 +9,8 @@ using VNW.Models;
 
 using System.Security.Cryptography; //for hash password
 using System.Text; //for encoding
+using System.Data.SqlClient; //::for sql
+using System.Diagnostics; //::for debug
 
 namespace VNW.Controllers
 {
@@ -36,8 +38,20 @@ namespace VNW.Controllers
             //return View(await _context.Employees.ToListAsync());
 
             var emps = await _context.Employees
-                .Take(10)
+                //.Include(x => x.ReportsToNavigation) //try 
+                //.Include(e => e.InverseReportsToNavigation.Where(x => x.ReportsTo == e.Id))
+                .Take(30)
                 .ToListAsync();
+
+            foreach(var e in emps)
+            {
+                if(e.ReportsTo != null)
+                {
+                    var e2 = emps.Where(x => x.Id == e.ReportsTo).First();
+                    if (e2 != null)
+                        e.ReportsToNavigation = e2;
+                }
+            }
 
             return View(emps);
         }
@@ -76,11 +90,18 @@ namespace VNW.Controllers
             }
 
             var followers = await _context.Employees
-                .Where(m => m.ReportsTo == employee.Id)
+                .Where(e => e.ReportsTo == employee.Id)
                 .ToListAsync();
             if(followers != null)
             {
                 employee.InverseReportsToNavigation = followers;
+                //foreach(var f2 in followers)
+                //{
+                //    if(f2.ReportsTo != null)
+                //    {
+                //        //f2.InverseReportsToNavigation
+                //    }
+                //}
             }
 
             return View(employee);
@@ -422,8 +443,7 @@ namespace VNW.Controllers
             PasswordEncoded = Convert.ToBase64String(
                 hmac2.ComputeHash(Encoding.UTF8.GetBytes(PasswordEncoded)));
             return PasswordEncoded;            
-        }     
-
+        }
 
         // GET: Employees/Delete/5
         public async Task<IActionResult> Delete(int? id)
@@ -563,5 +583,58 @@ namespace VNW.Controllers
             //return Json(new { result = "PASS", detail = "shop side login at " + DateTime.Now, shopAccount = ShopAccount });
             return Json(new { result, detail, shopAccount = ShopAccount });
         }
+
+        public IActionResult SqlTest()
+        {
+            string connectionString = "";
+            connectionString = "Server=.\\SQLEXPRESS;Database=DB_VeganNewWorld;Trusted_Connection=True;MultipleActiveResultSets=true";
+            string stemp = "";
+            int rowCount = 0;
+
+            using (SqlConnection connection = new SqlConnection(connectionString))
+            {
+                connection.Open();
+                // 在這裡執行 T-SQL 查詢
+                string query = "SELECT top 100 * FROM Employees";
+                using (SqlCommand command = new SqlCommand(query, connection))
+                {
+                    using (SqlDataReader reader = command.ExecuteReader())
+                    {
+                        int FC = reader.FieldCount;
+                        stemp += "<table class=\"table table-bordered\">";
+
+                        stemp += "<thead><tr>";
+                        for (int i = 0; i < FC; i++)
+                        {
+                            string s = reader.GetName(i);
+                            Debug.Write(s + " \t\t\t");
+                            stemp += "<td>" + s + "</td>";
+                        }
+                        stemp += "</tr></thead>";
+                        while (reader.Read())
+                        {
+                            stemp += "<tr>";
+                            for (int i = 0; i < FC; i++)
+                            {
+                                string s = "";
+                                if (reader[i] != DBNull.Value)
+                                    s = reader[i].ToString();
+                                else
+                                    s = "...";
+
+                                Debug.Write(s + " \t\t\t");
+                                stemp += "<td>" + s + "</td>";
+                            }
+                            stemp += "</tr>";
+                            rowCount++;
+                        }
+                        stemp += "</table>";
+                    }
+                }
+                connection.Close();
+            }
+            return Content(" " + stemp);
+        }
+
     }
 }
