@@ -1,0 +1,28 @@
+﻿@model IEnumerable<Employee>
+
+@{
+    ViewData["Title"] = "SqlTest";
+}
+
+<h2>SqlTest</h2>
+
+<div>
+    <ul>
+        @foreach (var item in Model)
+        {
+            <li>@item.Id
+            @item.Name</li>
+        }
+    </ul>
+</div>
+
+<div>
+    @ViewBag.queryString <br />
+    @ViewBag.connectionString
+</div>
+<div>
+    @Html.Raw(ViewBag.stemp)
+</div>
+<div style="">
+    @ViewBag.stemp
+</div>

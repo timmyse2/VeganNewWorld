@@ -5,6 +5,12 @@
 
 <h2>會員登入</h2>
 
+
+<div id="MaskWindow" style="opacity:0.05;background:#000;width:200%;height:200%;z-index:99;position:absolute;top:0;left:0;cursor:no-drop;display:none;"></div>
+<div id="img_loading" style="z-index:100;position:fixed;border:none;width:100%;height:100%;left:0;top:50%-250px;cursor:no-drop;display:none;">
+    <center><h3><b>處理中...</b></h3><img src="~/images/wait.gif" style="width:250px;" /></center>
+</div>
+
 <div class="alert-danger" id="warning_server">
     @TempData["td_server"]
 </div>
@@ -28,7 +34,7 @@
             身份
         </label>
         <select id="role" name="role" class="form-control">
-            <option value="Customer" selected>客戶|消費者</option>
+            <option value="Customer" selected>一般客戶</option>
             <option value="Vender">店家員工*</option>
             <option value="Admin">系統管理者*</option>
         </select>
@@ -71,7 +77,7 @@
         var isPass = false;
         $("#btn_test").click(btn_test_click);
         $("#btn_login_ajax").hide();
-        
+
 
         var msg = "";
 
@@ -153,16 +159,18 @@
             $("#all_validate").text("");
             checkData();
             //isPass = true;
-
+            
             if (isPass) { //precheck pass
                 //ajax
-
+                SetBusy();
                 //::check role {1A:admin, 2B:shop, 3C:customer}
                 var role = $('#role').val();
                 console.log('role: ' + role);
                 switch (role) {
                     case 'Admin':
                         console.log('admin');
+                        alert('功能尚未完成');
+                        SetReady();
                         return;
                         break;
                     case 'Vender':
@@ -186,8 +194,8 @@
                                     //login pass
                                     $("#all_validate").text("※提示：商家" + datar.shopAccount + "登入成功了!!");
                                     $('#warning_server').text("");
-
-                                    //::tansfer to 
+                                    SetReady();
+                                    //::tansfer to
                                     window.location.href = "../";
                                 }
                                 else {
@@ -197,6 +205,7 @@
                                     $('#warning_server').text("");
                                 }
                                 $("#btn_login_ajax").show();
+                                SetReady();
 
                             }, //success
                             error: function (xhr, ajaxOptions, thrownError) {
@@ -204,11 +213,12 @@
                                 var failMessage = '發生未知錯誤';
                                 $("#all_validate").text(failMessage);
                                 $('#warning_server').text('');
+                                SetReady();
                             }//error
                         });
                         return;
                         break;
-                    
+
                     case 'Cusomter':
                     default:
                         try {
@@ -266,15 +276,26 @@
             console.log("from submit");
             console.log(msg);
             checkData();
-
+            SetBusy();
             if (!isPass) {
                 //alert("someting wrong!");
                 event.preventDefault();
                 console.log("do not sumbit data to server");
+                SetReady();
                 //window.history.back();
                 return;
             }
-        });
+        });       
+
+        function SetBusy() {
+            document.getElementById('img_loading').style.display = 'block';
+            document.getElementById('MaskWindow').style.display = 'block';
+        }
+        function SetReady() {
+            document.getElementById('img_loading').style.display = 'none';
+            document.getElementById('MaskWindow').style.display = 'none';
+        }
+
     </script>
 }
 

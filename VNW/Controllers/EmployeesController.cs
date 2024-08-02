@@ -11,18 +11,21 @@ using System.Security.Cryptography; //for hash password
 using System.Text; //for encoding
 using System.Data.SqlClient; //::for sql
 using System.Diagnostics; //::for debug
+using Microsoft.Extensions.Configuration; //for IConfiguration
 
 namespace VNW.Controllers
 {
     public class EmployeesController : Controller
     {
         private readonly VeganNewWorldContext _context;
+        private readonly IConfiguration _config;
         //::set session common interface
         VNW.Common.MySession _ms = new Common.MySession();
 
-        public EmployeesController(VeganNewWorldContext context)
+        public EmployeesController(VeganNewWorldContext context, IConfiguration config)
         {
             _context = context;
+            _config = config;   //:: for config c14
         }
 
         // GET: Employees
@@ -587,15 +590,25 @@ namespace VNW.Controllers
         public IActionResult SqlTest()
         {
             string connectionString = "";
-            connectionString = "Server=.\\SQLEXPRESS;Database=DB_VeganNewWorld;Trusted_Connection=True;MultipleActiveResultSets=true";
+            //connectionString = "Server=.\\SQLEXPRESS;Database=DB_VeganNewWorld;Trusted_Connection=True;MultipleActiveResultSets=true";
+            connectionString = _config.GetConnectionString("VeganNewWorldContext");
+            //Microsoft.Extensions.Configuration
+            //  GetConnectionString("VeganNewWorldContext");
+
             string stemp = "";
             int rowCount = 0;
+
+            string query = "SELECT TOP 100 [Id], [Name], [Email] FROM Employees";
+            ViewBag.queryString = query;
+            //ViewBag.connectionString = connectionString; //debug only
+
+            List<Employee> emps = new List<Employee>();           
 
             using (SqlConnection connection = new SqlConnection(connectionString))
             {
                 connection.Open();
                 // 在這裡執行 T-SQL 查詢
-                string query = "SELECT top 100 * FROM Employees";
+                
                 using (SqlCommand command = new SqlCommand(query, connection))
                 {
                     using (SqlDataReader reader = command.ExecuteReader())
@@ -626,6 +639,15 @@ namespace VNW.Controllers
                                 stemp += "<td>" + s + "</td>";
                             }
                             stemp += "</tr>";
+
+                            Employee emp = new Employee(){
+                                Id = (int)reader[0],
+                                Name = reader["Name"].ToString(),                                
+                            };
+                            //emp.Id = (int) reader[0];
+                            //emp.Name = reader["Name"].ToString();
+                            emps.Add(emp);
+
                             rowCount++;
                         }
                         stemp += "</table>";
@@ -633,7 +655,10 @@ namespace VNW.Controllers
                 }
                 connection.Close();
             }
-            return Content(" " + stemp);
+            //return Content(" " + stemp);
+            
+            ViewBag.stemp = stemp;
+            return View(emps);
         }
 
     }
