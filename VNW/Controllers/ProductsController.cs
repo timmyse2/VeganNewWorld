@@ -372,7 +372,7 @@ namespace VNW.Controllers
             var veganNewWorldContext =
                 _context.Products
                 .Where(p => p.CategoryId == cat && p.Picture != null) //::cat id
-                .Include(p => p.Category)
+                //.Include(p => p.Category)
                 ;
 
             //::category name or id on view

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;// for NotMapped
 
 namespace VNW.Models
 {
@@ -15,6 +16,12 @@ namespace VNW.Models
         public string Description { get; set; }
         //public byte[] Picture { get; set; }
 
+
+        //::NP
         public ICollection<Product> Products { get; set; }
+
+        //::not map to DB, for view only
+        [NotMapped]
+        public int CatCount { get; set; }
     }
 }

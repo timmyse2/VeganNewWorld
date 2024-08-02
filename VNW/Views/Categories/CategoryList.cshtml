@@ -36,10 +36,15 @@
                 </td>
 
                 <td>
-                    @if (item.Products != null)
+                    @item.CatCount
+                    @*@if (item.Products != null)
                     {
                         @item.Products.Count()
                     }
+                    else
+                    {
+                        <b>null</b>
+                    }*@
                 </td>
                 <td>
                     @Html.DisplayFor(modelItem => item.Description)

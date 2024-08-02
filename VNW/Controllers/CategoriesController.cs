@@ -167,17 +167,30 @@ namespace VNW.Controllers
             //.Include(x => x.Products);
             //return View(await query.ToListAsync());
 
-            var categories = await _context.Category.ToArrayAsync();
+            var categories = await _context.Category
+                //.Select(x=> new { x.CategoryName, x.CategoryId, x.Products})
+                .ToArrayAsync();
 
             foreach(var cate in categories)
             {
-                var ps = await _context.Products
-                    .Where(x => x.CategoryId == cate.CategoryId 
-                        //&& x.Discontinued == false 
-                        && x.Picture != null)
-                    .ToListAsync();                   
+                //var ps = await _context.Products
+                //    .Where(x => x.CategoryId == cate.CategoryId 
+                //        //&& x.Discontinued == false 
+                //        && x.Picture != null)
+                //    //.Select(p => new Product
+                //    //{
+                //    //    p.CategoryId,
+                //    //    p.Picture
+                //    //})
+                //    .ToListAsync();
 
-                cate.Products = ps;
+                int CatCount = await _context.Products
+                    .Where(x => x.CategoryId == cate.CategoryId
+                    && x.Picture != null)
+                    .CountAsync();
+
+                cate.CatCount = CatCount;
+                //cate.Products = ps;
             }
 
             return View(categories);
