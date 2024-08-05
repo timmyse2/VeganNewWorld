@@ -499,15 +499,28 @@ namespace VNW.Controllers
         {
             string ShopAccount = "";
             string result = "", detail = "";
+            int errorCode = 0;
 
             await Task.Run(() =>
             {
+
+                string Captcha = _ms.GetMySession("Captcha", HttpContext.Session);
+                if (Captcha == null)
+                    Captcha = "null";
+
                 if (account == "" || password == "")
                 {
                     //fail case
                     result = "fail";
-                    detail = "lost some parameters";
+                    detail = "lost some parameters";                    
                     ShopAccount = "unknown";
+                    errorCode = 101;
+                }
+                else if (pin != Captcha)
+                {
+                    errorCode = 103;
+                    result = "fail";
+                    detail = "captcha is mismatch";
                 }
                 else
                 {
@@ -558,6 +571,7 @@ namespace VNW.Controllers
                         if (inputPasswordEncoded == expectPasswordEncoded)
                         {
                             //::pass case
+                            errorCode = 0;
                             ShopAccount = account;
                             _ms.SetMySession("IsUserLogin", "NO", HttpContext.Session);
                             _ms.SetMySession("UserLevel", "2B", HttpContext.Session);
@@ -566,13 +580,14 @@ namespace VNW.Controllers
                             _ms.SetMySession("ShopAccount", ShopAccount, HttpContext.Session);
                             result = "PASS";
                             detail = "vender login at " + DateTime.Now;
-                            ShopAccount = "wolf2024@vwn.tw";
+                            ShopAccount = "wolf2024@vwn.tw";                            
                         }
                         else
                         {
                             result = "fail";
                             detail = "password is mismatched";
                             ShopAccount = "";
+                            errorCode = 104;
                         }
                     }
                     else
@@ -580,11 +595,12 @@ namespace VNW.Controllers
                         result = "fail";
                         detail = "There is no matched user";
                         ShopAccount = account;
+                        errorCode = 102;
                     }
                 }
             });
             //return Json(new { result = "PASS", detail = "shop side login at " + DateTime.Now, shopAccount = ShopAccount });
-            return Json(new { result, detail, shopAccount = ShopAccount });
+            return Json(new { result, detail, shopAccount = ShopAccount, errorCode });
         }
 
         public IActionResult SqlTest()

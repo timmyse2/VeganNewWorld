@@ -41,14 +41,13 @@
     </div>
 
     <div class="form-group">
-        <label class="control-label">圖片識別碼</label>
-        <input id="pin" name="pin" type="text" value="1314" class="form-control" />
+        <label class="control-label">驗證碼</label>
+        <input id="pin" name="pin" type="text" value="" class="form-control" />
         <span id="pin_validate" class="text-danger"></span>
         <br />
-        <img src="~/images/default.jpg" id="img_pin" style="width:150px;height:50px" />
-        <btn class="btn btn-danger">看不懂請更換</btn><br />
-        @*提示: 請依圖輸入4個數字*@
-
+        @*<img src="~/images/default.jpg" id="img_pin" style="width:150px;height:50px" />*@
+        <div style="user-select:none;font-size:30px;border:solid;border-width:1px;padding:2px;width:150px;height:50px;text-align:center;">@ViewData["Captcha"]</div><br/>
+        <btn id="btn_ChangeCaptcha" class="btn btn-danger">看不懂請更換</btn><br />
     </div>
     <div class="form-group">
         <b><span id="all_validate" class="text-danger field-validation-valid"></span></b>
@@ -61,7 +60,7 @@
 
 <div class="form-group">
     @*!NOTICE: do not put htem in the form *@
-    <button class="btn btn-info" id="btn_test">預先驗證</button>
+    <button class="btn btn-info" id="btn_test">驗證並登入</button>
     <button class="btn btn-primary" id="btn_login_ajax">登入</button>
 </div>
 
@@ -200,11 +199,32 @@
                                 }
                                 else {
                                     //fail case
-                                    var failMessage = "※提示：找不到符合您輸入的資料! 留意大小寫! " + datar.detail;
+                                    var failMessage = '※提示：';
+                                        //"※提示：找不到符合您輸入的資料! 留意大小寫! " + datar.detail;
+
+                                    switch (datar.errorCode) {
+                                        case 101:
+                                            failMessage += '資訊不足';
+                                            break;
+                                        case 102:
+                                            failMessage += '沒有符合的帳號(留意大小寫)';
+                                            $("#account").focus();
+                                            break;
+                                        case 103:
+                                            failMessage += '驗證碼不合';
+                                            $("#pin").focus();
+                                            break;
+                                        case 104:
+                                            failMessage += '密碼不合';
+                                            $("#password").focus();
+                                            break;
+                                    }
+
                                     $("#all_validate").text(failMessage);
                                     $('#warning_server').text("");
                                 }
-                                $("#btn_login_ajax").show();
+                                $("#btn_login_ajax").hide();
+                                $("#btn_test").show();
                                 SetReady();
 
                             }, //success
@@ -247,15 +267,35 @@
                                     }
                                     else {
                                         //fail case
-                                        var failMessage = "※提示：找不到符合您輸入的資料! 留意大小寫!";
+                                        var failMessage = "※提示：";
+                                        switch (datar.errorCode) {
+                                            case 101:
+                                                failMessage += '資訊不足';
+                                                break;
+                                            case 102:
+                                                failMessage += '沒有符合的帳號(留意大小寫)';
+                                                $("#account").focus();
+                                                break;
+                                            case 103:
+                                                failMessage += '驗證碼不合';
+                                                $("#pin").focus();
+                                                break;
+                                            case 104:
+                                                failMessage += '密碼不合';
+                                                $("#password").focus();
+                                                break;
+                                        }
+
                                         $("#all_validate").text(failMessage);
                                         //$("#all_validate").text(failMessage + datar.detail);
                                     }
-                                    $("#btn_login_ajax").show();
-
+                                    $("#btn_login_ajax").hide();
+                                    $("#btn_test").show();
+                                    SetReady();
                                 }, //success
                                 error: function (xhr, ajaxOptions, thrownError) {
                                     console.log(xhr)
+                                    SetReady();
                                 }//error
                             });
                             return;
@@ -285,7 +325,7 @@
                 //window.history.back();
                 return;
             }
-        });       
+        });
 
         function SetBusy() {
             document.getElementById('img_loading').style.display = 'block';
@@ -295,6 +335,10 @@
             document.getElementById('img_loading').style.display = 'none';
             document.getElementById('MaskWindow').style.display = 'none';
         }
+
+        $("#btn_ChangeCaptcha").click(function () {
+
+        });
 
     </script>
 }

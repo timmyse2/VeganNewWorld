@@ -173,8 +173,10 @@ namespace VNW.Controllers
 
                 ViewData["currentHost"] = $"{HttpContext.Request.Scheme}://{HttpContext.Request.Host}";
                 ViewData["currentBase"] = $"{HttpContext.Request.PathBase}";
-
                 ViewData["UserAccount"] = HttpContext.Request.Cookies["UserAccount"];
+                string Pin = GenerateCaptcha();                
+                _ms.SetMySession("Captcha", Pin, HttpContext.Session);
+                ViewData["Captcha"] = Pin;
             });
 
             return View();
@@ -183,15 +185,14 @@ namespace VNW.Controllers
         public async Task<IActionResult> Login(string account, string password, string pin, string role)
         {
             //::precheck
-
+            int errorCode = 0;
             if (account == null)
             {
                 //return NotFound();
                 //return Content("Account Id is null");
-                return Json(new { result = "FAIL", detail = "Id is null" });
-            }
-
-            //::check pin
+                errorCode = 101;
+                return Json(new { result = "FAIL", detail = "Id is null", errorCode });
+            }           
 
             //::check account id and password
             var customer = await _context.Customer
@@ -200,7 +201,8 @@ namespace VNW.Controllers
             {
                 //return NotFound();
                 //return Content("No matched data");
-                return Json(new { result = "FAIL", detail = "no matched data" });
+                errorCode = 102;
+                return Json(new { result = "FAIL", detail = "no matched data", errorCode });
             }
             else
             {
@@ -208,9 +210,32 @@ namespace VNW.Controllers
                 if(account != customer.CustomerId)
                 {
                     //account = customer.CustomerId;
-                    return Json(new { result = "NG", detail = "upper case or lower case is mismatched" });
+                    errorCode = 102;
+                    return Json(new { result = "NG", detail = "upper case or lower case is mismatched", errorCode });
                 }
                 //<><><>
+
+                try
+                {
+                    string Captcha = "1314";
+                    Captcha = _ms.GetMySession("Captcha", HttpContext.Session);
+                    if (pin != Captcha)
+                    {
+                        errorCode = 103;
+                        return Json(new { result = "FAIL", detail = "pin or captcha is mismatched", errorCode });
+                    }
+
+                    if (password == "") //password
+                    {
+                        errorCode = 104;
+                        return Json(new { result = "FAIL", detail = "password is mismatched", errorCode });
+                    }
+                }
+                catch
+                {
+                    errorCode = 105;
+                    return Json(new { result = "Error", detail = "tbc", errorCode });
+                }
 
                 ViewData["IsUserLogin"] = "YES";
                 //ViewData["IsAdmin"] = "YES";
@@ -221,8 +246,9 @@ namespace VNW.Controllers
                 _ms.SetMySession("UserAccount", customer.CustomerId, HttpContext.Session);
                 _ms.SetMySession("UserLevel", "3C", HttpContext.Session);
                 //:: 1A(admin) 2B(business vender) 3C(customer)
+                HttpContext.Session.Remove("Captcha");
 
-                return Json(new { result = "PASS", detail = "matched" });
+                return Json(new { result = "PASS", detail = "matched", errorCode });
             }
             //::pass case
             //return View();
@@ -271,6 +297,27 @@ namespace VNW.Controllers
                 sb.Append(hex);
             }
             return sb.ToString();
+        }
+
+        public static string GenerateCaptcha()
+        {
+            string _pin = "";
+            try
+            {
+                //::4 digitals
+                var rand = new Random();
+                for (int i = 0; i <= 3; i++)
+                {
+                    _pin += rand.Next(0, 9);
+                }
+                //::keep value in session
+                //_ms.SetMySession("Pin", "1A", HttpContext.Session);
+                return _pin;
+            }
+            catch
+            {
+                return null;
+            }
         }
     }
 }
