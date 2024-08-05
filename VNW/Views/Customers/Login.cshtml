@@ -43,10 +43,10 @@
     <div class="form-group">
         <label class="control-label">驗證碼</label>
         <input id="pin" name="pin" type="text" value="" class="form-control" />
-        <span id="pin_validate" class="text-danger"></span>
+        <span id="pin_validate" class="text-danger">請輸入下圖中的4個數字</span>
         <br />
         @*<img src="~/images/default.jpg" id="img_pin" style="width:150px;height:50px" />*@
-        <div style="user-select:none;font-size:30px;border:solid;border-width:1px;padding:2px;width:150px;height:50px;text-align:center;">@ViewData["Captcha"]</div><br/>
+        <div id="div_Captcha" style="user-select:none;font-size:30px;border:solid;border-width:1px;padding:2px;width:150px;height:50px;text-align:center;background-color:lightgray;">@ViewData["Captcha"]</div><br/>
         <btn id="btn_ChangeCaptcha" class="btn btn-danger">看不懂請更換</btn><br />
     </div>
     <div class="form-group">
@@ -90,7 +90,7 @@
             if ($("#pin").val().length != 4) {
                 //alert("warning! you lost the pwd ");
                 msg += "lost pin, ";
-                $("#pin_validate").text("請輸入4個碼");
+                $("#pin_validate").text("請輸入4個數字");
                 $("#pin").focus();
                 //return;
             }
@@ -213,6 +213,7 @@
                                         case 103:
                                             failMessage += '驗證碼不合';
                                             $("#pin").focus();
+                                            $("#pin").val('');
                                             break;
                                         case 104:
                                             failMessage += '密碼不合';
@@ -337,6 +338,45 @@
         }
 
         $("#btn_ChangeCaptcha").click(function () {
+
+            var surl = "UpdateCaptcha";
+            //window.location.href = surl;
+            console.log("UpdateCaptcha");
+            try {
+                $.ajax({
+                    url: surl,
+                    type: "POST",
+                    dateType: "json",                    
+                    success: function (data) {
+                        console.log("receive datar")
+                        //console.log(datar)
+                        if (data.result == "PASS") {
+                            //login pass
+                            //$("#all_validate").text("※提示：成功了!!");
+                            var captcha = data.captcha;
+                            //console.log('datar.captcha: ' + datar.captcha);
+                            $('#div_Captcha').text(captcha);
+                            $("#pin_validate").text("已更新, 請輸入4個數字");
+                        }
+                        else {
+                            //fail case
+                            //var failMessage = "※提示：";
+                            $("#pin_validate").text("錯誤! 無法取得驗證碼");
+                        }
+                        SetReady();
+                    }, //success
+                    error: function (xhr, ajaxOptions, thrownError) {
+                        console.log(xhr)
+                        SetReady();
+                    }//error
+                });
+                return;
+            }
+            catch (err) {
+                console.log("exception " + err);
+                return;
+            }
+
 
         });
 

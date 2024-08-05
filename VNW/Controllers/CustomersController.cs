@@ -176,6 +176,7 @@ namespace VNW.Controllers
                 ViewData["UserAccount"] = HttpContext.Request.Cookies["UserAccount"];
                 string Pin = GenerateCaptcha();                
                 _ms.SetMySession("Captcha", Pin, HttpContext.Session);
+                Pin = EncodeCaptcha(Pin);
                 ViewData["Captcha"] = Pin;
             });
 
@@ -319,5 +320,55 @@ namespace VNW.Controllers
                 return null;
             }
         }
+
+        public static string EncodeCaptcha(string Captcha)
+        {
+            string Captcha_Encoded = "";
+            char[] rd = new char[] { ' ', '\'', '.', '_', '-' };
+            var rand = new Random();
+
+            foreach (char c in Captcha)
+            {
+                int r = rand.Next(0, 4);
+                Debug.WriteLine("r: " + r);
+                Captcha_Encoded += c + rd[r].ToString();
+            }
+            return Captcha_Encoded;
+        }
+
+
+        public async Task<IActionResult> UpdateCaptcha()
+        {
+            string Result = "";
+            string Captcha = null;
+            //string Captcha_Encoded = "";
+            await Task.Run(() =>
+            {
+                try
+                {
+                    Captcha = GenerateCaptcha();
+                    _ms.SetMySession("Captcha", Captcha, HttpContext.Session);
+                    //::generate new image                   
+
+                    //char[] rd = new char[] {' ','_', '.','_'};
+                    //var rand = new Random();
+
+                    //foreach (char c in Captcha)
+                    //{
+                    //    int r = rand.Next(0, 4);
+                    //    Debug.WriteLine("r: " + r);
+                    //    Captcha_Encoded += c + rd[r].ToString();
+                    //}
+                    Captcha = EncodeCaptcha(Captcha);
+                    Result = "PASS";
+                }
+                catch
+                {
+                    Result = "Error";
+                }
+            });
+            return Json(new { Result, Captcha});
+        }
+
     }
 }
