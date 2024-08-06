@@ -11,6 +11,11 @@ using System.Diagnostics; //for debug
 using System.Security.Cryptography; //for hash password
 using System.Text; //for encoding
 
+//using System.Drawing; //for graphic captcha
+//using System.Drawing.Imaging;
+//using System.Drawing.Common;
+//using System.IO;
+
 namespace VNW.Controllers
 {
     public class CustomersController : Controller
@@ -174,11 +179,21 @@ namespace VNW.Controllers
                 ViewData["currentHost"] = $"{HttpContext.Request.Scheme}://{HttpContext.Request.Host}";
                 ViewData["currentBase"] = $"{HttpContext.Request.PathBase}";
                 ViewData["UserAccount"] = HttpContext.Request.Cookies["UserAccount"];
-                string Pin = GenerateCaptcha();                
-                _ms.SetMySession("Captcha", Pin, HttpContext.Session);
-                Pin = EncodeCaptcha(Pin);
-                ViewData["Captcha"] = Pin;
+                string Captcha = GenerateCaptcha();                
+                _ms.SetMySession("Captcha", Captcha, HttpContext.Session);
+                Captcha = EncodeCaptcha(Captcha);
+                ViewData["Captcha"] = Captcha;
             });
+
+            #region Grpahic Captcha
+            //string PathBase = $"{HttpContext.Request.Scheme}://{HttpContext.Request.Host}{HttpContext.Request.PathBase}";            
+            //string imageUrl = PathBase + "/images/joker.png";
+            //System.Net.Http.HttpClient tc = new System.Net.Http.HttpClient();
+            //byte[] imageBytes = await tc.GetByteArrayAsync(imageUrl);
+            //string base64Image = Convert.ToBase64String(imageBytes);
+            //ViewData["ImageBase64"] = base64Image;
+            //GenerateImage();
+            #endregion
 
             return View();
         }
@@ -369,6 +384,25 @@ namespace VNW.Controllers
             });
             return Json(new { Result, Captcha});
         }
+        
+        //::Generate Graphic Captcha, but it is not ready
+        //public IActionResult GenerateImage()
+        //{
+        //    using (Bitmap bitmap = new Bitmap(200, 100))
+        //    {
+        //        using (Graphics g = Graphics.FromImage(bitmap))
+        //        {
+        //            g.Clear(Color.White);
+        //            g.DrawString("Hello, ASP.NET Core!", new Font("Arial", 20), Brushes.Black, new PointF(10, 40));
+        //        }
+        //        using (MemoryStream ms = new MemoryStream())
+        //        {
+        //            bitmap.Save(ms, ImageFormat.Png);
+        //            ms.Seek(0, SeekOrigin.Begin);
+        //            return File(ms.ToArray(), "image/png");
+        //        }
+        //    }
+        //}
 
     }
 }
