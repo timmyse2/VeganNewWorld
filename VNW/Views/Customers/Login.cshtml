@@ -48,11 +48,13 @@
         @*<img src="~/images/default.jpg" id="img_pin" style="width:150px;height:50px" />*@
         <div id="div_Captcha" style="user-select:none;font-size:30px;border:solid;border-width:1px;padding:2px;width:150px;height:50px;text-align:center;background-color:lightgreen;">@ViewData["Captcha"]</div><br />
         <btn id="btn_ChangeCaptcha" class="btn btn-danger">看不懂請更換</btn><br />
-        @*<img src="@VNW.Controllers.CustomersController.DisplayDBImage("~/images/joker.png")"/>*@       
+        @*<img src="@VNW.Controllers.CustomersController.DisplayDBImage("~/images/joker.png")"/>*@
         @{
-            //string base64Image = ViewData["ImageBase64"] as string;
+            //string base64Image = ViewData["ImageBase64"] as string;            
         }
         @*<img src="data:image/png;base64,@base64Image" alt="Image" style="width:150px;"/>*@
+        @*<img src="GenerateImage" alt="Generated Image" style="border:dashed;border-width:1px;"/>*@
+
     </div>
     <div class="form-group">
         <b><span id="all_validate" class="text-danger field-validation-valid"></span></b>

@@ -1,20 +1,25 @@
 ﻿using System;
-using System.Collections.Generic;
+//using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
+//using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using VNW.Models;
 
 using System.Diagnostics; //for debug
-using System.Security.Cryptography; //for hash password
+//using System.Security.Cryptography; //for hash password
 using System.Text; //for encoding
 
-//using System.Drawing; //for graphic captcha
+using SixLabors.ImageSharp; //for graphic captcha
+using SixLabors.ImageSharp.PixelFormats;
+using SixLabors.ImageSharp.Processing;
+//using SixLabors.ImageSharp.Drawing;
+//using System.Drawing; 
 //using System.Drawing.Imaging;
 //using System.Drawing.Common;
-//using System.IO;
+using System.IO;
+
 
 namespace VNW.Controllers
 {
@@ -190,9 +195,8 @@ namespace VNW.Controllers
             //string imageUrl = PathBase + "/images/joker.png";
             //System.Net.Http.HttpClient tc = new System.Net.Http.HttpClient();
             //byte[] imageBytes = await tc.GetByteArrayAsync(imageUrl);
-            //string base64Image = Convert.ToBase64String(imageBytes);
+            //string base64Image = Convert.ToBase64String(imageBytes);                        
             //ViewData["ImageBase64"] = base64Image;
-            //GenerateImage();
             #endregion
 
             return View();
@@ -351,29 +355,17 @@ namespace VNW.Controllers
             return Captcha_Encoded;
         }
 
-
         public async Task<IActionResult> UpdateCaptcha()
         {
             string Result = "";
             string Captcha = null;
-            //string Captcha_Encoded = "";
             await Task.Run(() =>
             {
                 try
                 {
                     Captcha = GenerateCaptcha();
                     _ms.SetMySession("Captcha", Captcha, HttpContext.Session);
-                    //::generate new image                   
-
-                    //char[] rd = new char[] {' ','_', '.','_'};
-                    //var rand = new Random();
-
-                    //foreach (char c in Captcha)
-                    //{
-                    //    int r = rand.Next(0, 4);
-                    //    Debug.WriteLine("r: " + r);
-                    //    Captcha_Encoded += c + rd[r].ToString();
-                    //}
+                    //::generate new image
                     Captcha = EncodeCaptcha(Captcha);
                     Result = "PASS";
                 }
@@ -383,26 +375,54 @@ namespace VNW.Controllers
                 }
             });
             return Json(new { Result, Captcha});
-        }
-        
+        }               
+
         //::Generate Graphic Captcha, but it is not ready
-        //public IActionResult GenerateImage()
-        //{
-        //    using (Bitmap bitmap = new Bitmap(200, 100))
-        //    {
-        //        using (Graphics g = Graphics.FromImage(bitmap))
-        //        {
-        //            g.Clear(Color.White);
-        //            g.DrawString("Hello, ASP.NET Core!", new Font("Arial", 20), Brushes.Black, new PointF(10, 40));
-        //        }
-        //        using (MemoryStream ms = new MemoryStream())
-        //        {
-        //            bitmap.Save(ms, ImageFormat.Png);
-        //            ms.Seek(0, SeekOrigin.Begin);
-        //            return File(ms.ToArray(), "image/png");
-        //        }
-        //    }
-        //}
+        public IActionResult GenerateImage()
+        {
+            int width = 300;
+            int height = 100;
+            SixLabors.ImageSharp.Image image = new Image<Rgba32>(width, height);
+            try
+            {
+                image.Mutate(ctx => {
+                    //ctx.DrawImage()
+                    ctx.BackgroundColor(Color.Blue);                    
+                    //ctx.Fil
+                    //ctx.DrawImage.fi    
+                    //ctx.DrawImage                
+                    //ctx.DrawText
+                });
+                //image.Mutate(ctx => ctx.Fill(Color.White));
+                //image.Mutate(ctx => ctx.DrawPolygon(Color.Red, 5, new PointF(10, 10), new PointF(190, 10), new PointF(190, 90), new PointF(10, 90)));
+                //image.Save("output.png");
+                MemoryStream ms = new MemoryStream();
+                image.Save(ms, new SixLabors.ImageSharp.Formats.Png.PngEncoder());                
+                ms.Seek(0, SeekOrigin.Begin);
+                return File(ms.ToArray(), "image/png");
+            }
+            catch
+            {
+                return null;
+            }
+
+            ////::use System.Draw.Bitmap, but it is not work on this platform
+            //    using (Bitmap bitmap = new Bitmap(200, 100))
+            //    {
+            //        using (Graphics g = Graphics.FromImage(bitmap))
+            //        {
+            //            g.Clear(Color.White);
+            //            g.DrawString("Hello, ASP.NET Core!", new Font("Arial", 20), Brushes.Black, new PointF(10, 40));
+            //        }
+            //        using (MemoryStream ms = new MemoryStream())
+            //        {
+            //            bitmap.Save(ms, ImageFormat.Png);
+            //            ms.Seek(0, SeekOrigin.Begin);
+            //            return File(ms.ToArray(), "image/png");
+            //        }
+            //    }
+
+        }
 
     }
 }
