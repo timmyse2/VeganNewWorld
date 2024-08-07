@@ -16,6 +16,7 @@ namespace VNW.Models
         public string CustomerId { get; set; }
         [Display(Name = "密碼")]
         public string PasswordEncoded { set; get; }
+        public string Salt { set; get; }
         [Display(Name = "公司組織名稱")]
         public string CompanyName { get; set; }
         [Display(Name = "聯絡人姓名")]

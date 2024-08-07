@@ -183,7 +183,7 @@ namespace VNW.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("OrderId,CustomerId,OrderDate,RequiredDate,ShippedDate,ShipVia,Freight,ShipName,ShipAddress,ShipCity,ShipPostalCode,ShipCountry,Payment,Status,TimeStamp")] Order order)
+        public async Task<IActionResult> Edit(int id, [Bind("OrderId,CustomerId,EmployeeId,OrderDate,RequiredDate,ShippedDate,ShipVia,Freight,ShipName,ShipAddress,ShipCity,ShipPostalCode,ShipCountry,Payment,Status,TimeStamp")] Order order)
         {
             //::check admin
             string UserLevel = _ms.GetMySession("UserLevel", HttpContext.Session);
@@ -1313,6 +1313,8 @@ namespace VNW.Controllers
                     if(isPrecheckNG)
                         return RedirectToAction("OrderDetailsForShop//" + id, "orderDetails");
 
+                    int eid = int.Parse(_ms.GetMySession("EmployeeId", HttpContext.Session));
+                    qO.EmployeeId = eid; //current e.id
                     //::update shipped date                
                     qO.ShippedDate = DateTime.Now;
                     qO.Status = OrderStatusEnum.Shipped;
@@ -1498,6 +1500,9 @@ namespace VNW.Controllers
                             }
                         }
                     }
+
+                    int eid = int.Parse(_ms.GetMySession("EmployeeId", HttpContext.Session));
+                    qO.EmployeeId = eid; //current e.id
 
                     qO.Status = OrderStatusEnum.Cancelled;
                     _context.Orders.Update(qO);
@@ -1697,6 +1702,9 @@ namespace VNW.Controllers
 
                     qO.ShipAddress = ovmUpdated.OrderBase.ShipAddress;
                     qO.ShipName = ovmUpdated.OrderBase.ShipName;
+
+                    int eid = int.Parse(_ms.GetMySession("EmployeeId", HttpContext.Session));
+                    qO.EmployeeId = eid; //current e.id
 
                     //if(qO.TimeStamp != orderUpdated.TimeStamp )
                     if (Convert.ToBase64String(qO.TimeStamp) != Convert.ToBase64String(ovmUpdated.OrderBase.TimeStamp))

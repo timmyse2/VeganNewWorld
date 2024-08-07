@@ -363,7 +363,9 @@ namespace VNW.Controllers
             int oid = (int)id;
 
             #region ::check order's customer id first
-            string UserAccount = _ms.GetMySession("UserAccount", HttpContext.Session);
+            //string UserAccount = _ms.GetMySession("UserAccount", HttpContext.Session);
+            string ShopAccount = _ms.GetMySession("ShopAccount", HttpContext.Session);
+            ViewData["ShopAccount"] = ShopAccount;
             var preCheckOrder = await _context.Orders                
                 .Where(o => o.OrderId == oid) //sorted 
                 .Include(x => x.Customer) 
@@ -374,8 +376,13 @@ namespace VNW.Controllers
                 TempData["td_serverWarning"] = "查不到訂單 "+ id;
                 return View(null);
             }
+            //::get E info
+            if(preCheckOrder.EmployeeId != null)
+            {
+                var emp = await _context.Employees.Where(e => e.Id == preCheckOrder.EmployeeId).FirstOrDefaultAsync();
+                if(emp != null) preCheckOrder.Employee = emp;                
+            }
             ViewData["preCheckOrder"] = preCheckOrder;
-
             #endregion
 
             var ods = _context.OrderDetails

@@ -10,9 +10,9 @@
 <h2>@ViewData["Title"]</h2>
 
 <div style="text-align:right">
-    <div>員工ID: <span><b>wolf2024@@vwn.tw</b></span> </div>
-    <a class="btn-primary btn">員工登入</a>
-    <a class="btn-success btn">員工登出</a>
+    <div>員工ID: <span><b>@ViewData["ShopAccount"]</b></span> </div>
+    @*<a class="btn-primary btn">員工登入</a>*@
+    <a class="btn-success btn" asp-controller="customers" asp-action="Logout">員工登出</a>
 </div>
 
 
@@ -114,6 +114,17 @@ else
                                 @b
                             }
                         </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td>接單人</td>
+                    <td>
+                        @if (OrderInfo.Employee != null)
+                        {
+                        <a asp-route-id="@OrderInfo.EmployeeId" asp-action="Details" asp-controller="Employees" target="_blank">
+                            @OrderInfo.Employee.Name (@OrderInfo.Employee.Email)(@OrderInfo.Employee.Extension)                            
+                        </a>
+                        }
                     </td>
                 </tr>
             </table>

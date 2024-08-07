@@ -20,8 +20,8 @@ namespace VNW.Models
         //::FK
         [Display(Name = "客戶")]
         public string CustomerId { get; set; }
-        //[Display(Name = "店家")] //員工
-        //public int? EmployeeId { get; set; }
+        [Display(Name = "處理員工")] 
+        public int? EmployeeId { get; set; }
 
         [Display(Name = "訂購時間")]
         public DateTime? OrderDate { get; set; }
@@ -62,8 +62,9 @@ namespace VNW.Models
         //::NP
         [Display(Name = "客戶")]
         public Customer Customer { get; set; }
-        //[Display(Name = "負責員工")]
-        //public Employees Employee { get; set; }
+        [Display(Name = "負責員工")]
+        public Employee Employee { get; set; }
+
         //public Shippers ShipViaNavigation { get; set; }
         [Display(Name = "訂單明細")]
         public ICollection<OrderDetail> OrderDetails { get; set; }

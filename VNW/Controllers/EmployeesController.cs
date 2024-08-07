@@ -578,9 +578,11 @@ namespace VNW.Controllers
                             //_ms.SetMySession("UserAccount", "Illyasviel@Einzbern2017", HttpContext.Session);
                             _ms.SetMySession("UserAccount", ShopAccount, HttpContext.Session);
                             _ms.SetMySession("ShopAccount", ShopAccount, HttpContext.Session);
+                            _ms.SetMySession("EmployeeId", employee.Id.ToString(), HttpContext.Session);
+
                             result = "PASS";
                             detail = "vender login at " + DateTime.Now;
-                            ShopAccount = "wolf2024@vwn.tw";                            
+                            //ShopAccount = "wolf2024@vwn.tw";                            
                         }
                         else
                         {
