@@ -151,6 +151,17 @@
                 <span id="txt_timeStamp" style="border:solid;border-width:1px;border-radius:2px;padding:2px;">
                     @Model.LastModifiedTime
                 </span>
+                <br/>
+                <span id="txt_rowVersion">
+                    @if (Model.RowVersion != null)
+                    {
+                        @*@Convert.ToBase64String(Model.RowVersion)*@
+                        foreach (var b in Model.RowVersion)
+                        {
+                            @b
+                        }
+                    }
+                </span>
             </td>
         </tr>
     </table>
@@ -196,7 +207,9 @@
                     console.log(data)
                     if (data.result == "PASS") {
                         console.log("PASS ");
-                        $('#txt_timeStamp').html(data.timeStamp);                        
+                        $('#txt_timeStamp').html(data.timeStamp);
+                        $('#txt_rowVersion').html(data.rowVersion);
+
                         $('#txt_Stock').html(data.newStock);
                         //$('#txt_Stock').focus();
                         $(window).scrollTop(0);

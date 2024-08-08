@@ -42,6 +42,13 @@ namespace VNW.Models
                 .IsConcurrencyToken()
                 ;
 
+
+            modelBuilder.Entity<Product>()
+                .Property(p => p.RowVersion)
+                .IsRowVersion() //::key, otherwise DbUpdateConcurrencyException
+                .IsConcurrencyToken()
+                ;
+
             //::OD table has compsite PK
             modelBuilder.Entity<OrderDetail>(entity =>
             {

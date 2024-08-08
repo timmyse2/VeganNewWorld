@@ -218,7 +218,7 @@ namespace VNW.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id,
-            [Bind("ProductId,ProductName,CategoryId,QuantityPerUnit,UnitPrice,UnitsInStock,UnitsOnOrder,ReorderLevel,Discontinued,Picture,Description,UnitsReserved,LastModifiedTime"
+            [Bind("ProductId,ProductName,CategoryId,QuantityPerUnit,UnitPrice,UnitsInStock,UnitsOnOrder,ReorderLevel,Discontinued,Picture,Description,UnitsReserved,LastModifiedTime,RowVersion"
                 )] Product product)
         {
             //::check Shop
@@ -1122,7 +1122,7 @@ namespace VNW.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> EditForShop(int id,
-            [Bind("ProductId,ProductName,CategoryId,QuantityPerUnit,UnitPrice,UnitsInStock,UnitsOnOrder,ReorderLevel,Discontinued,Picture,Description,UnitsReserved,LastModifiedTime"
+            [Bind("ProductId,ProductName,CategoryId,QuantityPerUnit,UnitPrice,UnitsInStock,UnitsOnOrder,ReorderLevel,Discontinued,Picture,Description,UnitsReserved,LastModifiedTime,RowVersion"
                 )] Product product)
         {
             //::check Shop
@@ -1213,6 +1213,7 @@ namespace VNW.Controllers
         {
             string _result = "tbc", _detail = "tbc";
             int _NewStock = 0; string _timeStamp = "";
+            string rowVersion = "";
 
             //::check Shop
             string UserLevel = _ms.GetMySession("UserLevel", HttpContext.Session);
@@ -1276,7 +1277,15 @@ namespace VNW.Controllers
                     await _context.SaveChangesAsync();
                     //::get new stock, and timestamp
                     _NewStock = (int)p.UnitsInStock;                    
-                    _timeStamp = p.LastModifiedTime.ToString();                    
+                    _timeStamp = p.LastModifiedTime.ToString();
+
+                    rowVersion = "";
+                    if (p.RowVersion != null)
+                    {
+                        //rowVersion = Convert.ToBase64String(p.RowVersion);
+                        foreach (var b in p.RowVersion)
+                            rowVersion += b;
+                    }
                     _result = "PASS"; _detail = "done";
                 }
                 else
@@ -1286,7 +1295,8 @@ namespace VNW.Controllers
             }
             var res = new {
                 result = _result, detail = _detail,
-                NewStock = _NewStock, timeStamp = _timeStamp
+                NewStock = _NewStock, timeStamp = _timeStamp,
+                rowVersion
             };
             return Json(res);
         }

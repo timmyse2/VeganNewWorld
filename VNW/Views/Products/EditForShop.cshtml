@@ -17,6 +17,7 @@
         <form asp-action="EditForShop">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <input type="hidden" asp-for="ProductId" />
+            <input type="hidden" asp-for="RowVersion" />
             @*<input type="hidden" asp-for="LastModifiedTime" />*@
             <div class="form-group">
                 <label class="control-label">時間戳記(測試功能, 避免同時修改衝突)</label>

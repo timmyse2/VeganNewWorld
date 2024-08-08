@@ -62,7 +62,7 @@ namespace VNW.Models
         public ICollection<OrderDetail> OrderDetails { get; set; }
 
         //::for Optimistic Concurrency Control
-        //public byte[] TimeStamp { get; set; } //RowVersion
+        public byte[] RowVersion { get; set; }
         public DateTime LastModifiedTime { get; set; }
     }
 }

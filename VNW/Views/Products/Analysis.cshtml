@@ -30,6 +30,9 @@
                 @p.ProductName
                 <img src="~/images/@p.Picture" style="width:80px; " /><br/>
                 @p.LastModifiedTime
+                @*@Convert.ToBase64String(p.RowVersion)*@
+                <br/>
+                @foreach(var b in p.RowVersion) {@b}
             </td>
             <td>
                 @p.UnitsInStock

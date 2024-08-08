@@ -102,7 +102,6 @@
         </dd>
         <dt>@Html.DisplayNameFor(model => model.Description)</dt>
         <dd>@Model.Description </dd>
-
         <dd>
             @if (Model.UnitsInStock != null && (Model.UnitsInStock - UnitsReserved) > 0 && !Model.Discontinued)
             {
@@ -120,7 +119,6 @@
                 <h4 class="alert-danger">庫存不足或未開放 無法下單</h4>
                 @*<span class="alert-dismissible">貨到通知...</span>*@
             }
-
             <div class="alert-info" id="txt_Message"></div>
             <div class="alert-danger" id="txt_failMessage"></div>
         </dd>
