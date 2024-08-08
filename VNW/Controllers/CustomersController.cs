@@ -245,7 +245,11 @@ namespace VNW.Controllers
                         return Json(new { result = "FAIL", detail = "pin or captcha is mismatched", errorCode });
                     }
 
-                    if (password == "") //password
+                    if (customer.Salt == null)
+                        customer.Salt = "";
+                    string inputPasswordEncoded =
+                        EmployeesController.PasswordSalt(password, customer.Salt);
+                    if (inputPasswordEncoded != customer.PasswordEncoded) //password
                     {
                         errorCode = 104;
                         return Json(new { result = "FAIL", detail = "password is mismatched", errorCode });
