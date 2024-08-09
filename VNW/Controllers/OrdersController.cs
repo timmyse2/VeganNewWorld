@@ -1709,7 +1709,7 @@ namespace VNW.Controllers
                     //if(qO.TimeStamp != orderUpdated.TimeStamp )
                     if (Convert.ToBase64String(qO.TimeStamp) != Convert.ToBase64String(ovmUpdated.OrderBase.TimeStamp))
                     {
-                        TempData["td_serverWarning"] = "可能有其他用戶同時修改資料中 (Timestamp is mismatched)";
+                        TempData["td_serverWarning"] = "可能有其他用戶同時修改資料中 (Order Timestamp is mismatched)";
                         //ovm = new OrderViewModel();
                         //ovm.OrderId = id;
                         //return View(ovm);

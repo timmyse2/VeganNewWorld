@@ -249,10 +249,10 @@ namespace VNW.Controllers
                         return Content("Error: original data is null ");
                     }
                     //::check timeStamp or RowVersion
-                    if (originalProduct.LastModifiedTime.ToString() != product.LastModifiedTime.ToString())
-                    {
-                        return Content("TimeStamp is not match! Someone changed data at the same time");
-                    }
+                    //if (originalProduct.LastModifiedTime.ToString() != product.LastModifiedTime.ToString())
+                    //{
+                    //    return Content("TimeStamp is not match! Someone changed data at the same time");
+                    //}
 
                     //::precheck then auto fine tune
                     if (product.UnitsOnOrder == null)
@@ -1146,7 +1146,7 @@ namespace VNW.Controllers
                     var originalProduct = await _context.Products
                         .AsNoTracking() //KEY
                         .Where(x => x.ProductId == id)
-                        .Select(x => new { x.ProductId, x.LastModifiedTime })
+                        //.Select(x => new { x.ProductId, x.LastModifiedTime })
                         .FirstOrDefaultAsync();
                     if (originalProduct == null)
                     {
@@ -1164,7 +1164,8 @@ namespace VNW.Controllers
                         product.UnitsReserved = 0;
 
                     //::check timeStamp or RowVersion
-                    if (originalProduct.LastModifiedTime.ToString() != product.LastModifiedTime.ToString())
+                    if(false)
+                    //if (originalProduct.LastModifiedTime.ToString() != product.LastModifiedTime.ToString())
                     {
                         //return Content("TimeStamp is not match! Someone changed data at the same time");
                         string msg = "注意! 有其它用戶也在修改資料，發生衝突。(建議按[取消]並先另記錄目前的數據)";
@@ -1178,6 +1179,25 @@ namespace VNW.Controllers
 
                     //Debug.WriteLine(" " + _context.Entry(product).OriginalValues["UnitsReserved"]);
                     //Debug.WriteLine(" " + _context.Entry(product).OriginalValues["UnitsOnOrder"]);
+
+                    #region
+                    //::try - sync(load) parital values from originalProduct
+                    product.UnitsInStock = originalProduct.UnitsInStock;
+                    product.UnitsReserved = originalProduct.UnitsReserved;
+                    product.UnitsOnOrder = originalProduct.UnitsOnOrder;
+                    //::try try - this is not a good idea here!
+                    if (Convert.ToBase64String(product.RowVersion) != Convert.ToBase64String(originalProduct.RowVersion))
+                    {
+                        product.RowVersion = originalProduct.RowVersion;
+                        TempData["td_serverWarning"] = "Warning! Product RowVersion has db concurrency problem maybe!";
+                        /*
+                        string msg = "Product RowVersion or Timestamp is not matched!";
+                        TempData["td_serverWarning"] = msg;
+                        ViewData["CategoryId"] = new SelectList(_context.Set<Category>(), "CategoryId", "CategoryName", product.CategoryId);
+                        return View(product);
+                        */
+                    }
+                    #endregion
 
                     _context.Update(product);
                     //_context.Products.Update(product); // indicate to product from View
@@ -1193,6 +1213,10 @@ namespace VNW.Controllers
                     else
                     {
                         throw;
+                        //string msg = "DbUpdate Concurrency Exception!";
+                        //TempData["td_serverWarning"] = msg;
+                        //ViewData["CategoryId"] = new SelectList(_context.Set<Category>(), "CategoryId", "CategoryName", product.CategoryId);
+                        //return View(product);
                     }
                 }
                 //TempData["td_serverMessage"] = "Updated";
@@ -1254,27 +1278,43 @@ namespace VNW.Controllers
                         .Select(x => new {x.ProductId, x.LastModifiedTime})
                         .FirstOrDefaultAsync();
 
-                    if(oldp.LastModifiedTime.ToString() != p.LastModifiedTime.ToString())
-                    {
-                        _result = "fail";
-                        _detail = "可能同時有人在修改資料";
-                        //error
-                        var res0 = new
-                        {
-                            result = _result,
-                            detail = _detail,
-                            NewStock = _NewStock,
-                            timeStamp = _timeStamp
-                        };
-                        return Json(res0);
-                    }
+                    //if(oldp.LastModifiedTime.ToString() != p.LastModifiedTime.ToString())
+                    //{
+                    //    _result = "fail";
+                    //    _detail = "可能同時有人在修改資料";
+                    //    //error
+                    //    var res0 = new
+                    //    {
+                    //        result = _result,
+                    //        detail = _detail,
+                    //        NewStock = _NewStock,
+                    //        timeStamp = _timeStamp
+                    //    };
+                    //    return Json(res0);
+                    //}
 
                     //::update p (add stock...)
                     p.UnitsInStock += (short)qty;
                     //p.UnitsOnOrder -= (short)qty; //not now
                     p.LastModifiedTime = DateTime.Now;
-                    _context.Update(p);
-                    await _context.SaveChangesAsync();
+                    try
+                    {
+                        _context.Update(p);
+                        await _context.SaveChangesAsync();
+                    }
+                    catch (Exception ex)
+                    {
+                        _result = "Exception";
+                        _detail = ex.ToString();
+                        return Json(new
+                        {
+                            result = _result,
+                            detail = _detail,
+                            NewStock = _NewStock,
+                            timeStamp = _timeStamp
+                        });
+                    }
+
                     //::get new stock, and timestamp
                     _NewStock = (int)p.UnitsInStock;                    
                     _timeStamp = p.LastModifiedTime.ToString();
