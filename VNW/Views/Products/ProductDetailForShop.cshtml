@@ -169,8 +169,16 @@
 </div>
 
 <div>
-    <a id="btn_EditForShop" class="btn btn-danger btn-lg" asp-action="EditForShop" asp-route-id="@Model.ProductId">編輯(商家專用*)</a>
+    <a id="btn_EditForShop" class="btn btn-primary btn-lg" asp-action="EditForShop" asp-route-id="@Model.ProductId">編輯(商家專用*)</a>
     <a class="btn btn-info btn-lg" asp-action="Analysis" asp-route-id="@Model.ProductId">分析商品預購量</a>
+
+    @if ((string)ViewData["UserLevel"] == "1A")
+    {
+        <br/>
+        <a asp-action="Edit" asp-route-id="@Model.ProductId" class="btn btn-danger btn-lg">編輯(管理者專用*)</a><br />        
+    }
+
+
 </div>
 <p />
 

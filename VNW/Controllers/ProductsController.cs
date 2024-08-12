@@ -217,7 +217,7 @@ namespace VNW.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id,
+        public async Task<IActionResult> Edit(int id, string ForceUpdate,
             [Bind("ProductId,ProductName,CategoryId,QuantityPerUnit,UnitPrice,UnitsInStock,UnitsOnOrder,ReorderLevel,Discontinued,Picture,Description,UnitsReserved,LastModifiedTime,RowVersion"
                 )] Product product)
         {
@@ -242,7 +242,7 @@ namespace VNW.Controllers
                     var originalProduct = await _context.Products
                         .AsNoTracking() //KEY - readonly
                         .Where(p => p.ProductId == id)
-                        .Select(p => new { p.ProductId, p.LastModifiedTime, p.RowVersion})
+                        //.Select(p => new { p.ProductId, p.LastModifiedTime, p.RowVersion})
                         .FirstOrDefaultAsync();
                     if (originalProduct == null)
                     {
@@ -266,10 +266,21 @@ namespace VNW.Controllers
 
                     //::try try 
                     if (Convert.ToBase64String(product.RowVersion) != Convert.ToBase64String(originalProduct.RowVersion))
-                    {
-                    //    product.RowVersion = originalProduct.RowVersion;
-                    }
+                    {                        
+                        TempData["td_serverWarning"] = "Warning! Product RowVersion has db concurrency problem maybe!";
+                        //return RedirectToAction("Edit//" + product.ProductId);
 
+                        if(ForceUpdate != null && ForceUpdate == "on")
+                        {
+                            //:: force editing data even if RowVersion is notmatch
+                            product.RowVersion = originalProduct.RowVersion;
+
+                            //product.UnitsInStock = originalProduct.UnitsInStock;
+                            //product.UnitsReserved = originalProduct.UnitsReserved;
+                            //product.UnitsOnOrder = originalProduct.UnitsOnOrder;
+                            TempData["td_serverWarning"] = "警告! 有發生DbUpdate Concurrency Exception, 但用強制模式修改! ";
+                        }
+                    }
                     product.LastModifiedTime = DateTime.Now;//timestamp
 
                     _context.Update(product);
@@ -1083,6 +1094,7 @@ namespace VNW.Controllers
             ViewData["currentHost"] = $"{HttpContext.Request.Scheme}://{HttpContext.Request.Host}";
             ViewData["currentBase"] = $"{HttpContext.Request.PathBase}";
             //ViewData["currentBody"] = $"{HttpContext.Request.Body }";
+            ViewData["UserLevel"] = _ms.GetMySession("UserLevel", HttpContext.Session);
             return View(product);
         }
 
