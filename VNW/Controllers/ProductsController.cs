@@ -240,9 +240,9 @@ namespace VNW.Controllers
                 {
                     //::precheck data be updated by another 
                     var originalProduct = await _context.Products
-                        .AsNoTracking() //KEY
-                        .Where(x => x.ProductId == id)
-                        .Select(x => new { x.ProductId, x.LastModifiedTime})
+                        .AsNoTracking() //KEY - readonly
+                        .Where(p => p.ProductId == id)
+                        .Select(p => new { p.ProductId, p.LastModifiedTime, p.RowVersion})
                         .FirstOrDefaultAsync();
                     if (originalProduct == null)
                     {
@@ -263,6 +263,12 @@ namespace VNW.Controllers
                         product.ReorderLevel = 0;
                     if (product.UnitsReserved == null)
                         product.UnitsReserved = 0;
+
+                    //::try try 
+                    if (Convert.ToBase64String(product.RowVersion) != Convert.ToBase64String(originalProduct.RowVersion))
+                    {
+                    //    product.RowVersion = originalProduct.RowVersion;
+                    }
 
                     product.LastModifiedTime = DateTime.Now;//timestamp
 
@@ -1358,6 +1364,43 @@ namespace VNW.Controllers
             ViewData["p"] = p;
             ViewData["ods"] = ods;
             return View(ods);
+        }
+
+
+        public async Task<IActionResult> Lock(int? id, int? isLock)
+        {
+            var p = await _context.Products.FindAsync(id);
+            string result = "", detail = "";
+
+            if(p == null)
+            {
+                result = "ng"; detail = "lost id";
+                return Json(new {result, detail});
+            }
+            try
+            {
+                if (isLock == 0)
+                {
+                    p.Discontinued = false;
+                    detail = "unlocked " + id;
+                }
+                else
+                {
+                    p.Discontinued = true;
+                    detail = "locked " + id;
+                }
+
+                _context.Update(p);
+                await _context.SaveChangesAsync();
+                result = "PASS";
+                return Json(new { result, detail });
+            }
+            catch
+            {
+                result = "Error";
+                detail = "Exception";
+                return Json(new { result, detail });
+            }            
         }
 
     }

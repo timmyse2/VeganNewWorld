@@ -311,6 +311,27 @@ namespace VNW.Controllers
             return Json(new { result = "PASS", detail = "admin login" });
         }
 
+        //::qucik login for 2B test - disable it in the c
+        public async Task<IActionResult> blogin(int id)
+        {
+            var emp = await _context.Employees.FindAsync(id);
+            if (emp == null)
+            {
+                return Json(new { result = "ng", detail = "lost id" });
+            }
+
+            string ShopAccount = emp.Name;
+            //::pass case
+            _ms.SetMySession("IsUserLogin", "NO", HttpContext.Session);
+            _ms.SetMySession("UserLevel", "2B", HttpContext.Session);                
+            _ms.SetMySession("UserAccount", ShopAccount, HttpContext.Session);
+            _ms.SetMySession("ShopAccount", ShopAccount, HttpContext.Session);
+            _ms.SetMySession("EmployeeId", id.ToString(), HttpContext.Session);
+
+            return RedirectToAction("Index", "Home");
+            //return Json(new { result = "PASS", detail = "shop login" });
+        }
+
         //::refer to github xxx    
         public static string HexStringFromBytes(byte[] bytes)
         {

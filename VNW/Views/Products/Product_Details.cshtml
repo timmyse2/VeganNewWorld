@@ -83,10 +83,10 @@
 
         <dt>狀態</dt>
         <dd>
-        @if(Model.Discontinued == true)
-        {
-           <b style="color:red;">已下架或目前暫不開放</b>
-        }
+            @if (Model.Discontinued == true)
+            {
+                <b style="color:red;">已下架或目前暫不開放</b>
+            }
         </dd>
 
         <dt>
@@ -132,10 +132,16 @@
         |
     </div>*@
 
-@if ((string)ViewData["UserLevel"] == "2B") //2B: for B shop side
+@if ((string)ViewData["UserLevel"] == "1A" || (string)ViewData["UserLevel"] == "2B") //2B: for B shop side
 {
     <a asp-action="ProductDetailForShop" asp-route-id="@Model.ProductId"
-        asp-controller="products" class="btn btn-success btn-lg">確認細節與編輯(商家專用*)</a>
+       asp-controller="products" class="btn btn-success btn-lg">確認細節與編輯(商家專用*)</a>
+}
+
+@if ((string)ViewData["UserLevel"] == "1A") //1A: admin
+{
+    <a asp-action="Edit" asp-route-id="@Model.ProductId"
+       asp-controller="products" class="btn btn-danger btn-lg">編輯(管理者*)</a>
 }
 
 @section endJS{

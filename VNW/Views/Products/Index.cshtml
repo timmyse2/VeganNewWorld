@@ -150,7 +150,20 @@ else
             <tr>
                 <td>
                     @*<b><a asp-action="Details" asp-route-id="@item.ProductId">@Html.DisplayFor(modelItem => item.ProductName)</a> </b>*@
-                    #@item.ProductId-@Html.DisplayFor(modelItem => item.ProductName)
+                    #@item.ProductId-@Html.DisplayFor(modelItem => item.ProductName)<br />
+
+                    @if ((string)ViewData["UserLevel"] == "2B" || (string)ViewData["UserLevel"] == "1A")
+                    {
+                        @*<a asp-action="EditForShop" asp-route-id="@item.ProductId" class="btn btn-primary">編輯(店家)</a>*@
+                        <a asp-action="ProductDetailForShop" asp-route-id="@item.ProductId" class="btn btn-success">檢視</a><br/>
+                    }
+                    @if ((string)ViewData["UserLevel"] == "1A")
+                    {
+
+                        <a asp-action="Edit" asp-route-id="@item.ProductId" class="btn btn-danger">管理編輯</a><br />
+                        @*<a asp-action="Delete" asp-route-id="@item.ProductId" class="btn btn-danger">管理人刪除</a>*@
+                    }
+
                 </td>
                 <td>
                     @Html.DisplayFor(modelItem => item.QuantityPerUnit)
@@ -198,18 +211,6 @@ else
                 </td>
                 <td>
 
-
-                    @if ((string)ViewData["UserLevel"] == "2B" || (string)ViewData["UserLevel"] == "1A")
-                    {
-                        @*<a asp-action="EditForShop" asp-route-id="@item.ProductId" class="btn btn-primary">編輯(店家)</a>*@
-                        <a asp-action="ProductDetailForShop" asp-route-id="@item.ProductId" class="btn btn-success">檢視(店家)</a>
-                    }
-                    @if ((string)ViewData["UserLevel"] == "1A")
-                    {
-
-                        <a asp-action="Edit" asp-route-id="@item.ProductId" class="btn btn-primary">管理人編輯</a>
-                        <a asp-action="Delete" asp-route-id="@item.ProductId" class="btn btn-danger">管理人刪除</a>
-                    }
                 </td>
             </tr>
         }
