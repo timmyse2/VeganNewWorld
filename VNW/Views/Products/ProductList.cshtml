@@ -73,7 +73,12 @@
                     }
                 }
 
-                @if (item.UnitsInStock != null && (item.UnitsInStock - UnitsReserved) > 0 && !item.Discontinued)
+                @if (item.IsLocked)
+                {
+                    <span class="alert-danger">暫不開放</span>
+                }
+                else
+                if (item.UnitsInStock != null && (item.UnitsInStock - UnitsReserved) > 0 && !item.Discontinued)
                 {
 
                     if (item.UnitsReserved < 0 || item.UnitsInStock <= 0)

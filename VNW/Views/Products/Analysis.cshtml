@@ -28,11 +28,20 @@
             </td>
             <td>
                 @p.ProductName
-                <img src="~/images/@p.Picture" style="width:80px; " /><br/>
+                <img src="~/images/@p.Picture" style="width:80px; " /><br />
                 @p.LastModifiedTime
                 @*@Convert.ToBase64String(p.RowVersion)*@
-                <br/>
-                @foreach(var b in p.RowVersion) {@b}
+                <br />
+                @foreach (var b in p.RowVersion)
+                {@b}
+                @if (p.IsLocked)
+                {
+                    <br/><span class="alert-danger">已被鎖定</span>
+                }
+                @if (p.Discontinued)
+                {
+                         <br /><span class="alert-danger">已下架</span>
+                }
             </td>
             <td>
                 @p.UnitsInStock
@@ -76,8 +85,10 @@
                 <td>@od.Quantity</td>
                 <td>@od.Order.OrderDate</td>
                 <td>@od.Order.Status</td>
-                <td>@foreach(var b in od.Order.TimeStamp) {@b}</td>
-                <td>@foreach(var b in od.RowVersion) {@b}</td>
+                <td>@foreach (var b in od.Order.TimeStamp)
+                {@b}</td>
+                <td>@foreach (var b in od.RowVersion)
+                {@b}</td>
             </tr>
         }
         <tr></tr>

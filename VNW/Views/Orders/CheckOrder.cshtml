@@ -188,7 +188,7 @@ else
                 CheckMark = "庫存或保留量不足，請修改數量或取消";
             }
 
-            if (item.Product.Discontinued)
+            if (item.Product.Discontinued || item.Product.IsLocked)
             {
                 isError = true;
                 CheckMark += " 已下架, 或暫無法開放";
@@ -240,7 +240,7 @@ else
 
     @if (isError)
     {
-        <p class="alert-danger">註: 發現訂單內有異常，無法送出</p>
+        <p><h3 class="alert-danger">註: 發現訂單內有異常，無法送出</h3></p>
     }
     else
     {
@@ -265,10 +265,6 @@ else
 
 </div>
 
-
-
-
-
 <table class="table-bordered">
     <tr>
         <td></td>
@@ -277,11 +273,3 @@ else
     </tr>
 
 </table>
-
-
-
-
-
-
-
-

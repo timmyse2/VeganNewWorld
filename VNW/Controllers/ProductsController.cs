@@ -203,7 +203,10 @@ namespace VNW.Controllers
             if (product == null)
             {
                 return NotFound();
-            }            
+            }
+
+            //if (product.IsLocked == null)
+              //  product.IsLocked = false;
 
             //ViewData["CategoryId"] = new SelectList(_context.Set<Category>(), "CategoryId", "CategoryId", product.CategoryId);
             //::<udpate- show Name in select list>
@@ -218,7 +221,7 @@ namespace VNW.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, string ForceUpdate,
-            [Bind("ProductId,ProductName,CategoryId,QuantityPerUnit,UnitPrice,UnitsInStock,UnitsOnOrder,ReorderLevel,Discontinued,Picture,Description,UnitsReserved,LastModifiedTime,RowVersion"
+            [Bind("ProductId,ProductName,CategoryId,QuantityPerUnit,UnitPrice,UnitsInStock,UnitsOnOrder,ReorderLevel,Discontinued,Picture,Description,UnitsReserved,LastModifiedTime,RowVersion,IsLocked"
                 )] Product product)
         {
             //::check Shop
@@ -286,7 +289,7 @@ namespace VNW.Controllers
                     _context.Update(product);
                     await _context.SaveChangesAsync();
                 }
-                catch (DbUpdateConcurrencyException)
+                catch (DbUpdateConcurrencyException ex)
                 {
                     if (!ProductExists(product.ProductId))
                     {
@@ -294,6 +297,12 @@ namespace VNW.Controllers
                     }
                     else
                     {
+                        //Debug.WriteLine("ex count:  " + ex.Entries.Count());
+                        //var entry = ex.Entries.Single();
+                        //entry.CurrentValues;
+                        //entry.OriginalValues.SetValues(entry.GetDatabaseValues());                        
+                        //ex.Entries.Single().Reload();                        
+                        //TempData["td_serverWarning"] = "DbUpdate Concurrency Exception! ";
                         throw;
                     }
                 }
@@ -301,7 +310,7 @@ namespace VNW.Controllers
                 //return RedirectToAction(nameof(Index));
                 //return RedirectToAction(nameof(ProductDetailForShop));
                 //return RedirectToAction("ProductDetailForShop", product.ProductId);
-                return RedirectToAction("ProductDetailForShop//" + product.ProductId);
+                return RedirectToAction("ProductDetailForShop", new { id = product.ProductId });
             }
             ViewData["CategoryId"] = new SelectList(_context.Set<Category>(), "CategoryId", "CategoryId", product.CategoryId);
             return View(product);
@@ -1039,7 +1048,7 @@ namespace VNW.Controllers
             var q0 = _context.Products
                 .Take(30) //top limit
                 .Where(x => (x.UnitsInStock - x.UnitsReserved) > 0 &&
-                    x.Discontinued == false
+                    x.Discontinued == false && !x.IsLocked
                     );
             if(search != null && search.Length >= 1)
             {
@@ -1048,7 +1057,7 @@ namespace VNW.Controllers
 
                 q0 = _context.Products
                 .Where(x => (x.UnitsInStock - x.UnitsReserved) > 0 &&
-                    x.Discontinued == false &&
+                    x.Discontinued == false && x.IsLocked == false &&
                     (x.ProductName.Contains(search) || x.Description.Contains(search))
                     )
                 .Take(30); //top limit;
@@ -1140,7 +1149,7 @@ namespace VNW.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> EditForShop(int id,
-            [Bind("ProductId,ProductName,CategoryId,QuantityPerUnit,UnitPrice,UnitsInStock,UnitsOnOrder,ReorderLevel,Discontinued,Picture,Description,UnitsReserved,LastModifiedTime,RowVersion"
+            [Bind("ProductId,ProductName,CategoryId,QuantityPerUnit,UnitPrice,UnitsInStock,UnitsOnOrder,ReorderLevel,Discontinued,Picture,Description,UnitsReserved,LastModifiedTime,RowVersion,IsLocked"
                 )] Product product)
         {
             //::check Shop
@@ -1171,6 +1180,12 @@ namespace VNW.Controllers
                         return Content("Error: original data is null ");
                     }
 
+                    if(originalProduct.IsLocked)
+                    {
+                        if (UserLevel != "1A")
+                            return Content("被管理者鎖定中, 無法修改");
+                    }
+
                     //::precheck then auto fine tune
                     if (product.UnitsOnOrder == null)
                         product.UnitsOnOrder = 0;
@@ -1181,8 +1196,11 @@ namespace VNW.Controllers
                     if (product.UnitsReserved == null)
                         product.UnitsReserved = 0;
 
+                    //if (product.IsLocked == null)
+                      //  product.IsLocked = false;
+
                     //::check timeStamp or RowVersion
-                    if(false)
+                    if (false)
                     //if (originalProduct.LastModifiedTime.ToString() != product.LastModifiedTime.ToString())
                     {
                         //return Content("TimeStamp is not match! Someone changed data at the same time");
@@ -1198,16 +1216,16 @@ namespace VNW.Controllers
                     //Debug.WriteLine(" " + _context.Entry(product).OriginalValues["UnitsReserved"]);
                     //Debug.WriteLine(" " + _context.Entry(product).OriginalValues["UnitsOnOrder"]);
 
-                    #region
-                    //::try - sync(load) parital values from originalProduct
-                    product.UnitsInStock = originalProduct.UnitsInStock;
-                    product.UnitsReserved = originalProduct.UnitsReserved;
-                    product.UnitsOnOrder = originalProduct.UnitsOnOrder;
+                    #region DB Win                    
                     //::try try - this is not a good idea here!
                     if (Convert.ToBase64String(product.RowVersion) != Convert.ToBase64String(originalProduct.RowVersion))
                     {
                         product.RowVersion = originalProduct.RowVersion;
                         TempData["td_serverWarning"] = "Warning! Product RowVersion has db concurrency problem maybe!";
+                        //::Try DB Win - sync(load) parital values from originalProduct
+                        product.UnitsInStock = originalProduct.UnitsInStock;
+                        product.UnitsReserved = originalProduct.UnitsReserved;
+                        product.UnitsOnOrder = originalProduct.UnitsOnOrder;
                         /*
                         string msg = "Product RowVersion or Timestamp is not matched!";
                         TempData["td_serverWarning"] = msg;
@@ -1310,6 +1328,18 @@ namespace VNW.Controllers
                     //    };
                     //    return Json(res0);
                     //}
+                    if(p.IsLocked && UserLevel != "1A")
+                    {
+                        _result = "Error";
+                        _detail = "Locked by Admin";
+                        return Json(new
+                        {
+                            result = _result,
+                            detail = _detail,
+                            NewStock = _NewStock,
+                            timeStamp = _timeStamp
+                        });
+                    }
 
                     //::update p (add stock...)
                     p.UnitsInStock += (short)qty;
@@ -1384,7 +1414,14 @@ namespace VNW.Controllers
             var p = await _context.Products.FindAsync(id);
             string result = "", detail = "";
 
-            if(p == null)
+            string UserLevel = _ms.GetMySession("UserLevel", HttpContext.Session);
+            if (UserLevel != "1A") //UserLevel != "2B" && 
+            {
+                result = "ng"; detail = "you are not admin";
+                return Json(new { result, detail });
+            }
+
+            if (p == null)
             {
                 result = "ng"; detail = "lost id";
                 return Json(new {result, detail});
@@ -1393,12 +1430,12 @@ namespace VNW.Controllers
             {
                 if (isLock == 0)
                 {
-                    p.Discontinued = false;
+                    p.IsLocked = false;
                     detail = "unlocked " + id;
                 }
                 else
                 {
-                    p.Discontinued = true;
+                    p.IsLocked = true;
                     detail = "locked " + id;
                 }
 

@@ -43,6 +43,10 @@ namespace VNW.Models
         [Display(Name = "已下架無法販售")]
         public bool Discontinued { get; set; }
 
+        //::not allow 3C|2B to update product or order        
+        [Display(Name = "已被鎖定(僅授權者可以進行更改)")]
+        public bool IsLocked { get; set; }
+
         [Display(Name = "圖例")]
         public string Picture { get; set; }
 

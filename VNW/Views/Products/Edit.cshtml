@@ -6,20 +6,38 @@
 
 <h2>@ViewData["Title"]</h2>
 
-
+<hr />
+<a class="btn btn-primary" asp-action="ProductDetailForShop" asp-route-id="@Model.ProductId">商品細節</a>
 <hr />
 <div class="row">
     <div class="col-md-4">
         <form asp-action="Edit">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <input type="hidden" asp-for="ProductId" />
-            <input type="hidden" asp-for="LastModifiedTime" />
             <input type="hidden" asp-for="RowVersion" />
 
             <div class="form-group">
-                <label class="control-label">強制修改模式(BETA)</label><br />
-                <input type="checkbox" name="ForceUpdate" style="width:30px;height:30px;" /><br />
-                <span class="text-danger">針對DbUpdate Concurrency Exception的狀況強制修改</span>
+                <label class="control-label" asp-for="LastModifiedTime"></label>
+                <input asp-for="LastModifiedTime" class="form-control" readonly />
+
+                <label class="control-label" asp-for="RowVersion"></label>
+                <input class="form-control" readonly value="@foreach(var b in Model.RowVersion){@b}" />
+            </div>
+
+            <div class="form-group">
+                <label class="control-label">鎖定產品</label>
+                <div class="checkbox">
+                    <label>
+                        <input asp-for="IsLocked" style="width:20px;height:20px;" /> @Html.DisplayNameFor(model => model.IsLocked)                        
+                    </label>
+                </div>
+                <div style="border:solid;border-width:1px;width:70%">
+                    <label class="control-label">強制修改模式(BETA)</label><br />
+
+                    <span class="text-danger">針對DbUpdate Concurrency Exception的狀況強制修改</span>
+                    <input type="checkbox" name="ForceUpdate" style="width:20px;height:20px;" />
+                </div>
+
             </div>
             <div class="form-group">
                 <label asp-for="ProductName" class="control-label"></label>
@@ -90,10 +108,6 @@
         </form>
     </div>
 </div>
-
-@*<div>
-        <a asp-action="Index">Back to List</a>
-    </div>*@
 
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}

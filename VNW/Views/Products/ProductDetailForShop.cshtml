@@ -28,6 +28,18 @@
     <table class="table" id="table_data" style="max-width:70%;min-width:520px;">
         <tr>
             <td>
+                @Html.DisplayNameFor(model => model.IsLocked)
+            </td>
+            <td>
+                @Html.DisplayFor(model => model.IsLocked)
+                @if (Model.IsLocked)
+                {
+                    <h3 class="alert-danger">注意該商品已鎖定，正由授權者修正流程中</h3>
+                }
+            </td>
+        </tr>
+        <tr>
+            <td>
                 @Html.DisplayNameFor(model => model.ProductName)
             </td>
             <td>
@@ -61,8 +73,8 @@
                 <div style="border-width:1px;border-color:lightgray;border-radius:5px;max-width:300px;text-align:center;">
                     <b>快速進貨設定 <span style="color:mediumvioletred">(新測試功能)</span></b>
                     <div id="btn_showQuickFunction" class="btn btn-sm btn-success">></div>
-                    <input type="number" id="num_addStock" value="1" class="form-control" 
-                           style="font-size:16px;text-align:center;margin:2px;width:90%;display:none;"/>
+                    <input type="number" id="num_addStock" value="1" class="form-control"
+                           style="font-size:16px;text-align:center;margin:2px;width:90%;display:none;" />
 
                     @*style="font-size:16px;max-width:200px;text-align:center;border-radius:5px;border-width:1px;padding:4px;border-color:lightgray;"*@
 
@@ -76,7 +88,7 @@
         <tr>
             <td>
                 @*@Html.DisplayNameFor(model => model.UnitsReserved)*@
-                客戶預訂量                
+                客戶預訂量
             </td>
             <td>
                 @*@Html.DisplayFor(model => model.UnitsReserved)*@
@@ -151,7 +163,7 @@
                 <span id="txt_timeStamp" style="border:solid;border-width:1px;border-radius:2px;padding:2px;">
                     @Model.LastModifiedTime
                 </span>
-                <br/>
+                <br />
                 <span id="txt_rowVersion">
                     @if (Model.RowVersion != null)
                     {

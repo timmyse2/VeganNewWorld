@@ -83,7 +83,7 @@
 
         <dt>狀態</dt>
         <dd>
-            @if (Model.Discontinued == true)
+            @if (Model.Discontinued == true || Model.IsLocked)
             {
                 <b style="color:red;">已下架或目前暫不開放</b>
             }
@@ -103,7 +103,7 @@
         <dt>@Html.DisplayNameFor(model => model.Description)</dt>
         <dd>@Model.Description </dd>
         <dd>
-            @if (Model.UnitsInStock != null && (Model.UnitsInStock - UnitsReserved) > 0 && !Model.Discontinued)
+            @if (Model.UnitsInStock != null && (Model.UnitsInStock - UnitsReserved) > 0 && !Model.Discontinued && !Model.IsLocked)
             {
                 if (Model.UnitsReserved < 0)
                 {

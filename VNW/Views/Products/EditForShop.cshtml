@@ -19,6 +19,12 @@
             <input type="hidden" asp-for="ProductId" />
             <input type="hidden" asp-for="RowVersion" />
             @*<input type="hidden" asp-for="LastModifiedTime" />*@
+
+            <input type="hidden" asp-for="IsLocked" />
+            <div class="form-group">
+                <input type="checkbox" checked="@Model.IsLocked" disabled style="width:30px;height:30px;"/>
+                <label asp-for="IsLocked" class="control-label"></label>
+            </div>
             <div class="form-group">
                 <label class="control-label">時間戳記(測試功能, 避免同時修改衝突)</label>
                 <input asp-for="LastModifiedTime" class="form-control" readonly />
@@ -36,7 +42,7 @@
             </div>
             <div class="form-group">
                 <label asp-for="QuantityPerUnit" class="control-label"></label>
-                <input asp-for="QuantityPerUnit" class="form-control"/>
+                <input asp-for="QuantityPerUnit" class="form-control" />
                 <span asp-validation-for="QuantityPerUnit" class="text-danger"></span>
             </div>
             <div class="form-group">
@@ -45,9 +51,9 @@
                 <span asp-validation-for="UnitPrice" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label asp-for="UnitsInStock" class="control-label"></label> 
+                <label asp-for="UnitsInStock" class="control-label"></label>
                 <b class="text-danger">(不開放直接修改)</b>
-                <input asp-for="UnitsInStock" class="form-control" readonly/>
+                <input asp-for="UnitsInStock" class="form-control" readonly />
                 <span asp-validation-for="UnitsInStock" class="text-danger"></span>
             </div>
 
@@ -70,6 +76,7 @@
                 <input asp-for="ReorderLevel" class="form-control" />
                 <span asp-validation-for="ReorderLevel" class="text-danger"></span>
             </div>
+
             <div class="form-group">
                 <div class="checkbox">
                     <label>
@@ -77,6 +84,7 @@
                     </label>
                 </div>
             </div>
+
             <div class="form-group">
                 <label asp-for="Description" class="control-label"></label>
                 @*<input asp-for="Description" class="form-control" />*@
@@ -92,7 +100,15 @@
             <div class="form-group">
                 <a class="btn btn-default" asp-action="ProductDetailForShop" asp-route-id="@Model.ProductId">取消</a>
 
-                <input type="submit" value="送出變更" class="btn btn-danger" />
+                @if (Model.IsLocked)
+                {
+                    <span class="alert-danger">已被鎖定(僅授權者可以進行更改)</span>
+                }
+                else
+                {
+                    <input type="submit" value="送出變更" class="btn btn-danger" />
+                }
+
 
             </div>
         </form>

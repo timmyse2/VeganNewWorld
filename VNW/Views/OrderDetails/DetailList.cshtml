@@ -162,6 +162,11 @@ else
                     @*#@Html.DisplayFor(modelItem => item.Product.ProductId)*@
                     @*@item.OrderId
                         (@item.ProductId)*@
+
+                    @if(item.Product.IsLocked)
+                    {
+                        <br/><span class="alert-danger">被鎖定</span>
+                    }
                 </td>
                 <td>
                     @Html.DisplayFor(modelItem => item.UnitPrice)

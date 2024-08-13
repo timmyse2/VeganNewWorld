@@ -899,7 +899,7 @@ namespace VNW.Controllers
                                             pids_issue.Add(sc.Pid);
                                             pName_issue.Add(p.ProductName);
                                         }
-                                        if (p.Discontinued)
+                                        if (p.Discontinued || p.IsLocked)
                                         {
                                             //error case
                                             //TempData["td_serverWarning"] = "部份商品已下架或暫不開放";
@@ -1311,7 +1311,7 @@ namespace VNW.Controllers
                             break;
                     }
                     if(isPrecheckNG)
-                        return RedirectToAction("OrderDetailsForShop//" + id, "orderDetails");
+                        return RedirectToAction("OrderDetailsForShop", "orderdetails", new { id });
 
                     int eid = int.Parse(_ms.GetMySession("EmployeeId", HttpContext.Session));
                     qO.EmployeeId = eid; //current e.id
@@ -1333,7 +1333,7 @@ namespace VNW.Controllers
                     if (!isNewFormatFrom2024Jun4)
                     {
                         TempData["td_serverWarning"] = "Error: 此訂單為舊格式測試用, 無法[出貨], 只能[取消] ";
-                        return RedirectToAction("OrderDetailsForShop//" + id, "orderDetails");
+                        return RedirectToAction("OrderDetailsForShop", "orderdetails", new { id });
                     }
 
                     if (qOds != null)
@@ -1355,7 +1355,7 @@ namespace VNW.Controllers
                                 {
                                     TempData["td_serverWarning"] = "異常: 部份商品可能發生超賣 ";
                                     TempData["td_serverWarning"] += " (ID:" + p.ProductId + ") 商品" + p.ProductName;
-                                    return RedirectToAction("OrderDetailsForShop/" + id, "orderdetails");
+                                    return RedirectToAction("OrderDetailsForShop", "orderdetails", new { id });
                                 }
                                 p.UnitsInStock -= od.Quantity;
 
@@ -1372,18 +1372,18 @@ namespace VNW.Controllers
 
                                         //throw new InvalidOperationException("預留數量不足，無法取消預留。");
                                         //return View();
-                                        return RedirectToAction("OrderDetailsForShop/" + id, "orderdetails");
+                                        return RedirectToAction("OrderDetailsForShop", "orderdetails", new { id });
                                     }
                                 }
                                 else
                                 {
                                     //old rule: do not reduce reserved
                                 }
-                                if(p.Discontinued)
+                                if(p.Discontinued || p.IsLocked)
                                 {
                                     //error case
                                     TempData["td_serverWarning"] = "異常: 部份商品已下架或暫不開放 (" + p.ProductId + ": "+ p.ProductName + ")" ;
-                                    return RedirectToAction("OrderDetailsForShop/" + id, "orderdetails");
+                                    return RedirectToAction("OrderDetailsForShop", "orderdetails", new { id });
                                 }
 
                                 p.LastModifiedTime = DateTime.Now;//time stamp
@@ -1397,7 +1397,7 @@ namespace VNW.Controllers
                         if(totalPriceSum <= 0)
                         {
                             TempData["td_serverWarning"] = "總額小於0";
-                            return RedirectToAction("OrderDetailsForShop/" + id, "orderdetails");
+                            return RedirectToAction("OrderDetailsForShop", "orderdetails", new { id });
                         }
                     }
                     #endregion
@@ -1407,7 +1407,7 @@ namespace VNW.Controllers
                     //return Content("pass case");
                     transaction.Commit();
                     TempData["td_serverMessage"] = "已設定出貨 訂單:" + id;
-                    return RedirectToAction("OrderDetailsForShop//" + id, "orderDetails");
+                    return RedirectToAction("OrderDetailsForShop", "orderdetails", new { id });
                     //return RedirectToAction("OrderListForShop");
                 }
             }
@@ -1440,16 +1440,14 @@ namespace VNW.Controllers
                     {
                         //return Content("Order was cancelled before, it could not be cancelled again");
                         TempData["td_serverWarning"] = "訂單之前已取消，不能再次執行";
-                        //return RedirectToAction("OrderDetailsForShop", "orderdetails", id);
-                        return RedirectToAction("OrderDetailsForShop/" + id, "orderdetails");
+                        return RedirectToAction("OrderDetailsForShop", "orderdetails", new { id });
                     }
                     if (qO.Status == OrderStatusEnum.Shipped
                         || qO.Status == OrderStatusEnum.Finish)
                     {
                         //return Content("Order was cancelled before, it could not be cancelled again");
                         TempData["td_serverWarning"] = "訂單之前已出貨，不能直接取消";
-                        //return RedirectToAction("OrderDetailsForShop", "orderdetails", id);
-                        return RedirectToAction("OrderDetailsForShop/" + id, "orderdetails");
+                        return RedirectToAction("OrderDetailsForShop", "orderdetails", new { id });
                     }
 
                     //::o.detail, update product - stock, reserved
@@ -1473,6 +1471,13 @@ namespace VNW.Controllers
                             {
                                 //p.UnitsInStock += od.Quantity;
                                 
+                                if(p.IsLocked)
+                                {
+                                    //error case
+                                    TempData["td_serverWarning"] = "部份商品被管理者鎖住，暫不能取消 (" + p.ProductId + ": "+ p.ProductName + ")" ;                                  
+                                    return RedirectToAction("OrderDetailsForShop", "orderdetails", new {id});
+                                }
+
                                 if (p.UnitsReserved == null) p.UnitsReserved = 0;
 
                                 if(isNewFormatFrom2024Jun4)
@@ -1511,22 +1516,18 @@ namespace VNW.Controllers
                     //pass case
                     transaction.Commit();
                     //redirection
-
                     TempData["td_serverMessage"] = "已將訂單取消";
-                    return RedirectToAction("OrderDetailsForShop/" + id, "orderdetails");
-                    //return Content(":)  This order is Cacencelled");
-                    //return View();
+                    return RedirectToAction("OrderDetailsForShop", "orderdetails", new { id });
                 }
                 catch (DbUpdateConcurrencyException)
                 {
                     TempData["td_serverWarning"] = "發生並行處理錯誤，可能有其它用戶也正在修改資料!!";
-                    return RedirectToAction("OrderDetailsForShop/" + id, "orderdetails");
+                    return RedirectToAction("OrderDetailsForShop", "orderdetails", new { id });
                 }
                 catch (Exception ex)
                 {
                     TempData["td_serverWarning"] = "發生錯誤 " + ex.ToString();
-                    return RedirectToAction("OrderDetailsForShop/" + id, "orderdetails");
-                    //return Content("Exception :( " + ex);                    
+                    return RedirectToAction("OrderDetailsForShop", "orderdetails", new { id });                    
                 }
             }
         }
@@ -1761,6 +1762,12 @@ namespace VNW.Controllers
                         //{
                         //    return Content("error: overbooking maybe");
                         //}
+
+                        if(p.IsLocked)
+                        {
+                            TempData["td_serverWarning"] = "部份商品被鎖住，暫無法修改交易";
+                            return RedirectToAction("OrderDetailsForShop", "OrderDetails", new { id });                            
+                        }
 
                         if(AddNewItem)
                         {
