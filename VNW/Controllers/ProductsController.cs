@@ -1452,5 +1452,12 @@ namespace VNW.Controllers
             }            
         }
 
+        public IActionResult APITest()
+        {
+
+            return View();
+        }
+
+
     }
 }

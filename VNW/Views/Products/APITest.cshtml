@@ -1,0 +1,35 @@
+﻿
+@{
+    ViewData["Title"] = "APITest";
+}
+
+<h2>APITest</h2>
+
+<h4>Get Test</h4>
+<ul>
+    <li><a href="/api/pp/">Get list</a></li>
+    <li><a href="/api/pp/1/100/300" target="_blank">get list by Cat. & Prices</a></li>
+    <li><a href="/api/pp/1">get p by id</a></li>
+    <li><a href="/api/pp/girl/1">search name or id</a></li>
+</ul>
+
+<hr />
+<h4>Post Test</h4>
+<div class="btn btn-primary">POST (~= Add or Create) </div>
+
+<hr />
+<h4>Other Test</h4>
+
+<div class="btn btn-primary">PUT (update) </div>
+
+<div class="btn btn-primary">Patch (~= Update partially) </div>
+
+<div class="btn btn-danger">Delete </div>
+
+@section endJS{
+    @*<!--jquery code-->*@
+    <script type="text/javascript" src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+    <script>
+        console.log("jquery start");
+    </script>
+}
