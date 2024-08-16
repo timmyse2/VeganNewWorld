@@ -186,13 +186,15 @@
 
     @if ((string)ViewData["UserLevel"] == "1A")
     {
-        <p>    
+        <hr/>
+        <p>
             <a asp-action="Edit" asp-route-id="@Model.ProductId" class="btn btn-danger btn-lg">編輯(管理者專用*)</a><br />
-            <a asp-action="Lock" asp-route-id="@Model.ProductId" class="btn btn-warning" target="_blank">Force to lock this product (Beta)</a>
+            <div>
+                <a asp-action="Lock" asp-route-id="@Model.ProductId" class="btn btn-warning" target="_blank">強制鎖定 (Beta)</a>
+                <a asp-action="Lock" asp-route-id="@Model.ProductId" asp-route-islock="0" class="btn btn-success" target="_blank">強制解鎖 (Beta)</a>
+            </div>
         </p>
     }
-
-
 </div>
 <p />
 

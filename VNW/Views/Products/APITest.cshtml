@@ -7,10 +7,11 @@
 
 <h4>Get Test</h4>
 <ul>
-    <li><a href="/api/pp/">Get list</a></li>
-    <li><a href="/api/pp/1/100/300" target="_blank">get list by Cat. & Prices</a></li>
-    <li><a href="/api/pp/1">get p by id</a></li>
-    <li><a href="/api/pp/girl/1">search name or id</a></li>
+    <li><a href="/api/pp/" target="_blank">Get (list) withtou parameters</a></li>
+    <li><a href="/api/pp?category=1&minPrice=100&maxPrice=200" target="_blank">Get (list) with parameter from rounte</a></li>
+    <li><a href="/api/pp/1/100/300" target="_blank">Get list by Cat.|MinPrice|MaxPrice</a></li>
+    <li><a href="/api/pp/1" target="_blank">Get product by id</a></li>
+    <li><a href="/api/pp/girl/1" target="_blank">Search name or id</a></li>
 </ul>
 
 <hr />
@@ -30,6 +31,6 @@
     @*<!--jquery code-->*@
     <script type="text/javascript" src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
     <script>
-        console.log("jquery start");
+        //console.log("jquery start");
     </script>
 }

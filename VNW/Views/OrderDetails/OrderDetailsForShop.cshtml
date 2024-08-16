@@ -179,7 +179,16 @@ else
         {
             <tr>
                 <td>@(++i)</td>
-                <td> @*<a class="btn btn-default">確認 </a>*@ </td>
+                <td>
+                    @if (item.Product.IsLocked)
+                    {
+                        <div class="alert-danger">鎖定</div>
+                    }
+                    @if (item.Product.Discontinued)
+                    {
+                        <div class="alert-warning">已下架</div>
+                    }
+                </td>
                 <td>
                     @if (item.Product != null)
                     {
