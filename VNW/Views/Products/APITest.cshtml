@@ -16,14 +16,14 @@
 
 <hr />
 <h4>Post Test</h4>
-<div class="btn btn-primary">POST (~= Add or Create) </div>
+<div class="btn btn-warning" id="btn_post">POST (Add or Create) </div>
 
 <hr />
 <h4>Other Test</h4>
 
-<div class="btn btn-primary">PUT (update) </div>
+<div class="btn btn-warning" id="btn_put">PUT (Update) </div>
 
-<div class="btn btn-primary">Patch (~= Update partially) </div>
+<div class="btn btn-primary" id="btn_patch">Patch (Update partially) </div>
 
 <div class="btn btn-danger">Delete </div>
 
@@ -31,6 +31,138 @@
     @*<!--jquery code-->*@
     <script type="text/javascript" src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
     <script>
-        //console.log("jquery start");
+        console.log("jquery start");
+
+        $('#btn_post').click(function () {
+            console.log("btn post click, jquery ajax");
+
+            var surl = "";
+            //surl = "../QuickAddStock"; //ok for /39
+            //surl = "QuickAddStock";  // ok for ?id=39
+            @*surl = '@(ViewBag.currentHost+ViewBag.currentBase)/products/QuickAddStock';*@
+            surl = "/api/pp/";
+
+            var productData = {
+                //ProductId: 100,
+                ProductName: "123",
+                CategoryId: 1,
+                Description: "tbd",
+                UnitPrice: 100,
+            };
+            $.ajax({
+                url: surl,
+                type: "POST",
+                //dateType: "json",
+                contentType: "application/json",
+                data: JSON.stringify(productData),
+                success: function (data) {
+                    console.log("get data")
+                    console.log(data)
+                    if (data.result == "PASS") {
+                        console.log("PASS ");
+                        SetReady();
+                    }
+                    else {
+                        //::fail case
+                        console.log("fail case");                        
+                        SetReady();
+                    }
+                }, //success
+                error: function (xhr, ajaxOptions, thrownError) {
+                    console.log(xhr)                    
+                    SetReady();
+                }//error
+            });
+        });
+
+        $('#btn_put').click(btn_put_click);
+        function btn_put_click() {
+            console.log('btn_put_click');
+            var surl = "";
+            //surl = "/api/pp/";
+            surl = "/api/pp/399";
+            var productData = {
+                ProductId: 39,
+                ProductName: "123",
+                CategoryId: 1,
+                Description: "tbd",
+                UnitPrice: 100,
+            };
+            $.ajax({
+                url: surl,
+                type: "PUT",
+                //dateType: "json",
+                contentType: "application/json",
+                data: JSON.stringify(productData),
+                success: function (data) {
+                    console.log("get data")
+                    console.log(data)
+                    if (data.result == "PASS") {
+                        console.log("PASS ");
+                        SetReady();
+                    }
+                    else {
+                        //::fail case
+                        console.log("fail case");
+                        SetReady();
+                    }
+                }, //success
+                error: function (xhr, ajaxOptions, thrownError) {
+                    console.log(xhr)
+                    SetReady();
+                }//error
+            });
+        }
+
+
+        $('#btn_patch').click(btn_patch_click);
+        function btn_patch_click() {
+            console.log('btn_put_click');
+            var surl = "";
+            surl = "/api/pp/";
+            //surl = "/api/pp/399";
+            var productData = {
+                ProductId: 39,
+                ProductName: "123",
+                CategoryId: 1,
+                Description: "tbd",
+                UnitPrice: 100,
+            };
+            $.ajax({
+                url: surl,
+                type: "PATCH",
+                //dateType: "json",
+                contentType: "application/json",
+                data: JSON.stringify(productData),
+                success: function (data) {
+                    console.log("get data")
+                    console.log(data)
+                    if (data.result == "PASS") {
+                        console.log("PASS ");
+                        SetReady();
+                    }
+                    else {
+                        //::fail case
+                        console.log("fail case");
+                        SetReady();
+                    }
+                }, //success
+                error: function (xhr, ajaxOptions, thrownError) {
+                    console.log(xhr)
+                    SetReady();
+                }//error
+            });
+        }
+
+
+        function SetReady() {
+
+        }
+        function SetBusy() {
+
+        }
+
+        console.log("jquery end");
+
     </script>
 }

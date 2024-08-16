@@ -147,6 +147,24 @@ namespace VNW.Controllers
             return CreatedAtAction("GetProduct", new { id = product.ProductId }, product);
         }
 
+        //:: try to add Patch action
+        // Patch: api/PP
+        [HttpPatch]
+        public async Task<IActionResult> PatchProduct([FromBody] Product product)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            //_context.Products.Add(product);
+            //await _context.SaveChangesAsync();
+            string result = "ok";
+            return Ok(new {result, product});
+        }
+
+
+
         // DELETE: api/PP/5
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteProduct([FromRoute] int id)
