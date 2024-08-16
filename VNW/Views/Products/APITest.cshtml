@@ -27,6 +27,12 @@
 
 <div class="btn btn-danger">Delete </div>
 
+<hr/>
+<div id="btn_putByXhr" class="btn btn btn-primary">btn_putByXhr</div>
+
+<div id="btn_putByFetch" class="btn btn btn-success">btn_putByFetch</div>
+
+
 @section endJS{
     @*<!--jquery code-->*@
     <script type="text/javascript" src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
@@ -55,9 +61,18 @@
                 //dateType: "json",
                 contentType: "application/json",
                 data: JSON.stringify(productData),
-                success: function (data) {
+                success: function (data, textStatus, xhr) {
                     console.log("get data")
                     console.log(data)
+
+                    console.log('textStatus ' + textStatus);
+                    console.log('xhr.status ' + xhr.status);
+
+                    if (xhr.status == 201) {
+                        var locationUrl = xhr.getResponseHeader('Location');
+                        console.log('New resource created at: ' + locationUrl);
+                    }
+
                     if (data.result == "PASS") {
                         console.log("PASS ");
                         SetReady();
@@ -90,10 +105,9 @@
             };
             $.ajax({
                 url: surl,
-                type: "PUT",
-                //dateType: "json",
-                contentType: "application/json",
-                data: JSON.stringify(productData),
+                type: "PUT",                
+                contentType: "application/json",                
+                data: JSON.stringify(productData),                
                 success: function (data) {
                     console.log("get data")
                     console.log(data)
@@ -119,14 +133,16 @@
         function btn_patch_click() {
             console.log('btn_put_click');
             var surl = "";
-            surl = "/api/pp/";
-            //surl = "/api/pp/399";
+            //surl = "/api/pp/"; //without parameter
+            surl = "/api/pp/39"; //with parameter {id}
             var productData = {
                 ProductId: 39,
-                ProductName: "123",
+                //ProductName: "123",
                 CategoryId: 1,
-                Description: "tbd",
-                UnitPrice: 100,
+                ReorderLevel: 999
+                //Description: "tbd",
+                //UnitPrice: 100,
+                
             };
             $.ajax({
                 url: surl,
@@ -156,13 +172,116 @@
 
 
         function SetReady() {
-
+            console.log("...ready");
         }
         function SetBusy() {
-
+            console.log("...busy");
         }
 
         console.log("jquery end");
+
+
+        var btn_putByFetch = document.getElementById('btn_putByFetch');
+
+        btn_putByFetch.addEventListener('click', function () {
+
+            var surl = '/api/pp/39';
+            //var surl = '/api/pp';
+            var productData = {
+                ProductId: 399,
+                //ProductName: "123",
+                CategoryId: 1,
+                ReorderLevel: 999
+                //Description: "tbd",
+                //UnitPrice: 100,
+
+            };
+            fetch(surl, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json'
+                    //'Content-Type': 'application/x-www-form-urlencoded'
+                },
+                body: JSON.stringify(productData)
+            })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok ' + response.statusText);                        
+                    }
+                    console.log('fetch response');
+                    return response.json();
+                })
+                .then(data => {
+                    console.log('fetch data');
+                    console.log(data);                   
+                    
+                })
+                .catch(error => {
+                    console.error('Fetch operation failed:', error);                    
+                });
+            //:: notice: waiting for data response
+
+        });
+
+
+        var btn_putByXhr = document.getElementById('btn_putByXhr');
+        btn_putByXhr.addEventListener('click', function () {
+            btn_putByXhr_click();
+        });
+
+        function btn_putByXhr_click() {
+            //::call api
+            var _isPass = false;
+
+            var surl = '/api/pp/39';
+            console.log('call api ' + surl);
+
+            //var postData = 'id=' + encodeURIComponent(39);
+            //console.log(' postData: ' + postData);//debug only
+
+            var productData = {
+                ProductId: 399,
+                ProductName: "123",
+                CategoryId: 1,
+                ReorderLevel: 999,
+                Description: "tbd",
+                UnitPrice: 100,
+            };
+
+            var xhr = new XMLHttpRequest();
+            xhr.open('PUT', surl, true);
+            xhr.setRequestHeader("Content-Type", "application/json"); //::pass case
+            //xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+            //xhr.setRequestHeader("contentType", "application/json"); //NG case
+            
+            xhr.onload = function () {
+                console.log('xhr on load ' + xhr.status);
+                if (xhr.status >= 200 && xhr.status < 300) {
+                    var data = JSON.parse(xhr.responseText);
+                    console.log(xhr.responseText);
+                    if (data.result == "PASS") {
+                        console.log('PASS');
+                        _isPass = true;
+                        //SetReady();
+                        return _isPass;
+                    }
+                    else {
+                        _isPass = false;
+                        return _isPass;
+                    }
+                }
+            };
+            xhr.onerror = function () {
+                //console.log('xhr on error');
+                console.error('Request failed');
+            };
+
+            console.log('before send data');            
+            xhr.send(JSON.stringify(productData));
+            //xhr.send(productData);
+            //xhr.send();
+            console.log('after send data');
+        }
 
     </script>
 }

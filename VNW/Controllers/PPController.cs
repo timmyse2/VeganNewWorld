@@ -22,16 +22,16 @@ namespace VNW.Controllers
             _context = context;
         }
 
-        //// GET: api/PP
-        //[HttpGet]
-        ////public IEnumerable<Product> GetProducts()
-        //public async Task<IEnumerable<Product>> GetProducts()
-        //{
-        //    var ps = await
-        //    _context.Products.Take(20).ToListAsync();
-        //    //return _context.Products;
-        //    return ps;
-        //}
+        // GET: api/PP
+        [HttpGet]
+        //public IEnumerable<Product> GetProducts()
+        public async Task<IEnumerable<Product>> GetProducts()
+        {
+            var ps = await
+            _context.Products.Take(20).ToListAsync();
+            //return _context.Products;
+            return ps;
+        }
 
         //GET: api/PP/5
         [HttpGet("{id}")]
@@ -52,13 +52,13 @@ namespace VNW.Controllers
             return Ok(product);
         }
 
-        [HttpGet]
-        public IActionResult GetProducts([FromQuery] string category = null, [FromQuery] int? minPrice = null, [FromQuery] int? maxPrice = null)
-        {
-            //var products = GetFilteredProducts(category, minPrice, maxPrice);
-            //return Ok(products);
-            return Ok(new { category, minPrice, maxPrice});
-        }
+        //[HttpGet]
+        //public IActionResult GetProducts([FromQuery] string category = null, [FromQuery] int? minPrice = null, [FromQuery] int? maxPrice = null)
+        //{
+        //    //var products = GetFilteredProducts(category, minPrice, maxPrice);
+        //    //return Ok(products);
+        //    return Ok(new { category, minPrice, maxPrice });
+        //}
 
         // GET: api/PP/ABC/1/100
         [HttpGet("{category}/{minPrice}/{maxPrice}")]
@@ -66,7 +66,7 @@ namespace VNW.Controllers
         //[HttpGet]
         public async Task<IActionResult> Cate(int category, decimal? minPrice, decimal? maxPrice)
         {
-            var ps = _context.Products.Where(p => 
+            var ps = _context.Products.Where(p =>
                 p.UnitPrice >= minPrice && p.UnitPrice <= maxPrice && p.CategoryId == category);
             int ps_count = ps.Count();
 
@@ -106,6 +106,9 @@ namespace VNW.Controllers
                 return BadRequest(ModelState);
             }
 
+            string result = "PASS";   
+            return Ok(new { result, id, product });
+
             if (id != product.ProductId)
             {
                 return BadRequest();
@@ -141,29 +144,48 @@ namespace VNW.Controllers
                 return BadRequest(ModelState);
             }
 
-            _context.Products.Add(product);
-            await _context.SaveChangesAsync();
-
-            return CreatedAtAction("GetProduct", new { id = product.ProductId }, product);
+            //_context.Products.Add(product);
+            //await _context.SaveChangesAsync();
+            //string result = "PASS";
+            return CreatedAtAction("GetProduct", new {id = product.ProductId }, product);
+            //return Ok(new { result});
         }
 
-        //:: try to add Patch action
-        // Patch: api/PP
-        [HttpPatch]
-        public async Task<IActionResult> PatchProduct([FromBody] Product product)
+        //:: try to add Patch action, updated from Put
+        // Patch: api/PP/8
+        [HttpPatch("{id}")]
+        public async Task<IActionResult> PatchProduct([FromRoute] int id, [FromBody] Product product)
         {
+            string result = "";
+            string detail = "";
+
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
 
-            //_context.Products.Add(product);
-            //await _context.SaveChangesAsync();
-            string result = "ok";
-            return Ok(new {result, product});
+            if (id != product.ProductId)
+            {
+                return BadRequest();
+            }
+
+            var p = await _context.Products.FindAsync(id);
+            if(p == null)
+            {
+                return NotFound();
+            }
+            //p.CategoryId = product.CategoryId;
+            p.ReorderLevel = product.ReorderLevel;
+            p.LastModifiedTime = DateTime.Now;
+
+            _context.Entry(p).State = EntityState.Modified;
+            //_context.Update(p);
+            await _context.SaveChangesAsync();
+
+            result = "PASS";
+            detail = "";
+            return Ok(new {result, detail , data_updated = p});
         }
-
-
 
         // DELETE: api/PP/5
         [HttpDelete("{id}")]
