@@ -1454,7 +1454,7 @@ namespace VNW.Controllers
 
         public IActionResult APITest()
         {
-
+            ViewData["currentPath"] = $"{HttpContext.Request.Scheme}://{HttpContext.Request.Host}{HttpContext.Request.PathBase}";
             return View();
         }
 
