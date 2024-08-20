@@ -25,12 +25,15 @@ namespace VNW.Controllers
         // GET: api/PP
         [HttpGet]
         //public IEnumerable<Product> GetProducts()
-        public async Task<IEnumerable<Product>> GetProducts()
+        //public async Task<IEnumerable<Product>> GetProducts()
+        public async Task<IActionResult> GetProducts()
         {
-            var ps = await
-            _context.Products.Take(20).ToListAsync();
+            var query = _context.Products.Take(10);
+            int count = await query.CountAsync();
+            var products = await query.ToListAsync();
             //return _context.Products;
-            return ps;
+            //return ps;
+            return Ok(new {result="PASS", count, products});
         }
 
         //GET: api/PP/5
@@ -48,10 +51,9 @@ namespace VNW.Controllers
             {
                 return NotFound();
             }
-
-            return Ok(product);
+            //return Ok(product);
+            return Ok(new { result = "PASS", product });
         }
-
         //[HttpGet]
         //public IActionResult GetProducts([FromQuery] string category = null, [FromQuery] int? minPrice = null, [FromQuery] int? maxPrice = null)
         //{
@@ -60,7 +62,7 @@ namespace VNW.Controllers
         //    return Ok(new { category, minPrice, maxPrice });
         //}
 
-        // GET: api/PP/ABC/1/100
+            // GET: api/PP/ABC/1/100
         [HttpGet("{category}/{minPrice}/{maxPrice}")]
         //[HttpGet("{category}")]
         //[HttpGet]
@@ -202,8 +204,8 @@ namespace VNW.Controllers
                 return NotFound();
             }
 
-            _context.Products.Remove(product);
-            await _context.SaveChangesAsync();
+            //_context.Products.Remove(product);
+            //await _context.SaveChangesAsync();
 
             return Ok(product);
         }

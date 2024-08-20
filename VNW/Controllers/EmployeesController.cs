@@ -12,6 +12,7 @@ using System.Text; //for encoding
 using System.Data.SqlClient; //::for sql
 using System.Diagnostics; //::for debug
 using Microsoft.Extensions.Configuration; //for IConfiguration
+using VNW.Controllers;
 
 namespace VNW.Controllers
 {
@@ -248,6 +249,12 @@ namespace VNW.Controllers
             {
                 return Content("no matched data");
             }
+
+            string Captcha = VNW.Controllers.CustomersController.GenerateCaptcha();
+            _ms.SetMySession("Captcha", Captcha, HttpContext.Session);
+            Captcha = VNW.Controllers.CustomersController.EncodeCaptcha(Captcha);
+            ViewData["Captcha"] = Captcha;
+            ViewData["currentPath"] = $"{HttpContext.Request.Scheme}://{HttpContext.Request.Host}{HttpContext.Request.PathBase}";
             return View(emp);
         }
 
@@ -256,6 +263,9 @@ namespace VNW.Controllers
         public async Task<IActionResult> EditPassword(int? id, string OldPassword, string NewPassword, string NewPassword_Confirm, string Captcha)
         {
             var emp = await _context.Employees.Where(e => e.Id == id).FirstOrDefaultAsync();
+
+            string Captcha_expected = _ms.GetMySession("Captcha", HttpContext.Session);            
+            ViewData["Captcha"] = VNW.Controllers.CustomersController.EncodeCaptcha(Captcha_expected);
             if (emp == null)
             {
                 //return Content("no matched data");
@@ -317,7 +327,7 @@ namespace VNW.Controllers
                 TempData["td_serverWarning"] = "驗證碼長度錯誤";
                 return View(emp);
             }
-            if (Captcha != "1314")
+            if (Captcha != Captcha_expected)
             {
                 //error
                 TempData["td_serverWarning"] = "驗證碼不符";
