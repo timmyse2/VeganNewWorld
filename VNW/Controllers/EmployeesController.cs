@@ -405,33 +405,26 @@ namespace VNW.Controllers
                 return Json(new { Result, Detail });
             }
 
-            //::retry over 3 times
-            int retryCount = 0; //from session
-            string sRtryCount = _ms.GetMySession("retryCount", HttpContext.Session);
-            if (sRtryCount == null)            
-                retryCount = 0;            
-            else            
-                retryCount = int.Parse(sRtryCount);
-            if (retryCount >= 3)
-            {
-                Result = "Fail"; Detail = "Halt! Retry over 3 times";                
-                return Json(new { Result, Detail, retryCount });
-            }
-            retryCount++;
-            _ms.SetMySession("retryCount", retryCount.ToString(), HttpContext.Session);
-
             if (OldPassword == null || OldPassword.Length <= 3)
             {
                 Result = "Fail"; Detail = "PWD is empty or wrong";
-                return Json(new { Result, Detail, retryCount });
+                return Json(new { Result, Detail});
             }
 
             var emp = await _context.Employees.Where(e => e.Id == id).FirstOrDefaultAsync();
             if (emp == null)
             {
                 Result = "Fail"; Detail = "No matched data";
-                return Json(new { Result, Detail, retryCount });
+                return Json(new { Result, Detail});
             }
+
+            //::retry over 3 times
+            int retryCount = 0; //from session
+            string sRtryCount = _ms.GetMySession("retryCount", HttpContext.Session);
+            if (sRtryCount == null)
+                retryCount = 0;
+            else
+                retryCount = int.Parse(sRtryCount);
 
             //string secretKey = "vnw2024";
             //HMACSHA1 hmac = new HMACSHA1(Encoding.UTF8.GetBytes(secretKey));
@@ -446,9 +439,17 @@ namespace VNW.Controllers
                 //::reset session
                 HttpContext.Session.Remove("retryCount");
                 retryCount = 0;
-
                 return Json(new { Result, Detail, retryCount });
             }
+
+            //::loose rule, retry count only accumulate if db value is mismatched
+            if (retryCount >= 3)
+            {
+                Result = "Fail"; Detail = "Halt! Retry over 3 times";
+                return Json(new { Result, Detail, retryCount });
+            }
+            retryCount++;
+            _ms.SetMySession("retryCount", retryCount.ToString(), HttpContext.Session);
 
             Result = "Fail"; Detail = "pwd is mismatched";
             return Json(new { Result, Detail, retryCount });

@@ -449,5 +449,25 @@ namespace VNW.Controllers
 
         }
 
+
+        public async Task<IActionResult> CheckCaptcha(string Captcha)
+        {
+            string Result = "";            
+            await Task.Run(() =>
+            {
+                try
+                {
+                    if(Captcha == _ms.GetMySession("Captcha", HttpContext.Session))                    
+                        Result = "PASS";                    
+                    else
+                        Result = "FAIL";
+                }
+                catch
+                {
+                    Result = "Error";
+                }
+            });
+            return Json(new { Result });
+        }
     }
 }
