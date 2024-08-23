@@ -199,11 +199,47 @@ namespace VNW.Controllers
             //ViewData["ImageBase64"] = base64Image;
             #endregion
 
+            string retryLockTime = _ms.GetMySession("retryLockTime", HttpContext.Session);
+            if (retryLockTime != null)
+            {
+                DateTime dt_retryLockTime  = Convert.ToDateTime(retryLockTime);
+                TimeSpan ts = DateTime.Now - dt_retryLockTime;
+                int LimitSec = 180;
+                if (ts.TotalSeconds > LimitSec)
+                {
+                    //::out 3 min then release
+                    ViewData["retryLock"] = null;
+                    HttpContext.Session.Remove("retryCount");
+                }
+                else
+                {
+                    //::in 3 min then hold
+                    ViewData["retryLock"] = "Wait: " + (int)(LimitSec - ts.TotalSeconds) + " sec";
+                }
+            }
+            else
+            {
+                //release
+                ViewData["retryLock"] = null;
+                HttpContext.Session.Remove("retryCount");
+            }
+
             return View();
         }
         [HttpPost]
         public async Task<IActionResult> Login(string account, string password, string pin, string role)
         {
+            int retryCount = 0;
+            string sRtryCount = _ms.GetMySession("retryCount", HttpContext.Session);
+            if (sRtryCount != null)
+                retryCount = int.Parse(sRtryCount);
+
+            if (retryCount >= 3)
+            {
+                string retryLockTime = DateTime.Now.ToString();
+                _ms.SetMySession("retryLockTime", retryLockTime, HttpContext.Session);
+            }
+
             //::precheck
             int errorCode = 0;
             if (account == null)
@@ -211,7 +247,7 @@ namespace VNW.Controllers
                 //return NotFound();
                 //return Content("Account Id is null");
                 errorCode = 101;
-                return Json(new { result = "FAIL", detail = "Id is null", errorCode });
+                return Json(new { result = "FAIL", detail = "Id is null", errorCode, retryCount });
             }           
 
             //::check account id and password
@@ -222,7 +258,9 @@ namespace VNW.Controllers
                 //return NotFound();
                 //return Content("No matched data");
                 errorCode = 102;
-                return Json(new { result = "FAIL", detail = "no matched data", errorCode });
+                retryCount++;
+                _ms.SetMySession("retryCount", retryCount.ToString(), HttpContext.Session);
+                return Json(new { result = "FAIL", detail = "no matched data", errorCode, retryCount });
             }
             else
             {
@@ -231,18 +269,17 @@ namespace VNW.Controllers
                 {
                     //account = customer.CustomerId;
                     errorCode = 102;
-                    return Json(new { result = "NG", detail = "upper case or lower case is mismatched", errorCode });
+                    return Json(new { result = "NG", detail = "upper case or lower case is mismatched", errorCode, retryCount });
                 }
                 //<><><>
 
                 try
                 {
-                    string Captcha = "1314";
-                    Captcha = _ms.GetMySession("Captcha", HttpContext.Session);
+                    string Captcha = _ms.GetMySession("Captcha", HttpContext.Session);
                     if (pin != Captcha)
                     {
                         errorCode = 103;
-                        return Json(new { result = "FAIL", detail = "pin or captcha is mismatched", errorCode });
+                        return Json(new { result = "FAIL", detail = "pin or captcha is mismatched", errorCode, retryCount });
                     }
 
                     if (customer.Salt == null)
@@ -251,14 +288,16 @@ namespace VNW.Controllers
                         EmployeesController.PasswordSalt(password, customer.Salt);
                     if (inputPasswordEncoded != customer.PasswordEncoded) //password
                     {
+                        retryCount++;
+                        _ms.SetMySession("retryCount", retryCount.ToString(), HttpContext.Session);
                         errorCode = 104;
-                        return Json(new { result = "FAIL", detail = "password is mismatched", errorCode });
+                        return Json(new { result = "FAIL", detail = "password is mismatched", errorCode, retryCount });
                     }
                 }
                 catch
                 {
                     errorCode = 105;
-                    return Json(new { result = "Error", detail = "tbc", errorCode });
+                    return Json(new { result = "Error", detail = "tbc", errorCode, retryCount });
                 }
 
                 ViewData["IsUserLogin"] = "YES";
@@ -271,8 +310,9 @@ namespace VNW.Controllers
                 _ms.SetMySession("UserLevel", "3C", HttpContext.Session);
                 //:: 1A(admin) 2B(business vender) 3C(customer)
                 HttpContext.Session.Remove("Captcha");
+                HttpContext.Session.Remove("retryCount");
 
-                return Json(new { result = "PASS", detail = "matched", errorCode });
+                return Json(new { result = "PASS", detail = "matched", errorCode, retryCount });
             }
             //::pass case
             //return View();

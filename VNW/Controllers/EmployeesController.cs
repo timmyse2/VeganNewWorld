@@ -527,6 +527,15 @@ namespace VNW.Controllers
             string result = "", detail = "";
             int errorCode = 0;
 
+            int retryCount = 0;
+            string sRtryCount = _ms.GetMySession("retryCount", HttpContext.Session);
+            if (sRtryCount != null)
+                retryCount = int.Parse(sRtryCount);
+            if(retryCount > 3)
+            {
+                return Json(new { result, detail, shopAccount = ShopAccount, errorCode, retryCount });
+            }
+
             await Task.Run(() =>
             {
 
@@ -627,8 +636,23 @@ namespace VNW.Controllers
                     }
                 }
             });
+
+            if(result != "PASS")
+            {
+                retryCount++;
+                _ms.SetMySession("retryCount", retryCount.ToString(), HttpContext.Session);
+                if(retryCount > 3)
+                {
+                    string retryLockTime = DateTime.Now.ToString();
+                    _ms.SetMySession("retryLockTime", retryLockTime, HttpContext.Session);
+                }
+            }
+            else
+            {
+                HttpContext.Session.Remove("retryCount");
+            }
             //return Json(new { result = "PASS", detail = "shop side login at " + DateTime.Now, shopAccount = ShopAccount });
-            return Json(new { result, detail, shopAccount = ShopAccount, errorCode });
+            return Json(new { result, detail, shopAccount = ShopAccount, errorCode, retryCount });
         }
 
         public IActionResult SqlTest()

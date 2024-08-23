@@ -15,6 +15,13 @@
     @TempData["td_server"]
 </div>
 
+@if (ViewData["retryLock"] != null)
+{
+    <h3 class="alert-danger">因重試已超過限制，無法立即再登入 (待幾分鐘後再試) @ViewData["retryLock"] </h3>
+    return;
+}
+
+
 <form asp-action="Login" method="post" id="fromLogin">
     <div asp-validation-summary="ModelOnly" class="text-danger"></div>
     <div class="form-group">
@@ -66,7 +73,15 @@
 
 <div class="form-group">
     @*!NOTICE: do not put htem in the form *@
-    <button class="btn btn-info" id="btn_test">驗證並登入</button>
+
+    @if (ViewData["retryLock"] == null)
+    {
+        <button class="btn btn-info" id="btn_test">驗證並登入</button>
+    }
+    else
+    {
+        <span class="alert-danger">因重試已超過限制，無法立即再登入 (待幾分鐘後再試)</span>
+    }
     <button class="btn btn-primary" id="btn_login_ajax" style="display:none;">登入</button>
 </div>
 
@@ -81,7 +96,6 @@
     //    string imageSrc = null;
     //    //...
     //    return imageSrc;
-    //}
 }
 
 
@@ -93,8 +107,6 @@
         var isPass = false;
         $("#btn_test").click(btn_test_click);
         $("#btn_login_ajax").hide();
-
-
         var msg = "";
 
         function checkData() {
@@ -175,7 +187,7 @@
             $("#all_validate").text("");
             checkData();
             //isPass = true;
-            
+
             if (isPass) { //precheck pass
                 //ajax
                 SetBusy();
@@ -237,12 +249,19 @@
                                             $("#password").focus();
                                             break;
                                     }
-
-                                    $("#all_validate").text(failMessage);
+                                    //$("#all_validate").text(failMessage);
                                     $('#warning_server').text("");
                                 }
                                 $("#btn_login_ajax").hide();
-                                $("#btn_test").show();
+
+                                if (datar.retryCount > 3) {
+                                    failMessage += ' 重試超過3次, 無法立即再試!';
+                                    $("#btn_test").hide();
+                                }
+                                else
+                                    $("#btn_test").show();
+                                $("#all_validate").text(failMessage);
+
                                 SetReady();
 
                             }, //success
@@ -304,11 +323,17 @@
                                                 break;
                                         }
 
-                                        $("#all_validate").text(failMessage);
+                                        //$("#all_validate").text(failMessage);
                                         //$("#all_validate").text(failMessage + datar.detail);
                                     }
                                     $("#btn_login_ajax").hide();
-                                    $("#btn_test").show();
+                                    if (datar.retryCount > 3) {
+                                        failMessage += ' 重試超過3次, 無法立即再試!';
+                                        $("#btn_test").hide();
+                                    }
+                                    else
+                                        $("#btn_test").show();
+                                    $("#all_validate").text(failMessage);
                                     SetReady();
                                 }, //success
                                 error: function (xhr, ajaxOptions, thrownError) {
@@ -355,7 +380,6 @@
         }
 
         $("#btn_ChangeCaptcha").click(function () {
-
             var surl = "UpdateCaptcha";
             //window.location.href = surl;
             SetBusy();
@@ -364,7 +388,7 @@
                 $.ajax({
                     url: surl,
                     type: "POST",
-                    dateType: "json",                    
+                    dateType: "json",
                     success: function (data) {
                         console.log("receive datar")
                         //console.log(datar)
