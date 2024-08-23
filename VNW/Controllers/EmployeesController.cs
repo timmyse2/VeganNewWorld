@@ -244,6 +244,21 @@ namespace VNW.Controllers
                 return RedirectToAction("Login", "Customers");
             }
 
+            if(false)
+            {
+                int retryCount = 0;
+                string sRtryCount = _ms.GetMySession("retryCount", HttpContext.Session);
+                if (sRtryCount == null)
+                    retryCount = 0;
+                else
+                    retryCount = int.Parse(sRtryCount);
+                if (retryCount >= 3)
+                {
+                    TempData["td_serverWarning"] = "舊密碼驗證不過，待10~15鐘後才可再試!";
+                    return View();
+                }
+            }
+
             var emp = await _context.Employees.Where(e => e.Id  == id).FirstOrDefaultAsync();
             if (emp == null)
             {
