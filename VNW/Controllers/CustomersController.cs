@@ -234,12 +234,6 @@ namespace VNW.Controllers
             if (sRtryCount != null)
                 retryCount = int.Parse(sRtryCount);
 
-            if (retryCount >= 3)
-            {
-                string retryLockTime = DateTime.Now.ToString();
-                _ms.SetMySession("retryLockTime", retryLockTime, HttpContext.Session);
-            }
-
             //::precheck
             int errorCode = 0;
             if (account == null)
@@ -260,6 +254,8 @@ namespace VNW.Controllers
                 errorCode = 102;
                 retryCount++;
                 _ms.SetMySession("retryCount", retryCount.ToString(), HttpContext.Session);
+                if (retryCount > 3)
+                    _ms.SetMySession("retryLockTime", DateTime.Now.ToString(), HttpContext.Session);
                 return Json(new { result = "FAIL", detail = "no matched data", errorCode, retryCount });
             }
             else
@@ -278,6 +274,10 @@ namespace VNW.Controllers
                     string Captcha = _ms.GetMySession("Captcha", HttpContext.Session);
                     if (pin != Captcha)
                     {
+                        retryCount++;
+                        _ms.SetMySession("retryCount", retryCount.ToString(), HttpContext.Session);
+                        if (retryCount > 3)
+                            _ms.SetMySession("retryLockTime", DateTime.Now.ToString(), HttpContext.Session);
                         errorCode = 103;
                         return Json(new { result = "FAIL", detail = "pin or captcha is mismatched", errorCode, retryCount });
                     }
@@ -290,6 +290,8 @@ namespace VNW.Controllers
                     {
                         retryCount++;
                         _ms.SetMySession("retryCount", retryCount.ToString(), HttpContext.Session);
+                        if (retryCount > 3)
+                            _ms.SetMySession("retryLockTime", DateTime.Now.ToString(), HttpContext.Session);
                         errorCode = 104;
                         return Json(new { result = "FAIL", detail = "password is mismatched", errorCode, retryCount });
                     }
@@ -309,8 +311,11 @@ namespace VNW.Controllers
                 _ms.SetMySession("UserAccount", customer.CustomerId, HttpContext.Session);
                 _ms.SetMySession("UserLevel", "3C", HttpContext.Session);
                 //:: 1A(admin) 2B(business vender) 3C(customer)
+
+                //::remove flags
                 HttpContext.Session.Remove("Captcha");
                 HttpContext.Session.Remove("retryCount");
+                HttpContext.Session.Remove("retryLockTime");                
 
                 return Json(new { result = "PASS", detail = "matched", errorCode, retryCount });
             }

@@ -533,12 +533,12 @@ namespace VNW.Controllers
                 retryCount = int.Parse(sRtryCount);
             if(retryCount > 3)
             {
+                result = "fail"; detail = "retry count over limit";
                 return Json(new { result, detail, shopAccount = ShopAccount, errorCode, retryCount });
             }
 
             await Task.Run(() =>
             {
-
                 string Captcha = _ms.GetMySession("Captcha", HttpContext.Session);
                 if (Captcha == null)
                     Captcha = "null";
