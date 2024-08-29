@@ -23,6 +23,7 @@ namespace VNW
         }
 
         public IConfiguration Configuration { get; }
+        string CorsPolicyName = "_CorsPolicy";
 
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
@@ -34,12 +35,12 @@ namespace VNW
                 options.MinimumSameSitePolicy = SameSiteMode.None;
             });
 
-            #region ::Connect string of Db WContext
+            #region ::Connect string of Db WContext <Timmy>
             services.AddDbContext<VeganNewWorldContext>(op => op.UseSqlServer(
                 Configuration.GetConnectionString("VeganNewWorldContext")));
             #endregion
 
-            #region ::set session
+            #region ::set session <Timmy>
             services.AddDistributedMemoryCache();
             services.AddSession(
                 options =>
@@ -49,6 +50,29 @@ namespace VNW
                     options.IdleTimeout = TimeSpan.FromMinutes(15); //15 min
                     options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
                 });
+            #endregion
+
+            #region CORS <Timmy>
+            services.AddCors(options => {
+                options.AddPolicy(CorsPolicyName, policy =>
+                {
+                    ////::for all
+                    //policy.AllowAnyOrigin()
+                    //.AllowAnyHeader()
+                    //.AllowAnyMethod()
+                    //;
+                    //::for webapi_reader in IIS
+                    policy.WithOrigins("http://127.0.0.1").AllowAnyHeader().AllowAnyMethod().AllowCredentials();                    
+                    //::for Azure
+                    policy.WithOrigins("https://apird2024.azurewebsites.net").AllowAnyHeader().AllowAnyMethod().AllowCredentials();
+                    //::for IIS local
+                    policy.WithOrigins("https://192.168.0.102").AllowAnyHeader().AllowAnyMethod().AllowCredentials();
+                    //::for IIS internet IP
+                    policy.WithOrigins("https://203.67.107.76").AllowAnyHeader().AllowAnyMethod().AllowCredentials();
+                    //::for IIS internet (NoIP)
+                    policy.WithOrigins("https://vnw.ddns.net").AllowAnyHeader().AllowAnyMethod().AllowCredentials();
+                });
+            });
             #endregion
 
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
@@ -71,7 +95,7 @@ namespace VNW
             app.UseStaticFiles();
             app.UseCookiePolicy();
 
-            #region ::use session            
+            #region ::use session <Timmy>
             app.UseSession();
             app.Use(async (context, next) =>
             {
