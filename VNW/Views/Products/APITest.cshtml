@@ -20,6 +20,11 @@
 </ul>
 
 <hr />
+<h4>Debug Message for Post|Put|Patch|...</h4>
+<p>
+    <textarea id="div_testResult" style="border:solid;border-width:1px;border-radius:4px;padding:4px;" class="form-control" readonly rows="5">--result-- @ViewBag.currentPath</textarea>
+</p>
+
 <h4>Post Test</h4>
 <div class="btn btn-warning" id="btn_post">POST (Add or Create) </div>
 
@@ -36,9 +41,7 @@
 <div id="btn_putByXhr" class="btn btn btn-primary">btn_putByXhr</div>
 
 <div id="btn_putByFetch" class="btn btn btn-success">btn_putByFetch</div>
-<p>
-    <textarea id="div_testResult" style="border:solid;border-width:1px;border-radius:4px;padding:4px;" class="form-control" readonly rows="5">--result-- @ViewBag.currentPath</textarea>
-</p>
+
 <hr />
 
 @section endJS{
@@ -92,11 +95,13 @@
                         console.log("fail case");
                         SetReady();
                     }
+                    div_testResult.focus();
                 }, //success
                 error: function (xhr, ajaxOptions, thrownError) {
                     console.log(xhr)
                     $('#div_testResult').text('error');
                     SetReady();
+                    div_testResult.focus();
                 }//error
             });
         });
@@ -133,11 +138,13 @@
                         console.log("fail case");
                         SetReady();
                     }
+                    div_testResult.focus();
                 }, //success
                 error: function (xhr, ajaxOptions, thrownError) {
                     console.log(xhr)
                     SetReady();
                     $('#div_testResult').text('error');
+                    div_testResult.focus();
                 }//error
             });
         }
@@ -179,12 +186,14 @@
                         //::fail case
                         console.log("fail case");
                         SetReady();
-                    }                    
+                    }       
+                    div_testResult.focus();
                 }, //success
                 error: function (xhr, ajaxOptions, thrownError) {
                     console.log(xhr)
                     SetReady();
                     $('#div_testResult').text(' error ' + xhr.status);
+                    div_testResult.focus();
                 }//error
             });
         }
@@ -242,6 +251,7 @@
                     //div_testResult.textContent += JSON.parse(data);
                     //div_testResult.textContent += data;
                     div_testResult.textContent += JSON.stringify(data);
+                    div_testResult.focus();
                 })
                 .catch(error => {
                     console.error('Fetch operation failed:', error);
@@ -290,11 +300,13 @@
                         console.log('PASS');
                         _isPass = true;
                         SetReady();
+                        div_testResult.focus();
                         return _isPass;
                     }
                     else {
                         _isPass = false;
                         SetReady();
+                        div_testResult.focus();;
                         return _isPass;
                     }
                 }
@@ -341,6 +353,7 @@
                     console.log('fetch data');
                     console.log(data);
                     div_testResult.textContent += " |data " + JSON.stringify(data);
+                    div_testResult.focus();
                 })
                 .catch(error => {
                     console.error('Fetch operation failed:', error);

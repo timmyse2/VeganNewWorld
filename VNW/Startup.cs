@@ -57,10 +57,7 @@ namespace VNW
                 options.AddPolicy(CorsPolicyName, policy =>
                 {
                     ////::for all
-                    //policy.AllowAnyOrigin()
-                    //.AllowAnyHeader()
-                    //.AllowAnyMethod()
-                    //;
+                    //policy.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod();                    
                     //::for webapi_reader in IIS
                     policy.WithOrigins("http://127.0.0.1").AllowAnyHeader().AllowAnyMethod().AllowCredentials();                    
                     //::for Azure
