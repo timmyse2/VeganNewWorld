@@ -49,10 +49,12 @@
 
                     @*<li><a asp-area="" asp-controller="Home" asp-action="About" class="vnwt">關於...</a></li>*@
                     @*<li><a asp-area="" asp-controller="Home" asp-action="Contact" class="vnwt">聯絡單位</a></li>*@
+                    <li><a class="vnwt">@ViewBag.ShopAccount <img src="~/images/employee/Illyasviel.png" style="width:20px;border-radius:20px;" /></a></li>
                 </ul>
             </div>
-        </div>
-    </nav>
+            
+        </div>        
+    </nav>   
 
     <partial name="_CookieConsentPartial" />
 
@@ -60,7 +62,7 @@
         @RenderBody()
         <hr />
         <footer>
-            <p>&copy; 2024.Aug.26 - Vegan New World 新世界草食系</p>
+            <p>&copy; 2024.Aug.26 - Vegan New World 新世界草食系</p>            
         </footer>
     </div>
 

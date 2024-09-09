@@ -4,6 +4,10 @@
     ViewData["Title"] = "員工個人資料";
 }
 
+<div>
+    @ViewBag.ShopAccount 歡迎您
+</div>
+
 <h2>@ViewData["Title"]</h2>
 
 
@@ -98,6 +102,10 @@
                                     @e.Name (分機 @e.Extension)
                                 </a>
                             </div>
+                            @if (ViewBag.ShopAccount == Model.Email)//if (e.ReportsTo == Model.Id)
+                            {
+                                <a class="btn btn-primary" asp-action="Edit" asp-route-id="@e.Id">修改下屬基本資料</a>
+                            }
                         }
                     }
                 </td>
@@ -110,7 +118,22 @@
     <a asp-action="Index" class="btn btn-info">回到員工清單</a>
     @if (ViewBag.ShopAccount == Model.Email)
     {
-        <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary">修改基本資料</a>
-        <a asp-action="EditPassword" asp-route-id="@Model.Id" class="btn btn-danger">修改密碼</a>
+        <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary">修改個人基本資料</a>
+        <a asp-action="EditPassword" asp-route-id="@Model.Id" class="btn btn-danger">修改個人密碼</a>
     }
+
+    @if (Model.ReportsToNavigation != null)
+    {
+        @if (ViewBag.ShopAccount == Model.ReportsToNavigation.Email)
+        {
+            <a class="btn btn-warning" asp-action="Edit" asp-route-id="@Model.Id">修改下屬基本資料</a>
+        }
+    }
+
+
+
+</div>
+
+<div>    
+
 </div>

@@ -162,6 +162,25 @@ namespace VNW.Controllers
 
             //::
             ViewBag.ShopAccount = _ms.GetMySession("ShopAccount", HttpContext.Session);
+
+            //:: allow leader to update members info
+            if  (employee.ReportsTo != null)
+            {
+                int bossId = (int)employee.ReportsTo;
+                var boss = await _context.Employees.FindAsync(bossId);
+                if (boss == null)
+                {
+                    return Content("You have no right to update other employee's info");
+                }
+                else
+                {
+                    if(ViewBag.ShopAccount != boss.Email && UserLevel == "2B")
+                        return Content("You have no right to update other employee's info");                    
+                    else
+                        return View(employee);
+                }
+            }
+
             if (UserLevel == "2B" & ViewBag.ShopAccount != employee.Email )
             {
                 return Content("You have no right to update other employee's info");
@@ -192,6 +211,12 @@ namespace VNW.Controllers
             if (UserLevel == "2B" & ViewBag.ShopAccount != employee.Email)
             {
                 return Content("You have no right to update other employee's info");
+            }
+
+            //:: allow leader to update members info
+            if  (employee.ReportsTo != null)
+            {
+                //tbd...
             }
 
             #region keep origin password
