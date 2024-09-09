@@ -1,0 +1,182 @@
+﻿@{
+    //Layout = null;
+    ViewData["Title"] = "一般用戶註冊";
+}
+
+<h2>@ViewData["Title"]</h2>
+
+<div id="MaskWindow" style="opacity:0.05;background:#000;width:200%;height:200%;z-index:99;position:absolute;top:0;left:0;cursor:no-drop;display:none;"></div>
+<div id="img_loading" style="z-index:100;position:fixed;border:none;width:100%;height:100%;left:0;top:50%-250px;cursor:no-drop;display:none;">
+    <center><h3><b>處理中...</b></h3><img src="~/images/wait.gif" style="width:250px;" /></center>
+</div>
+
+<form asp-action="Register" method="post" id="fromRegister">
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+    <div class="form-group">
+        <label class="control-label">帳號</label>
+        <input id="NewAccount" name="NewAccount" type="text" value="@@" class="form-control" />
+
+        <div class="btn btn-info btn-sm" id="btn_precheck">查此帳號是否可用</div>
+        <span id="NewAccount_validate" class="text-danger"></span><br />
+    </div>
+    <div class="form-group">
+        <label class="control-label">密碼</label>
+        <input id="password" name="password" type="password" value="" class="form-control" />
+        <span id="password_validate" class="text-danger"></span>
+
+        <label class="control-label">確認密碼</label>
+        <input id="password_confirm" name="password_confirm" type="password" value="" class="form-control" />
+    </div>
+
+    <div class="form-group">
+        <label class="control-label">驗證碼</label>
+        <table>
+            <tr>
+                <td><input id="Captcha" name="pin" type="text" value="" class="form-control" style="min-width:20px;max-width:100px;margin:4px;" /> </td>
+                <td><div id="div_Captcha" style="user-select:none;font-size:25px;border:solid;border-width:1px;padding:2px;width:120px;height:35px;text-align:center;background-color:lightgrey;margin:4px;">@ViewData["Captcha"]</div></td>
+                <td> <btn id="btn_ChangeCaptcha" class="btn btn-danger">更換</btn><br /></td>
+            </tr>
+        </table>        
+        <span id="validation_Captcha" class="text-danger">請輸入圖中的4個數字</span>
+    </div>
+    <div class="form-group">
+        <b><span id="all_validate" class="alert-danger field-validation-valid"></span></b>
+    </div>
+
+    <hr />
+    <div class="form-group">
+        <div class="btn btn-lg btn-primary" id="btn_submit">送出註冊資訊</div>
+    </div>
+</form>
+
+
+@section endJS{
+    <script>
+        console.log("JS start");
+        var isError = false;
+        //::elements
+        const NewAccount = document.getElementById('NewAccount');
+        const NewAccount_validate = document.getElementById('NewAccount_validate');
+
+        const NewPassword = document.getElementById('password');
+        const NewPassword_Confirm = document.getElementById('password_confirm');
+
+        const btn_precheck = document.getElementById('btn_precheck');
+        const btn_ChangeCaptcha = document.getElementById('btn_ChangeCaptcha');
+        const btn_submit = document.getElementById('btn_submit');
+
+        function SetBusy() {
+            document.getElementById('img_loading').style.display = 'block';
+            document.getElementById('MaskWindow').style.display = 'block';
+        }
+        function SetReady() {
+            document.getElementById('img_loading').style.display = 'none';
+            document.getElementById('MaskWindow').style.display = 'none';
+        }
+
+        btn_ChangeCaptcha.addEventListener('click', function () {
+            var surl = '@ViewData["currentPath"]/Customers/UpdateCaptcha';
+            console.log('surl: ' + surl);
+            SetBusy();
+            fetch(surl, {
+                method: 'POST',
+            })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok ' + response.statusText);
+                        document.getElementById('validation_Captcha').textContent = "讀密碼時發生錯誤A";
+                    }
+                    console.log('fetch response');
+                    SetReady();
+                    return response.json();
+                })
+                .then(data => {
+                    console.log('fetch data');
+                    console.log(data);
+                    //console.log(JSON.stringify(data));
+                    if (data.result == 'PASS') {
+                        document.getElementById('div_Captcha').textContent = data.captcha;
+
+                    }
+                    else {
+                        document.getElementById('validation_Captcha').textContent = "讀密碼時發生錯誤C";
+                    }
+                    Captcha.focus();
+                })
+                .catch(error => {
+                    console.error('Fetch operation failed:', error);
+                    document.getElementById('validation_Captcha').textContent = "讀密碼時發生錯誤B";
+                    Captcha.focus();
+                    SetReady();
+                });
+        });
+
+
+        btn_precheck.addEventListener('click', function () {
+            var surl = '@ViewData["currentPath"]/Customers/PrecheckId';
+            console.log('surl: ' + surl);
+
+            if (NewAccount.value == "") {
+                document.getElementById('NewAccount_validate').textContent = "請輸入";
+                NewAccount.focus();
+                return;
+            }
+
+            SetBusy();
+            var postData = { account: NewAccount.value };
+            //console.log('postData: ' + postData);
+            //postData = JSON.stringify(postData);
+            postData = 'account=' + encodeURIComponent(NewAccount.value);
+            console.log('postData: ' + postData);           
+
+            fetch(surl, {
+                method: 'POST',
+                headers: {
+                    //'Content-Type': 'application/json'
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                },
+                body: postData
+            })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok ' + response.statusText);
+                        NewAccount_validate.textContent = "發生錯誤A";
+                        NewAccount.focus();
+                    }
+                    console.log('fetch response');
+                    SetReady();
+                    return response.json();
+                })
+                .then(data => {
+                    console.log('fetch data');
+                    console.log(data);                    
+                    if (data.result == 'PASS') {
+                        NewAccount_validate.textContent = "可以";
+                        NewPassword.focus();
+                    }
+                    else {
+                        var failMsg = '不可使用, ';
+                        switch (data.code) {
+                            case "102":
+                                failMsg += '已存在';
+                                break;
+                            default:
+                                failMsg += '格式不合';
+                                break;
+                        }
+                        NewAccount_validate.textContent = failMsg;
+                        NewAccount.focus();
+                    }
+                    
+                })
+                .catch(error => {
+                    console.error('Fetch operation failed:', error);
+                    NewAccount_validate.textContent = "發生錯誤B";
+                    NewAccount.focus();
+                    SetReady();
+                });
+        });
+
+        console.log("JS end");
+    </script>
+}

@@ -50,20 +50,25 @@
     <div class="form-group">
         <label class="control-label">驗證碼</label>
         @*<img src="~/images/default.jpg" id="img_pin" style="width:150px;height:50px" />*@
-        <div id="div_Captcha" style="user-select:none;font-size:30px;border:solid;border-width:1px;padding:2px;width:150px;height:50px;text-align:center;background-color:lightgreen;">@ViewData["Captcha"]</div><br />
-        <btn id="btn_ChangeCaptcha" class="btn btn-danger">看不懂請更換</btn><br />
+        <table>
+            <tr>
+                <td><input id="pin" name="pin" type="text" value="" class="form-control" style="min-width:20px;max-width:100px;margin:4px;"/> </td>
+                <td><div id="div_Captcha" style="user-select:none;font-size:25px;border:solid;border-width:1px;padding:2px;width:120px;height:35px;text-align:center;background-color:lightgrey;margin:4px;">@ViewData["Captcha"]</div></td>
+                <td> <btn id="btn_ChangeCaptcha" class="btn btn-danger">更換</btn><br /></td>
+            </tr>
+        </table>        
+        
         @*<img src="@VNW.Controllers.CustomersController.DisplayDBImage("~/images/joker.png")"/>*@
         @{
             //string base64Image = ViewData["ImageBase64"] as string;
         }
         @*<img src="data:image/png;base64,@base64Image" alt="Image" style="width:150px;"/>*@
         @*<img src="GenerateImage" alt="Generated Image" style="border:dashed;border-width:1px;"/>*@
-        <br />
-        <input id="pin" name="pin" type="text" value="" class="form-control" />
+
         <span id="pin_validate" class="text-danger">請輸入圖中的4個數字</span>
     </div>
     <div class="form-group">
-        <b><span id="all_validate" class="text-danger field-validation-valid"></span></b>
+        <b><span id="all_validate" class="alert-danger field-validation-valid"></span></b>
     </div>
 
     <div class="form-group">
@@ -86,7 +91,10 @@
 </div>
 
 <div>
-    | 註冊| 忘記密碼 | 忘記帳號
+    | <a asp-action="Register" asp-controller="Customers">註冊</a>
+    | <a asp-action="ForgetPWD" asp-controller="Customers">忘記密碼 </a>
+    | 忘記帳號
+    |
 </div>
 
 @functions    

@@ -5,7 +5,7 @@
 @if (ViewBag.UserAccount == null || ViewBag.UserAccount == "")
 {
     <a asp-action="login" asp-controller="customers">登入</a> <x>|</x> 
-    <a>註冊</a>
+    <a asp-action="Register" asp-controller="Customers">註冊</a>
 }
 else
 {
@@ -45,8 +45,8 @@ else
             <h2>客戶資訊</h2>
             <ul>
                 <li>用戶資料維護</li>
-                <li>註冊</li>
-                <li>忘記密碼|帳號</li>
+                <li><a asp-action="Register" asp-controller="Customers">註冊</a></li>
+                <li><a asp-action="ForgetPWD" asp-controller="Customers">忘記密碼 </a></li>
 
                 @if (ViewBag.UserLevel == "2B" || ViewBag.IsAdmin)
                 {

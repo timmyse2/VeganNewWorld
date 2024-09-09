@@ -514,5 +514,66 @@ namespace VNW.Controllers
             });
             return Json(new { Result });
         }
+
+        public async Task<IActionResult> Register()
+        {
+            string Captcha = GenerateCaptcha();
+            _ms.SetMySession("Captcha", Captcha, HttpContext.Session);
+            Captcha = EncodeCaptcha(Captcha);
+            ViewData["Captcha"] = Captcha;
+
+            return View();
+        }
+
+        //::api for precheckID
+        public async Task<IActionResult> PrecheckID(string account)
+        {
+            string result = "tbd", detail = "", code ="";
+
+            if (account == null || account == "")
+            {
+                result = "fail";
+                detail = "account is empty";
+                code = "100";
+                return Json(new { result, detail, code });
+            }
+
+            if (account.Length < 5 || account.Length > 25)
+            {
+                result = "fail";
+                detail = "account is too short or too long";
+                code = "101";
+                return Json(new { result, detail, code });
+            }
+
+            var user = await _context.Customer.FindAsync(account);
+            if (user != null)
+            {
+                result = "fail";
+                detail = "existed";
+                code = "102";
+                return Json(new { result, detail, code });
+            }
+
+            //check format - such with @
+            if(!account.Contains("@"))
+            {
+                result = "fail";
+                detail = "format is wrong";
+                code = "103";
+                return Json(new { result, detail, code});
+            }
+
+            result = "PASS";
+            //detail = "";
+            //code = "0";
+            return Json(new {result, detail, code });
+        }
+
+
+        public async Task<IActionResult> ForgetPWD()
+        {
+            return View();
+        }
     }
 }

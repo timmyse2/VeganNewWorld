@@ -1,0 +1,52 @@
+﻿@{
+    //Layout = null;
+    ViewData["Title"] = "忘記密碼";
+}
+
+<h2>@ViewData["Title"]</h2>
+
+@*<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>ForgetPWD</title>
+</head>
+<body>
+    
+
+</body>
+</html>*@
+
+<form asp-action="Register" method="post" id="fromRegister">
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+    <div class="form-group">
+        <label class="control-label">帳號</label>
+        <input id="account" name="NewAccount" type="text" value="" class="form-control" />
+        <span id="account_validate" class="text-danger"></span><br />
+
+        <div class="btn btn-info btn-sm">查此帳號是否可用</div>
+    </div>   
+
+    <div class="form-group">
+        <label class="control-label">驗證碼</label>
+        <table>
+            <tr>
+                <td><input id="pin" name="pin" type="text" value="" class="form-control" style="min-width:20px;max-width:100px;margin:4px;" /> </td>
+                <td><div id="div_Captcha" style="user-select:none;font-size:25px;border:solid;border-width:1px;padding:2px;width:120px;height:35px;text-align:center;background-color:lightgrey;margin:4px;">@ViewData["Captcha"]</div></td>
+                <td> <btn id="btn_ChangeCaptcha" class="btn btn-danger">更換</btn><br /></td>
+            </tr>
+        </table>
+
+
+        <span id="pin_validate" class="text-danger">請輸入圖中的4個數字</span>
+    </div>
+    <div class="form-group">
+        <b><span id="all_validate" class="alert-danger field-validation-valid"></span></b>
+    </div>
+
+    <hr />
+    <div class="form-group">
+        <btn class="btn btn-lg btn-primary">取得密碼資訊</btn>
+    </div>
+</form>
