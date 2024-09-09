@@ -113,7 +113,7 @@ namespace VNW.Controllers
             ViewBag.ShopAccount =
                 _ms.GetMySession("ShopAccount", HttpContext.Session);
             ViewBag.UserLevel = UserLevel;
-
+            ViewData["UserIcon"] = _ms.GetMySession("UserIcon", HttpContext.Session);
             //var query = _context.Products
             var query = q0
                 .Include(p => p.Category)

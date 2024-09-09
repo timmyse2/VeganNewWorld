@@ -366,6 +366,7 @@ namespace VNW.Controllers
             //string UserAccount = _ms.GetMySession("UserAccount", HttpContext.Session);
             string ShopAccount = _ms.GetMySession("ShopAccount", HttpContext.Session);
             ViewData["ShopAccount"] = ShopAccount;
+			ViewData["UserIcon"] = _ms.GetMySession("UserIcon", HttpContext.Session);
             var preCheckOrder = await _context.Orders                
                 .Where(o => o.OrderId == oid) //sorted 
                 .Include(x => x.Customer) 

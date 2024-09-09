@@ -1270,7 +1270,7 @@ namespace VNW.Controllers
 
             ViewData["UserAccount"] = _ms.GetMySession("UserAccount", HttpContext.Session);
             ViewData["ShopAccount"] = _ms.GetMySession("ShopAccount", HttpContext.Session);
-
+            ViewData["UserIcon"] = _ms.GetMySession("UserIcon", HttpContext.Session);
             return View(await q.ToListAsync());            
         }
 

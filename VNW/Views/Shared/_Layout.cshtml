@@ -49,7 +49,12 @@
 
                     @*<li><a asp-area="" asp-controller="Home" asp-action="About" class="vnwt">關於...</a></li>*@
                     @*<li><a asp-area="" asp-controller="Home" asp-action="Contact" class="vnwt">聯絡單位</a></li>*@
-                    <li><a class="vnwt">@ViewBag.ShopAccount <img src="~/images/employee/Illyasviel.png" style="width:20px;border-radius:20px;" /></a></li>
+                    @if (ViewBag.ShopAccount != null)
+                    {
+                        <li><a class="vnwt">@ViewBag.ShopAccount
+                            <img src="~/images/employee/@ViewBag.UserIcon"                            
+                            style="width:20px;border-radius:20px;" /></a></li>
+                    }
                 </ul>
             </div>
             

@@ -39,6 +39,7 @@ namespace VNW.Controllers
                 return RedirectToAction("Login", "Customers");
             }
             ViewBag.ShopAccount = _ms.GetMySession("ShopAccount", HttpContext.Session);
+            ViewData["UserIcon"] = _ms.GetMySession("UserIcon", HttpContext.Session);
             //return View(await _context.Employees.ToListAsync());
 
             var emps = await _context.Employees
@@ -83,6 +84,7 @@ namespace VNW.Controllers
             }
 
             ViewBag.ShopAccount = _ms.GetMySession("ShopAccount", HttpContext.Session);
+			ViewData["UserIcon"] = _ms.GetMySession("UserIcon", HttpContext.Session);
 
             //::set NP
             if (employee.ReportsTo != null)
@@ -152,7 +154,7 @@ namespace VNW.Controllers
             if (id == null)
             {
                 return NotFound();
-            }            
+            }
 
             var employee = await _context.Employees.FindAsync(id);
             if (employee == null)
@@ -161,30 +163,34 @@ namespace VNW.Controllers
             }
 
             //::
-            ViewBag.ShopAccount = _ms.GetMySession("ShopAccount", HttpContext.Session);
-
-            //:: allow leader to update members info
-            if  (employee.ReportsTo != null)
+            ViewBag.ShopAccount = _ms.GetMySession("ShopAccount", HttpContext.Session);                       
+			ViewData["UserIcon"] = _ms.GetMySession("UserIcon", HttpContext.Session);
+            if (UserLevel == "2B" && ViewBag.ShopAccount != employee.Email )
             {
-                int bossId = (int)employee.ReportsTo;
-                var boss = await _context.Employees.FindAsync(bossId);
-                if (boss == null)
+                //:: allow leader to update members info
+                if (employee.ReportsTo != null)
                 {
-                    return Content("You have no right to update other employee's info");
+                    int bossId = (int)employee.ReportsTo;
+                    var boss = await _context.Employees.FindAsync(bossId);
+                    if (boss == null)
+                    {
+                        return Content("You have no right to update other employee's info");
+                    }
+                    else
+                    {
+                        if (ViewBag.ShopAccount != boss.Email && UserLevel == "2B")
+                            return Content("You have no right to update other employee's info");
+                        else
+                        {
+                            //::pass case
+                            //return View(employee);
+                        }                            
+                    }
                 }
                 else
-                {
-                    if(ViewBag.ShopAccount != boss.Email && UserLevel == "2B")
-                        return Content("You have no right to update other employee's info");                    
-                    else
-                        return View(employee);
-                }
+                    return Content("You have no right to update other employee's info");
             }
-
-            if (UserLevel == "2B" & ViewBag.ShopAccount != employee.Email )
-            {
-                return Content("You have no right to update other employee's info");
-            }
+            //::pass case
             return View(employee);
         }
 
@@ -208,15 +214,31 @@ namespace VNW.Controllers
             }
             //::
             ViewBag.ShopAccount = _ms.GetMySession("ShopAccount", HttpContext.Session);
-            if (UserLevel == "2B" & ViewBag.ShopAccount != employee.Email)
+			ViewData["UserIcon"] = _ms.GetMySession("UserIcon", HttpContext.Session);
+            if (UserLevel == "2B" && ViewBag.ShopAccount != employee.Email)
             {
-                return Content("You have no right to update other employee's info");
-            }
-
-            //:: allow leader to update members info
-            if  (employee.ReportsTo != null)
-            {
-                //tbd...
+                //:: allow leader to update members info
+                if (employee.ReportsTo != null)
+                {
+                    int bossId = (int)employee.ReportsTo;
+                    var boss = await _context.Employees.FindAsync(bossId);
+                    if (boss == null)
+                    {
+                        return Content("You have no right to update other employee's info");
+                    }
+                    else
+                    {
+                        if (ViewBag.ShopAccount != boss.Email && UserLevel == "2B")
+                            return Content("You have no right to update other employee's info");
+                        else
+                        {
+                            //::pass case
+                            //return View(employee);
+                        }
+                    }
+                }
+                else
+                    return Content("You have no right to update other employee's info");
             }
 
             #region keep origin password
@@ -234,8 +256,7 @@ namespace VNW.Controllers
                 //return Content("Notice: password is miss!");
             }
             #endregion
-
-
+            
             if (ModelState.IsValid)
             {
                 try
@@ -639,6 +660,8 @@ namespace VNW.Controllers
                             _ms.SetMySession("UserAccount", ShopAccount, HttpContext.Session);
                             _ms.SetMySession("ShopAccount", ShopAccount, HttpContext.Session);
                             _ms.SetMySession("EmployeeId", employee.Id.ToString(), HttpContext.Session);
+                            _ms.SetMySession("UserIcon", employee.PhotoPath, HttpContext.Session);
+                            //ViewBag.UserIcon = UserIcon;
 
                             result = "PASS";
                             detail = "vender login at " + DateTime.Now;
