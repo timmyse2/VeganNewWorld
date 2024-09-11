@@ -15,24 +15,24 @@
     <div class="form-group">
         <label class="control-label">帳號</label>
         <input id="NewAccount" name="NewAccount" type="text" value="@@" class="form-control" />
-
         <div class="btn btn-info btn-sm" id="btn_precheck">查此帳號是否可用</div>
         <span id="NewAccount_validate" class="text-danger"></span><br />
     </div>
     <div class="form-group">
         <label class="control-label">密碼</label>
-        <input id="password" name="password" type="password" value="" class="form-control" />
-        <span id="password_validate" class="text-danger"></span>
-
-        <label class="control-label">確認密碼</label>
-        <input id="password_confirm" name="password_confirm" type="password" value="" class="form-control" />
+        <input id="NewPassword" name="NewPassword" type="password" value="" class="form-control" />
+        <span id="NewPassword_validate" class="text-danger"></span>
     </div>
-
+    <div class="form-group">
+        <label class="control-label">確認密碼</label>
+        <input id="NewPassword_confirm" name="NewPassword_confirm" type="password" value="" class="form-control" />
+        <span id="NewPassword_confirm_validate" class="text-danger"></span>
+    </div>
     <div class="form-group">
         <label class="control-label">驗證碼</label>
         <table>
             <tr>
-                <td><input id="Captcha" name="pin" type="text" value="" class="form-control" style="min-width:20px;max-width:100px;margin:4px;" /> </td>
+                <td><input id="Captcha" name="Captcha" type="text" value="" class="form-control" style="min-width:20px;max-width:100px;margin:4px;" /> </td>
                 <td><div id="div_Captcha" style="user-select:none;font-size:25px;border:solid;border-width:1px;padding:2px;width:120px;height:35px;text-align:center;background-color:lightgrey;margin:4px;">@ViewData["Captcha"]</div></td>
                 <td> <btn id="btn_ChangeCaptcha" class="btn btn-danger">更換</btn><br /></td>
             </tr>
@@ -42,13 +42,11 @@
     <div class="form-group">
         <b><span id="all_validate" class="alert-danger field-validation-valid"></span></b>
     </div>
-
-    <hr />
+    
     <div class="form-group">
-        <div class="btn btn-lg btn-primary" id="btn_submit">送出註冊資訊</div>
+        <div class="btn btn-lg btn-primary" id="btn_submit" style="display:none;">送出註冊資訊</div>
     </div>
 </form>
-
 
 @section endJS{
     <script>
@@ -57,14 +55,15 @@
         //::elements
         const NewAccount = document.getElementById('NewAccount');
         const NewAccount_validate = document.getElementById('NewAccount_validate');
-
-        const NewPassword = document.getElementById('password');
-        const NewPassword_Confirm = document.getElementById('password_confirm');
-
         const btn_precheck = document.getElementById('btn_precheck');
+        const NewPassword = document.getElementById('NewPassword');
+        const NewPassword_Confirm = document.getElementById('NewPassword_confirm');
+        const NewPassword_validate = document.getElementById('NewPassword_validate');
+        const NewPassword_confirm_validate = document.getElementById('NewPassword_confirm_validate');
         const btn_ChangeCaptcha = document.getElementById('btn_ChangeCaptcha');
+        const validation_Captcha = document.getElementById('validation_Captcha'); 
         const btn_submit = document.getElementById('btn_submit');
-
+        
         function SetBusy() {
             document.getElementById('img_loading').style.display = 'block';
             document.getElementById('MaskWindow').style.display = 'block';
@@ -84,7 +83,7 @@
                 .then(response => {
                     if (!response.ok) {
                         throw new Error('Network response was not ok ' + response.statusText);
-                        document.getElementById('validation_Captcha').textContent = "讀密碼時發生錯誤A";
+                        validation_Captcha.textContent = "讀密碼時發生錯誤A";
                     }
                     console.log('fetch response');
                     SetReady();
@@ -99,27 +98,32 @@
 
                     }
                     else {
-                        document.getElementById('validation_Captcha').textContent = "讀密碼時發生錯誤C";
+                        validation_Captcha.textContent = "讀密碼時發生錯誤C";
                     }
                     Captcha.focus();
                 })
                 .catch(error => {
                     console.error('Fetch operation failed:', error);
-                    document.getElementById('validation_Captcha').textContent = "讀密碼時發生錯誤B";
+                    validation_Captcha.textContent = "讀密碼時發生錯誤B";
                     Captcha.focus();
                     SetReady();
                 });
         });
 
-
         btn_precheck.addEventListener('click', function () {
+            preCheckAccount();
+        });
+
+        var global_isPass = false;
+        async function preCheckAccount() {
             var surl = '@ViewData["currentPath"]/Customers/PrecheckId';
             console.log('surl: ' + surl);
 
             if (NewAccount.value == "") {
                 document.getElementById('NewAccount_validate').textContent = "請輸入";
                 NewAccount.focus();
-                return;
+                //return false;
+                return
             }
 
             SetBusy();
@@ -128,8 +132,8 @@
             //postData = JSON.stringify(postData);
             postData = 'account=' + encodeURIComponent(NewAccount.value);
             console.log('postData: ' + postData);           
-
-            fetch(surl, {
+            global_isPass = false;
+            await fetch(surl, {
                 method: 'POST',
                 headers: {
                     //'Content-Type': 'application/json'
@@ -142,6 +146,7 @@
                         throw new Error('Network response was not ok ' + response.statusText);
                         NewAccount_validate.textContent = "發生錯誤A";
                         NewAccount.focus();
+                        //return false;
                     }
                     console.log('fetch response');
                     SetReady();
@@ -151,8 +156,11 @@
                     console.log('fetch data');
                     console.log(data);                    
                     if (data.result == 'PASS') {
+                        //::Pass case
                         NewAccount_validate.textContent = "可以";
                         NewPassword.focus();
+                        global_isPass = true;
+                        //return true;                        
                     }
                     else {
                         var failMsg = '不可使用, ';
@@ -166,6 +174,7 @@
                         }
                         NewAccount_validate.textContent = failMsg;
                         NewAccount.focus();
+                        //return false;
                     }
                     
                 })
@@ -174,8 +183,69 @@
                     NewAccount_validate.textContent = "發生錯誤B";
                     NewAccount.focus();
                     SetReady();
+                    //return false;
                 });
+        }
+
+        btn_submit.addEventListener('click', async function () {
+            console.log('\n\n====== btn submit ==========');
+
+            var isPass = await precheckAllData();
+            console.log('isPass: ' + isPass);
+            if (isPass) {                
+                console.log('--------SUBMIT-------------');
+                fromRegister.submit();
+            }                
+            else {
+
+            }
         });
+
+        btn_submit.style.display = 'block';
+        
+        async function precheckAllData() {
+            var isPass = false;
+            console.log('preCheckAccount before');
+            //isPass = 
+            await preCheckAccount()
+            console.log('global_isPass: ' + global_isPass);
+            if (!global_isPass) {
+                return false;
+            }
+
+            console.log('check pwd');
+            if (NewPassword.value.length <= 4 ) {
+                NewPassword.focus();
+                NewPassword_validate.textContent = '不符合格式';
+                isPass = false;
+                return isPass;
+            }
+            else
+                NewPassword_validate.textContent = '';
+
+            console.log('check pwd confirm');
+            if (NewPassword_Confirm.value != NewPassword.value) {
+                NewPassword_Confirm.focus();
+                NewPassword_confirm_validate.textContent = '不一致';
+                isPass = false;
+                return isPass;
+            }
+            else
+                NewPassword_confirm_validate.textContent = '';
+
+            if (Captcha.value.length != 4) {
+                Captcha.focus();
+                validation_Captcha.textContent = '請輸入4個數字';
+                isPass = false;
+                return isPass;
+            }
+
+            //::pass case
+            isPass = true;
+            return isPass;
+        }
+
+        
 
         console.log("JS end");
     </script>

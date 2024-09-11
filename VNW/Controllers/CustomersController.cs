@@ -48,6 +48,13 @@ namespace VNW.Controllers
         // GET: Customers/Details/5
         public async Task<IActionResult> Details(string id)
         {
+            string UserLevel = _ms.GetMySession("UserLevel", HttpContext.Session);
+            if (UserLevel != "1A")
+            {
+                TempData["td_server"] = "該頁面只有管理者*或商家員工*可使用，請先登入";
+                return RedirectToAction("Login", "Customers");
+            }
+
             if (id == null)
             {
                 return NotFound();
@@ -66,6 +73,14 @@ namespace VNW.Controllers
         // GET: Customers/Create
         public IActionResult Create()
         {
+            //::1A only
+            string UserLevel = _ms.GetMySession("UserLevel", HttpContext.Session);
+            if (UserLevel != "1A")
+            {
+                TempData["td_server"] = "該頁面只有管理者*或商家員工*可使用，請先登入";
+                return RedirectToAction("Login", "Customers");
+            }
+
             return View();
         }
 
@@ -76,6 +91,14 @@ namespace VNW.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("CustomerId,CompanyName,ContactName,Address,City,PostalCode,Country,Phone")] Customer customer)
         {
+            //::1A only
+            string UserLevel = _ms.GetMySession("UserLevel", HttpContext.Session);
+            if (UserLevel != "1A")
+            {
+                TempData["td_server"] = "該頁面只有管理者*或商家員工*可使用，請先登入";
+                return RedirectToAction("Login", "Customers");
+            }
+
             if (ModelState.IsValid)
             {
                 _context.Add(customer);
@@ -88,6 +111,14 @@ namespace VNW.Controllers
         // GET: Customers/Edit/5
         public async Task<IActionResult> Edit(string id)
         {
+            //::1A only
+            string UserLevel = _ms.GetMySession("UserLevel", HttpContext.Session);
+            if (UserLevel != "1A")
+            {
+                TempData["td_server"] = "該頁面只有管理者*或商家員工*可使用，請先登入";
+                return RedirectToAction("Login", "Customers");
+            }
+
             if (id == null)
             {
                 return NotFound();
@@ -108,6 +139,14 @@ namespace VNW.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(string id, [Bind("CustomerId,CompanyName,ContactName,Address,City,PostalCode,Country,Phone")] Customer customer)
         {
+            //::1A only
+            string UserLevel = _ms.GetMySession("UserLevel", HttpContext.Session);
+            if (UserLevel != "1A")
+            {
+                TempData["td_server"] = "該頁面只有管理者*或商家員工*可使用，請先登入";
+                return RedirectToAction("Login", "Customers");
+            }
+
             if (id != customer.CustomerId)
             {
                 return NotFound();
@@ -517,12 +556,33 @@ namespace VNW.Controllers
 
         public async Task<IActionResult> Register()
         {
+
             string Captcha = GenerateCaptcha();
             _ms.SetMySession("Captcha", Captcha, HttpContext.Session);
             Captcha = EncodeCaptcha(Captcha);
             ViewData["Captcha"] = Captcha;
 
             return View();
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Register(string NewAccount, string NewPassword, string NewPassword_Confirm, string Captcha)
+        {
+            //check input data
+
+            //check account (exist, format)
+
+            //check pwd (format)
+            //encode pwd with salt
+
+            //create user info in customer
+
+            //show basic user info
+            //return View();
+
+            return Json( new { NewAccount, NewPassword, Captcha });
+
         }
 
         //::api for precheckID
