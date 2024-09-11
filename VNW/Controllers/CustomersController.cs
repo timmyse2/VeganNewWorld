@@ -48,12 +48,12 @@ namespace VNW.Controllers
         // GET: Customers/Details/5
         public async Task<IActionResult> Details(string id)
         {
-            string UserLevel = _ms.GetMySession("UserLevel", HttpContext.Session);
-            if (UserLevel != "1A")
-            {
-                TempData["td_server"] = "該頁面只有管理者*或商家員工*可使用，請先登入";
-                return RedirectToAction("Login", "Customers");
-            }
+            //string UserLevel = _ms.GetMySession("UserLevel", HttpContext.Session);
+            //if (UserLevel != "1A")
+            //{
+            //    TempData["td_server"] = "該頁面只有管理者*或商家員工*可使用，請先登入";
+            //    return RedirectToAction("Login", "Customers");
+            //}
 
             if (id == null)
             {
@@ -67,6 +67,25 @@ namespace VNW.Controllers
                 return NotFound();
             }
 
+            return View(customer);
+        }
+
+        public async Task<IActionResult> Info()
+        {
+            string id = HttpContext.Request.Cookies["UserAccount"];            
+            if (id == null)
+            {
+                //return NotFound();
+                TempData["td_server"] = "請先登入";
+                return RedirectToAction("Login", "Customers");
+            }            
+            var customer = await _context.Customer
+                .FirstOrDefaultAsync(m => m.CustomerId == id);
+            if (customer == null)
+            {
+                return NotFound();
+            }
+            ViewData["UserAccount"] = id;
             return View(customer);
         }
 
@@ -569,19 +588,54 @@ namespace VNW.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Register(string NewAccount, string NewPassword, string NewPassword_Confirm, string Captcha)
         {
-            //check input data
+            //check input data           
+
+            //check captcha
 
             //check account (exist, format)
+            string Captcha_expected = _ms.GetMySession("Captcha", HttpContext.Session);
+            if(Captcha_expected != Captcha)
+            {
+                //ng case                
+                TempData["td_serverWarning"] = "驗證碼不相符";
+                ViewData["Captcha"] = EncodeCaptcha(Captcha_expected);
+                return View();
+            }
 
             //check pwd (format)
-            //encode pwd with salt
 
-            //create user info in customer
+            if (ModelState.IsValid)
+            {
+                //encode pwd with salt            
+                string Salt = EmployeesController.GenerateSalt();
+                string PasswordEncoded = EmployeesController.PasswordSalt(NewPassword, Salt);
 
-            //show basic user info
-            //return View();
+                //create user info in customer
+                Customer customer = new Customer()
+                {
+                    CustomerId = NewAccount,
+                    PasswordEncoded = PasswordEncoded,
+                    Salt = Salt,
+                    ContactName = "",
+                    CompanyName = "" //tbd in next phase
+                };
+                _context.Add(customer);
+                await _context.SaveChangesAsync();
 
-            return Json( new { NewAccount, NewPassword, Captcha });
+                //show basic user info
+                //return View();
+                //return RedirectToAction(nameof(Index));
+                //return Json(new { NewAccount, NewPassword, Captcha, Result = "PASS" });
+                HttpContext.Response.Cookies.Append("UserAccount", customer.CustomerId);
+                TempData["td_server"] = "已建立帳戶";
+                return RedirectToAction("Login");
+            }
+            else
+            {
+                //return Json(new { NewAccount, NewPassword, Captcha, Result = "NG" });
+                TempData["td_serverWarning"] = "資料處理異常";
+                return View();
+            }           
 
         }
 
@@ -630,10 +684,282 @@ namespace VNW.Controllers
             return Json(new {result, detail, code });
         }
 
-
         public async Task<IActionResult> ForgetPWD()
         {
             return View();
+        }
+
+        //::for 3C
+        public async Task<IActionResult> EditInfo()
+        {
+            string id = HttpContext.Request.Cookies["UserAccount"];
+            if (id == null)
+            {
+                //return NotFound();
+                TempData["td_server"] = "請先登入";
+                return RedirectToAction("Login", "Customers");
+            }
+
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var customer = await _context.Customer.FindAsync(id);
+            if (customer == null)
+            {
+                return NotFound();
+            }
+            return View(customer);
+        }
+
+        //::for 3C
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> EditInfo([Bind("CustomerId,CompanyName,ContactName,Address,City,PostalCode,Country,Phone")] Customer customer)
+        {
+            string id = HttpContext.Request.Cookies["UserAccount"];
+            if (id == null)
+            {
+                TempData["td_server"] = "請先登入";
+                return RedirectToAction("Login", "Customers");
+            }
+            if (id != customer.CustomerId)
+            {
+                return NotFound();
+            }
+
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    #region keep origin password
+                    //:: do not let password show in view or frontend
+                    if (customer.PasswordEncoded == null || customer.PasswordEncoded == "")
+                    {
+                        var customer_original = await _context.Customer.Where(c => c.CustomerId == id)
+                            .AsNoTracking().FirstOrDefaultAsync();
+                        if (customer_original == null)
+                        {
+                            return Content("can not find origin data");
+                        }
+                        customer.PasswordEncoded = customer_original.PasswordEncoded;
+                        customer.Salt = customer_original.Salt;                        
+                    }
+                    #endregion
+
+                    _context.Update(customer);
+                    await _context.SaveChangesAsync();
+                }
+                catch (DbUpdateConcurrencyException)
+                {
+                    if (!CustomerExists(customer.CustomerId))
+                    {
+                        return NotFound();
+                    }
+                    else
+                    {
+                        throw;
+                    }
+                }
+                return RedirectToAction(nameof(Info));
+            }
+            return View(customer);
+        }
+
+
+        //::for 3C
+        public async Task<IActionResult> EditPassword()
+        {
+            if (!_ms.LoginPrecheck(HttpContext.Session))
+                return RedirectToAction("Login", "Customers");
+
+            string id = HttpContext.Request.Cookies["UserAccount"];
+            if (id == null)
+            {
+                //return NotFound();
+                TempData["td_server"] = "請先登入";
+                return RedirectToAction("Login", "Customers");
+            }
+
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var customer = await _context.Customer.FindAsync(id);
+            if (customer == null)
+            {
+                return NotFound();
+            }
+
+            string Captcha = VNW.Controllers.CustomersController.GenerateCaptcha();
+            _ms.SetMySession("Captcha", Captcha, HttpContext.Session);
+            Captcha = VNW.Controllers.CustomersController.EncodeCaptcha(Captcha);
+            ViewData["Captcha"] = Captcha;
+            ViewData["currentPath"] = $"{HttpContext.Request.Scheme}://{HttpContext.Request.Host}{HttpContext.Request.PathBase}";
+            return View(customer);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken] //
+        public async Task<IActionResult> EditPassword(string id, string OldPassword, string NewPassword, string NewPassword_Confirm, string Captcha)
+        {
+            var customer = await _context.Customer.Where(c => c.CustomerId == id).FirstOrDefaultAsync();            
+
+            string Captcha_expected = _ms.GetMySession("Captcha", HttpContext.Session);
+            ViewData["Captcha"] = VNW.Controllers.CustomersController.EncodeCaptcha(Captcha_expected);
+            if (customer == null)
+            {
+                //return Content("no matched data");
+                TempData["td_serverWarning"] = "找不到相符的資料!";
+                return View();
+            }
+
+            //::check pwd length, format...
+            if (OldPassword == null || OldPassword.Length > 20)
+            {
+                TempData["td_serverWarning"] = "舊密碼未輸入或格式不合";
+                return View(customer);
+            }
+            //::compare password
+            string OldPassword_Encoded = EmployeesController.PasswordSalt(OldPassword, customer.Salt);
+
+            if (customer.PasswordEncoded != OldPassword_Encoded)
+            {
+                //error
+                TempData["td_serverWarning"] = "舊密碼不符合";
+                return View(customer);
+            }
+
+            if (NewPassword == null || NewPassword.Length < 5 || NewPassword.Length > 20)
+            {
+                TempData["td_serverWarning"] = "新密碼長度過短、長";
+                return View(customer);
+            }
+
+            //:: 0~9, a~z, A~Z 
+            string pattern = "^(?=.*[0-9])(?=.*[A-Za-z]).{5,20}$";
+            System.Text.RegularExpressions.Regex regex
+                = new System.Text.RegularExpressions.Regex(pattern);
+            if (!regex.IsMatch(NewPassword))
+            {
+                TempData["td_serverWarning"] = "新密碼格式不符";
+                return View(customer);
+            }
+
+            if (NewPassword != NewPassword_Confirm)
+            {
+                //error
+                TempData["td_serverWarning"] = "新密碼與新密碼確認不一致";
+                return View(customer);
+            }
+
+            //::udpate new Salt, 10 chars randomly
+            customer.Salt = EmployeesController.GenerateSalt();
+            string NewPassword_Encoded = EmployeesController.PasswordSalt(NewPassword, customer.Salt);
+
+            if (Captcha == null || Captcha.Length != 4)
+            {
+                TempData["td_serverWarning"] = "驗證碼長度錯誤";
+                return View(customer);
+            }
+            if (Captcha != Captcha_expected)
+            {
+                //error
+                TempData["td_serverWarning"] = "驗證碼不符";
+                return View(customer);
+            }
+
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    //update pwd in DB
+                    customer.PasswordEncoded = NewPassword_Encoded;
+                    _context.Update(customer);
+                    await _context.SaveChangesAsync();
+
+                    //pass case
+                    TempData["td_serverWarning"] = "";
+                    TempData["td_serverMessage"] = "已更新密碼";
+                    //return View(emp);
+                    //return RedirectToAction("Details", new { id });
+                    return RedirectToAction("Info");
+                }
+                catch (DbUpdateConcurrencyException)
+                {
+                    TempData["td_serverWarning"] = "DbUpdateConcurrencyException";
+                    return View();
+                }
+                catch
+                {
+                    TempData["td_serverWarning"] = "Exception";
+                    return View();
+                }
+            }
+
+            TempData["td_serverWarning"] = "Unknown problem";
+            return View();
+        }
+
+        //::api for 3C
+        [HttpPost]
+        public async Task<IActionResult> CheckOldPassword(string id, string OldPassword)
+        {
+            string Result = "", Detail = "";
+
+            //string UserLevel = _ms.GetMySession("UserLevel", HttpContext.Session);
+            //if (UserLevel != "2B" && UserLevel != "1A")
+            //{
+            //    Result = "Fail"; Detail = "Access Deny";
+            //    return Json(new { Result, Detail });
+            //}
+
+            if (OldPassword == null || OldPassword.Length <= 3)
+            {
+                Result = "Fail"; Detail = "PWD is empty or wrong";
+                return Json(new { Result, Detail });
+            }
+
+            var customer = await _context.Customer.Where(c => c.CustomerId == id).FirstOrDefaultAsync();
+            if (customer == null)
+            {
+                Result = "Fail"; Detail = "No matched data";
+                return Json(new { Result, Detail });
+            }
+
+            //::retry over 3 times
+            int retryCount = 0; //from session
+            string sRtryCount = _ms.GetMySession("retryCount", HttpContext.Session);
+            if (sRtryCount == null)
+                retryCount = 0;
+            else
+                retryCount = int.Parse(sRtryCount);
+
+            string OldPassword_Encoded = EmployeesController.PasswordSalt(OldPassword, customer.Salt);
+
+            if (customer.PasswordEncoded == OldPassword_Encoded)
+            {
+                Result = "PASS"; Detail = "";
+
+                //::reset session
+                HttpContext.Session.Remove("retryCount");
+                retryCount = 0;
+                return Json(new { Result, Detail, retryCount });
+            }
+
+            //::loose rule, retry count only accumulate if db value is mismatched
+            if (retryCount >= 3)
+            {
+                Result = "Fail"; Detail = "Halt! Retry over 3 times";
+                return Json(new { Result, Detail, retryCount });
+            }
+            retryCount++;
+            _ms.SetMySession("retryCount", retryCount.ToString(), HttpContext.Session);
+
+            Result = "Fail"; Detail = "pwd is mismatched";
+            return Json(new { Result, Detail, retryCount });
         }
     }
 }

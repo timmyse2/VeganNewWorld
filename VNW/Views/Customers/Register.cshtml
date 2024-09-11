@@ -5,6 +5,11 @@
 
 <h2>@ViewData["Title"]</h2>
 
+<div>
+    <h3 class="alert-info">@TempData["td_serverMessage"]</h3>
+    <h3 class="alert-danger">@TempData["td_serverWarning"]</h3>
+</div>
+
 <div id="MaskWindow" style="opacity:0.05;background:#000;width:200%;height:200%;z-index:99;position:absolute;top:0;left:0;cursor:no-drop;display:none;"></div>
 <div id="img_loading" style="z-index:100;position:fixed;border:none;width:100%;height:100%;left:0;top:50%-250px;cursor:no-drop;display:none;">
     <center><h3><b>處理中...</b></h3><img src="~/images/wait.gif" style="width:250px;" /></center>
@@ -13,23 +18,23 @@
 <form asp-action="Register" method="post" id="fromRegister">
     <div asp-validation-summary="ModelOnly" class="text-danger"></div>
     <div class="form-group">
-        <label class="control-label">帳號</label>
+        <label class="control-label">帳號 (郵件格式)</label> <b class="text-danger">*</b>
         <input id="NewAccount" name="NewAccount" type="text" value="@@" class="form-control" />
         <div class="btn btn-info btn-sm" id="btn_precheck">查此帳號是否可用</div>
         <span id="NewAccount_validate" class="text-danger"></span><br />
     </div>
     <div class="form-group">
-        <label class="control-label">密碼</label>
+        <label class="control-label">密碼</label> <b class="text-danger">*</b>
         <input id="NewPassword" name="NewPassword" type="password" value="" class="form-control" />
         <span id="NewPassword_validate" class="text-danger"></span>
     </div>
     <div class="form-group">
-        <label class="control-label">確認密碼</label>
+        <label class="control-label">確認密碼</label> <b class="text-danger">*</b>
         <input id="NewPassword_confirm" name="NewPassword_confirm" type="password" value="" class="form-control" />
         <span id="NewPassword_confirm_validate" class="text-danger"></span>
     </div>
     <div class="form-group">
-        <label class="control-label">驗證碼</label>
+        <label class="control-label">驗證碼</label> <b class="text-danger">*</b>
         <table>
             <tr>
                 <td><input id="Captcha" name="Captcha" type="text" value="" class="form-control" style="min-width:20px;max-width:100px;margin:4px;" /> </td>
@@ -116,16 +121,25 @@
 
         var global_isPass = false;
         async function preCheckAccount() {
-            var surl = '@ViewData["currentPath"]/Customers/PrecheckId';
-            console.log('surl: ' + surl);
-
+            btn_submit.style.display = 'none';
             if (NewAccount.value == "") {
                 document.getElementById('NewAccount_validate').textContent = "請輸入";
                 NewAccount.focus();
-                //return false;
-                return
+                return;
             }
 
+            var patternString = /^\w+((-\w+)|(\.\w+))*\@@[A-Za-z0-9]+((\.|-)[A-Za-z0-9]+)*\.[A-Za-z]+$/;
+            console.log('patternString ' + patternString);
+            var pattern = new RegExp(patternString);
+            //var pattern = new RegExp(/^[A-Z0-9._%+-]+@@[A-Z0-9.-]+\\.[A-Z]{2,6}$/);
+            if (NewAccount.value.match(pattern) == null) {
+                document.getElementById('NewAccount_validate').textContent = "格式不符";
+                NewAccount.focus();
+                return;
+            }
+
+            var surl = '@ViewData["currentPath"]/Customers/PrecheckId';
+            console.log('surl: ' + surl);
             SetBusy();
             var postData = { account: NewAccount.value };
             //console.log('postData: ' + postData);
@@ -160,7 +174,9 @@
                         NewAccount_validate.textContent = "可以";
                         NewPassword.focus();
                         global_isPass = true;
-                        //return true;                        
+                        btn_submit.style.display = 'block';                        
+                        btn_precheck.style.display = 'none';                        
+                        NewAccount.setAttribute('Readonly', 'true');
                     }
                     else {
                         var failMsg = '不可使用, ';
@@ -199,26 +215,28 @@
             else {
 
             }
-        });
-
-        btn_submit.style.display = 'block';
+        });        
         
         async function precheckAllData() {
-            var isPass = false;
-            console.log('preCheckAccount before');
-            //isPass = 
-            await preCheckAccount()
-            console.log('global_isPass: ' + global_isPass);
-            if (!global_isPass) {
-                return false;
-            }
+            //var isPass = false;
+            //isPass = await preCheckAccount()
 
             console.log('check pwd');
-            if (NewPassword.value.length <= 4 ) {
+            if (NewPassword.value.length <= 4) {
                 NewPassword.focus();
-                NewPassword_validate.textContent = '不符合格式';
-                isPass = false;
-                return isPass;
+                NewPassword_validate.textContent = '太短';
+                return false;
+            }
+            else if (NewPassword.value.length >= 19) {
+                NewPassword.focus();
+                NewPassword_validate.textContent = '太長';
+                return false;
+            }
+            var pattern = new RegExp('^(?=.*[0-9])(?=.*[A-Za-z]).{5,20}$');
+            if (NewPassword.value.match(pattern) == null) {
+                NewPassword.focus();
+                NewPassword_validate.textContent = '不符合格式, 需包含數字與英文';
+                return false;
             }
             else
                 NewPassword_validate.textContent = '';
@@ -240,12 +258,18 @@
                 return isPass;
             }
 
+            //::double check acount, move it to last item for reducing server loading
+            console.log('preCheckAccount before');            
+            await preCheckAccount()
+            console.log('global_isPass: ' + global_isPass);
+            if (!global_isPass) {
+                return false;
+            }
+
             //::pass case
             isPass = true;
             return isPass;
-        }
-
-        
+        }        
 
         console.log("JS end");
     </script>

@@ -1,0 +1,88 @@
+﻿@model VNW.Models.Customer
+
+@{
+    ViewData["Title"] = "個人資訊";
+}
+
+<h2>@ViewData["Title"]</h2>
+
+
+@if (Model.ContactName == "" || Model.ContactName == null)
+{
+    <div class="alert-warning">您的資料尚未設定完成</div>
+}
+
+
+
+<div>
+    <h4>基本資料</h4>
+    <hr />
+    <a asp-action="Index" asp-controller="home" class="btn btn-info">< 回首頁</a>
+    <dl class="dl-horizontal">
+        @*<dt>
+                @Html.DisplayNameFor(model => model.PasswordEncoded)
+            </dt>
+            <dd>
+                @Html.DisplayFor(model => model.PasswordEncoded)
+            </dd>
+            <dt>
+                @Html.DisplayNameFor(model => model.Salt)
+            </dt>
+            <dd>
+                @Html.DisplayFor(model => model.Salt)
+            </dd>*@
+        <dt>
+            @Html.DisplayNameFor(model => model.CustomerId)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.CustomerId)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.CompanyName)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.CompanyName)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.ContactName)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.ContactName)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Address)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Address)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.City)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.City)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.PostalCode)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.PostalCode)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Country)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Country)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Phone)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Phone)
+        </dd>
+    </dl>
+</div>
+<div>
+    <a asp-action="EditPassword" class="btn btn-danger">修改密碼</a>
+    <a asp-action="EditInfo" class="btn btn-primary">修改本資料</a>
+</div>
