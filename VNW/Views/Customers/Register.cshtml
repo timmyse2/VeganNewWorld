@@ -129,9 +129,8 @@
             }
 
             var patternString = /^\w+((-\w+)|(\.\w+))*\@@[A-Za-z0-9]+((\.|-)[A-Za-z0-9]+)*\.[A-Za-z]+$/;
-            console.log('patternString ' + patternString);
-            var pattern = new RegExp(patternString);
-            //var pattern = new RegExp(/^[A-Z0-9._%+-]+@@[A-Z0-9.-]+\\.[A-Z]{2,6}$/);
+            console.log('patternString: ' + patternString);
+            var pattern = new RegExp(patternString);            
             if (NewAccount.value.match(pattern) == null) {
                 document.getElementById('NewAccount_validate').textContent = "格式不符";
                 NewAccount.focus();
@@ -245,8 +244,7 @@
             if (NewPassword_Confirm.value != NewPassword.value) {
                 NewPassword_Confirm.focus();
                 NewPassword_confirm_validate.textContent = '不一致';
-                isPass = false;
-                return isPass;
+                return false;
             }
             else
                 NewPassword_confirm_validate.textContent = '';
@@ -254,22 +252,70 @@
             if (Captcha.value.length != 4) {
                 Captcha.focus();
                 validation_Captcha.textContent = '請輸入4個數字';
-                isPass = false;
-                return isPass;
+                return false;
+            }
+
+            //::precheck captcha from db
+            console.log('precheck captcha from db');
+            if (await PreCheckCaptchaDB() != 'PASS') {
+                console.log('check captcha fail 402');
+                validation_Captcha.textContent = "不相符";
+                Captcha.focus();
+                return false;
             }
 
             //::double check acount, move it to last item for reducing server loading
-            console.log('preCheckAccount before');            
+            console.log('preCheckAccount before');
             await preCheckAccount()
             console.log('global_isPass: ' + global_isPass);
             if (!global_isPass) {
                 return false;
             }
 
-            //::pass case
-            isPass = true;
-            return isPass;
-        }        
+            //::pass case            
+            return true;
+        }
+
+        async function PreCheckCaptchaDB() {
+            var surl = '@ViewData["currentPath"]/Customers/CheckCaptcha';
+            console.log(' ' + surl);
+            var _res = 'tbd';
+            var postData = 'Captcha=' + encodeURIComponent(Captcha.value);
+            SetBusy();
+            await fetch(surl, {
+                method: 'POST',
+                headers: {                    
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                },                
+                body: (postData)
+            })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok ' + response.statusText);
+                        validation_Captcha.textContent = "驗證時發生錯誤A";
+                    }
+                    console.log('fetch response');
+                    SetReady();
+                    return response.json();
+                })
+                .then(data => {
+                    console.log('fetch data');
+                    console.log(data);
+                    //console.log(JSON.stringify(data));
+                    if (data.result == 'PASS') {                        
+                        _res = 'PASS';
+                    }                    
+                    //Captcha.focus();
+                    SetReady();
+                })
+                .catch(error => {
+                    console.error('Fetch operation failed:', error);
+                    validation_Captcha.textContent = "讀密碼時發生錯誤B";
+                    //Captcha.focus();
+                    SetReady();
+                });
+            return _res;
+        }
 
         console.log("JS end");
     </script>

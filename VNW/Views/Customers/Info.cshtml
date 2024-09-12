@@ -12,7 +12,10 @@
     <div class="alert-warning">您的資料尚未設定完成</div>
 }
 
-
+<div>
+    <h3 class="alert-info">@TempData["td_serverMessage"]</h3>
+    <h3 class="alert-danger">@TempData["td_serverWarning"]</h3>
+</div>
 
 <div>
     <h4>基本資料</h4>
@@ -20,35 +23,34 @@
     <a asp-action="Index" asp-controller="home" class="btn btn-info">< 回首頁</a>
     <dl class="dl-horizontal">
         @*<dt>
-                @Html.DisplayNameFor(model => model.PasswordEncoded)
-            </dt>
-            <dd>
-                @Html.DisplayFor(model => model.PasswordEncoded)
-            </dd>
-            <dt>
-                @Html.DisplayNameFor(model => model.Salt)
-            </dt>
-            <dd>
-                @Html.DisplayFor(model => model.Salt)
-            </dd>*@
+            @Html.DisplayNameFor(model => model.PasswordEncoded)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.PasswordEncoded)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Salt)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Salt)
+        </dd>*@
         <dt>
             @Html.DisplayNameFor(model => model.CustomerId)
         </dt>
         <dd>
             @Html.DisplayFor(model => model.CustomerId)
         </dd>
-
-        <dt>
-            @Html.DisplayNameFor(model => model.CompanyName)
-        </dt>
-        <dd>
-            @Html.DisplayFor(model => model.CompanyName)
-        </dd>
         <dt>
             @Html.DisplayNameFor(model => model.ContactName)
         </dt>
         <dd>
             @Html.DisplayFor(model => model.ContactName)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.CompanyName)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.CompanyName)
         </dd>
         <dt>
             @Html.DisplayNameFor(model => model.Address)

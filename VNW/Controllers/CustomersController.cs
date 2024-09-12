@@ -72,7 +72,7 @@ namespace VNW.Controllers
 
         public async Task<IActionResult> Info()
         {
-            string id = HttpContext.Request.Cookies["UserAccount"];            
+            string id = _ms.GetMySession("UserAccount", HttpContext.Session);
             if (id == null)
             {
                 //return NotFound();
@@ -83,7 +83,9 @@ namespace VNW.Controllers
                 .FirstOrDefaultAsync(m => m.CustomerId == id);
             if (customer == null)
             {
-                return NotFound();
+                //return NotFound();
+                TempData["td_server"] = "帳號未登入";
+                return RedirectToAction("Login", "Customers");
             }
             ViewData["UserAccount"] = id;
             return View(customer);
@@ -241,7 +243,9 @@ namespace VNW.Controllers
 
                 ViewData["currentHost"] = $"{HttpContext.Request.Scheme}://{HttpContext.Request.Host}";
                 ViewData["currentBase"] = $"{HttpContext.Request.PathBase}";
+
                 ViewData["UserAccount"] = HttpContext.Request.Cookies["UserAccount"];
+
                 string Captcha = GenerateCaptcha();                
                 _ms.SetMySession("Captcha", Captcha, HttpContext.Session);
                 Captcha = EncodeCaptcha(Captcha);
@@ -588,13 +592,22 @@ namespace VNW.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Register(string NewAccount, string NewPassword, string NewPassword_Confirm, string Captcha)
         {
-            //check input data           
+            //::check input data
+            if(NewAccount == null || NewPassword == null || NewPassword_Confirm == null || Captcha == null)
+            {
+                TempData["td_serverWarning"] = "資料不足";
+                return View();
+            }
 
-            //check captcha
-
-            //check account (exist, format)
+            //::check captcha
             string Captcha_expected = _ms.GetMySession("Captcha", HttpContext.Session);
-            if(Captcha_expected != Captcha)
+            if (Captcha_expected == null)
+            {
+                //ng case                
+                TempData["td_serverWarning"] = "驗證碼不相符";                
+                return View();
+            }
+            else if (Captcha_expected != Captcha)
             {
                 //ng case                
                 TempData["td_serverWarning"] = "驗證碼不相符";
@@ -602,15 +615,45 @@ namespace VNW.Controllers
                 return View();
             }
 
-            //check pwd (format)
+            //::check account format
+            string pattern_id = "^\\w+((-\\w+)|(\\.\\w+))*\\@[A-Za-z0-9]+((\\.|-)[A-Za-z0-9]+)*\\.[A-Za-z]+$";
+            System.Text.RegularExpressions.Regex regex_id
+                = new System.Text.RegularExpressions.Regex(pattern_id);
+            if (!regex_id.IsMatch(NewAccount))
+            {
+                TempData["td_serverWarning"] = "帳號格式不符 " + NewAccount;
+                return View();
+            }
+            //::check account is not exist
+            var user = await _context.Customer.AsNoTracking().Where(c=>c.CustomerId == NewAccount).FirstOrDefaultAsync();
+            if (user != null)
+            {
+                TempData["td_serverWarning"] = "帳號已被使用";
+                return View();
+            }
+
+            //::check pwd (format)
+            string pattern_pwd = "^(?=.*[0-9])(?=.*[A-Za-z]).{5,20}$";
+            System.Text.RegularExpressions.Regex regex_pwd
+                = new System.Text.RegularExpressions.Regex(pattern_pwd);
+            if (!regex_pwd.IsMatch(NewPassword))
+            {
+                TempData["td_serverWarning"] = "密碼格式不符";
+                return View();
+            }
+            if(NewPassword != NewPassword_Confirm)
+            {
+                TempData["td_serverWarning"] = "密碼驗證不相符";
+                return View();
+            }
 
             if (ModelState.IsValid)
             {
-                //encode pwd with salt            
+                //::encode pwd with salt            
                 string Salt = EmployeesController.GenerateSalt();
                 string PasswordEncoded = EmployeesController.PasswordSalt(NewPassword, Salt);
 
-                //create user info in customer
+                //::create user info in customer
                 Customer customer = new Customer()
                 {
                     CustomerId = NewAccount,
@@ -622,21 +665,16 @@ namespace VNW.Controllers
                 _context.Add(customer);
                 await _context.SaveChangesAsync();
 
-                //show basic user info
-                //return View();
-                //return RedirectToAction(nameof(Index));
-                //return Json(new { NewAccount, NewPassword, Captcha, Result = "PASS" });
+                //::show basic user info                
                 HttpContext.Response.Cookies.Append("UserAccount", customer.CustomerId);
                 TempData["td_server"] = "已建立帳戶";
                 return RedirectToAction("Login");
             }
             else
             {
-                //return Json(new { NewAccount, NewPassword, Captcha, Result = "NG" });
                 TempData["td_serverWarning"] = "資料處理異常";
                 return View();
-            }           
-
+            }
         }
 
         //::api for precheckID
@@ -692,7 +730,7 @@ namespace VNW.Controllers
         //::for 3C
         public async Task<IActionResult> EditInfo()
         {
-            string id = HttpContext.Request.Cookies["UserAccount"];
+            string id = _ms.GetMySession("UserAccount", HttpContext.Session);
             if (id == null)
             {
                 //return NotFound();
@@ -718,7 +756,7 @@ namespace VNW.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> EditInfo([Bind("CustomerId,CompanyName,ContactName,Address,City,PostalCode,Country,Phone")] Customer customer)
         {
-            string id = HttpContext.Request.Cookies["UserAccount"];
+            string id = _ms.GetMySession("UserAccount", HttpContext.Session);
             if (id == null)
             {
                 TempData["td_server"] = "請先登入";
@@ -750,6 +788,8 @@ namespace VNW.Controllers
 
                     _context.Update(customer);
                     await _context.SaveChangesAsync();
+                    TempData["td_serverWarning"] = "";
+                    TempData["td_serverMessage"] = "已更新";
                 }
                 catch (DbUpdateConcurrencyException)
                 {
@@ -774,7 +814,7 @@ namespace VNW.Controllers
             if (!_ms.LoginPrecheck(HttpContext.Session))
                 return RedirectToAction("Login", "Customers");
 
-            string id = HttpContext.Request.Cookies["UserAccount"];
+            string id = _ms.GetMySession("UserAccount", HttpContext.Session);
             if (id == null)
             {
                 //return NotFound();
@@ -805,10 +845,30 @@ namespace VNW.Controllers
         [ValidateAntiForgeryToken] //
         public async Task<IActionResult> EditPassword(string id, string OldPassword, string NewPassword, string NewPassword_Confirm, string Captcha)
         {
+            string _id = _ms.GetMySession("UserAccount", HttpContext.Session);
+            if (id == null || id != _id)
+            {
+                //return NotFound();
+                TempData["td_server"] = "請先登入";
+                return RedirectToAction("Login", "Customers");
+            }
+
             var customer = await _context.Customer.Where(c => c.CustomerId == id).FirstOrDefaultAsync();            
 
             string Captcha_expected = _ms.GetMySession("Captcha", HttpContext.Session);
             ViewData["Captcha"] = VNW.Controllers.CustomersController.EncodeCaptcha(Captcha_expected);
+            if (Captcha == null || Captcha.Length != 4)
+            {
+                TempData["td_serverWarning"] = "驗證碼長度錯誤";
+                return View(customer);
+            }
+            if (Captcha != Captcha_expected)
+            {
+                //error
+                TempData["td_serverWarning"] = "驗證碼不符";
+                return View(customer);
+            }
+
             if (customer == null)
             {
                 //return Content("no matched data");
@@ -858,18 +918,6 @@ namespace VNW.Controllers
             //::udpate new Salt, 10 chars randomly
             customer.Salt = EmployeesController.GenerateSalt();
             string NewPassword_Encoded = EmployeesController.PasswordSalt(NewPassword, customer.Salt);
-
-            if (Captcha == null || Captcha.Length != 4)
-            {
-                TempData["td_serverWarning"] = "驗證碼長度錯誤";
-                return View(customer);
-            }
-            if (Captcha != Captcha_expected)
-            {
-                //error
-                TempData["td_serverWarning"] = "驗證碼不符";
-                return View(customer);
-            }
 
             if (ModelState.IsValid)
             {
