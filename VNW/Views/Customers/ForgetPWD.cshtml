@@ -21,11 +21,11 @@
 <form asp-action="Register" method="post" id="fromRegister">
     <div asp-validation-summary="ModelOnly" class="text-danger"></div>
     <div class="form-group">
-        <label class="control-label">帳號</label>
+        <label class="control-label">帳號 (Email)</label>
         <input id="account" name="NewAccount" type="text" value="" class="form-control" />
         <span id="account_validate" class="text-danger"></span><br />
 
-        <div class="btn btn-info btn-sm">查此帳號是否可用</div>
+        <div class="btn btn-info btn-sm">檢查帳號</div>
     </div>   
 
     <div class="form-group">

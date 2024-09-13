@@ -19,18 +19,22 @@
     <div asp-validation-summary="ModelOnly" class="text-danger"></div>
     <div class="form-group">
         <label class="control-label">帳號 (郵件格式)</label> <b class="text-danger">*</b>
-        <input id="NewAccount" name="NewAccount" type="text" value="@@" class="form-control" />
+        <input id="NewAccount" name="NewAccount" type="text" value="" class="form-control" placeholder='name@domain.com'/>
         <div class="btn btn-info btn-sm" id="btn_precheck">查此帳號是否可用</div>
         <span id="NewAccount_validate" class="text-danger"></span><br />
     </div>
+    @*<div class="form-group">
+        <label class="control-label">郵件</label> <b class="text-danger">*</b>
+        <input type="email" value="" name="mail" class="form-control" placeholder='name@domain.com'/>
+    </div>*@
     <div class="form-group">
         <label class="control-label">密碼</label> <b class="text-danger">*</b>
-        <input id="NewPassword" name="NewPassword" type="password" value="" class="form-control" />
+        <input id="NewPassword" name="NewPassword" type="password" value="" class="form-control" placeholder="A-z0-9"/>
         <span id="NewPassword_validate" class="text-danger"></span>
     </div>
     <div class="form-group">
         <label class="control-label">確認密碼</label> <b class="text-danger">*</b>
-        <input id="NewPassword_confirm" name="NewPassword_confirm" type="password" value="" class="form-control" />
+        <input id="NewPassword_confirm" name="NewPassword_confirm" type="password" value="" class="form-control" placeholder="輸入一樣的值"/>
         <span id="NewPassword_confirm_validate" class="text-danger"></span>
     </div>
     <div class="form-group">
@@ -41,13 +45,13 @@
                 <td><div id="div_Captcha" style="user-select:none;font-size:25px;border:solid;border-width:1px;padding:2px;width:120px;height:35px;text-align:center;background-color:lightgrey;margin:4px;">@ViewData["Captcha"]</div></td>
                 <td> <btn id="btn_ChangeCaptcha" class="btn btn-danger">更換</btn><br /></td>
             </tr>
-        </table>        
+        </table>
         <span id="validation_Captcha" class="text-danger">請輸入圖中的4個數字</span>
     </div>
     <div class="form-group">
         <b><span id="all_validate" class="alert-danger field-validation-valid"></span></b>
     </div>
-    
+
     <div class="form-group">
         <div class="btn btn-lg btn-primary" id="btn_submit" style="display:none;">送出註冊資訊</div>
     </div>
