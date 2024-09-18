@@ -27,6 +27,7 @@
     </style>
 </head>
 <body>
+    
     <nav class="navbar navbar-inverse navbar-fixed-top" style="background:#1e4d0a;">
         <div class="container">
             <div class="navbar-header">
@@ -46,28 +47,23 @@
                     <li><a asp-area="" asp-controller="Products" asp-action="PrepareOrder" class="vnwt">購物車</a></li>
                     <li><a asp-area="" asp-controller="Orders" asp-action="OrderList" class="vnwt">訂單</a></li>
                     <li><a asp-area="" asp-controller="Recipes" asp-action="Index" class="vnwt">食譜</a></li>
-
-                    @*<li><a asp-area="" asp-controller="Home" asp-action="About" class="vnwt">關於...</a></li>*@
-                    @*<li><a asp-area="" asp-controller="Home" asp-action="Contact" class="vnwt">聯絡單位</a></li>*@
-                    @if (ViewBag.ShopAccount != null)
-                    {
-                        <li><a class="vnwt">@ViewBag.ShopAccount
-                            <img src="~/images/employee/@ViewBag.UserIcon"                            
-                            style="width:20px;border-radius:20px;" /></a></li>
-                    }
+                    <li><a asp-area="" asp-controller="Home" asp-action="About" class="vnwt">關於...</a></li>
+                    <li><a asp-area="" asp-controller="Home" asp-action="Contact" class="vnwt">聯絡單位</a></li>
+                    <li>@await Component.InvokeAsync("UserInfo")</li>
                 </ul>
+                @*@await Component.InvokeAsync("UserInfo")*@
             </div>
-            
         </div>        
-    </nav>   
+    </nav>
 
     <partial name="_CookieConsentPartial" />
 
     <div class="container body-content">
+        @*@await Component.InvokeAsync("UserInfo")*@
         @RenderBody()
         <hr />
         <footer>
-            <p>&copy; Vegan New World 新世界草食系 2024 Sep [ddfe319+]</p>
+            <p>&copy; 2024 Vegan New World 新世界草食系 [ddfe319+]</p>
         </footer>
     </div>
 
