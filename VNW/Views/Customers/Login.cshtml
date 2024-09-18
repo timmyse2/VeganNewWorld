@@ -51,7 +51,7 @@
         @*<img src="~/images/default.jpg" id="img_pin" style="width:150px;height:50px" />*@
         <table>
             <tr>
-                <td><input id="pin" name="pin" type="text" value="" class="form-control" style="min-width:20px;max-width:100px;margin:4px;" /> </td>
+                <td><input id="Captcha" name="pin" type="text" value="" class="form-control" style="min-width:20px;max-width:100px;margin:4px;" readonly /> </td>
                 <td><div id="div_Captcha" style="user-select:none;font-size:25px;border:solid;border-width:1px;padding:2px;width:120px;height:35px;text-align:center;background-color:lightgrey;margin:4px;">@ViewData["Captcha"]</div></td>
                 <td> <btn id="btn_ChangeCaptcha" class="btn btn-danger">更換</btn><br /></td>
             </tr>
@@ -64,6 +64,8 @@
         @*<img src="GenerateImage" alt="Generated Image" style="border:dashed;border-width:1px;"/>*@
 
         <span id="pin_validate" class="text-danger">請輸入圖中的4個數字</span>
+        <partial name="_CaptchaPartial" />
+        @*@await Html.PartialAsync("_CaptchaPartial")*@
     </div>
     <div class="form-group">
         <b><span id="all_validate" class="alert-danger field-validation-valid"></span></b>
@@ -108,6 +110,7 @@
 @section endJS{
     @*<!--jquery code-->*@
     <script type="text/javascript" src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+    <script src="~/js/CaptchaPad.js" async></script>
     <script>
         console.log('Set jquery functions');
         var isPass = false;
@@ -122,11 +125,11 @@
             console.log($("#password").val());
             msg = ""; //error message
 
-            if ($("#pin").val().length != 4) {
+            if ($("#Captcha").val().length != 4) {
                 //alert("warning! you lost the pwd ");
                 msg += "lost pin, ";
                 $("#pin_validate").text("請輸入4個數字");
-                $("#pin").focus();
+                $("#Captcha").focus();
                 //return;
             }
             else {
@@ -218,7 +221,7 @@
                             data: {
                                 account: $("#account").val(),
                                 password: $("#password").val(),
-                                pin: $("#pin").val(),
+                                pin: $("#Captcha").val(),
                             },
                             success: function (datar) {
                                 console.log("receive datar")
@@ -247,8 +250,8 @@
                                             break;
                                         case 103:
                                             failMessage += '驗證碼不合';
-                                            $("#pin").focus();
-                                            $("#pin").val('');
+                                            $("#Captcha").focus();
+                                            $("#Captcha").val('');
                                             break;
                                         case 104:
                                             failMessage += '密碼不合';
@@ -295,7 +298,7 @@
                                 data: {
                                     account: $("#account").val(),
                                     password: $("#password").val(),
-                                    pin: $("#pin").val(),
+                                    pin: $("#Captcha").val(),
                                 },
                                 success: function (datar) {
                                     console.log("receive datar")
@@ -321,7 +324,7 @@
                                                 break;
                                             case 103:
                                                 failMessage += '驗證碼不合';
-                                                $("#pin").focus();
+                                                $("#Captcha").focus();
                                                 break;
                                             case 104:
                                                 failMessage += '密碼不合';
@@ -405,6 +408,7 @@
                             //console.log('datar.captcha: ' + datar.captcha);
                             $('#div_Captcha').text(captcha);
                             $("#pin_validate").text("已更新, 請輸入4個數字");
+                            $('#Captcha').val('');
                         }
                         else {
                             //fail case
@@ -431,4 +435,3 @@
 
     </script>
 }
-
