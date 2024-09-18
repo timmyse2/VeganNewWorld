@@ -19,22 +19,22 @@
     <div asp-validation-summary="ModelOnly" class="text-danger"></div>
     <div class="form-group">
         <label class="control-label">帳號 (郵件格式)</label> <b class="text-danger">*</b>
-        <input id="NewAccount" name="NewAccount" type="text" value="" class="form-control" placeholder='name@domain.com'/>
+        <input id="NewAccount" name="NewAccount" type="text" value="" class="form-control" placeholder='name@domain.com' />
         <div class="btn btn-info btn-sm" id="btn_precheck">查此帳號是否可用</div>
         <span id="NewAccount_validate" class="text-danger"></span><br />
     </div>
     @*<div class="form-group">
-        <label class="control-label">郵件</label> <b class="text-danger">*</b>
-        <input type="email" value="" name="mail" class="form-control" placeholder='name@domain.com'/>
+            <label class="control-label">郵件</label> <b class="text-danger">*</b>
+            <input type="email" value="" name="mail" class="form-control" placeholder='name@domain.com'/>
     </div>*@
     <div class="form-group">
         <label class="control-label">密碼</label> <b class="text-danger">*</b>
-        <input id="NewPassword" name="NewPassword" type="password" value="" class="form-control" placeholder="A-z0-9"/>
+        <input id="NewPassword" name="NewPassword" type="password" value="" class="form-control" placeholder="A-z0-9" />
         <span id="NewPassword_validate" class="text-danger"></span>
     </div>
     <div class="form-group">
         <label class="control-label">確認密碼</label> <b class="text-danger">*</b>
-        <input id="NewPassword_confirm" name="NewPassword_confirm" type="password" value="" class="form-control" placeholder="輸入一樣的值"/>
+        <input id="NewPassword_confirm" name="NewPassword_confirm" type="password" value="" class="form-control" placeholder="輸入一樣的值" />
         <span id="NewPassword_confirm_validate" class="text-danger"></span>
     </div>
     <div class="form-group">
@@ -70,9 +70,9 @@
         const NewPassword_validate = document.getElementById('NewPassword_validate');
         const NewPassword_confirm_validate = document.getElementById('NewPassword_confirm_validate');
         const btn_ChangeCaptcha = document.getElementById('btn_ChangeCaptcha');
-        const validation_Captcha = document.getElementById('validation_Captcha'); 
+        const validation_Captcha = document.getElementById('validation_Captcha');
         const btn_submit = document.getElementById('btn_submit');
-        
+
         function SetBusy() {
             document.getElementById('img_loading').style.display = 'block';
             document.getElementById('MaskWindow').style.display = 'block';
@@ -83,7 +83,9 @@
         }
 
         btn_ChangeCaptcha.addEventListener('click', function () {
-            var surl = '@ViewData["currentPath"]/Customers/UpdateCaptcha';
+            @*//var surl = '@ViewData["currentPath"]/Customers/UpdateCaptcha';*@
+            var surl = '@Url.Action("UpdateCaptcha", "Customers")';
+
             console.log('surl: ' + surl);
             SetBusy();
             fetch(surl, {
@@ -134,21 +136,23 @@
 
             var patternString = /^\w+((-\w+)|(\.\w+))*\@@[A-Za-z0-9]+((\.|-)[A-Za-z0-9]+)*\.[A-Za-z]+$/;
             console.log('patternString: ' + patternString);
-            var pattern = new RegExp(patternString);            
+            var pattern = new RegExp(patternString);
             if (NewAccount.value.match(pattern) == null) {
                 document.getElementById('NewAccount_validate').textContent = "格式不符";
                 NewAccount.focus();
                 return;
             }
 
-            var surl = '@ViewData["currentPath"]/Customers/PrecheckId';
+            @*//var surl = '@ViewData["currentPath"]/Customers/PrecheckId';*@
+            var surl = '@Url.Action("PrecheckId", "Customers")';
+
             console.log('surl: ' + surl);
             SetBusy();
             var postData = { account: NewAccount.value };
             //console.log('postData: ' + postData);
             //postData = JSON.stringify(postData);
             postData = 'account=' + encodeURIComponent(NewAccount.value);
-            console.log('postData: ' + postData);           
+            console.log('postData: ' + postData);
             global_isPass = false;
             await fetch(surl, {
                 method: 'POST',
@@ -171,14 +175,14 @@
                 })
                 .then(data => {
                     console.log('fetch data');
-                    console.log(data);                    
+                    console.log(data);
                     if (data.result == 'PASS') {
                         //::Pass case
                         NewAccount_validate.textContent = "可以";
                         NewPassword.focus();
                         global_isPass = true;
-                        btn_submit.style.display = 'block';                        
-                        btn_precheck.style.display = 'none';                        
+                        btn_submit.style.display = 'block';
+                        btn_precheck.style.display = 'none';
                         NewAccount.setAttribute('Readonly', 'true');
                     }
                     else {
@@ -195,7 +199,7 @@
                         NewAccount.focus();
                         //return false;
                     }
-                    
+
                 })
                 .catch(error => {
                     console.error('Fetch operation failed:', error);
@@ -211,15 +215,15 @@
 
             var isPass = await precheckAllData();
             console.log('isPass: ' + isPass);
-            if (isPass) {                
+            if (isPass) {
                 console.log('--------SUBMIT-------------');
                 fromRegister.submit();
-            }                
+            }
             else {
 
             }
-        });        
-        
+        });
+
         async function precheckAllData() {
             //var isPass = false;
             //isPass = await preCheckAccount()
@@ -276,21 +280,22 @@
                 return false;
             }
 
-            //::pass case            
+            //::pass case
             return true;
         }
 
         async function PreCheckCaptchaDB() {
-            var surl = '@ViewData["currentPath"]/Customers/CheckCaptcha';
+            @*//var surl = '@ViewData["currentPath"]/Customers/CheckCaptcha';*@
+            var surl = '@Url.Action("CheckCaptcha", "Customers")';
             console.log(' ' + surl);
             var _res = 'tbd';
             var postData = 'Captcha=' + encodeURIComponent(Captcha.value);
             SetBusy();
             await fetch(surl, {
                 method: 'POST',
-                headers: {                    
+                headers: {
                     'Content-Type': 'application/x-www-form-urlencoded'
-                },                
+                },
                 body: (postData)
             })
                 .then(response => {
@@ -306,9 +311,9 @@
                     console.log('fetch data');
                     console.log(data);
                     //console.log(JSON.stringify(data));
-                    if (data.result == 'PASS') {                        
+                    if (data.result == 'PASS') {
                         _res = 'PASS';
-                    }                    
+                    }
                     //Captcha.focus();
                     SetReady();
                 })

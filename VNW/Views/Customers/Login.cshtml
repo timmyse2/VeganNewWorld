@@ -5,7 +5,6 @@
 
 <h2>會員登入</h2>
 
-
 <div id="MaskWindow" style="opacity:0.05;background:#000;width:200%;height:200%;z-index:99;position:absolute;top:0;left:0;cursor:no-drop;display:none;"></div>
 <div id="img_loading" style="z-index:100;position:fixed;border:none;width:100%;height:100%;left:0;top:50%-250px;cursor:no-drop;display:none;">
     <center><h3><b>處理中...</b></h3><img src="~/images/wait.gif" style="width:250px;" /></center>
@@ -52,12 +51,11 @@
         @*<img src="~/images/default.jpg" id="img_pin" style="width:150px;height:50px" />*@
         <table>
             <tr>
-                <td><input id="pin" name="pin" type="text" value="" class="form-control" style="min-width:20px;max-width:100px;margin:4px;"/> </td>
+                <td><input id="pin" name="pin" type="text" value="" class="form-control" style="min-width:20px;max-width:100px;margin:4px;" /> </td>
                 <td><div id="div_Captcha" style="user-select:none;font-size:25px;border:solid;border-width:1px;padding:2px;width:120px;height:35px;text-align:center;background-color:lightgrey;margin:4px;">@ViewData["Captcha"]</div></td>
                 <td> <btn id="btn_ChangeCaptcha" class="btn btn-danger">更換</btn><br /></td>
             </tr>
-        </table>        
-        
+        </table>
         @*<img src="@VNW.Controllers.CustomersController.DisplayDBImage("~/images/joker.png")"/>*@
         @{
             //string base64Image = ViewData["ImageBase64"] as string;
@@ -97,7 +95,7 @@
     |
 </div>
 
-@functions    
+@functions
 {
     //public async Task<string> GeneratePinImage(string fileName)
     //{

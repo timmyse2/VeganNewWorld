@@ -584,7 +584,7 @@ namespace VNW.Controllers
             _ms.SetMySession("Captcha", Captcha, HttpContext.Session);
             Captcha = EncodeCaptcha(Captcha);
             ViewData["Captcha"] = Captcha;
-            ViewData["currentPath"] = $"{HttpContext.Request.Scheme}://{HttpContext.Request.Host}{HttpContext.Request.PathBase}";
+            //ViewData["currentPath"] = $"{HttpContext.Request.Scheme}://{HttpContext.Request.Host}{HttpContext.Request.PathBase}";
             return View();
         }
 
