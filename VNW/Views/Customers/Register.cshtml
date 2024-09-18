@@ -41,13 +41,23 @@
         <label class="control-label">驗證碼</label> <b class="text-danger">*</b>
         <table>
             <tr>
-                <td><input id="Captcha" name="Captcha" type="text" value="" class="form-control" style="min-width:20px;max-width:100px;margin:4px;" /> </td>
+                <td><input id="Captcha" name="Captcha" type="text" value="" class="form-control" style="min-width:20px;max-width:100px;margin:4px;" readonly /> </td>
                 <td><div id="div_Captcha" style="user-select:none;font-size:25px;border:solid;border-width:1px;padding:2px;width:120px;height:35px;text-align:center;background-color:lightgrey;margin:4px;">@ViewData["Captcha"]</div></td>
                 <td> <btn id="btn_ChangeCaptcha" class="btn btn-danger">更換</btn><br /></td>
             </tr>
         </table>
         <span id="validation_Captcha" class="text-danger">請輸入圖中的4個數字</span>
     </div>
+
+    <div id="input_captcha">
+        <table>
+            <tr><td><div class="btn btn-lg btn-info" id="btn_9">9 </div></td><td><div class="btn btn-lg btn-info" id="btn_8">8</div></td><td><div class="btn btn-lg btn-info" id="btn_7"> 7 </div></td></tr>
+            <tr><td><div class="btn btn-lg btn-info" id="btn_6">6 </div></td><td><div class="btn btn-lg btn-info" id="btn_5">5</div></td><td><div class="btn btn-lg btn-info" id="btn_4"> 4 </div></td></tr>
+            <tr><td><div class="btn btn-lg btn-info" id="btn_3">3 </div></td><td><div class="btn btn-lg btn-info" id="btn_2">2</div></td><td><div class="btn btn-lg btn-info" id="btn_1"> 1 </div></td></tr>
+            <tr><td><div class="btn btn-lg btn-primary" id="btn_del"><</div></td><td><div class="btn btn-lg btn-info" id="btn_0">0</div></td><td><div class="btn btn-lg btn-danger" id="btn_clear">C</div></td></tr>
+        </table>
+    </div>
+
     <div class="form-group">
         <b><span id="all_validate" class="alert-danger field-validation-valid"></span></b>
     </div>
@@ -72,6 +82,18 @@
         const btn_ChangeCaptcha = document.getElementById('btn_ChangeCaptcha');
         const validation_Captcha = document.getElementById('validation_Captcha');
         const btn_submit = document.getElementById('btn_submit');
+        const btn_0 = document.getElementById('btn_0');
+        const btn_1 = document.getElementById('btn_1');
+        const btn_2 = document.getElementById('btn_2');
+        const btn_3 = document.getElementById('btn_3');
+        const btn_4 = document.getElementById('btn_4');
+        const btn_5 = document.getElementById('btn_5');
+        const btn_6 = document.getElementById('btn_6');
+        const btn_7 = document.getElementById('btn_7');
+        const btn_8 = document.getElementById('btn_8');
+        const btn_9 = document.getElementById('btn_9');
+        const btn_del = document.getElementById('btn_del');
+        const btn_clear = document.getElementById('btn_clear');
 
         function SetBusy() {
             document.getElementById('img_loading').style.display = 'block';
@@ -106,7 +128,7 @@
                     //console.log(JSON.stringify(data));
                     if (data.result == 'PASS') {
                         document.getElementById('div_Captcha').textContent = data.captcha;
-
+                        Captcha.value = '';
                     }
                     else {
                         validation_Captcha.textContent = "讀密碼時發生錯誤C";
@@ -326,6 +348,47 @@
             return _res;
         }
 
+        btn_0.addEventListener('click', function () {
+            Captcha.value = Captcha.value + '0';
+        });
+        btn_1.addEventListener('click', function () {
+            Captcha.value = Captcha.value + '1';
+        });
+        btn_2.addEventListener('click', function () {
+            Captcha.value = Captcha.value + '2';
+        });
+        btn_3.addEventListener('click', function () {
+            Captcha.value = Captcha.value + '3';
+        });
+        btn_4.addEventListener('click', function () {
+            Captcha.value = Captcha.value + '4';
+        });
+        btn_5.addEventListener('click', function () {
+            Captcha.value = Captcha.value + '5';
+        });
+        btn_6.addEventListener('click', function () {
+            Captcha.value = Captcha.value + '6';
+        });
+        btn_7.addEventListener('click', function () {
+            Captcha.value = Captcha.value + '7';
+        });
+        btn_8.addEventListener('click', function () {
+            Captcha.value = Captcha.value + '8';
+        });
+        btn_9.addEventListener('click', function () {
+            Captcha.value = Captcha.value + '9';
+        });
+        btn_clear.addEventListener('click', function () {
+            Captcha.value = '';
+        });
+        btn_del.addEventListener('click', function () {
+            var len = Captcha.value.length;
+            //console.log('len: ' + len);
+            if (len => 1) {
+                var temp = Captcha.value.substring(0, len - 1);
+                Captcha.value = temp;
+            }           
+        });
         console.log("JS end");
     </script>
 }
