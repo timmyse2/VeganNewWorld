@@ -51,7 +51,7 @@
         @*<img src="~/images/default.jpg" id="img_pin" style="width:150px;height:50px" />*@
         <table>
             <tr>
-                <td><input id="Captcha" name="pin" type="text" value="" class="form-control" style="min-width:20px;max-width:100px;margin:4px;" readonly /> </td>
+                <td><input id="Captcha" name="pin" type="text" value="" class="form-control" style="min-width:20px;max-width:100px;margin:4px;font-size:20px;" readonly /> </td>
                 <td><div id="div_Captcha" style="user-select:none;font-size:25px;border:solid;border-width:1px;padding:2px;width:120px;height:35px;text-align:center;background-color:lightgrey;margin:4px;">@ViewData["Captcha"]</div></td>
                 <td> <btn id="btn_ChangeCaptcha" class="btn btn-danger">更換</btn><br /></td>
             </tr>
@@ -63,8 +63,7 @@
         @*<img src="data:image/png;base64,@base64Image" alt="Image" style="width:150px;"/>*@
         @*<img src="GenerateImage" alt="Generated Image" style="border:dashed;border-width:1px;"/>*@
 
-        <span id="pin_validate" class="text-danger">請輸入圖中的4個數字</span>
-        <partial name="_CaptchaPartial" />
+        <span id="pin_validate" class="text-danger">請輸入圖中的4個數字</span>        
         @*@await Html.PartialAsync("_CaptchaPartial")*@
     </div>
     <div class="form-group">
@@ -72,16 +71,17 @@
     </div>
 
     <div class="form-group">
+        <partial name="_CaptchaPartial" />
         @*<input id="btn_submit" type="submit" value="驗證與登入" class="btn btn-primary" />*@
     </div>
 </form>
 
-<div class="form-group">
+<div class="form-group" style="text-align:right;">
     @*!NOTICE: do not put htem in the form *@
 
     @if (ViewData["retryLock"] == null)
     {
-        <button class="btn btn-info" id="btn_test">驗證並登入</button>
+        <div class="btn btn-primary btn-lg" id="btn_test" style="display:block;">驗證並登入</div>        
     }
     else
     {
@@ -89,6 +89,8 @@
     }
     <button class="btn btn-primary" id="btn_login_ajax" style="display:none;">登入</button>
 </div>
+
+
 
 <div>
     | <a asp-action="Register" asp-controller="Customers">註冊</a>

@@ -1,8 +1,38 @@
 <span>
+    @{
+        bool isShowIcon = false;
+    }
     @if (ViewBag.ShopAccount != null)
     {
-        <img src="~/images/employee/@ViewBag.UserIcon"
-             style="width:50px;border-radius:50px;border:solid;border-width:1px;" />
+        isShowIcon = true;
+    }
+    else if (ViewBag.UserAccount != null)
+    {
+        isShowIcon = true;
+    }
+
+
+    @if (isShowIcon)
+    {
+        if (ViewBag.UserIcon != null)
+        {
+            <img src="~/images/employee/@ViewBag.UserIcon"
+                 style="width:50px;border-radius:50px;border:solid;border-width:1px;" />
+        }
+        else
+        {
+            <img src="~/images/default.jpg"
+                 style="width:50px;border-radius:50px;border:solid;border-width:1px;" />
+        }
+    }
+
+
+    @if (ViewBag.ShopAccount != null)
+    {
         <span style="color:lightgray;">@ViewBag.ShopAccount</span>
+    }
+    else if (ViewBag.UserAccount != null)
+    {
+        <span style="color:lightgray;">@ViewBag.UserAccount</span>
     }
 </span>

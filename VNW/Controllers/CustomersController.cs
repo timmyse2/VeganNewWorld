@@ -396,6 +396,7 @@ namespace VNW.Controllers
                 HttpContext.Session.Remove("UserAccount");
                 HttpContext.Session.Remove("UserLevel");
                 HttpContext.Session.Remove("ShopAccount");
+                HttpContext.Session.Remove("UserIcon");
                 TempData["td_server"] = "已登出"; //::
             });
             return RedirectToAction("Login");
