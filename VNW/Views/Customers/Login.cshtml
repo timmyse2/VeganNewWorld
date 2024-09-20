@@ -21,7 +21,7 @@
 }
 
 
-<form asp-action="Login" method="post" id="fromLogin" style="width:70%;">
+<form asp-action="Login" method="post" id="fromLogin">
     <div asp-validation-summary="ModelOnly" class="text-danger"></div>
     <div class="form-group">
         <label class="control-label">帳號</label>
@@ -81,7 +81,7 @@
 
     @if (ViewData["retryLock"] == null)
     {
-        <div class="btn btn-primary btn-lg" id="btn_test" style="display:block;width:70%;">驗證並登入</div>        
+        <div class="btn btn-primary btn-lg" id="btn_test" style="display:block;">驗證並登入</div>
     }
     else
     {

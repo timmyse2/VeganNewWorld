@@ -1174,8 +1174,8 @@ namespace VNW.Controllers
               return RedirectToAction("Login", "Customers");
             }
 
-            if (!_ms.LoginPrecheck(HttpContext.Session))
-                return RedirectToAction("Login", "Customers");
+            //if (!_ms.LoginPrecheck(HttpContext.Session))
+            //    return RedirectToAction("Login", "Customers");
 
             #region condition            
             //::condition
