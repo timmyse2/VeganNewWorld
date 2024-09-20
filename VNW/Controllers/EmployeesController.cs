@@ -657,7 +657,8 @@ namespace VNW.Controllers
                             _ms.SetMySession("IsUserLogin", "NO", HttpContext.Session);
                             _ms.SetMySession("UserLevel", "2B", HttpContext.Session);
                             //_ms.SetMySession("UserAccount", "Illyasviel@Einzbern2017", HttpContext.Session);
-                            _ms.SetMySession("UserAccount", ShopAccount, HttpContext.Session);
+                            //_ms.SetMySession("UserAccount", ShopAccount, HttpContext.Session);
+                            HttpContext.Session.Remove("UserAccount");
                             _ms.SetMySession("ShopAccount", ShopAccount, HttpContext.Session);
                             _ms.SetMySession("EmployeeId", employee.Id.ToString(), HttpContext.Session);
                             _ms.SetMySession("UserIcon", employee.PhotoPath, HttpContext.Session);

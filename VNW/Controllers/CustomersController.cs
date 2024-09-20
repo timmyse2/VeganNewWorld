@@ -70,15 +70,27 @@ namespace VNW.Controllers
             return View(customer);
         }
 
+        //::3C check personal info
         public async Task<IActionResult> Info()
         {
+            //::for issue xxx
+            if (!_ms.LoginPrecheck(HttpContext.Session))
+                return RedirectToAction("Login", "Customers");
+            string UserLevel = _ms.GetMySession("UserLevel", HttpContext.Session);
+            if (UserLevel != "3C" )
+            {
+                TempData["td_server"] = "請先登入";
+                return RedirectToAction("Login", "Customers");
+            }
+
             string id = _ms.GetMySession("UserAccount", HttpContext.Session);
             if (id == null)
             {
                 //return NotFound();
                 TempData["td_server"] = "請先登入";
                 return RedirectToAction("Login", "Customers");
-            }            
+            }
+
             var customer = await _context.Customer
                 .FirstOrDefaultAsync(m => m.CustomerId == id);
             if (customer == null)
@@ -375,6 +387,7 @@ namespace VNW.Controllers
                 //:: 1A(admin) 2B(business vender) 3C(customer)
 
                 //::remove flags
+                HttpContext.Session.Remove("ShopAccount");
                 HttpContext.Session.Remove("Captcha");
                 HttpContext.Session.Remove("retryCount");
                 HttpContext.Session.Remove("retryLockTime");                
