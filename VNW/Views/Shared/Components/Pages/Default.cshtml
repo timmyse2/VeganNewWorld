@@ -1,0 +1,62 @@
+@{ 
+    //:: page
+    int totalPage = 0; int ipp = 10; int totalCount = 0;
+    int pageNum = 0;
+    if (ViewData["page"] != null)
+    {
+        pageNum = (int)ViewData["page"];
+    }
+
+    //::set dummy data
+    pageNum = 3;
+    ViewData["totalCount"] = 100;
+}
+
+<div id="pageSelection">
+    @{
+        if (ViewData["totalCount"] != null)
+        {
+            totalPage = (int)ViewData["totalCount"] / ipp + 1;
+            totalCount = (int)ViewData["totalCount"];
+            <ul class="pagination">
+                @{
+                    if (pageNum > 0)
+                    {
+                        <li class="page-item"><a class="page-link" href="?page=@(pageNum)"><</a></li>
+                    }
+                    else
+                    {
+                        <li class="page-item disabled"><a class="page-link"><</a></li>
+                    }
+
+                    for (int i = 0; i < totalPage; i++)
+                    {
+                        if (i == pageNum)
+                        {
+                            <li class="page-item active">
+                                <a class="page-link">@(i + 1)</a>
+                            </li>
+                        }
+                        else
+                        {
+                            <li class="page-item">
+                                <a href="?page=@(i + 1)" class="page-link"> @(i + 1) </a>
+                            </li>
+                        }
+                    } //for
+                    if (pageNum < totalPage - 1)
+                    {
+                        <li class="page-item"><a class="page-link" href="?page=@(pageNum+2)">></a></li>
+                    }
+                    else
+                    {
+                        <li class="page-item disabled"><a class="page-link">></a></li>
+                    }
+                }
+            </ul>
+            <br />
+            @*<span>¨ú @Model.Count() / @totalCount µ§</span>*@
+        }
+    }
+
+</div>
