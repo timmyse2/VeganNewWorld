@@ -8,55 +8,60 @@
     }
 
     //::set dummy data
-    pageNum = 3;
-    ViewData["totalCount"] = 100;
+    //pageNum = 3;
+    //ViewData["totalCount"] = 100;
 }
 
 <div id="pageSelection">
     @{
+
         if (ViewData["totalCount"] != null)
         {
-            totalPage = (int)ViewData["totalCount"] / ipp + 1;
+            if (ViewData["page"] != null)
+            {
+                pageNum = (int)ViewData["page"];
+            }
+            if (ViewData["ipp"] != null)
+            {
+                ipp = (int)ViewData["ipp"];
+                if (ipp <= 0) { ipp = 10; }
+            }
             totalCount = (int)ViewData["totalCount"];
-            <ul class="pagination">
+            totalPage = totalCount / ipp + 1;
+            <div>
                 @{
                     if (pageNum > 0)
                     {
-                        <li class="page-item"><a class="page-link" href="?page=@(pageNum)"><</a></li>
+                        <a class="btn btn-default" href="?page=@(pageNum)"><</a>
                     }
                     else
                     {
-                        <li class="page-item disabled"><a class="page-link"><</a></li>
+                        <a class="btn btn-default"><</a>
                     }
 
                     for (int i = 0; i < totalPage; i++)
                     {
                         if (i == pageNum)
                         {
-                            <li class="page-item active">
-                                <a class="page-link">@(i + 1)</a>
-                            </li>
+                            @*<a class="page-link">@(i + 1)</a>*@
+                            <a href="?page=@(i + 1)" class="btn btn-danger"> @(i + 1) </a>
                         }
                         else
                         {
-                            <li class="page-item">
-                                <a href="?page=@(i + 1)" class="page-link"> @(i + 1) </a>
-                            </li>
+                            <a href="?page=@(i + 1)" class="btn btn-default"> @(i + 1) </a>
                         }
                     } //for
                     if (pageNum < totalPage - 1)
                     {
-                        <li class="page-item"><a class="page-link" href="?page=@(pageNum+2)">></a></li>
+                        <a class="btn btn-default" href="?page=@(pageNum+2)">></a>
                     }
                     else
                     {
-                        <li class="page-item disabled"><a class="page-link">></a></li>
+                        <a class="btn btn-default">></a>
                     }
                 }
-            </ul>
-            <br />
-            @*<span>¨ú @Model.Count() / @totalCount µ§</span>*@
+            </div>
+            @*<span> @totalCount ç­†</span>*@
         }
     }
-
 </div>

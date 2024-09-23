@@ -49,63 +49,7 @@ else
     {<a class="btn btn-default" asp-route-condition="all" style="border:solid;border-width:2px;"><b>全部</b></a>}
 </div>
 
-<div id="pageSelection">
-    @{
-        //:: page
-        int totalpage = 0; int ipp = 10;
-        int pageNum = 1;
-        int totalCount = 0;
-
-        if (ViewData["totalCount"] != null)
-        {
-            if (ViewData["page"] != null)
-            {
-                pageNum = (int)ViewData["page"];
-            }
-            if (ViewData["ipp"] != null)
-            {
-                ipp = (int)ViewData["ipp"];
-                if (ipp <= 0) { ipp = 10; }
-            }
-            totalCount = (int)ViewData["totalCount"];
-            totalpage = totalCount / ipp + 1;
-            <div>
-                @{
-                    if (pageNum > 0)
-                    {
-                        <a class="btn btn-default" href="?page=@(pageNum)"><</a>
-                    }
-                    else
-                    {
-                        <a class="btn btn-default"><</a>
-                    }
-
-                    for (int i = 0; i < totalpage; i++)
-                    {
-                        if (i == pageNum)
-                        {
-                            @*<a class="page-link">@(i + 1)</a>*@
-                            <a href="?page=@(i + 1)" class="btn btn-info"> @(i + 1) </a>
-                        }
-                        else
-                        {
-                            <a href="?page=@(i + 1)" class="btn btn-default"> @(i + 1) </a>
-                        }
-                    } //for
-                    if (pageNum < totalpage - 1)
-                    {
-                        <a class="btn btn-default" href="?page=@(pageNum+2)">></a>
-                    }
-                    else
-                    {
-                        <a class="btn btn-default">></a>
-                    }
-                }
-            </div>
-            <span> @Model.Count() / @totalCount 筆</span>             
-        }
-    }
-</div>
+<vc:pages></vc:pages>
 
 <table class="table">
     <thead>

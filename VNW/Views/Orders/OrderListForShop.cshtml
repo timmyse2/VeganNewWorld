@@ -86,8 +86,9 @@
 
 </div>
 
-<div id="pageSelection">
-    @{
+<vc:pages/>
+<div id="old_pageSelection">
+    @*@{
         //:: page
         int totalpage = 0; int ipp = 10; int totalCount = 0;
         int pageNum = (int)ViewData["page"];
@@ -133,7 +134,7 @@
             </ul>
             <div>@Model.Count() / @totalCount 筆</div>
         }
-    }
+    }*@
 </div>
 
 

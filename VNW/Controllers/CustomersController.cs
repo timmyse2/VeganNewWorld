@@ -384,13 +384,15 @@ namespace VNW.Controllers
                 _ms.SetMySession("IsUserLogin", "YES", HttpContext.Session);
                 _ms.SetMySession("UserAccount", customer.CustomerId, HttpContext.Session);
                 _ms.SetMySession("UserLevel", "3C", HttpContext.Session);
+                //_ms.SetMySession("UserIcon", "?", HttpContext.Session);
                 //:: 1A(admin) 2B(business vender) 3C(customer)
 
                 //::remove flags
                 HttpContext.Session.Remove("ShopAccount");
                 HttpContext.Session.Remove("Captcha");
                 HttpContext.Session.Remove("retryCount");
-                HttpContext.Session.Remove("retryLockTime");                
+                HttpContext.Session.Remove("retryLockTime");
+                HttpContext.Session.Remove("UserIcon");
 
                 return Json(new { result = "PASS", detail = "matched", errorCode, retryCount });
             }

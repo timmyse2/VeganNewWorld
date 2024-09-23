@@ -1,15 +1,15 @@
 <span>
     @{
-        bool isShowIcon = false;
+        bool isShowIcon = true;
     }
-    @if (ViewBag.ShopAccount != null)
+    @*@if (ViewBag.ShopAccount != null)
     {
         isShowIcon = true;
     }
     else if (ViewBag.UserAccount != null)
     {
         isShowIcon = true;
-    }
+    }*@
 
 
     @if (isShowIcon)

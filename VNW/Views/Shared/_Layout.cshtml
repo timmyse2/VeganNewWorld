@@ -39,7 +39,8 @@
                     <span class="icon-bar"></span>
                 </button>
                 <a asp-area="" asp-controller="Home" asp-action="Index" class="navbar-brand vnwt" style="color:wheat"> 新世界草食 </a>
-                <span>@await Component.InvokeAsync("UserInfo",0)</span>
+                @*<span>@await Component.InvokeAsync("UserInfo",0)</span>*@
+                <span><vc:user-info test-p=0></vc:user-info></span>
             </div>
             <div class="navbar-collapse collapse">
                 <ul class="nav navbar-nav">
@@ -51,7 +52,7 @@
                     <li><a asp-area="" asp-controller="Recipes" asp-action="Index" class="vnwt">食譜</a></li>
                     <li><a asp-area="" asp-controller="Home" asp-action="About" class="vnwt">關於...</a></li>
                     <li><a asp-area="" asp-controller="Home" asp-action="Contact" class="vnwt">聯絡單位</a></li>
-                    <li><vc:user-info test-p=1></vc:user-info></li>
+                    @*<li><vc:user-info test-p=1></vc:user-info></li>*@
                 </ul>
                 @*@await Component.InvokeAsync("UserInfo")*@
             </div>
