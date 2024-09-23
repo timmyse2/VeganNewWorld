@@ -30,15 +30,16 @@
     
     <nav class="navbar navbar-inverse navbar-fixed-top" style="background:#1e4d0a;">
         <div class="container">
-            <div class="navbar-header">
+            <div class="navbar-header" style="text-align:right;">
                 <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
-                    <span class="sr-only">Toggle navigation</span>
+                    
+                    @*<span class="sr-only">Toggle navigation</span>*@
                     <span class="icon-bar"></span>
                     <span class="icon-bar"></span>
                     <span class="icon-bar"></span>
                 </button>
                 <a asp-area="" asp-controller="Home" asp-action="Index" class="navbar-brand vnwt" style="color:wheat"> 新世界草食 </a>
-                <span>@await Component.InvokeAsync("UserInfo")</span>                
+                <span>@await Component.InvokeAsync("UserInfo",0)</span>
             </div>
             <div class="navbar-collapse collapse">
                 <ul class="nav navbar-nav">
@@ -50,7 +51,7 @@
                     <li><a asp-area="" asp-controller="Recipes" asp-action="Index" class="vnwt">食譜</a></li>
                     <li><a asp-area="" asp-controller="Home" asp-action="About" class="vnwt">關於...</a></li>
                     <li><a asp-area="" asp-controller="Home" asp-action="Contact" class="vnwt">聯絡單位</a></li>
-                    @*<li>@await Component.InvokeAsync("UserInfo")</li>*@
+                    <li><vc:user-info test-p=1></vc:user-info></li>
                 </ul>
                 @*@await Component.InvokeAsync("UserInfo")*@
             </div>
@@ -64,7 +65,7 @@
         @RenderBody()
         <hr />
         <footer>
-            <p>&copy; 2024 Vegan New World 新世界草食系 [6108ee7]</p>
+            <p>&copy; 2024 Vegan New World 新世界草食系 [093b58c]</p>
         </footer>
     </div>
 

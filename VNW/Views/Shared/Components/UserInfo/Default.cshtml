@@ -26,13 +26,16 @@
         }
     }
 
+    @if (ViewBag.Show == "Yes")
+    {
+        if (ViewBag.ShopAccount != null)
+        {
+            <span style="color:lightgray;">@ViewBag.ShopAccount</span>
+        }
+        else if (ViewBag.UserAccount != null)
+        {
+            <span style="color:lightgray;">@ViewBag.UserAccount</span>
+        }
+    }
 
-    @if (ViewBag.ShopAccount != null)
-    {
-        <span style="color:lightgray;">@ViewBag.ShopAccount</span>
-    }
-    else if (ViewBag.UserAccount != null)
-    {
-        <span style="color:lightgray;">@ViewBag.UserAccount</span>
-    }
 </span>

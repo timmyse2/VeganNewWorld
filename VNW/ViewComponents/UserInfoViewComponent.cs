@@ -33,10 +33,14 @@ namespace VNW.ViewComponents
         //    return View();
         //}
 
-        public async Task<IViewComponentResult> InvokeAsync()
+        public async Task<IViewComponentResult> InvokeAsync(int TestP)
         {
             ViewBag.ShopAccount = _ms.GetMySession("ShopAccount", HttpContext.Session);
             ViewData["UserIcon"] = _ms.GetMySession("UserIcon", HttpContext.Session);
+            if(TestP == 1)
+            {
+                ViewData["Show"] = "Yes";
+            }
             return View();
         }
     }    

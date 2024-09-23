@@ -2,9 +2,12 @@
     ViewData["Title"] = "Home Page";
 }
 
+@*<vc:user-info test-p=0 />
+<vc:user-info test-p=1></vc:user-info>*@
+
 @if (ViewBag.UserAccount == null || ViewBag.UserAccount == "")
 {
-    <a asp-action="login" asp-controller="customers">登入</a> <x>|</x> 
+    <a asp-action="login" asp-controller="customers">登入</a> <x>|</x>
     <a asp-action="Register" asp-controller="Customers">註冊</a>
 }
 else
@@ -19,98 +22,96 @@ else
             <b>客戶</b> @ViewBag.UserAccount
         }
         <a asp-action="logout" asp-controller="Customers">登出</a>
-    </p>    
+    </p>
 }
-
-
-    <div class="row">
-        <div class="col-md-3 col-sm-4 col-xs-6">
-            <h2>購物訂單</h2>
-            <ul>
-                <li><a asp-action="CategoryList" asp-controller="Categories">商品分類</a></li>
-                <li>
-                    食材 (<a asp-action="ProductList" asp-controller="Products" asp-route-cat="1">未來肉|植物蛋白肉</a>
-                    |天貝)
-                </li>
-                <li><a asp-action="ProductList" asp-controller="Products" asp-route-cat="8">書籍</a> | 器具 | 手工藝品</li>
-                <li>料理|點餐</li>
-                <li>
-                    <a asp-action="PrepareOrder" asp-controller="Products" class="btn btn-danger">購物車</a>
-                    <a asp-action="OrderList" asp-controller="Orders" class="btn btn-primary">我的訂單</a>
-                </li>
-            </ul>
-        </div>
-
-        <div class="col-md-3 col-sm-4 col-xs-6">
-            <h2>客戶資訊</h2>
-            <ul>
-                <li><a asp-action="Info" asp-controller="Customers">用戶資料維護</a> </li>
-                <li><a asp-action="Register" asp-controller="Customers">註冊</a></li>
-                <li><a asp-action="ForgetPWD" asp-controller="Customers">忘記密碼 </a></li>
-
-                @if (ViewBag.UserLevel == "2B" || ViewBag.IsAdmin)
-                {
-                    <li>用戶資料維護(商家專用)</li>
-                }
-
-
-                @if (ViewBag.IsAdmin)
-                {
-
-                    <li>客戶名單(<span class="text-danger">需管理者權限*</span>)</li>
-                    <li>
-                        <ul>
-                            <li><a asp-action="index" asp-controller="Customers"> Customer </a></li>
-                        </ul>
-                    </li>
-                }
-            </ul>
-        </div>
-        <div class="col-md-3 col-sm-4 col-xs-6">
-            <h2>綠能專區</h2>
-            <ul>
-                <li>智能與善良的農場(IoT溫濕度記錄)</li>
-                <li>太陽能路燈</li>
-                <li>
-                    CAM即時監控 (定點式|無人機|飛天鯊魚)
-                </li>
-            </ul>
-        </div>
-        <div class="col-md-3 col-sm-4 col-xs-6">
-            <h2>管理專用</h2>
-            <ul>
-
-                @if ((string)ViewData["UserLevel"] == "2B" || ViewBag.IsAdmin)
-                {
-                    <li>
-                        <a asp-action="OrderListForShop" asp-controller="Orders" class="btn btn-success btn-lg">訂單管理(商家專用*)</a>
-                    </li>
-                    <li>
-                        <a asp-action="index" asp-controller="products" class="btn btn-info btn-lg">商品管理(商家專用*)</a>
-                    </li>
-
-                    <li>
-                        <a asp-action="index" asp-controller="employees" class="btn btn-danger btn-lg">員工管理 (商家專用*)</a>
-                    </li>
-
-                }
-
-                @if (ViewBag.IsAdmin)
-                {
-                    <li>
-                        訂單(<span class="text-danger">需管理者權限*</span>)
-                        <ul>
-                            <li><a asp-action="index" asp-controller="Products"> Product </a></li>
-                            <li><a asp-action="index" asp-controller="Categories"> Category </a></li>
-                            <li><a asp-action="index" asp-controller="Orders"> Order </a></li>
-                            <li><a asp-action="index" asp-controller="OrderDetails"> Order Detail </a></li>
-                        </ul>
-                    </li>
-                }
-            </ul>
-        </div>
-
+<div class="row">
+    <div class="col-md-3 col-sm-4 col-xs-6">
+        <h2>購物訂單</h2>
+        <ul>
+            <li><a asp-action="CategoryList" asp-controller="Categories">商品分類</a></li>
+            <li>
+                食材 (<a asp-action="ProductList" asp-controller="Products" asp-route-cat="1">未來肉|植物蛋白肉</a>
+                |天貝)
+            </li>
+            <li><a asp-action="ProductList" asp-controller="Products" asp-route-cat="8">書籍</a> | 器具 | 手工藝品</li>
+            <li>料理|點餐</li>
+            <li>
+                <a asp-action="PrepareOrder" asp-controller="Products" class="btn btn-danger">購物車</a>
+                <a asp-action="OrderList" asp-controller="Orders" class="btn btn-primary">我的訂單</a>
+            </li>
+        </ul>
     </div>
+
+    <div class="col-md-3 col-sm-4 col-xs-6">
+        <h2>客戶資訊</h2>
+        <ul>
+            <li><a asp-action="Info" asp-controller="Customers">用戶資料維護</a> </li>
+            <li><a asp-action="Register" asp-controller="Customers">註冊</a></li>
+            <li><a asp-action="ForgetPWD" asp-controller="Customers">忘記密碼 </a></li>
+
+            @if (ViewBag.UserLevel == "2B" || ViewBag.IsAdmin)
+            {
+                <li>用戶資料維護(商家專用)</li>
+            }
+
+
+            @if (ViewBag.IsAdmin)
+            {
+
+                <li>客戶名單(<span class="text-danger">需管理者權限*</span>)</li>
+                <li>
+                    <ul>
+                        <li><a asp-action="index" asp-controller="Customers"> Customer </a></li>
+                    </ul>
+                </li>
+            }
+        </ul>
+    </div>
+    <div class="col-md-3 col-sm-4 col-xs-6">
+        <h2>綠能專區</h2>
+        <ul>
+            <li>智能與善良的農場(IoT溫濕度記錄)</li>
+            <li>太陽能路燈</li>
+            <li>
+                CAM即時監控 (定點式|無人機|飛天鯊魚)
+            </li>
+        </ul>
+    </div>
+    <div class="col-md-3 col-sm-4 col-xs-6">
+        <h2>管理專用</h2>
+        <ul>
+
+            @if ((string)ViewData["UserLevel"] == "2B" || ViewBag.IsAdmin)
+            {
+                <li>
+                    <a asp-action="OrderListForShop" asp-controller="Orders" class="btn btn-success btn-lg">訂單管理(商家專用*)</a>
+                </li>
+                <li>
+                    <a asp-action="index" asp-controller="products" class="btn btn-info btn-lg">商品管理(商家專用*)</a>
+                </li>
+
+                <li>
+                    <a asp-action="index" asp-controller="employees" class="btn btn-danger btn-lg">員工管理 (商家專用*)</a>
+                </li>
+
+            }
+
+            @if (ViewBag.IsAdmin)
+            {
+                <li>
+                    訂單(<span class="text-danger">需管理者權限*</span>)
+                    <ul>
+                        <li><a asp-action="index" asp-controller="Products"> Product </a></li>
+                        <li><a asp-action="index" asp-controller="Categories"> Category </a></li>
+                        <li><a asp-action="index" asp-controller="Orders"> Order </a></li>
+                        <li><a asp-action="index" asp-controller="OrderDetails"> Order Detail </a></li>
+                    </ul>
+                </li>
+            }
+        </ul>
+    </div>
+
+</div>
 
 <div class="row">
     <div class="col-md-3 col-sm-4 col-xs-6">
@@ -154,7 +155,7 @@ else
             <li>Java Script | jQuery</li>
             <li>Bootstrap | CSS | HTML5</li>
             <li>
-                <a asp-action="APITest" asp-controller="Products">WebAPI Tester</a>      
+                <a asp-action="APITest" asp-controller="Products">WebAPI Tester</a>
             </li>
         </ul>
 
