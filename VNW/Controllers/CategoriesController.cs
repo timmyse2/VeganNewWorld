@@ -192,7 +192,7 @@ namespace VNW.Controllers
                 cate.CatCount = CatCount;
                 //cate.Products = ps;
             }
-
+            ViewBag.searchKey = HttpContext.Request.Cookies["productSearch"];
             return View(categories);
         }
     }

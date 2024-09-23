@@ -359,7 +359,7 @@ namespace VNW.Controllers
         }
 
         // GET: Products Index for end user
-        public async Task<IActionResult> ProductList(int? cat, string catName, string search)
+        public async Task<IActionResult> ProductList(int? cat, string catName, string search, int? page)
         {
             MySession ms = new MySession();
 
@@ -376,21 +376,69 @@ namespace VNW.Controllers
                 catch
                 {
                 }
-            }
 
+                if (search == null)
+                {
+                    search = HttpContext.Request.Cookies["productSearch"];
+                    ViewBag.searchKey = search;
+                }
+            }
             if (search != null && search.Length >= 1)
             {
                 if (search.Length >= 10)
                     search = search.Substring(0, 10);
-                var q2 = _context.Products
+                
+                HttpContext.Response.Cookies.Append("productSearch", search);
+                var q0 = _context.Products
                     .Where(x => x.Picture != null
                     //&& x.Discontinued == false  
                     && (x.ProductName.Contains(search) || x.Description.Contains(search))
-                    )
-                    //.Include(p => p.Category)
-                    .Take(30)
-                    ;
-                var q2List = await q2.ToListAsync();
+                    );
+
+                //var q2 = _context.Products
+                //    .Where(x => x.Picture != null
+                //    //&& x.Discontinued == false  
+                //    && (x.ProductName.Contains(search) || x.Description.Contains(search))
+                //    )
+                //    //.Include(p => p.Category)
+                //    .Take(30)
+                //    ;
+
+                #region
+
+                //::pagination
+                int ipp = 6; // item per page
+                int _page = 1, _take = ipp, _skip = 0;
+                if (page != null)
+                    _page = (int)page - 1;
+                else
+                {
+                    var _cookepage = HttpContext.Request.Cookies["page_plist"];
+                    try
+                    {
+                        if (_cookepage == null)
+                            _page = 0;
+                        else
+                            _page = int.Parse(_cookepage);
+                    }
+                    catch
+                    {
+                        _page = 0;
+                    }
+                }
+                HttpContext.Response.Cookies.Append("page_plist", _page.ToString());
+                int totalCount = await q0.CountAsync();
+                int totalPages = totalCount / ipp;
+                if (_page >= totalPages)
+                    _page = totalPages; //::debug
+                _skip = _page * ipp; //(totalPages- _page) * ipp;
+                if (_skip < 0) _skip = 0;
+                ViewData["page"] = _page;
+                ViewData["totalCount"] = totalCount;
+                ViewData["ipp"] = ipp;
+                #endregion
+
+                var q2List = await q0.Skip(_skip).Take(_take).ToListAsync();
                 ViewBag.searchKey = search;
                 return View(q2List);
             }
@@ -419,8 +467,13 @@ namespace VNW.Controllers
             }
             ViewBag.catName = catName;
 
+            //::pagination
+            //ViewData["page"] = 1;
+            //ViewData["totalCount"] = await veganNewWorldContext.CountAsync();
+
+            var vdata = await veganNewWorldContext.ToListAsync();
             //SetMySession("catName", ViewBag.catName);
-            return View(await veganNewWorldContext.ToListAsync());
+            return View(vdata);
         }
 
         // GET: Products/Details/5 for end user

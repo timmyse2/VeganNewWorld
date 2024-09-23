@@ -7,6 +7,12 @@
         pageNum = (int)ViewData["page"];
     }
 
+    if (ViewData["ipp"] != null)
+    {
+        ipp = (int)ViewData["ipp"];
+        if (ipp <= 0) { ipp = 1; }
+    }
+
     //::set dummy data
     //pageNum = 3;
     //ViewData["totalCount"] = 100;
@@ -48,9 +54,21 @@
                         }
                         else
                         {
-                            <a href="?page=@(i + 1)" class="btn btn-default"> @(i + 1) </a>
+                            if ((totalPage >= 10) && (i >= 3 && i <= totalPage - 3) && (i <= pageNum - 3 || i >= pageNum + 3))
+                            {
+                                if (i == pageNum - 3 || i == pageNum + 3)
+                                {
+                                    <span>...</span>
+                                }
+                                //skip
+                            }
+                            else
+                            {
+                                    <a href="?page=@(i + 1)" class="btn btn-default"> @(i + 1) </a>
+                            }                                                                   
                         }
                     } //for
+
                     if (pageNum < totalPage - 1)
                     {
                         <a class="btn btn-default" href="?page=@(pageNum+2)">></a>
@@ -61,7 +79,7 @@
                     }
                 }
             </div>
-            @*<span> @totalCount 筆</span>*@
+            <span>共 @totalCount 筆</span>
         }
     }
 </div>

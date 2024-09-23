@@ -1210,6 +1210,17 @@ namespace VNW.Controllers
                 case "error": //error only 
                     q0 = _context.Orders.Where(o => o.ShipVia == null);
                     break;
+                case "my": //my orders
+                    string ShopAccount = _ms.GetMySession("ShopAccount", HttpContext.Session);
+                    var emp = await _context.Employees.AsNoTracking().Where(e => e.Email == ShopAccount).FirstAsync();
+                    if(emp != null)
+                    {
+                        q0 = _context.Orders.Where(o => o.EmployeeId == emp.Id);
+                    }
+                    else                    
+                        return Content("Error for getting data");                    
+                    break;
+
                 case "all": //all with page  
                     q0 = _context.Orders;
                     //clear speical condition

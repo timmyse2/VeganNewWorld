@@ -84,6 +84,11 @@
     else
     {<a class="btn btn-default" style="border:solid;border-width:2px;" asp-route-condition="error">異常</a>}
 
+    @if (condition != "my")
+    {<a class="btn btn-primary" asp-route-condition="my">我處理的訂單</a>}
+    else
+    {<a class="btn btn-default" style="border:solid;border-width:2px;" asp-route-condition="my">我處理的訂單</a>}
+
 </div>
 
 <vc:pages/>
