@@ -91,7 +91,7 @@
 
 </div>
 
-<vc:pages/>
+<partial name="_PagesPartial" />
 <div id="old_pageSelection">
     @*@{
         //:: page
@@ -141,7 +141,6 @@
         }
     }*@
 </div>
-
 
 <table class="table">
     <thead>
@@ -307,6 +306,8 @@
         }
     </tbody>
 </table>
+
+<vc:pages />
 
 @section topCSS{
     <style>

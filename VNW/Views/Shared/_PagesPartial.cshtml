@@ -1,0 +1,107 @@
+﻿@{
+    //:: page
+    int totalPage = 0; int ipp = 10; int totalCount = 0;
+    int pageNum = 0;
+    if (ViewData["page"] != null)
+    {
+        pageNum = (int)ViewData["page"];
+    }
+
+    if (ViewData["ipp"] != null)
+    {
+        ipp = (int)ViewData["ipp"];
+        if (ipp <= 0) { ipp = 1; }
+    }
+
+    //::set dummy data
+    //pageNum = 3;
+    //ViewData["totalCount"] = 100;
+}
+<div id="pageSelection">
+    @{
+        if (ViewData["totalCount"] != null)
+        {
+            if (ViewData["page"] != null)
+            {
+                pageNum = (int)ViewData["page"];
+            }
+            if (ViewData["ipp"] != null)
+            {
+                ipp = (int)ViewData["ipp"];
+                if (ipp <= 0) { ipp = 10; }
+            }
+            totalCount = (int)ViewData["totalCount"];
+            totalPage = totalCount / ipp + 1;
+
+            <table>
+                <tr>
+                    <td>
+                        @if (pageNum > 0)
+                        {
+                            <a class="btn btn-info" href="?page=@(pageNum)"><</a>
+                        }
+                        else
+                        {
+                            <a class="btn btn-default"><</a>
+                        }
+                    </td>
+                    <td>
+                        <select class="form-control" onchange="location.href='?page='+this.options[this.selectedIndex].value">
+                            @for (int i = 0; i < totalPage; i++)
+                            {
+                                int page = i + 1;
+                                if (i == pageNum)
+                                {
+                                    <option selected value=@(page)>第@(page)頁</option>
+                                }
+                                else
+                                {
+                                    <option value="@(page)">第@(page)頁</option>
+                                }
+                            }
+                        </select>
+                    </td>
+                    <td>
+                        @if (pageNum < totalPage - 1)
+                        {
+                            <a class="btn btn-info" href="?page=@(pageNum+2)">></a>
+                        }
+                        else
+                        {
+                            <a class="btn btn-default">></a>
+                        }
+                    </td>
+                    <td>
+                        @if(false){
+                            for (int i = 0; i < totalPage; i++)
+                            {
+                                if (i == pageNum)
+                                {
+                                    @*<a class="page-link">@(i + 1)</a>*@
+                                    <a href="?page=@(i + 1)" class="btn btn-primary"> @(i + 1) </a>
+                                }
+                                else
+                                {
+                                    if ((totalPage >= 10) && (i >= 3 && i <= totalPage - 3) && (i <= pageNum - 3 || i >= pageNum + 3))
+                                    {
+                                        if (i == pageNum - 3 || i == pageNum + 3)
+                                        {
+                                            <span>...</span>
+                                        }
+                                        //skip
+                                    }
+                                    else
+                                    {
+                                        <a href="?page=@(i + 1)" class="btn btn-default"> @(i + 1) </a>
+                                    }
+                                }
+                            } //for
+                        }
+                    </td>
+                </tr>
+            </table>
+            @*<span>共 @totalPage 頁</span>*@
+            <span>總共 @totalCount 筆</span>
+        }
+    }
+</div>

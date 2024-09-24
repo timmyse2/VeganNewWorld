@@ -12,7 +12,7 @@
     </span>
 </b>
 
-@if (ViewBag.UserAccount == null || ViewBag.UserAccount == "")
+@if (ViewBag.ShopAccount == null && ViewBag.UserAccount == null)
 {
     @*<p>
         <a asp-action="Login" asp-controller="customers">Login</a>
@@ -56,6 +56,7 @@ else
     </div>
 
 <vc:pages />
+@*<partial name="_PagesPartial" />*@
 @*<div id="pageSelection">
     @{
         //:: page
