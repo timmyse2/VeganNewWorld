@@ -48,16 +48,12 @@
             </tr>
         </table>*@
 </div>
-<div id="div_condition" style="border:solid; border-width:1px; padding:2px;border-radius:5px;border-color:lightgray;">
+
+<div id="div_condition" style="border:solid; border-width:1px; padding:2px; border-radius:5px;border-color:lightgray; text-align:center;">
 
     @{
         string condition = (string)ViewData["condition"];
     }
-
-    @if (condition != null)
-    {<a class="btn btn-default" asp-route-condition="all">全部</a>}
-    else
-    {<a class="btn btn-default" style="border:solid;border-width:2px;" asp-route-condition="all">全部</a>}
 
     @if (condition != "tbd")
     {<a class="btn btn-primary" asp-route-condition="tbd">待確認</a>}
@@ -68,6 +64,11 @@
     {<a class="btn btn-warning" asp-route-condition="3days">三天內</a>}
     else
     {<a class="btn btn-default" style="border:solid;border-width:2px;" asp-route-condition="3days">三天內</a>}
+
+    @if (condition != "my")
+    {<a class="btn btn-warning" style="background-color:mediumorchid" asp-route-condition="my">我處理的訂單</a>}
+    else
+    {<a class="btn btn-default" style="border:solid;border-width:2px;" asp-route-condition="my">我處理的訂單</a>}
 
     @if (condition != "shipped")
     {<a class="btn btn-success" asp-route-condition="shipped">已出貨</a>}
@@ -84,14 +85,15 @@
     else
     {<a class="btn btn-default" style="border:solid;border-width:2px;" asp-route-condition="error">異常</a>}
 
-    @if (condition != "my")
-    {<a class="btn btn-primary" asp-route-condition="my">我處理的訂單</a>}
+    @if (condition != "all")
+    {<a class="btn btn-default" asp-route-condition="all">全部</a>}
     else
-    {<a class="btn btn-default" style="border:solid;border-width:2px;" asp-route-condition="my">我處理的訂單</a>}
+    {<a class="btn btn-default" style="border:solid;border-width:2px;" asp-route-condition="all">全部</a>}
 
 </div>
 
-<partial name="_PagesPartial" />
+<div style="display:flex; justify-content:center;"><partial name="_PagesPartial" /></div>
+
 <div id="old_pageSelection">
     @*@{
         //:: page
@@ -307,7 +309,9 @@
     </tbody>
 </table>
 
-<vc:pages />
+<div style="display:flex; justify-content:center;">
+    <vc:pages />
+</div>
 
 @section topCSS{
     <style>

@@ -3,27 +3,26 @@
 }
 
 @*<vc:user-info test-p=0 />
-<vc:user-info test-p=1></vc:user-info>*@
+    <vc:user-info test-p=1></vc:user-info>*@
 
-@if (ViewBag.UserAccount == null || ViewBag.UserAccount == "")
+@if (ViewBag.UserAccount != null && ViewBag.UserAccount != "")
 {
-    <a asp-action="login" asp-controller="customers">登入</a> <x>|</x>
-    <a asp-action="Register" asp-controller="Customers">註冊</a>
+    <b>客戶</b> @ViewBag.UserAccount
+    <a asp-action="logout" asp-controller="Customers"> 登出 </a>
+}
+else if (ViewBag.ShopAccount != "" && ViewBag.ShopAccount != null)
+{
+    <b>店家員工</b> @ViewBag.ShopAccount
+    <a asp-action="logout" asp-controller="Customers"> 登出 </a>
 }
 else
 {
-    <p>
-        @if (ViewBag.ShopAccount != "" && ViewBag.ShopAccount != null)
-        {
-            <b>店家員工</b> @ViewBag.ShopAccount
-        }
-        else
-        {
-            <b>客戶</b> @ViewBag.UserAccount
-        }
-        <a asp-action="logout" asp-controller="Customers">登出</a>
-    </p>
+    <a asp-action="login" asp-controller="customers">登入</a> <span>|</span>
+    <a asp-action="Register" asp-controller="Customers">註冊</a>
 }
+
+
+
 <div class="row">
     <div class="col-md-3 col-sm-4 col-xs-6">
         <h2>購物訂單</h2>

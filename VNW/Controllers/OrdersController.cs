@@ -1183,10 +1183,15 @@ namespace VNW.Controllers
             //var q0 = _context.Products;
 
             string _condition = null;
-            if (condition == null) //no condition in url            
+            if (condition == null) //no condition in url
+            {
                 _condition = HttpContext.Request.Cookies["condition_shopOrder"];
+            }                
             else
                 _condition = condition;
+            if (_condition == null)
+                _condition = "tbd";
+
             switch (_condition)
             {
                 case "shipped":
@@ -1196,9 +1201,6 @@ namespace VNW.Controllers
                 case "cancel":
                     //q0 = _context.Products.Where(p => p.UnitsInStock <= 0 || p.UnitsInStock <= p.ReorderLevel);
                     q0 = _context.Orders.Where(o=>o.Status == OrderStatusEnum.Canceling || o.Status == OrderStatusEnum.Cancelled);
-                    break;
-                case "tbd":
-                    q0 = _context.Orders.Where(o => o.ShippedDate == null && !(o.Status == OrderStatusEnum.Canceling || o.Status == OrderStatusEnum.Cancelled));
                     break;
                 case "3days":
                     DateTime specificDate = DateTime.Now.AddDays(-3);
@@ -1224,12 +1226,16 @@ namespace VNW.Controllers
                 case "all": //all with page  
                     q0 = _context.Orders;
                     //clear speical condition
-                    HttpContext.Response.Cookies.Append("condition_shopOrder", "");
-                    _condition = null;
+                    //HttpContext.Response.Cookies.Append("condition_shopOrder", "all");
+                    //_condition = null;
                     break;
+
+                case "tbd":                    
+                    //break;
                 default:
                     //use condition from cookie
-                    q0 = _context.Orders;
+                    //q0 = _context.Orders;
+                    q0 = _context.Orders.Where(o => o.ShippedDate == null && !(o.Status == OrderStatusEnum.Canceling || o.Status == OrderStatusEnum.Cancelled));
                     break;
             }
             if (_condition != null)

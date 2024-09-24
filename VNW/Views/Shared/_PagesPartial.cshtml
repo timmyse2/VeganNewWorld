@@ -17,7 +17,7 @@
     //pageNum = 3;
     //ViewData["totalCount"] = 100;
 }
-<div id="pageSelection">
+<div id="pageSelectionPV">
     @{
         if (ViewData["totalCount"] != null)
         {
@@ -72,7 +72,8 @@
                         }
                     </td>
                     <td>
-                        @if(false){
+                        @if (false)
+                        {
                             for (int i = 0; i < totalPage; i++)
                             {
                                 if (i == pageNum)
@@ -98,10 +99,12 @@
                             } //for
                         }
                     </td>
+                    <td>
+                        <span>( 共 @totalPage 頁</span> |
+                        <span> 總共 @totalCount 筆 ) </span>
+                    </td>
                 </tr>
             </table>
-            @*<span>共 @totalPage 頁</span>*@
-            <span>總共 @totalCount 筆</span>
         }
     }
 </div>
