@@ -1,0 +1,18 @@
+﻿@*@model IEnumerable<VNW.Models.Category>*@
+@*@model IEnumerable<VNW.Models.Product>*@
+
+@{
+    if (ViewData["categories"] != null)
+    {
+        IEnumerable<VNW.Models.Category> categories = (IEnumerable<VNW.Models.Category>)ViewData["categories"];
+
+        foreach(var item in categories)
+        {
+            <a class="btn btn-info" asp-controller="Products" asp-action="ProductList" asp-route-cat="@item.CategoryId" asp-route-catname="@item.CategoryName" >@item.CategoryName</a> 
+        }
+    }
+    else
+    {
+        <span>no data</span>
+    }
+}

@@ -158,7 +158,7 @@ namespace VNW.Controllers
             return _context.Category.Any(e => e.CategoryId == id);
         }
 
-
+        //:: for 3C
         public async Task<IActionResult> CategoryList()
         {
             //return View(await _context.Category.ToListAsync());

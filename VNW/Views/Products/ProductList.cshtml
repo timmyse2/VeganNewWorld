@@ -103,6 +103,10 @@
     }
 </div>
 
+<div style="padding:2px;margin:2px;">
+    @*<sapn><vc:product-cate /></sapn>*@
+    @await Component.InvokeAsync("ProductCate")
+</div>
 
 @section topCSS{
     <style>
