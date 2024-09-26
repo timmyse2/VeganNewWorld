@@ -19,7 +19,7 @@ using SixLabors.ImageSharp.Processing;
 //using System.Drawing.Imaging;
 //using System.Drawing.Common;
 using System.IO;
-
+using Microsoft.AspNetCore.Http; //for IFormFile
 
 namespace VNW.Controllers
 {
@@ -1025,5 +1025,43 @@ namespace VNW.Controllers
             Result = "Fail"; Detail = "pwd is mismatched";
             return Json(new { Result, Detail, retryCount });
         }
+
+        //::sample from AI: upload 3C's image
+        //[HttpPost("upload")]
+        public async Task<IActionResult> UploadFile(IFormFile file)
+        {
+            if (file == null || file.Length == 0)
+            {
+                return BadRequest(new { message = "沒有選擇檔案或檔案是空的。" });
+            }
+
+            try
+            {
+                // 設定圖檔保存的路徑（這裡假設上傳到 wwwroot/uploads 資料夾）
+                var uploadsPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads");
+
+                // 如果資料夾不存在，則建立資料夾
+                if (!Directory.Exists(uploadsPath))
+                {
+                    Directory.CreateDirectory(uploadsPath);
+                }
+
+                // 取得檔案名稱，並確保其唯一性
+                var filePath = Path.Combine(uploadsPath, file.FileName);
+
+                // 儲存檔案到指定路徑
+                using (var stream = new FileStream(filePath, FileMode.Create))
+                {
+                    await file.CopyToAsync(stream);
+                }
+
+                return Ok(new { fileName = file.FileName, message = "上傳成功！ " + DateTime.Now });
+            }
+            catch(Exception ex)
+            {
+                return BadRequest(new { message = "Error unknown!" });
+            }
+        }
+
     }
 }

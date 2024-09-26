@@ -16,11 +16,11 @@
     <div class="col-md-4">
         <form asp-action="EditInfo">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            
+
             <div class="form-group">
                 <label asp-for="CustomerId" class="control-label"></label>
                 <input type="hidden" asp-for="CustomerId" />
-                <input value="@Model.CustomerId" class="form-control" readonly/>
+                <input value="@Model.CustomerId" class="form-control" readonly />
             </div>
             <div class="form-group">
                 <label asp-for="ContactName" class="control-label"></label>
@@ -55,7 +55,7 @@
             </div>
             <div class="form-group">
                 <label asp-for="Country" class="control-label"></label>
-                <input asp-for="Country" class="form-control" />
+                <input asp-for="Country" class="form-control" id="Country" />
                 <span asp-validation-for="Country" class="text-danger"></span>
             </div>
 
@@ -65,3 +65,64 @@
         </form>
     </div>
 </div>
+
+
+<div>
+    <h2>圖檔上傳</h2>
+    <form id="uploadForm">
+        <input type="file" id="fileInput" name="file" accept="image/*" class="form-control">
+        <btn id="uploadButton" class="btn btn-lg btn-default">Upload Image</btn>
+    </form>
+    <div id="status">...</div>
+    <div id="imgPreview"></div>
+</div>
+
+
+@section endJS{
+    <script type="text/javascript" src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+    <script>
+        console.log('jquery start');
+        $(document).ready(function () {
+            console.log('document ready');
+            var ImagePath = '@Url.Content("~/uploads/")';
+
+            $('#uploadButton').click(function () {
+                var fileInput = $('#fileInput')[0];
+                var file = fileInput.files[0];
+
+                if (!file) {
+                    $('#status').text('請選擇一個檔案');
+                    return;
+                }
+                console.log('file ' + file);
+                $('#status').text('selected file');
+
+                var formData = new FormData();
+                formData.append('file', file);
+                var surl = '@Url.Action("UploadFile", "Customers")';
+                $.ajax({
+                    //url: '/upload',  // 改成你後端的上傳 API 路徑
+                    url: surl,
+                    type: 'POST',
+                    data: formData,
+                    contentType: false,
+                    processData: false,
+                    success: function (response) {
+                        console.log('上傳成功: ' + response.fileName);
+                        $('#status').text('上傳成功: ' + response.fileName);
+                        console.log('old val: ' + $('#Country').val());
+                        $('#Country').val(response.fileName);
+                        console.log('updated val: ' + $('#Country').val());
+                        $('#imgPreview').text(''); //reset
+                        $('#imgPreview').append('Preview <img src="' + ImagePath + response.fileName + '" style="width: 100px; " />');
+                    },
+                    error: function (xhr, status, error) {
+                        $('#status').text('上傳失敗: ' + error);
+                    }
+                });
+            });
+        });
+
+        console.log('jquery end');
+    </script>
+}

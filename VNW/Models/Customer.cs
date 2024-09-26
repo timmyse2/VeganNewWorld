@@ -36,6 +36,8 @@ namespace VNW.Models
         public string Phone { get; set; }
         //public string Fax { get; set; }
 
+        //public string PhotoPath { get; set; }
+
         ////public ICollection<CustomerCustomerDemo> CustomerCustomerDemo { get; set; }
         [Display(Name = "訂單")]
         public ICollection<Order> Orders { get; set; }
