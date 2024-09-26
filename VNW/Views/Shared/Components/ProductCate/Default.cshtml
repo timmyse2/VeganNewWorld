@@ -1,18 +1,28 @@
-﻿@*@model IEnumerable<VNW.Models.Category>*@
+﻿@model IEnumerable<VNW.Models.Category>
 @*@model IEnumerable<VNW.Models.Product>*@
 
 @{
-    if (ViewData["categories"] != null)
+    //if (ViewData["categories"] != null)
+    if(Model != null)
     {
-        IEnumerable<VNW.Models.Category> categories = (IEnumerable<VNW.Models.Category>)ViewData["categories"];
-
-        foreach(var item in categories)
+        //IEnumerable<VNW.Models.Category> categories = (IEnumerable<VNW.Models.Category>)ViewData["categories"];
+        int i = 0;
+        //foreach (var item in categories)
+        foreach (var item in Model)
         {
-            <a class="btn btn-info" asp-controller="Products" asp-action="ProductList" asp-route-cat="@item.CategoryId" asp-route-catname="@item.CategoryName" >@item.CategoryName</a> 
+            if ((i++) % 2 == 0)
+            {
+                <a class="btn btn-info" style="margin:0px 0px 2px 0px;" asp-controller="Products" asp-action="ProductList" asp-route-cat="@item.CategoryId" asp-route-catname="@item.CategoryName">@item.CategoryName </a>
+            }
+            else
+            {
+                <a class="btn btn-primary" style="margin:0px 0px 2px 0px;" asp-controller="Products" asp-action="ProductList" asp-route-cat="@item.CategoryId" asp-route-catname="@item.CategoryName">@item.CategoryName</a>
+            }
+            //( @item.CatCount )
         }
     }
     else
     {
-        <span>no data</span>
+        <span>...</span>
     }
 }

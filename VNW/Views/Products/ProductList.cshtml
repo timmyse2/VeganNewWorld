@@ -21,6 +21,11 @@
     <a class="btn btn-danger" id="btn_shippingCart" asp-action="PrepareOrder">購物車(0)</a><br />
 </div>
 
+<div style="padding:2px;margin:2px;">
+    @*<sapn><vc:product-cate /></sapn>*@
+    @await Component.InvokeAsync("ProductCate")
+</div>
+
 <div>
     <form asp-action="ProductList" asp-controller="products">
         <h4>用關鍵字找商品(可輸入1~20個字) </h4>
@@ -101,11 +106,6 @@
             @*(@item.UnitsInStock)*@
         </div>
     }
-</div>
-
-<div style="padding:2px;margin:2px;">
-    @*<sapn><vc:product-cate /></sapn>*@
-    @await Component.InvokeAsync("ProductCate")
 </div>
 
 @section topCSS{

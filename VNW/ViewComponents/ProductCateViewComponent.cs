@@ -10,7 +10,7 @@ namespace VNW.ViewComponents
     {
         private readonly VeganNewWorldContext _context;
         //::set session common interface
-        VNW.Common.MySession _ms = new Common.MySession();
+        //VNW.Common.MySession _ms = new Common.MySession();
 
         public ProductCateViewComponent(VeganNewWorldContext context)
         {
@@ -20,9 +20,9 @@ namespace VNW.ViewComponents
         public async Task<IViewComponentResult> InvokeAsync()
         {
             var categories = _context.Category;
-            ViewData["categories"] = await categories.ToListAsync();
-
-            return View();
+            return View(await categories.ToListAsync());
+            //ViewData["categories"] = await categories.ToListAsync();
+            //return View();
         }
     }
 }
