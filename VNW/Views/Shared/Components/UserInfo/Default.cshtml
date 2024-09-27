@@ -11,12 +11,13 @@
         isShowIcon = true;
     }*@
 
+    
 
     @if (isShowIcon)
     {
         if (ViewBag.UserIcon != null)
         {
-            <img src="@ViewBag.UserIcon"
+            <img src="@Url.Content("~"+ViewBag.UserIcon)"
                  style="width:50px;border-radius:50px;border:solid;border-width:1px;" />
         }
         else

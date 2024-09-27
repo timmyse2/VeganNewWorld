@@ -395,7 +395,7 @@ namespace VNW.Controllers
                     HttpContext.Session.Remove("UserIcon");
                 else
                 {
-                    _ms.SetMySession("UserIcon", customer.PhotoPath, HttpContext.Session);
+                    _ms.SetMySession("UserIcon", "/images/customer/" + customer.PhotoPath, HttpContext.Session);
                 }
                     
 
@@ -811,7 +811,7 @@ namespace VNW.Controllers
                         HttpContext.Session.Remove("UserIcon");
                     else
                     {
-                        _ms.SetMySession("UserIcon", customer.PhotoPath, HttpContext.Session);
+                        _ms.SetMySession("UserIcon", "/images/customer/" + customer.PhotoPath, HttpContext.Session);
                     }
 
                     _context.Update(customer);
