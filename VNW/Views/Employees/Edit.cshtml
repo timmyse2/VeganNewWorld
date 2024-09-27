@@ -48,8 +48,16 @@
             </div>
             <div class="form-group">
                 <label asp-for="PhotoPath" class="control-label"></label>
-                <input asp-for="PhotoPath" class="form-control" />
+                <input asp-for="PhotoPath" class="form-control" readonly/>
                 <span asp-validation-for="PhotoPath" class="text-danger"></span>
+
+                <div style="align-self:center; text-align:center;border:dashed;border-width:1px;border-radius:10px;width:80%;">
+                    <input type="file" id="fileInput" name="file" accept="image/*">
+                    <btn id="uploadButton" class="btn btn-info">上傳圖片</btn>
+                    <div id="status">...</div>
+                    <div id="imgPreview"></div>
+                </div>
+
             </div>
             <div class="form-group">
                 <input type="reset" value="取消恢復" class="btn btn-default" />
@@ -76,5 +84,52 @@
 }
 
 @section endJS{
+    <script type="text/javascript" src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+    <script>
+        console.log('jquery start');
+        $(document).ready(function () {
+            console.log('document ready');
+            var ImagePath = '@Url.Content("~/images/employee/")';
 
+            $('#uploadButton').click(function () {
+                var fileInput = $('#fileInput')[0];
+                var file = fileInput.files[0];
+
+                if (!file) {
+                    $('#status').text('請選擇一個檔案');
+                    return;
+                }
+                console.log('file ' + file);
+                $('#status').text('selected file');
+
+                var formData = new FormData();
+                formData.append('file', file);
+                var surl = '@Url.Action("UploadFile", "Employees")';
+                $.ajax({
+                    //url: '/upload',  // 改成你後端的上傳 API 路徑
+                    url: surl,
+                    type: 'POST',
+                    data: formData,
+                    contentType: false,
+                    processData: false,
+                    success: function (response) {
+                        console.log('上傳成功: ' + response.fileName);
+                        $('#status').text('上傳成功: ' + response.fileName);
+                        console.log('old val: ' + $('#Country').val());
+                        //$('#PhotoPath').val(ImagePath + response.fileName);
+                        $('#PhotoPath').val(response.fileName);
+                        console.log('updated val: ' + $('#PhotoPath').val());
+                        $('#imgPreview').text(''); //reset
+                        $('#imgPreview').append('<img src="' + ImagePath + response.fileName + '" style="width: 100px; " />');
+                        //$('#imgPreview').append('<img src="' + response.fileName + '" style="width: 100px; " />');                        
+                    },
+                    error: function (xhr, status, error) {
+                        $('#status').text('上傳失敗: ' + error);
+                    }
+                });
+            });
+        });
+
+        console.log('jquery end');
+    </script>
 }

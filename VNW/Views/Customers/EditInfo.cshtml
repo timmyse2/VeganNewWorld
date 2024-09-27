@@ -63,14 +63,12 @@
                 <label asp-for="PhotoPath" class="control-label"></label>
                 <input id="PhotoPath" asp-for="PhotoPath" class="form-control" />
                 <span asp-validation-for="PhotoPath" class="text-danger"></span>
-
                 <div style="align-self:center; text-align:center;border:dashed;border-width:1px;border-radius:10px;width:80%;">
                     <input type="file" id="fileInput" name="file" accept="image/*">
                     <btn id="uploadButton" class="btn btn-info">上傳圖片</btn>
                     <div id="status">...</div>
                     <div id="imgPreview"></div>
                 </div>
-
             </div>
 
             <div class="form-group">

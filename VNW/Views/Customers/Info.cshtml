@@ -85,12 +85,8 @@
         <dt>
             @Html.DisplayNameFor(model => model.PhotoPath)
         </dt>
-        <dd>
-            @Html.DisplayFor(model => model.PhotoPath)<br />
-
-            <img src="@Model.PhotoPath" style="width:100px;border:solid;border-width:thin;" />
-
-            @*<img src="~/uploads/@Model.PhotoPath" style="width:100px;border:solid;border-width:thin;" />*@
+        <dd>            
+            <img src="@Model.PhotoPath" style="width:200px;border:solid;border-width:thin;" />
         </dd>
     </dl>
 </div>

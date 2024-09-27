@@ -12,7 +12,9 @@ using System.Text; //for encoding
 using System.Data.SqlClient; //::for sql
 using System.Diagnostics; //::for debug
 using Microsoft.Extensions.Configuration; //for IConfiguration
-using VNW.Controllers;
+//using VNW.Controllers;
+using Microsoft.AspNetCore.Http; //for IFormFile
+using System.IO;
 
 namespace VNW.Controllers
 {
@@ -780,5 +782,45 @@ namespace VNW.Controllers
             return View(emps);
         }
 
+
+        //::sample from AI: upload 2B image
+        //[HttpPost("upload")]
+        public async Task<IActionResult> UploadFile(IFormFile file)
+        {
+            if (file == null || file.Length == 0)
+            {
+                return BadRequest(new { message = "沒有選擇檔案或檔案是空的。" });
+            }
+
+            try
+            {
+                // 設定圖檔保存的路徑
+                var uploadsPath =                    
+                    Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "images\\employee");
+
+                // 如果資料夾不存在，則建立資料夾
+                if (!Directory.Exists(uploadsPath))
+                {
+                    Directory.CreateDirectory(uploadsPath);
+                }
+
+                // 取得檔案名稱，並確保其唯一性
+                var filePath = Path.Combine(uploadsPath, file.FileName);
+
+                //::chagne filename
+
+                // 儲存檔案到指定路徑
+                using (var stream = new FileStream(filePath, FileMode.Create))
+                {
+                    await file.CopyToAsync(stream);
+                }
+
+                return Ok(new { fileName = file.FileName, message = "上傳成功！ " + DateTime.Now });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = "Error unknown!" });
+            }
+        }
     }
 }
