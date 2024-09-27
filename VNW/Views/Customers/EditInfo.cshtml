@@ -55,8 +55,22 @@
             </div>
             <div class="form-group">
                 <label asp-for="Country" class="control-label"></label>
-                <input asp-for="Country" class="form-control" id="Country" />
+                <input id="Country" asp-for="Country" class="form-control" />
                 <span asp-validation-for="Country" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="PhotoPath" class="control-label"></label>
+                <input id="PhotoPath" asp-for="PhotoPath" class="form-control" />
+                <span asp-validation-for="PhotoPath" class="text-danger"></span>
+
+                <div style="align-self:center; text-align:center;border:dashed;border-width:1px;border-radius:10px;width:80%;">
+                    <input type="file" id="fileInput" name="file" accept="image/*">
+                    <btn id="uploadButton" class="btn btn-info">上傳圖片</btn>
+                    <div id="status">...</div>
+                    <div id="imgPreview"></div>
+                </div>
+
             </div>
 
             <div class="form-group">
@@ -67,15 +81,15 @@
 </div>
 
 
-<div>
+@*<div>
     <h2>圖檔上傳</h2>
     <form id="uploadForm">
         <input type="file" id="fileInput" name="file" accept="image/*" class="form-control">
-        <btn id="uploadButton" class="btn btn-lg btn-default">Upload Image</btn>
+        <btn id="uploadButton" class="btn btn-info">上傳圖片</btn>    
     </form>
     <div id="status">...</div>
     <div id="imgPreview"></div>
-</div>
+</div>*@
 
 
 @section endJS{
@@ -84,7 +98,7 @@
         console.log('jquery start');
         $(document).ready(function () {
             console.log('document ready');
-            var ImagePath = '@Url.Content("~/uploads/")';
+            var ImagePath = '@Url.Content("~/images/customer/")';
 
             $('#uploadButton').click(function () {
                 var fileInput = $('#fileInput')[0];
@@ -111,10 +125,11 @@
                         console.log('上傳成功: ' + response.fileName);
                         $('#status').text('上傳成功: ' + response.fileName);
                         console.log('old val: ' + $('#Country').val());
-                        $('#Country').val(response.fileName);
-                        console.log('updated val: ' + $('#Country').val());
+                        $('#PhotoPath').val(ImagePath + response.fileName);
+                        console.log('updated val: ' + $('#PhotoPath').val());
                         $('#imgPreview').text(''); //reset
-                        $('#imgPreview').append('Preview <img src="' + ImagePath + response.fileName + '" style="width: 100px; " />');
+                        $('#imgPreview').append('<img src="' + ImagePath + response.fileName + '" style="width: 100px; " />');                        
+                        //images/customer
                     },
                     error: function (xhr, status, error) {
                         $('#status').text('上傳失敗: ' + error);

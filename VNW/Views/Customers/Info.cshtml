@@ -74,14 +74,23 @@
             @Html.DisplayNameFor(model => model.Country)
         </dt>
         <dd>
-            @Html.DisplayFor(model => model.Country)
-            <img src="~/uploads/@Model.Country" style="width:100px;" />
+            @Html.DisplayFor(model => model.Country)            
         </dd>
         <dt>
             @Html.DisplayNameFor(model => model.Phone)
         </dt>
         <dd>
             @Html.DisplayFor(model => model.Phone)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.PhotoPath)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.PhotoPath)<br />
+
+            <img src="@Model.PhotoPath" style="width:100px;border:solid;border-width:thin;" />
+
+            @*<img src="~/uploads/@Model.PhotoPath" style="width:100px;border:solid;border-width:thin;" />*@
         </dd>
     </dl>
 </div>

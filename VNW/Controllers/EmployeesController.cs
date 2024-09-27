@@ -661,7 +661,9 @@ namespace VNW.Controllers
                             HttpContext.Session.Remove("UserAccount");
                             _ms.SetMySession("ShopAccount", ShopAccount, HttpContext.Session);
                             _ms.SetMySession("EmployeeId", employee.Id.ToString(), HttpContext.Session);
-                            _ms.SetMySession("UserIcon", employee.PhotoPath, HttpContext.Session);
+                            //_ms.SetMySession("UserIcon", employee.PhotoPath, HttpContext.Session);
+                            _ms.SetMySession("UserIcon", "/images/employee/" + employee.PhotoPath, HttpContext.Session);
+
                             //ViewBag.UserIcon = UserIcon;
 
                             result = "PASS";

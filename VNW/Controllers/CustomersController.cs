@@ -170,7 +170,7 @@ namespace VNW.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(string id, [Bind("CustomerId,CompanyName,ContactName,Address,City,PostalCode,Country,Phone")] Customer customer)
+        public async Task<IActionResult> Edit(string id, [Bind("CustomerId,CompanyName,ContactName,Address,City,PostalCode,Country,Phone,PhotoPath")] Customer customer)
         {
             //::1A only
             string UserLevel = _ms.GetMySession("UserLevel", HttpContext.Session);
@@ -383,8 +383,7 @@ namespace VNW.Controllers
                 //SetMySession("IsAdmin", "YES");   
                 _ms.SetMySession("IsUserLogin", "YES", HttpContext.Session);
                 _ms.SetMySession("UserAccount", customer.CustomerId, HttpContext.Session);
-                _ms.SetMySession("UserLevel", "3C", HttpContext.Session);
-                //_ms.SetMySession("UserIcon", "?", HttpContext.Session);
+                _ms.SetMySession("UserLevel", "3C", HttpContext.Session);                
                 //:: 1A(admin) 2B(business vender) 3C(customer)
 
                 //::remove flags
@@ -392,7 +391,13 @@ namespace VNW.Controllers
                 HttpContext.Session.Remove("Captcha");
                 HttpContext.Session.Remove("retryCount");
                 HttpContext.Session.Remove("retryLockTime");
-                HttpContext.Session.Remove("UserIcon");
+                if(customer.PhotoPath == null || customer.PhotoPath =="")
+                    HttpContext.Session.Remove("UserIcon");
+                else
+                {
+                    _ms.SetMySession("UserIcon", customer.PhotoPath, HttpContext.Session);
+                }
+                    
 
                 return Json(new { result = "PASS", detail = "matched", errorCode, retryCount });
             }
@@ -770,7 +775,7 @@ namespace VNW.Controllers
         //::for 3C
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> EditInfo([Bind("CustomerId,CompanyName,ContactName,Address,City,PostalCode,Country,Phone")] Customer customer)
+        public async Task<IActionResult> EditInfo([Bind("CustomerId,CompanyName,ContactName,Address,City,PostalCode,Country,Phone,PhotoPath")] Customer customer)
         {
             string id = _ms.GetMySession("UserAccount", HttpContext.Session);
             if (id == null)
@@ -801,6 +806,13 @@ namespace VNW.Controllers
                         customer.Salt = customer_original.Salt;                        
                     }
                     #endregion
+
+                    if (customer.PhotoPath == null || customer.PhotoPath == "")
+                        HttpContext.Session.Remove("UserIcon");
+                    else
+                    {
+                        _ms.SetMySession("UserIcon", customer.PhotoPath, HttpContext.Session);
+                    }
 
                     _context.Update(customer);
                     await _context.SaveChangesAsync();
@@ -1038,7 +1050,9 @@ namespace VNW.Controllers
             try
             {
                 // 設定圖檔保存的路徑（這裡假設上傳到 wwwroot/uploads 資料夾）
-                var uploadsPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads");
+                var uploadsPath =
+                    //Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads");
+                    Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "images\\customer");
 
                 // 如果資料夾不存在，則建立資料夾
                 if (!Directory.Exists(uploadsPath))
@@ -1048,6 +1062,8 @@ namespace VNW.Controllers
 
                 // 取得檔案名稱，並確保其唯一性
                 var filePath = Path.Combine(uploadsPath, file.FileName);
+
+                //::chagne filename
 
                 // 儲存檔案到指定路徑
                 using (var stream = new FileStream(filePath, FileMode.Create))

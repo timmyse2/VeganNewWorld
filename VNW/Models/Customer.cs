@@ -35,8 +35,8 @@ namespace VNW.Models
         [Display(Name = "電話")]
         public string Phone { get; set; }
         //public string Fax { get; set; }
-
-        //public string PhotoPath { get; set; }
+        [Display(Name = "圖像路徑")]
+        public string PhotoPath { get; set; }
 
         ////public ICollection<CustomerCustomerDemo> CustomerCustomerDemo { get; set; }
         [Display(Name = "訂單")]
