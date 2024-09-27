@@ -258,11 +258,15 @@ namespace VNW.Controllers
                 //return Content("Notice: password is miss!");
             }
             #endregion
-            
             if (ModelState.IsValid)
             {
                 try
                 {
+                    if (employee.PhotoPath == null || employee.PhotoPath == "")
+                        HttpContext.Session.Remove("UserIcon");
+                    else
+                        _ms.SetMySession("UserIcon", "/images/employee/" + employee.PhotoPath, HttpContext.Session);
+
                     _context.Update(employee);
                     await _context.SaveChangesAsync();
                 }
@@ -662,9 +666,11 @@ namespace VNW.Controllers
                             //_ms.SetMySession("UserAccount", ShopAccount, HttpContext.Session);
                             HttpContext.Session.Remove("UserAccount");
                             _ms.SetMySession("ShopAccount", ShopAccount, HttpContext.Session);
-                            _ms.SetMySession("EmployeeId", employee.Id.ToString(), HttpContext.Session);
-                            //_ms.SetMySession("UserIcon", employee.PhotoPath, HttpContext.Session);
-                            _ms.SetMySession("UserIcon", "/images/employee/" + employee.PhotoPath, HttpContext.Session);
+                            _ms.SetMySession("EmployeeId", employee.Id.ToString(), HttpContext.Session);                            
+                            if (employee.PhotoPath == null || employee.PhotoPath == "")
+                                HttpContext.Session.Remove("UserIcon");
+                            else
+                                _ms.SetMySession("UserIcon", "/images/employee/" + employee.PhotoPath, HttpContext.Session);
 
                             //ViewBag.UserIcon = UserIcon;
 
