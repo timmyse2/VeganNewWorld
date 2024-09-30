@@ -265,7 +265,10 @@ namespace VNW.Controllers
                     if (employee.PhotoPath == null || employee.PhotoPath == "")
                         HttpContext.Session.Remove("UserIcon");
                     else
-                        _ms.SetMySession("UserIcon", "/images/employee/" + employee.PhotoPath, HttpContext.Session);
+                    {
+                        if (ViewBag.ShopAccount == employee.Email) //update current user's icon
+                            _ms.SetMySession("UserIcon", "/images/employee/" + employee.PhotoPath, HttpContext.Session);
+                    }                        
 
                     _context.Update(employee);
                     await _context.SaveChangesAsync();
@@ -800,6 +803,51 @@ namespace VNW.Controllers
 
             try
             {
+                #region check file                
+                //Debug.WriteLine(" file length" + file.Length);
+                if (file.Length > 1000000)
+                {
+                    return BadRequest(new { message = "file size is too large!" });
+                }
+
+                //check file type from header 8 bytes
+                string builtHex = "";  string extensionName = "";
+                using (Stream S = file.OpenReadStream())
+                {
+                    for (int i = 0; i < 8; i++)                    
+                        builtHex += S.ReadByte().ToString("X2");                    
+                }
+                Debug.WriteLine(" file builtHex: " + builtHex);
+                switch (builtHex)
+                {
+                    case "89504E470D0A1A0A": // png
+                        extensionName = ".png";
+                        break;
+                    case "FFD8FFE000104A46": //jpg
+                    case "FFD8FFE131504578": //jpg PExif
+                        extensionName = ".jpg";
+                        break;
+                    default:
+                        return BadRequest(new { message = "type is not supported image format" });
+                        break;
+                }
+                ////::use context type, but it does NOT check real context!
+                //string fileType = file.ContentType;
+                //Debug.WriteLine(" file.ContentType " + fileType);
+                //Debug.WriteLine(" file.ContentType " + file.Headers);
+                //switch (fileType)
+                //{
+                //    case "image/jpeg":
+                //    case "image/png":
+                //    case "image/webp":
+                //        //supported
+                //        break;
+                //    default:
+                //        return BadRequest(new { message = "type is not supported image format" });
+                //        break;
+                //}
+                #endregion
+
                 // 設定圖檔保存的路徑
                 var uploadsPath =                    
                     Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "images\\employee");
@@ -811,8 +859,13 @@ namespace VNW.Controllers
                 }
 
                 //::chagne filename                                
-                string newFileName = "emp_" + eid + "_pf01.png";
-                //string ShopAccount = _ms.GetMySession("ShopAccount", HttpContext.Session);
+                //add timestamp for refresh img on frontend
+                string timestamp = "";
+                var rand = new Random();
+                for (int i = 0; i <= 3; i++)                
+                    timestamp += rand.Next(0, 9);                
+                string imgSeq = "0" + rand.Next(1, 3);
+                string newFileName = "emp_" + eid + "_pf" + imgSeq + extensionName;
 
                 // 取得檔案名稱，並確保其唯一性                
                 var filePath = Path.Combine(uploadsPath, newFileName);
@@ -822,16 +875,7 @@ namespace VNW.Controllers
                 using (var stream = new FileStream(filePath, FileMode.Create))
                 {
                     await file.CopyToAsync(stream);
-                }
-
-                //add timestamp for refresh img on frontend
-                string timestamp = "";
-                var rand = new Random();                
-                for (int i = 0; i <= 3; i++)
-                {
-                    timestamp += rand.Next(0, 9);
-                }
-                //newFileName = newFileName + "?" + timestamp;
+                }                                
 
                 return Ok(new { fileName = newFileName, // = file.FileName,
                     timestamp,

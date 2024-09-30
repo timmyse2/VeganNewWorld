@@ -102,7 +102,7 @@
                     $('#status').text('請選擇一個檔案');
                     return;
                 }
-                console.log('file ' + file);
+                //console.log('file ' + file);
                 $('#status').text('selected file');
 
                 var formData = new FormData();
@@ -117,6 +117,7 @@
                     contentType: false,
                     processData: false,
                     success: function (response) {
+                        console.log('response: ' + response);
                         console.log('上傳成功: ' + response.fileName);
                         $('#status').text('上傳成功: ' + response.fileName);
                         console.log('old val: ' + $('#PhotoPath').val());
@@ -126,7 +127,7 @@
                         $('#imgPreview').append('<img src="' + ImagePath + response.fileName + '?' + response.timestamp  + '" style="width: 100px; " />');
                     },
                     error: function (xhr, status, error) {
-                        $('#status').text('上傳失敗: ' + error);
+                        $('#status').text('上傳失敗: 檔案可能太大或不支援 ' + error);
                     }
                 });
             });
