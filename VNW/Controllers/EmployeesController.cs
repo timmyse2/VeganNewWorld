@@ -791,9 +791,9 @@ namespace VNW.Controllers
 
         //::sample from AI: upload 2B image
         //[HttpPost("upload")]
-        public async Task<IActionResult> UploadFile(IFormFile file)
+        public async Task<IActionResult> UploadFile(IFormFile file, string eid)
         {
-            if (file == null || file.Length == 0)
+            if (file == null || file.Length == 0 || eid == null || eid == "")
             {
                 return BadRequest(new { message = "沒有選擇檔案或檔案是空的。" });
             }
@@ -810,10 +810,13 @@ namespace VNW.Controllers
                     Directory.CreateDirectory(uploadsPath);
                 }
 
-                // 取得檔案名稱，並確保其唯一性
-                var filePath = Path.Combine(uploadsPath, file.FileName);
+                //::chagne filename                                
+                string newFileName = "emp_" + eid + "_pf01.png";
+                //string ShopAccount = _ms.GetMySession("ShopAccount", HttpContext.Session);
 
-                //::chagne filename
+                // 取得檔案名稱，並確保其唯一性                
+                var filePath = Path.Combine(uploadsPath, newFileName);
+                //var filePath = Path.Combine(uploadsPath, file.FileName);
 
                 // 儲存檔案到指定路徑
                 using (var stream = new FileStream(filePath, FileMode.Create))
@@ -821,7 +824,19 @@ namespace VNW.Controllers
                     await file.CopyToAsync(stream);
                 }
 
-                return Ok(new { fileName = file.FileName, message = "上傳成功！ " + DateTime.Now });
+                //add timestamp for refresh img on frontend
+                string timestamp = "";
+                var rand = new Random();                
+                for (int i = 0; i <= 3; i++)
+                {
+                    timestamp += rand.Next(0, 9);
+                }
+                //newFileName = newFileName + "?" + timestamp;
+
+                return Ok(new { fileName = newFileName, // = file.FileName,
+                    timestamp,
+                    message = "上傳成功！ " + DateTime.Now
+                });
             }
             catch (Exception ex)
             {
