@@ -46,7 +46,13 @@
     <tbody>
 @foreach (var item in Model) {
         <tr>
-            <th>@Html.DisplayFor(modelItem => item.CustomerId)</th>
+            <th>
+                @if (item.PhotoPath != null)
+                {
+                    <img src="~/images/customer/@item.PhotoPath" style="width:50px;border-radius:50px;" />
+                }
+                @Html.DisplayFor(modelItem => item.CustomerId)
+            </th>
             <td>
                 @Html.DisplayFor(modelItem => item.CompanyName)
             </td>

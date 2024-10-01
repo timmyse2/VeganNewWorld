@@ -62,6 +62,10 @@
             <div class="form-group">
                 <label asp-for="PhotoPath" class="control-label"></label>
                 <input id="PhotoPath" asp-for="PhotoPath" class="form-control" />
+                @if (Model.PhotoPath != null)
+                {
+                    <img src="~/images/customer/@Model.PhotoPath" style="width:100px;" />
+                }
                 <span asp-validation-for="PhotoPath" class="text-danger"></span>
                 <div style="align-self:center; text-align:center;border:dashed;border-width:1px;border-radius:10px;width:80%;">
                     <input type="file" id="fileInput" name="file" accept="image/*">
@@ -111,6 +115,7 @@
 
                 var formData = new FormData();
                 formData.append('file', file);
+                formData.append('uid', '@Model.CustomerId');
                 var surl = '@Url.Action("UploadFile", "Customers")';
                 $.ajax({
                     //url: '/upload',  // 改成你後端的上傳 API 路徑
@@ -122,12 +127,18 @@
                     success: function (response) {
                         console.log('上傳成功: ' + response.fileName);
                         $('#status').text('上傳成功: ' + response.fileName);
-                        console.log('old val: ' + $('#Country').val());
-                        //$('#PhotoPath').val(ImagePath + response.fileName);
-                        $('#PhotoPath').val(response.fileName);
-                        console.log('updated val: ' + $('#PhotoPath').val());
+
+                        console.log('old val: ' + $('#PhotoPath').val());
                         $('#imgPreview').text(''); //reset
-                        $('#imgPreview').append('<img src="' + ImagePath + response.fileName + '" style="width: 100px; " />');                        
+                        if (response.result == 'PASS') {
+                            //::real PASS case
+                            $('#PhotoPath').val(response.fileName);
+                            console.log('updated val: ' + $('#PhotoPath').val());
+                            $('#imgPreview').append('<img src="' + ImagePath + response.fileName + '?' + response.timestamp + '" style="width: 100px; " />');
+                        }
+                        else {
+                            $('#imgPreview').append('something is wrong: ' + response.message);
+                        }
                     },
                     error: function (xhr, status, error) {
                         $('#status').text('上傳失敗: ' + error);

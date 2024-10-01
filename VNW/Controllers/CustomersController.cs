@@ -189,6 +189,22 @@ namespace VNW.Controllers
             {
                 try
                 {
+                    //::1A, copy pwd
+                    #region keep origin password
+                    //:: do not let password show in view or frontend
+                    if (customer.PasswordEncoded == null || customer.PasswordEncoded == "")
+                    {
+                        var customer_original = await _context.Customer.Where(c => c.CustomerId == id)
+                            .AsNoTracking().FirstOrDefaultAsync();
+                        if (customer_original == null)
+                        {
+                            return Content("can not find origin data");
+                        }
+                        customer.PasswordEncoded = customer_original.PasswordEncoded;
+                        customer.Salt = customer_original.Salt;
+                    }
+                    #endregion
+
                     _context.Update(customer);
                     await _context.SaveChangesAsync();
                 }
@@ -1040,15 +1056,66 @@ namespace VNW.Controllers
 
         //::sample from AI: upload 3C's image
         //[HttpPost("upload")]
-        public async Task<IActionResult> UploadFile(IFormFile file)
+        public async Task<IActionResult> UploadFile(IFormFile file, string uid)
         {
-            if (file == null || file.Length == 0)
+            //::login check
+            string _id = _ms.GetMySession("UserAccount", HttpContext.Session);
+            if (uid == null || uid != _id)
+            {
+                return Json(new
+                {
+                    fileName = "",
+                    result = "NG",
+                    message = " You need to login "
+                });
+            }
+
+            if (file == null || file.Length == 0 || uid == null || uid == "")
             {
                 return BadRequest(new { message = "沒有選擇檔案或檔案是空的。" });
             }
 
             try
             {
+                #region check file 
+                if (file.Length > 1000000)
+                {
+                    //return BadRequest(new { message = "file size is too large!" });
+                    return Json(new
+                    {
+                        fileName = file.FileName,
+                        result = "NG",
+                        message = " File size is too larger than 1M "
+                    });
+                }
+                string builtHex = ""; string extensionName = "";
+                using (Stream S = file.OpenReadStream())
+                {
+                    for (int i = 0; i < 4; i++)
+                        builtHex += S.ReadByte().ToString("X2");
+                }
+                Debug.WriteLine(" file builtHex: " + builtHex);
+                switch (builtHex)
+                {
+                    case "89504E47": // png
+                        extensionName = ".png";
+                        break;
+                    case "FFD8FFE0": //jpg
+                    case "FFD8FFE1": //jpg PExif                    
+                        extensionName = ".jpg";
+                        break;
+                    default:
+                        //return BadRequest(new { message = "type is not supported image format" });
+                        return Json(new
+                        {
+                            fileName = file.FileName,
+                            result = "NG",
+                            message = " Image file type is not support! " + builtHex
+                        });
+                        //break;
+                }
+                #endregion
+
                 // 設定圖檔保存的路徑（這裡假設上傳到 wwwroot/uploads 資料夾）
                 var uploadsPath =
                     //Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads");
@@ -1060,10 +1127,18 @@ namespace VNW.Controllers
                     Directory.CreateDirectory(uploadsPath);
                 }
 
-                // 取得檔案名稱，並確保其唯一性
-                var filePath = Path.Combine(uploadsPath, file.FileName);
-
                 //::chagne filename
+                //add timestamp for refresh img on frontend
+                string timestamp = "";
+                var rand = new Random();
+                for (int i = 0; i <= 3; i++)
+                    timestamp += rand.Next(0, 9);
+                string imgSeq = "0" + rand.Next(1, 3);
+                string newFileName = "user_" + uid + "_pf" + imgSeq + extensionName;
+
+                // 取得檔案名稱，並確保其唯一性
+                var filePath = Path.Combine(uploadsPath, newFileName);
+                //var filePath = Path.Combine(uploadsPath, file.FileName);
 
                 // 儲存檔案到指定路徑
                 using (var stream = new FileStream(filePath, FileMode.Create))
@@ -1071,7 +1146,9 @@ namespace VNW.Controllers
                     await file.CopyToAsync(stream);
                 }
 
-                return Ok(new { fileName = file.FileName, message = "上傳成功！ " + DateTime.Now });
+                return Ok(new { fileName = newFileName, //file.FileName,
+                    result = "PASS",
+                    message = "上傳成功！ " + DateTime.Now });
             }
             catch(Exception ex)
             {
