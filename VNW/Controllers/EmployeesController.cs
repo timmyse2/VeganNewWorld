@@ -796,6 +796,17 @@ namespace VNW.Controllers
         //[HttpPost("upload")]
         public async Task<IActionResult> UploadFile(IFormFile file, string eid)
         {
+            string UserLevel = _ms.GetMySession("UserLevel", HttpContext.Session);
+            if (UserLevel != "2B" && UserLevel != "1A")
+            {
+                return Json(new
+                {
+                    fileName = "",
+                    result = "NG",
+                    message = " You do not login "
+                });
+            }
+
             if (file == null || file.Length == 0 || eid == null || eid == "")
             {
                 return BadRequest(new { message = "沒有選擇檔案或檔案是空的。" });
@@ -807,29 +818,41 @@ namespace VNW.Controllers
                 //Debug.WriteLine(" file length" + file.Length);
                 if (file.Length > 1000000)
                 {
-                    return BadRequest(new { message = "file size is too large!" });
+                    //return BadRequest(new { message = "file size is too large!" });
+                    return Json(new
+                    {
+                        fileName = file.FileName,
+                        result = "NG",
+                        message = " File size is too larger than 1M "
+                    });
                 }
 
                 //check file type from header 8 bytes
                 string builtHex = "";  string extensionName = "";
                 using (Stream S = file.OpenReadStream())
                 {
-                    for (int i = 0; i < 8; i++)                    
+                    for (int i = 0; i < 4; i++)                    
                         builtHex += S.ReadByte().ToString("X2");                    
                 }
                 Debug.WriteLine(" file builtHex: " + builtHex);
                 switch (builtHex)
                 {
-                    case "89504E470D0A1A0A": // png
+                    case "89504E47": // png
                         extensionName = ".png";
                         break;
-                    case "FFD8FFE000104A46": //jpg
-                    case "FFD8FFE131504578": //jpg PExif
+                    case "FFD8FFE0": //jpg
+                    case "FFD8FFE1": //jpg PExif                    
                         extensionName = ".jpg";
                         break;
                     default:
-                        return BadRequest(new { message = "type is not supported image format" });
-                        break;
+                        //return BadRequest(new { message = "type is not supported image format" });
+                        return Json(new
+                        {
+                            fileName = file.FileName,
+                            result = "NG",
+                            message = " Image file type is not support! " + builtHex
+                        });
+                        //break;
                 }
                 ////::use context type, but it does NOT check real context!
                 //string fileType = file.ContentType;
@@ -878,6 +901,7 @@ namespace VNW.Controllers
                 }                                
 
                 return Ok(new { fileName = newFileName, // = file.FileName,
+                    result = "PASS",
                     timestamp,
                     message = "上傳成功！ " + DateTime.Now
                 });
