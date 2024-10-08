@@ -48,7 +48,7 @@
             </div>
             <div class="form-group">
                 <label asp-for="PhotoPath" class="control-label"></label>
-                <input asp-for="PhotoPath" class="form-control" readonly />
+                <input asp-for="PhotoPath" class="form-control" readonly type="hidden"/>
                 @if (Model.PhotoPath != null)
                 {
                     <img src="~/images/employee/@Model.PhotoPath" style="width:100px;" />
@@ -56,7 +56,7 @@
                 <span asp-validation-for="PhotoPath" class="text-danger"></span>
                 <div style="align-self:center; text-align:center;border:dashed;border-width:1px;border-radius:10px;width:80%;">
                     <input type="file" id="fileInput" name="file" accept="image/*">
-                    <input id="input_updateImage" name="updateImage" value="NO" type="hidden"/>
+                    <input id="input_updateImage" name="updateImage" value="NO" type="hidden" />
                     <btn id="uploadButton" class="btn btn-info">上傳圖片</btn>
                     <div id="status">...</div>
                     <div id="imgPreview"></div>
@@ -75,8 +75,6 @@
     <a asp-action="Index">回到清單</a> |
     <a asp-action="Details" asp-route-id="@Model.Id">回到細節</a>
 </div>
-
-
 
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
@@ -104,12 +102,14 @@
                     return;
                 }
                 //console.log('file ' + file);
-                $('#status').text('selected file');               
+                $('#status').text('selected file');
 
                 var formData = new FormData();
                 formData.append('file', file);
                 var eid = @Model.Id;
+                var oldName = '@Model.PhotoPath';
                 formData.append('eid', eid);
+                formData.append('oldName', oldName);
                 var surl = '@Url.Action("UploadFile", "Employees")';
                 $.ajax({
                     url: surl,
@@ -120,7 +120,7 @@
                     success: function (response) {
                         console.log('response: ' + response);
                         console.log('上傳成功: ' + response.fileName);
-                        $('#status').text('上傳成功: ' + response.fileName + ' | ' + response.previewFileName);
+                        $('#status').text('上傳成功'); // + response.fileName + ' | ' + response.previewFileName);
 
                         console.log('old val: ' + $('#PhotoPath').val());
                         $('#imgPreview').text(''); //reset

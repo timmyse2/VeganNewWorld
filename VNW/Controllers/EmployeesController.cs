@@ -814,7 +814,7 @@ namespace VNW.Controllers
 
         //::sample from AI: upload 2B image
         //[HttpPost("upload")]
-        public async Task<IActionResult> UploadFile(IFormFile file, string eid)
+        public async Task<IActionResult> UploadFile(IFormFile file, string eid, string oldName)
         {
             string UserLevel = _ms.GetMySession("UserLevel", HttpContext.Session);
             if (UserLevel != "2B" && UserLevel != "1A")
@@ -908,16 +908,21 @@ namespace VNW.Controllers
                 for (int i = 0; i <= 3; i++)                
                     timestamp += rand.Next(0, 9);
 
-                string imgSeq = "01"; // + rand.Next(1, 3);
-                if (false) //check old name
-                {
-                    //old file/name is not exist 
+                string imgSeq = timestamp; // + rand.Next(1, 3);                
+                if (oldName == null || oldName == "") //check old name
+                { //old file/name is not exist 
                     imgSeq = "01";
-                    //increase
-                    imgSeq = "02";
-                    imgSeq = "03";
                 }
-                imgSeq = timestamp;
+                else
+                {
+                    //::increase sequence number
+                    if (oldName == "emp_" + eid + "_pf01" + extensionName)
+                        imgSeq = "02";
+                    else if (oldName == "emp_" + eid + "_pf02" + extensionName)
+                        imgSeq = "03";
+                    else
+                        imgSeq = "01"; //from 01
+                }
 
                 string newFileName = "emp_" + eid + "_pf" + imgSeq + extensionName;
                 string previewFileName = "emp_" + eid + "_preview" + extensionName;
