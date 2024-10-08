@@ -201,7 +201,7 @@ namespace VNW.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Email,PasswordEncoded,Name,Title,Extension,ReportsTo,PhotoPath,Salt")] Employee employee)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,Email,PasswordEncoded,Name,Title,Extension,ReportsTo,PhotoPath,Salt")] Employee employee, string updateImage)
         {
             string UserLevel = _ms.GetMySession("UserLevel", HttpContext.Session);
             if (UserLevel != "2B" && UserLevel != "1A")
@@ -266,6 +266,26 @@ namespace VNW.Controllers
                         HttpContext.Session.Remove("UserIcon");
                     else
                     {
+                        if(updateImage == "YES")
+                        {
+                            //::check PhotoPath and preivew is exist                            
+                            string uploadsPath =
+                                Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "images\\employee");
+
+                            string previewFileName = uploadsPath + "\\" + "emp_" + employee.Id + "_preview" + ".png";
+                            string photoPath = uploadsPath + "\\" + employee.PhotoPath;
+
+                            if (System.IO.File.Exists(previewFileName))
+                            {
+                                //::remove existed file before copying, else exception
+                                if (System.IO.File.Exists(photoPath))
+                                    System.IO.File.Delete(photoPath);                                
+                                //::copy preview image to photopath
+                                System.IO.File.Copy(previewFileName, photoPath);
+                                System.IO.File.Delete(previewFileName);
+                            }
+                        }
+
                         if (ViewBag.ShopAccount == employee.Email) //update current user's icon
                             _ms.SetMySession("UserIcon", "/images/employee/" + employee.PhotoPath, HttpContext.Session);
                     }                        
@@ -828,7 +848,7 @@ namespace VNW.Controllers
                 }
 
                 //check file type from header 8 bytes
-                string builtHex = "";  string extensionName = "";
+                string builtHex = "";  string extensionName = ".png";
                 using (Stream S = file.OpenReadStream())
                 {
                     for (int i = 0; i < 4; i++)                    
@@ -838,11 +858,11 @@ namespace VNW.Controllers
                 switch (builtHex)
                 {
                     case "89504E47": // png
-                        extensionName = ".png";
+                        //extensionName = ".png";
                         break;
                     case "FFD8FFE0": //jpg
                     case "FFD8FFE1": //jpg PExif                    
-                        extensionName = ".jpg";
+                        //extensionName = ".jpg";                        
                         break;
                     default:
                         //return BadRequest(new { message = "type is not supported image format" });
@@ -886,21 +906,35 @@ namespace VNW.Controllers
                 string timestamp = "";
                 var rand = new Random();
                 for (int i = 0; i <= 3; i++)                
-                    timestamp += rand.Next(0, 9);                
-                string imgSeq = "0" + rand.Next(1, 3);
+                    timestamp += rand.Next(0, 9);
+
+                string imgSeq = "01"; // + rand.Next(1, 3);
+                if (false) //check old name
+                {
+                    //old file/name is not exist 
+                    imgSeq = "01";
+                    //increase
+                    imgSeq = "02";
+                    imgSeq = "03";
+                }
+                imgSeq = timestamp;
+
                 string newFileName = "emp_" + eid + "_pf" + imgSeq + extensionName;
+                string previewFileName = "emp_" + eid + "_preview" + extensionName;
 
                 // 取得檔案名稱，並確保其唯一性                
-                var filePath = Path.Combine(uploadsPath, newFileName);
+                var filePath = Path.Combine(uploadsPath, previewFileName);
+                //var filePath = Path.Combine(uploadsPath, newFileName);
                 //var filePath = Path.Combine(uploadsPath, file.FileName);
 
                 // 儲存檔案到指定路徑
                 using (var stream = new FileStream(filePath, FileMode.Create))
                 {
                     await file.CopyToAsync(stream);
-                }                                
+                }
 
                 return Ok(new { fileName = newFileName, // = file.FileName,
+                    previewFileName, 
                     result = "PASS",
                     timestamp,
                     message = "上傳成功！ " + DateTime.Now
