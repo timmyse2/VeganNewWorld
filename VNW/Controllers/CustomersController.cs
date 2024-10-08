@@ -791,7 +791,7 @@ namespace VNW.Controllers
         //::for 3C
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> EditInfo([Bind("CustomerId,CompanyName,ContactName,Address,City,PostalCode,Country,Phone,PhotoPath")] Customer customer)
+        public async Task<IActionResult> EditInfo([Bind("CustomerId,CompanyName,ContactName,Address,City,PostalCode,Country,Phone,PhotoPath")] Customer customer, string updateImage)
         {
             string id = _ms.GetMySession("UserAccount", HttpContext.Session);
             if (id == null)
@@ -827,6 +827,26 @@ namespace VNW.Controllers
                         HttpContext.Session.Remove("UserIcon");
                     else
                     {
+                        if (updateImage == "YES")
+                        {
+                            //::check PhotoPath and preivew is exist                            
+                            string uploadsPath =
+                                Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "images\\customer");
+
+                            string previewFileName = uploadsPath + "\\" + "user_" + customer.CustomerId + "_preview" + ".png";
+                            string photoPath = uploadsPath + "\\" + customer.PhotoPath;
+
+                            if (System.IO.File.Exists(previewFileName))
+                            {
+                                //::remove existed file before copying, else exception
+                                if (System.IO.File.Exists(photoPath))
+                                    System.IO.File.Delete(photoPath);
+                                //::copy preview image to photopath
+                                System.IO.File.Copy(previewFileName, photoPath);
+                                System.IO.File.Delete(previewFileName);
+                            }
+                        }
+
                         _ms.SetMySession("UserIcon", "/images/customer/" + customer.PhotoPath, HttpContext.Session);
                     }
 
@@ -1056,7 +1076,7 @@ namespace VNW.Controllers
 
         //::sample from AI: upload 3C's image
         //[HttpPost("upload")]
-        public async Task<IActionResult> UploadFile(IFormFile file, string uid)
+        public async Task<IActionResult> UploadFile(IFormFile file, string uid, string oldName)
         {
             //::login check
             string _id = _ms.GetMySession("UserAccount", HttpContext.Session);
@@ -1088,7 +1108,8 @@ namespace VNW.Controllers
                         message = " File size is too larger than 1M "
                     });
                 }
-                string builtHex = ""; string extensionName = "";
+                string builtHex = "";
+                string extensionName = ".png";
                 using (Stream S = file.OpenReadStream())
                 {
                     for (int i = 0; i < 4; i++)
@@ -1098,11 +1119,11 @@ namespace VNW.Controllers
                 switch (builtHex)
                 {
                     case "89504E47": // png
-                        extensionName = ".png";
+                        //extensionName = ".png";
                         break;
                     case "FFD8FFE0": //jpg
                     case "FFD8FFE1": //jpg PExif                    
-                        extensionName = ".jpg";
+                        //extensionName = ".jpg";
                         break;
                     default:
                         //return BadRequest(new { message = "type is not supported image format" });
@@ -1133,11 +1154,29 @@ namespace VNW.Controllers
                 var rand = new Random();
                 for (int i = 0; i <= 3; i++)
                     timestamp += rand.Next(0, 9);
-                string imgSeq = "0" + rand.Next(1, 3);
-                string newFileName = "user_" + uid + "_pf" + imgSeq + extensionName;
+
+                string imgSeq = "01"; // + rand.Next(1, 3);                
+                if (oldName == null || oldName == "") //check old name
+                { //old file/name is not exist 
+                    imgSeq = "01";
+                }
+                else
+                {
+                    //::increase sequence number
+                    if (oldName == "user_" + uid + "_pf01" + extensionName)
+                        imgSeq = "02";
+                    else if (oldName == "user_" + uid + "_pf02" + extensionName)
+                        imgSeq = "03";
+                    else
+                        imgSeq = "01"; //from 01
+                }
+
+                string newFileName = "user_" + uid + "_pf" + imgSeq + extensionName;                
+                string previewFileName = "user_" + uid + "_preview" + extensionName;
 
                 // 取得檔案名稱，並確保其唯一性
-                var filePath = Path.Combine(uploadsPath, newFileName);
+                var filePath = Path.Combine(uploadsPath, previewFileName);
+                //var filePath = Path.Combine(uploadsPath, newFileName);
                 //var filePath = Path.Combine(uploadsPath, file.FileName);
 
                 // 儲存檔案到指定路徑
@@ -1147,6 +1186,7 @@ namespace VNW.Controllers
                 }
 
                 return Ok(new { fileName = newFileName, //file.FileName,
+                    previewFileName,
                     result = "PASS",
                     message = "上傳成功！ " + DateTime.Now });
             }

@@ -69,6 +69,7 @@
                 <span asp-validation-for="PhotoPath" class="text-danger"></span>
                 <div style="align-self:center; text-align:center;border:dashed;border-width:1px;border-radius:10px;width:80%;">
                     <input type="file" id="fileInput" name="file" accept="image/*">
+                    <input id="input_updateImage" name="updateImage" value="NO" class="form-control" readonly style="display:none;" />
                     <btn id="uploadButton" class="btn btn-info">上傳圖片</btn>
                     <div id="status">...</div>
                     <div id="imgPreview"></div>
@@ -116,6 +117,7 @@
                 var formData = new FormData();
                 formData.append('file', file);
                 formData.append('uid', '@Model.CustomerId');
+                formData.append('oldName', '@Model.PhotoPath');
                 var surl = '@Url.Action("UploadFile", "Customers")';
                 $.ajax({
                     //url: '/upload',  // 改成你後端的上傳 API 路徑
@@ -134,7 +136,8 @@
                             //::real PASS case
                             $('#PhotoPath').val(response.fileName);
                             console.log('updated val: ' + $('#PhotoPath').val());
-                            $('#imgPreview').append('<img src="' + ImagePath + response.fileName + '?' + response.timestamp + '" style="width: 100px; " />');
+                            $('#imgPreview').append('<img src="' + ImagePath + response.previewFileName + '?' + response.timestamp + '" style="width: 100px; " />');
+                            $('#input_updateImage').val('YES'); //::a key to Backend, update preview filename to new filename
                         }
                         else {
                             $('#imgPreview').append('something is wrong: ' + response.message);
