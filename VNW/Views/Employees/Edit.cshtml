@@ -7,6 +7,11 @@
 <h2>@ViewData["Title"]</h2>
 
 
+<div id="MaskWindow" style="opacity:0.05;background:#000;width:200%;height:200%;z-index:99;position:absolute;top:0;left:0;cursor:no-drop;display:none;"></div>
+<div id="img_loading" style="z-index:100;position:fixed;border:none;width:100%;height:100%;left:0;top:50%-250px;cursor:no-drop;display:none;">
+    <center><h3><b>處理中...</b></h3><img src="~/images/wait.gif" style="width:250px;" /></center>
+</div>
+
 <hr />
 <div class="row">
     <div class="col-md-4">
@@ -64,7 +69,7 @@
 
             </div>
             <div class="form-group">
-                <input type="reset" value="恢復重設" class="btn btn-default" />
+                <input type="reset" value="恢復重設" class="btn btn-default" id="inputReset" />
                 <input type="submit" value="送出更新" class="btn btn-danger" />
             </div>
         </form>
@@ -93,6 +98,15 @@
             console.log('document ready');
             var ImagePath = '@Url.Content("~/images/employee/")';
 
+            function SetBusy() {
+                document.getElementById('img_loading').style.display = 'block';
+                document.getElementById('MaskWindow').style.display = 'block';
+            }
+            function SetReady() {
+                document.getElementById('img_loading').style.display = 'none';
+                document.getElementById('MaskWindow').style.display = 'none';
+            }
+
             $('#uploadButton').click(function () {
                 var fileInput = $('#fileInput')[0];
                 var file = fileInput.files[0];
@@ -103,12 +117,13 @@
                 }
                 //console.log('file ' + file);
                 $('#status').text('selected file');
-
+                SetBusy();
                 var formData = new FormData();
                 formData.append('file', file);
-                var eid = @Model.Id;                
+                var eid = @Model.Id;
+                var oldName = '@Model.PhotoPath';
                 formData.append('eid', eid);
-                formData.append('oldName', '@Model.PhotoPath');
+                formData.append('oldName', oldName);
                 var surl = '@Url.Action("UploadFile", "Employees")';
                 $.ajax({
                     url: surl,
@@ -132,12 +147,24 @@
                         }
                         else {
                             $('#imgPreview').append('something is wrong: ' + response.message);
+                            $('#input_updateImage').val('wrong');
+                            $('#PhotoPath').val(oldName); //reset to old name
                         }
+                        SetReady();
                     },
                     error: function (xhr, status, error) {
                         $('#status').text('上傳失敗: 檔案可能太大或不支援 ' + error);
+                        $('#input_updateImage').val('error');
+                        $('#PhotoPath').val(oldName); //reset to old name
+                        SetReady();
                     }
                 });
+            });
+
+            $('#inputReset').click(function () {
+                $('#imgPreview').text('');
+                $('#status').text('');
+                //alert("reset");
             });
         });
 

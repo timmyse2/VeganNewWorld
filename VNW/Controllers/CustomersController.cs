@@ -1188,7 +1188,8 @@ namespace VNW.Controllers
                 return Ok(new { fileName = newFileName, //file.FileName,
                     previewFileName,
                     result = "PASS",
-                    message = "上傳成功！ " + DateTime.Now });
+                    timestamp,
+                    message = "上傳成功！"});
             }
             catch(Exception ex)
             {

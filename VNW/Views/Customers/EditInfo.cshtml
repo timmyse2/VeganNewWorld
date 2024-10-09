@@ -12,9 +12,14 @@
     <a asp-action="Info" class="btn btn-info">< 返回</a>
 </div>
 
+<div id="MaskWindow" style="opacity:0.05;background:#000;width:200%;height:200%;z-index:99;position:absolute;top:0;left:0;cursor:no-drop;display:none;"></div>
+<div id="img_loading" style="z-index:100;position:fixed;border:none;width:100%;height:100%;left:0;top:50%-250px;cursor:no-drop;display:none;">
+    <center><h3><b>處理中...</b></h3><img src="~/images/wait.gif" style="width:250px;" /></center>
+</div>
+
 <div class="row">
     <div class="col-md-4">
-        <form asp-action="EditInfo">
+        <form asp-action="EditInfo" id="formEditInfo">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
 
             <div class="form-group">
@@ -61,7 +66,8 @@
 
             <div class="form-group">
                 <label asp-for="PhotoPath" class="control-label"></label>
-                <input id="PhotoPath" asp-for="PhotoPath" class="form-control" />
+                <input id="PhotoPath" asp-for="PhotoPath" class="form-control" style="display:none;" />
+                <br />
                 @if (Model.PhotoPath != null)
                 {
                     <img src="~/images/customer/@Model.PhotoPath" style="width:100px;" />
@@ -69,7 +75,7 @@
                 <span asp-validation-for="PhotoPath" class="text-danger"></span>
                 <div style="align-self:center; text-align:center;border:dashed;border-width:1px;border-radius:10px;width:80%;">
                     <input type="file" id="fileInput" name="file" accept="image/*">
-                    <input id="input_updateImage" name="updateImage" value="NO" class="form-control" readonly style="display:none;" />
+                    <input id="input_updateImage" name="updateImage" value="NO" class="form-control" style="display:none;" />
                     <btn id="uploadButton" class="btn btn-info">上傳圖片</btn>
                     <div id="status">...</div>
                     <div id="imgPreview"></div>
@@ -77,12 +83,16 @@
             </div>
 
             <div class="form-group">
+                <input type="reset" value="恢復重設" class="btn btn-default btn-lg" id="inputReset" />
                 <input type="submit" value="送出更新" class="btn btn-danger btn-lg" />
             </div>
         </form>
     </div>
 </div>
 
+<div>
+    <a asp-action="Info" class="btn btn-info">< 返回</a>
+</div>
 
 @*<div>
     <h2>圖檔上傳</h2>
@@ -103,6 +113,15 @@
             console.log('document ready');
             var ImagePath = '@Url.Content("~/images/customer/")';
 
+            function SetBusy() {
+                document.getElementById('img_loading').style.display = 'block';
+                document.getElementById('MaskWindow').style.display = 'block';
+            }
+            function SetReady() {
+                document.getElementById('img_loading').style.display = 'none';
+                document.getElementById('MaskWindow').style.display = 'none';
+            }
+
             $('#uploadButton').click(function () {
                 var fileInput = $('#fileInput')[0];
                 var file = fileInput.files[0];
@@ -114,10 +133,12 @@
                 console.log('file ' + file);
                 $('#status').text('selected file');
 
+                SetBusy();
                 var formData = new FormData();
                 formData.append('file', file);
                 formData.append('uid', '@Model.CustomerId');
-                formData.append('oldName', '@Model.PhotoPath');
+                var oldName = '@Model.PhotoPath';
+                formData.append('oldName', oldName);
                 var surl = '@Url.Action("UploadFile", "Customers")';
                 $.ajax({
                     //url: '/upload',  // 改成你後端的上傳 API 路徑
@@ -128,7 +149,7 @@
                     processData: false,
                     success: function (response) {
                         console.log('上傳成功: ' + response.fileName);
-                        $('#status').text('上傳成功: ' + response.fileName);
+                        $('#status').text('上傳成功'); // + response.fileName);
 
                         console.log('old val: ' + $('#PhotoPath').val());
                         $('#imgPreview').text(''); //reset
@@ -141,13 +162,31 @@
                         }
                         else {
                             $('#imgPreview').append('something is wrong: ' + response.message);
+                            $('#input_updateImage').val('wrong');
+                            $('#PhotoPath').val(oldName); //reset to old name
                         }
+                        SetReady();
                     },
                     error: function (xhr, status, error) {
                         $('#status').text('上傳失敗: ' + error);
+                        $('#input_updateImage').val('error');
+                        $('#PhotoPath').val(oldName); //reset to old name
+                        SetReady();
                     }
                 });
             });
+
+            $('#formEditInfo').submit(function () {
+                if($('#input_updateImage').val() == 'YES')
+                    alert("更新個人圖示, 可能無法立即同步, 需等數分鐘後.");
+            });
+
+            $('#inputReset').click(function () {                
+                $('#imgPreview').text('');
+                $('#status').text('');
+                //alert("reset");
+            });
+
         });
 
         console.log('jquery end');
