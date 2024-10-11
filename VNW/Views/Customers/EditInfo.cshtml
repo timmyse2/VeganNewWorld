@@ -59,12 +59,6 @@
                 <span asp-validation-for="PostalCode" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label asp-for="Country" class="control-label"></label>
-                <input id="Country" asp-for="Country" class="form-control" />
-                <span asp-validation-for="Country" class="text-danger"></span>
-            </div>
-
-            <div class="form-group">
                 <label asp-for="PhotoPath" class="control-label"></label>
                 <input id="PhotoPath" asp-for="PhotoPath" class="form-control" style="display:none;" />
                 <br />
@@ -81,7 +75,11 @@
                     <div id="imgPreview"></div>
                 </div>
             </div>
-
+            <div class="form-group">
+                <label asp-for="Country" class="control-label"></label>
+                <input id="Country" asp-for="Country" class="form-control" />
+                <span asp-validation-for="Country" class="text-danger"></span>
+            </div>
             <div class="form-group">
                 <input type="reset" value="恢復重設" class="btn btn-default btn-lg" id="inputReset" />
                 <input type="submit" value="送出更新" class="btn btn-danger btn-lg" />
@@ -89,6 +87,8 @@
         </form>
     </div>
 </div>
+
+<div class="btn btn-danger" id="btn_test">test</div>
 
 <div>
     <a asp-action="Info" class="btn btn-info">< 返回</a>
@@ -166,6 +166,7 @@
                             $('#PhotoPath').val(oldName); //reset to old name
                         }
                         SetReady();
+                        $('#Country').focus();
                     },
                     error: function (xhr, status, error) {
                         $('#status').text('上傳失敗: ' + error);
@@ -185,6 +186,10 @@
                 $('#imgPreview').text('');
                 $('#status').text('');
                 //alert("reset");
+            });
+
+            $('#btn_test').click(function () {
+                SetBusy();
             });
 
         });
