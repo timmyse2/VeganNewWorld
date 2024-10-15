@@ -992,7 +992,8 @@ namespace VNW.Controllers
         public async Task<IActionResult> GetStockReserved(int? id)
         {
             string _result = "tbc", _detail = "tbc";
-            short stock = 0, reserved = 0, unitPrice = 0;
+            short stock = 0, reserved = 0;
+            long unitPrice = 0;
             //check user level
 
             //::check pid
@@ -1017,8 +1018,11 @@ namespace VNW.Controllers
                     if(query != null)
                     {
                         stock = (short)query.UnitsInStock;
-                        reserved = (short)query.UnitsReserved;                        
-                        unitPrice = (short) query.UnitPrice;                        
+                        reserved = (short)query.UnitsReserved;
+                        
+                        //::fixed issue - overflow
+                        unitPrice = (long) query.UnitPrice;
+                        //unitPrice = (short) query.UnitPrice;
                         _result = "PASS"; _detail = "";
                     }
                     else
@@ -1040,7 +1044,8 @@ namespace VNW.Controllers
         //public async Task<IActionResult> GetProduct([FromBody] LoginRequest request)//Core8
         {
             string _result = "tbc", _detail = "tbc", productName = "", picture = "";
-            short stock = 0, reserved = 0, unitPrice = 0;
+            short stock = 0, reserved = 0; //, unitPrice = 0;
+            long unitPrice = 0;
             //check user level           
 
             //::check pid
@@ -1073,7 +1078,8 @@ namespace VNW.Controllers
                         stock = (short)query.UnitsInStock;
                         reserved = (short)query.UnitsReserved;
                         productName = query.ProductName;
-                        unitPrice = (short)query.UnitPrice;
+                        //unitPrice = (short)query.UnitPrice;
+                        unitPrice = (long)query.UnitPrice;
                         picture = query.Picture;
                         _result = "PASS"; _detail = "";
                     }
