@@ -153,7 +153,11 @@ else
                 <td>
                     @if (item.Product != null)
                     {
-                        <img src="~/images/@item.Product.Picture" style="width:80px; " />
+                        <img src="~/images/products/@item.Product.Picture" style="width:80px; " />
+                    }
+                    @if (item.Quantity <= 0)
+                    {
+                        <span style="background-color:red;color:white;">已取消</span>
                     }
                 </td>
                 <td>

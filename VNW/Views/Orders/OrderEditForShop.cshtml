@@ -186,7 +186,7 @@
                     <tr>
                         <td>@(irow + 1) @*<input type="checkbox" name="" class="form-control" checked readonly />*@ </td>
                         <td>
-                            <img src="~/images/@item.Product.Picture" style="width:80px; " />
+                            <img src="~/images/products/@item.Product.Picture" style="width:80px; " />
                             @*<div class="btn_removeItem btn btn-danger" pid="@item.ProductId"><img src="~/images/delete.svg" />REMOVE</div>*@
                         </td>
                         <td>
@@ -924,7 +924,7 @@
                     if (data.result == "PASS") {
                         //pass case
                         console.log("PASS case");
-                        var image = '<img src="../../images/' + data.picture + '" style="width:80px;"/>';
+                        var image = '<img src="../../images/products/' + data.picture + '" style="width:80px;"/>';
                         rowData =
                             '<td>' + image + '</td><td>'
                             + pid + '</td><td>'
@@ -1016,7 +1016,7 @@
                         }
                         //qtySelect += '<option>0</option>';
                         qtySelect += '</select>';
-                        var image = '<img src="../../images/' + data.picture + '" style="width:80px;"/>';
+                        var image = '<img src="../../images/products/' + data.picture + '" style="width:80px;"/>';
 
                         console.log(data.productName);
                         rowData =
