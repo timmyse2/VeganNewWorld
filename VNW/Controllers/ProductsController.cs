@@ -56,7 +56,9 @@ namespace VNW.Controllers
                         .OrderByDescending(x => x.LastModifiedTime);
                     break;
                 case "error": //error only 
-                    q0 = _context.Products.Where(p => p.UnitsReserved < 0 || p.UnitsReserved > p.UnitsInStock)
+                    q0 = _context.Products.Where(p => p.UnitsReserved < 0 || p.UnitsReserved > p.UnitsInStock
+                        || p.Picture == null
+                        )
                         .OrderByDescending(x => x.LastModifiedTime)
                         ;
                     break;
@@ -66,9 +68,9 @@ namespace VNW.Controllers
                     HttpContext.Response.Cookies.Append("condition_shopProduct", "");
                     _condition = null;
                     break;
-                default: 
+                default:
                     //use condition from cookie
-                    q0 = _context.Products;                    
+                    q0 = _context.Products.OrderByDescending(x => x.ProductId);
                     break;
             }            
             if(_condition != null)
@@ -153,12 +155,16 @@ namespace VNW.Controllers
         // GET: Products/Create
         public IActionResult Create()
         {
-            //::check admin
-            if (!_ms.CheckAdmin(HttpContext.Session))
-                return Content("You have no right to access this page");
-
-            if (!_ms.LoginPrecheck(HttpContext.Session))
+            //::check user level == 1A|2B
+            string UserLevel = _ms.GetMySession("UserLevel", HttpContext.Session);
+            if (UserLevel != "2B" && UserLevel != "1A")            
                 return RedirectToAction("Login", "Customers");
+
+            ////::check admin
+            //if (!_ms.CheckAdmin(HttpContext.Session))
+            //    return Content("You have no right to access this page");
+            //if (!_ms.LoginPrecheck(HttpContext.Session))
+            //    return RedirectToAction("Login", "Customers");
 
             //ViewData["CategoryId"] = new SelectList(_context.Set<Category>(), "CategoryId", "CategoryId");
             ViewData["CategoryId"] = new SelectList(_context.Set<Category>(), "CategoryId", 
@@ -173,6 +179,11 @@ namespace VNW.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("ProductId,ProductName,CategoryId,QuantityPerUnit,UnitPrice,UnitsInStock,UnitsOnOrder,ReorderLevel,Discontinued")] Product product)
         {
+            //::check user level == 1A|2B
+            string UserLevel = _ms.GetMySession("UserLevel", HttpContext.Session);
+            if (UserLevel != "2B" && UserLevel != "1A")
+                return RedirectToAction("Login", "Customers");
+
             if (ModelState.IsValid)
             {
                 _context.Add(product);
