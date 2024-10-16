@@ -11,7 +11,8 @@ using VNW.ViewModels;//
 using System.Diagnostics; //for debug
 using VNW.Common; //for lib
 using Newtonsoft.Json; //for json
-
+using System.IO;
+using Microsoft.AspNetCore.Http; //for IFormFile
 
 namespace VNW.Controllers
 {
@@ -1209,7 +1210,7 @@ namespace VNW.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> EditForShop(int id,
             [Bind("ProductId,ProductName,CategoryId,QuantityPerUnit,UnitPrice,UnitsInStock,UnitsOnOrder,ReorderLevel,Discontinued,Picture,Description,UnitsReserved,LastModifiedTime,RowVersion,IsLocked"
-                )] Product product)
+                )] Product product, string updateImage)
         {
             //::check Shop
             string UserLevel = _ms.GetMySession("UserLevel", HttpContext.Session);
@@ -1293,6 +1294,32 @@ namespace VNW.Controllers
                         */
                     }
                     #endregion
+
+                    //::update uploaded image
+                    if (product.Picture == null || product.Picture == "")
+                    {
+                    }
+                    else
+                    {
+                        if (updateImage == "YES")
+                        {
+                            //::check PhotoPath and preivew is exist                            
+                            string uploadsPath =
+                                Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "images\\products");
+
+                            string previewFileName = uploadsPath + "\\" + "product_" + product.ProductId + "_preview" + ".png";
+                            string photoPath = uploadsPath + "\\" + product.Picture;
+                            if (System.IO.File.Exists(previewFileName))
+                            {
+                                //::remove existed file before copying, else exception
+                                if (System.IO.File.Exists(photoPath))
+                                    System.IO.File.Delete(photoPath);
+                                //::copy preview image to photopath
+                                System.IO.File.Copy(previewFileName, photoPath);
+                                System.IO.File.Delete(previewFileName);
+                            }
+                        }
+                    }
 
                     _context.Update(product);
                     //_context.Products.Update(product); // indicate to product from View
@@ -1448,7 +1475,6 @@ namespace VNW.Controllers
             return Json(res);
         }
 
-
         public async Task<IActionResult> Analysis(int id)
         {
             var p = await _context.Products.FindAsync(id);
@@ -1466,7 +1492,6 @@ namespace VNW.Controllers
             ViewData["ods"] = ods;
             return View(ods);
         }
-
 
         public async Task<IActionResult> Lock(int? id, int? isLock)
         {
@@ -1517,6 +1542,131 @@ namespace VNW.Controllers
             return View();
         }
 
+        //::sample from AI: upload 3C's image
+        //[HttpPost("UploadImage")]
+        [HttpPost]
+        public async Task<IActionResult> UploadImage(IFormFile file, string id, string oldName)
+        {
+            //::login check
+            //string _id = _ms.GetMySession("UserAccount", HttpContext.Session);
+            //if (id == null || id != _id)
+            //{
+            //    return Json(new
+            //    {
+            //        fileName = "",
+            //        result = "NG",
+            //        message = " You need to login "
+            //    });
+            //}
 
+            if (file == null || file.Length == 0 || id == null || id == "")
+            {
+                return BadRequest(new { message = "沒有選擇檔案或檔案是空的。" });
+            }
+
+            try
+            {
+                #region check file 
+                if (file.Length > 1000000)
+                {
+                    //return BadRequest(new { message = "file size is too large!" });
+                    return Json(new
+                    {
+                        fileName = file.FileName,
+                        result = "NG",
+                        message = " File size is too larger than 1M "
+                    });
+                }
+                string builtHex = "";
+                string extensionName = ".png";
+                using (Stream S = file.OpenReadStream())
+                {
+                    for (int i = 0; i < 4; i++)
+                        builtHex += S.ReadByte().ToString("X2");
+                }
+                Debug.WriteLine(" file builtHex: " + builtHex);
+                switch (builtHex)
+                {
+                    case "89504E47": // png
+                        //extensionName = ".png";
+                        break;
+                    case "FFD8FFE0": //jpg
+                    case "FFD8FFE1": //jpg PExif                    
+                        //extensionName = ".jpg";
+                        break;
+                    default:
+                        //return BadRequest(new { message = "type is not supported image format" });
+                        return Json(new
+                        {
+                            fileName = file.FileName,
+                            result = "NG",
+                            message = " Image file type is not support! " + builtHex
+                        });
+                        //break;
+                }
+                #endregion
+
+                // 設定圖檔保存的路徑（這裡假設上傳到 wwwroot/uploads 資料夾）
+                var uploadsPath =
+                    //Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads");
+                    Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "images\\products");
+
+                // 如果資料夾不存在，則建立資料夾
+                if (!Directory.Exists(uploadsPath))
+                {
+                    Directory.CreateDirectory(uploadsPath);
+                }
+
+                //::chagne filename
+                //add timestamp for refresh img on frontend
+                string timestamp = "";
+                var rand = new Random();
+                for (int i = 0; i <= 3; i++)
+                    timestamp += rand.Next(0, 9);
+
+                string imgSeq = "01"; // + rand.Next(1, 3);                
+                if (oldName == null || oldName == "") //check old name
+                { //old file/name is not exist 
+                    imgSeq = "01";
+                }
+                else
+                {
+                    //::increase sequence number
+                    if (oldName == "product_" + id + "_pf01" + extensionName)
+                        imgSeq = "02";
+                    else if (oldName == "product_" + id + "_pf02" + extensionName)
+                        imgSeq = "03";
+                    else
+                        imgSeq = "01"; //from 01
+                }
+
+                string newFileName = "product_" + id + "_pf" + imgSeq + extensionName;
+                string previewFileName = "product_" + id + "_preview" + extensionName;
+
+                // 取得檔案名稱，並確保其唯一性
+                var filePath = Path.Combine(uploadsPath, previewFileName);
+                //var filePath = Path.Combine(uploadsPath, newFileName);
+                //var filePath = Path.Combine(uploadsPath, file.FileName);
+
+                // 儲存檔案到指定路徑
+                using (var stream = new FileStream(filePath, FileMode.Create))
+                {
+                    await file.CopyToAsync(stream);
+                }
+
+                return Ok(new
+                {
+                    fileName = newFileName, //file.FileName,
+                    previewFileName,
+                    result = "PASS",
+                    timestamp,
+                    message = "上傳成功！"
+                });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = "Error unknown!" });
+            }
+        }
     }
 }

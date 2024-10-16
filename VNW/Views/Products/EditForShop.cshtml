@@ -6,6 +6,11 @@
 
 <h2>@ViewData["Title"]</h2>
 
+<div id="MaskWindow" style="opacity:0.05;background:#000;width:200%;height:200%;z-index:99;position:absolute;top:0;left:0;cursor:no-drop;display:none;"></div>
+<div id="img_loading" style="z-index:100;position:fixed;border:none;width:100%;height:100%;left:0;top:50%-250px;cursor:no-drop;display:none;">
+    <center><h3><b>處理中...</b></h3><img src="~/images/wait.gif" style="width:250px;" /></center>
+</div>
+
 <div>
     <h3 class="alert-info">@TempData["td_serverMessage"]</h3>
     <h3 class="alert-danger">@TempData["td_serverWarning"]</h3>
@@ -22,7 +27,7 @@
 
             <input type="hidden" asp-for="IsLocked" />
             <div class="form-group">
-                <input type="checkbox" checked="@Model.IsLocked" disabled style="width:30px;height:30px;"/>
+                <input type="checkbox" checked="@Model.IsLocked" disabled style="width:30px;height:30px;" />
                 <label asp-for="IsLocked" class="control-label"></label>
             </div>
             <div class="form-group">
@@ -94,8 +99,21 @@
 
             <div class="form-group">
                 <label asp-for="Picture" class="control-label"></label>
-                <input asp-for="Picture" class="form-control" />
+                <input asp-for="Picture" id="PhotoPath" class="form-control" />
+                @if (@Model.Picture != null)
+                {
+                    <img src="~/images/products/@Model.Picture" style="width:100px;" />
+                }
                 <span asp-validation-for="Picture" class="text-danger"></span>
+
+                <div style="align-self:center; text-align:center;border:dashed;border-width:1px;border-radius:10px;width:80%;">
+                    <input type="file" id="fileInput" name="file" accept="image/*">
+                    <input id="input_updateImage" name="updateImage" value="NO" class="form-control" style="display:none;" />
+                    <btn id="uploadButton" class="btn btn-info">上傳圖檔</btn>
+                    <div id="status">...</div>
+                    <div id="imgPreview"></div>
+                </div>
+
             </div>
             <div class="form-group">
                 <a class="btn btn-default" asp-action="ProductDetailForShop" asp-route-id="@Model.ProductId">取消</a>
@@ -116,17 +134,17 @@
 </div>
 
 @*<div>
-    <div id="quantitylist">
-        <div class="qtyminus" goodNumber="6060102630" stock="0" price="120" promoNum="" giftacml="" giftId="" giftNum="" stock1="" nowAmount="0"></div>
-        <input type="text" name="quantity" id="quantity" value="0" mark="0" class="qty" readonly="readonly" />
-        <div class="qtyplus" goodNumber="6060102630" stock="0" price="120" promoNum="" giftacml="" giftId="" giftNum="" stock1="" nowAmount="0"></div>
-    </div>
+        <div id="quantitylist">
+            <div class="qtyminus" goodNumber="6060102630" stock="0" price="120" promoNum="" giftacml="" giftId="" giftNum="" stock1="" nowAmount="0"></div>
+            <input type="text" name="quantity" id="quantity" value="0" mark="0" class="qty" readonly="readonly" />
+            <div class="qtyplus" goodNumber="6060102630" stock="0" price="120" promoNum="" giftacml="" giftId="" giftNum="" stock1="" nowAmount="0"></div>
+        </div>
 
-    <div class="btn btn-primary">+1</div>
-    <div class="btn btn-primary">+10</div>
-    <div class="btn btn-danger">-1</div>
-    <div class="btn btn-danger">-10</div>
-</div>*@
+        <div class="btn btn-primary">+1</div>
+        <div class="btn btn-primary">+10</div>
+        <div class="btn btn-danger">-1</div>
+        <div class="btn btn-danger">-10</div>
+    </div>*@
 
 
 @*<div>
@@ -147,5 +165,88 @@
     <script type="text/javascript" src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
     <script>
         console.log("jquery start");
+
+        $(document).ready(function () {
+            console.log('document ready');
+            var ImagePath = '@Url.Content("~/images/products/")';
+
+            function SetBusy() {
+                document.getElementById('img_loading').style.display = 'block';
+                document.getElementById('MaskWindow').style.display = 'block';
+            }
+            function SetReady() {
+                document.getElementById('img_loading').style.display = 'none';
+                document.getElementById('MaskWindow').style.display = 'none';
+            }
+
+            $('#uploadButton').click(function () {
+                var fileInput = $('#fileInput')[0];
+                var file = fileInput.files[0];
+
+                if (!file) {
+                    $('#status').text('請選擇一個檔案');
+                    return;
+                }
+                console.log('file ' + file);
+                $('#status').text('selected file');
+
+                SetBusy();
+                var formData = new FormData();
+                formData.append('file', file);
+                formData.append('id', '@Model.ProductId');
+                var oldName = '@Model.Picture';
+                formData.append('oldName', oldName);
+                var surl = '@Url.Action("UploadImage", "Products")';
+                $.ajax({
+                    //url: '/upload',  // 改成你後端的上傳 API 路徑
+                    url: surl,
+                    type: 'POST',
+                    data: formData,
+                    contentType: false,
+                    processData: false,
+                    success: function (response) {
+                        console.log('上傳成功: ' + response.fileName);
+                        $('#status').text('上傳成功'); // + response.fileName);
+
+                        console.log('old val: ' + $('#PhotoPath').val());
+                        $('#imgPreview').text(''); //reset
+                        if (response.result == 'PASS') {
+                            //::real PASS case
+                            $('#PhotoPath').val(response.fileName);
+                            console.log('updated val: ' + $('#PhotoPath').val());
+                            $('#imgPreview').append('<img src="' + ImagePath + response.previewFileName + '?' + response.timestamp + '" style="width: 100px; " />');
+                            $('#input_updateImage').val('YES'); //::a key to Backend, update preview filename to new filename
+                        }
+                        else {
+                            $('#imgPreview').append('something is wrong: ' + response.message);
+                            $('#input_updateImage').val('wrong');
+                            $('#PhotoPath').val(oldName); //reset to old name
+                        }
+                        SetReady();
+                        $('#Country').focus();
+                    },
+                    error: function (xhr, status, error) {
+                        $('#status').text('上傳失敗: ' + error);
+                        $('#input_updateImage').val('error');
+                        $('#PhotoPath').val(oldName); //reset to old name
+                        SetReady();
+                    }
+                });
+            });
+
+            $('#formEditInfo').submit(function () {
+                if($('#input_updateImage').val() == 'YES')
+                    alert("更新個人圖示, 可能無法立即同步, 需等數分鐘後.");
+            });
+
+            $('#inputReset').click(function () {
+                $('#imgPreview').text('');
+                $('#status').text('');
+                //alert("reset");
+            });
+
+        });
+
+        console.log('jquery end');
     </script>
 }
