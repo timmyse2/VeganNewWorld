@@ -32,7 +32,12 @@ else
                 食材 (<a asp-action="ProductList" asp-controller="Products" asp-route-cat="1">未來肉|植物蛋白肉</a>
                 |天貝)
             </li>
-            <li><a asp-action="ProductList" asp-controller="Products" asp-route-cat="8">書籍</a> | 器具 | 手工藝品</li>
+            <li>
+                <a asp-action="ProductList" asp-controller="Products" asp-route-cat="8">書籍</a> |
+                <a asp-action="ProductList" asp-controller="Products" asp-route-cat="12">器具</a> |
+                <a asp-action="ProductList" asp-controller="Products" asp-route-cat="9">手工藝品</a>
+                
+            </li>
             <li>料理|點餐</li>
             <li>
                 <a asp-action="PrepareOrder" asp-controller="Products" class="btn btn-danger">購物車</a>

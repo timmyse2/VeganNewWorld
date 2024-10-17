@@ -405,7 +405,7 @@ namespace VNW.Controllers
                     .Where(x => x.Picture != null
                     //&& x.Discontinued == false  
                     && (x.ProductName.Contains(search) || x.Description.Contains(search))
-                    );
+                    ).OrderByDescending(p=>p.ProductId);
 
                 //var q2 = _context.Products
                 //    .Where(x => x.Picture != null
@@ -458,6 +458,7 @@ namespace VNW.Controllers
             var veganNewWorldContext =
                 _context.Products
                 .Where(p => p.CategoryId == cat && p.Picture != null) //::cat id
+                .OrderByDescending(p=>p.ProductId);
                 //.Include(p => p.Category)
                 ;
 
@@ -1073,7 +1074,7 @@ namespace VNW.Controllers
                     _pid = (int)Id;
                     //string pidJSON = null;
                     var query = await _context.Products
-                      .Where(x => x.ProductId == _pid && x.Picture != null)
+                      .Where(x => x.ProductId == _pid && x.Picture != null && x.UnitsInStock > 0 && x.Discontinued != true)
                       .AsNoTracking()
                       .Select(x => new {
                           x.ProductId,
@@ -1081,6 +1082,7 @@ namespace VNW.Controllers
                           x.UnitsReserved,
                           x.ProductName,
                           x.UnitPrice,
+                          x.Discontinued,
                           x.Picture
                       })
                       .FirstOrDefaultAsync();
