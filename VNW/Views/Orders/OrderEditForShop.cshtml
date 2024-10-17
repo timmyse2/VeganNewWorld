@@ -1123,9 +1123,15 @@
         //::Do NOT let <input submit> works immediately after user pressed ENTER
         document.getElementById('btn_submit').addEventListener('click',
             function () {
-                //this.style.display = 'none';
-                //document.getElementById('btn_submit').style.display = '';
-                document.getElementById('form_OrderEdit').submit();
+                var ans = window.confirm("確定修改訂單?");
+                if (ans) {
+                    //this.style.display = 'none';
+                    //document.getElementById('btn_submit').style.display = '';
+                    document.getElementById('form_OrderEdit').submit();
+                }
+                else {
+                    console.log('canceled');
+                }
             }
         );
 

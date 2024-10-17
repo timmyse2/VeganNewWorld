@@ -121,9 +121,9 @@ else
                     <td>
                         @if (OrderInfo.Employee != null)
                         {
-                        <a asp-route-id="@OrderInfo.EmployeeId" asp-action="Details" asp-controller="Employees" target="_blank">
-                            @OrderInfo.Employee.Name (@OrderInfo.Employee.Email)(@OrderInfo.Employee.Extension)                            
-                        </a>
+                            <a asp-route-id="@OrderInfo.EmployeeId" asp-action="Details" asp-controller="Employees" target="_blank">
+                                @OrderInfo.Employee.Name (@OrderInfo.Employee.Email)(@OrderInfo.Employee.Extension)
+                            </a>
                         }
                     </td>
                 </tr>
@@ -250,9 +250,9 @@ else
     @if (OrderInfo.Status != OrderStatusEnum.Canceling && OrderInfo.Status != OrderStatusEnum.Cancelled)
     {
         <div style="text-align:right">
-            @*<a class="btn btn-success btn-lg">確認接單</a>*@
-            <a class="btn btn-success btn-lg" asp-action="ShipOrderForShop"
-               asp-controller="Orders" asp-route-id="@OrderInfo.OrderId">準備完成 : 出貨</a>
+            <div id="btn_ship" class="btn btn-success btn-lg">準備完成 : 出貨</div>
+            @*<a class="btn btn-success btn-lg" asp-action="ShipOrderForShop"
+                asp-controller="Orders" asp-route-id="@OrderInfo.OrderId">準備完成 : 出貨</a>*@
             <br />
             註: 按下[準備完成]代表正式出貨!!
         </div>
@@ -272,12 +272,47 @@ else
                 <option>內容或數量有差異</option>
                 <option>其它</option>
             </select>
-            <a class="btn btn-danger btn-lg" asp-action="CancelOrderAsync" asp-controller="orders"
-               asp-route-id="@OrderInfo.OrderId">取消訂單!退單!</a>
+            <div id="btn_cancelOrder" class="btn btn-danger btn-lg" >取消訂單!退單!</div>
+            @*<a class="btn btn-danger btn-lg" asp-action="CancelOrderAsync" asp-controller="orders"
+               asp-route-id="@OrderInfo.OrderId">取消訂單!退單!</a>*@
         </div>
 
         <hr />
 
 
     }
+}
+
+@section endJS{    
+    <script>
+        console.log("js start");
+
+        document.getElementById('btn_ship').addEventListener('click', function () {
+            var ans = window.confirm("確定送出?");
+            if (ans) {
+                var surl = '@Url.Action("ShipOrderForShop", "Orders", new {id= OrderInfo.OrderId})';                
+                console.log('confirmed, goto ' + surl);
+                window.location.href = surl;
+            }
+            else {
+                console.log('canceled');
+            }
+        });
+
+        //btn_cancelOrder
+        document.getElementById('btn_cancelOrder').addEventListener('click', function () {
+            var ans = window.confirm("確定取消訂單?");
+            if (ans) {
+                var surl = '@Url.Action("CancelOrderAsync", "Orders", new {id= OrderInfo.OrderId})';                
+                console.log('confirmed, goto ' + surl);
+                window.location.href = surl;
+            }
+            else {
+                console.log('canceled');
+            }
+        });
+
+
+        console.log('js end');
+    </script>
 }

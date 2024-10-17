@@ -49,9 +49,10 @@
             <div class="form-group">
                 <div class="checkbox">
                     <label>
-                        <input asp-for="Discontinued" checked/> @Html.DisplayNameFor(model => model.Discontinued)
+                        <input asp-for="Discontinued" checked /> @Html.DisplayNameFor(model => model.Discontinued)
                     </label>
                 </div>
+                <span class="text-danger">註: 新增的產品先不直接開放，請再用編輯功能補上圖片等資訊後才上架</span>
             </div>
             <div class="form-group">
                 <input type="submit" value="建立" class="btn btn-default" />
