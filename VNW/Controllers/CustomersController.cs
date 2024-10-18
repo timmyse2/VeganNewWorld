@@ -455,7 +455,7 @@ namespace VNW.Controllers
                 //HttpContext.Session.Remove("UserAccount");
                 _ms.SetMySession("ShopAccount", "wolf2024@vnw.tw", HttpContext.Session);
                 _ms.SetMySession("EmployeeId", "1", HttpContext.Session);
-                _ms.SetMySession("UserIcon", "/images/employee/" + "1472221000-3510691506_q.png", HttpContext.Session);
+                _ms.SetMySession("UserIcon", "/images/employee/emy2.png", HttpContext.Session);
 
             }); 
             return Json(new { result = "PASS", detail = "admin login" });

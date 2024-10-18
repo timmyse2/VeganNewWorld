@@ -1,0 +1,86 @@
+﻿@model IEnumerable<VNW.Models.OrderDetail>
+
+@{
+    ViewData["Title"] = "Sales Report Total";
+}
+
+<h2>@ViewData["Title"]</h2>
+
+<div>
+    <a class="btn btn-info">Weekly</a>
+    <a class="btn btn-info">Monthly</a>
+    <a class="btn btn-warning">All Status</a>
+    <a class="btn btn-default">Cancelled Only</a>
+</div>
+
+@Html.Raw(ViewBag.stemp)
+
+@if (Model == null)
+{
+    <span>model is null</span>
+    return;
+}
+
+<p>
+    <h3>Count: @Model.Count()</h3>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>#</th>
+            <th>pid</th>
+            <th>
+                @Html.DisplayNameFor(model => model.UnitPrice)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Quantity)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Discount)
+            </th>
+            <th>
+
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Order)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Product)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    @{
+        int i = 0;
+    }
+    <tbody>
+        @foreach (var item in Model)
+        {
+
+            <tr>
+                <td>@(++i)</td>
+                <td>
+                    @item.ProductId
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.UnitPrice)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Quantity)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Discount)
+                </td>
+                <td></td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Order.OrderId)
+                    (@Html.DisplayFor(modelItem => item.Order.Status))
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Product.ProductName)
+                </td>
+                <td></td>
+            </tr>
+        }
+    </tbody>
+</table>

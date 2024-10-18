@@ -752,7 +752,7 @@ namespace VNW.Controllers
             ViewBag.queryString = query;
             //ViewBag.connectionString = connectionString; //debug only
 
-            List<Employee> emps = new List<Employee>();           
+            List<Employee> emps = new List<Employee>();
 
             using (SqlConnection connection = new SqlConnection(connectionString))
             {

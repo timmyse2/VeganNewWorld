@@ -52,25 +52,32 @@
 
 <h4>訂購記錄 @Model.Count()</h4>
 
-<table class="table table-bordered">
+<table class="table table-bordered table-hover table-condensed table-responsive table-striped">
     <thead>
         <tr>
             <td>#</td>
-            <td>Id</td>
+            <td>Order Id</td>
             <td>Qty</td>
             <td>Price</td>
             <td>Status</td>
             <td>Create Date</td>
             <td>Customer</td>
+            <td>小記</td>
         </tr>
     </thead>
 
     <tbody>
         @{
             int i = 0;
+            int totalPriceSum = 0;
+            int OrderFinished = 0;
+            int QtyFinished = 0;
         }
         @foreach (OrderDetail item in Model)
         {
+            string mask = "";
+            int totalPrice = 0;
+            bool iSNeedCal = false;
             <tr>
                 <td>@(++i)</td>
                 <td>@item.OrderId</td>
@@ -79,15 +86,46 @@
 
                 @if (item.Order != null)
                 {
-
-                    <td>@item.Order.Status</td>
+                    <td>
+                        @if (item.Order.Status != OrderStatusEnum.Shipped)
+                        {
+                            mask = "alert-danger";
+                        }
+                        else
+                        {
+                            iSNeedCal = true;
+                            mask = "";
+                        }
+                        <span class="@mask">
+                            @item.Order.Status
+                        </span>
+                    </td>
                     <td>@item.Order.OrderDate</td>
                     <td>@item.Order.CustomerId</td>
+                    <td>
+                        @if (iSNeedCal)
+                        {
+                            totalPrice = item.Quantity * (int)item.UnitPrice;
+                            totalPriceSum += totalPrice;
+                            OrderFinished++;
+                            QtyFinished += item.Quantity;
+                        }
+                        @totalPrice
+
+                    </td>
                 }
 
-
-                <td></td>
             </tr>
         }
     </tbody>
 </table>
+
+<h3>有效的訂單數: @OrderFinished <br />鎖售量: @QtyFinished (件)</h3>
+
+<div style="text-align:right;">
+    <h3>累加金額: @totalPriceSum</h3>
+</div>
+
+
+<a class="btn btn-warning btn-lg" asp-action="SalesReportTotal">總銷售報告(Alpah)</a>
+

@@ -14,17 +14,22 @@ using Newtonsoft.Json; //for json
 using System.IO;
 using Microsoft.AspNetCore.Http; //for IFormFile
 
+using Microsoft.Extensions.Configuration; //for IConfiguration
+using System.Data.SqlClient; //::for sql
+
 namespace VNW.Controllers
 {
     public class ProductsController : Controller
     {
         private readonly VeganNewWorldContext _context;
+        private readonly IConfiguration _config;
         //::set session common interface
         VNW.Common.MySession _ms = new Common.MySession();
 
-        public ProductsController(VeganNewWorldContext context)
+        public ProductsController(VeganNewWorldContext context, IConfiguration config)
         {
             _context = context;
+            _config = config;   //:: for config c14
         }
 
         // GET: Products
@@ -1691,8 +1696,9 @@ namespace VNW.Controllers
 
             var ods = await _context.OrderDetails
                 .Where(x => x.ProductId == id && x.OrderId == x.Order.OrderId
-                    && ((int)x.Order.Status >= 20 && x.Order.Status != null)
-                    && x.Order.OrderDate > specificDate)
+                    //&& ((int)x.Order.Status >= 20 && x.Order.Status != null)
+                    //&& x.Order.OrderDate > specificDate
+                    )
                 .Include(x => x.Order)
                 .OrderByDescending(x => x.Order.OrderDate)
                 .ToListAsync();
@@ -1703,5 +1709,105 @@ namespace VNW.Controllers
             return View(ods);
         }
 
+
+        public async Task<IActionResult> SalesReportTotal(string condition)
+        {
+
+            //var p = await _context.Products.FindAsync(id);
+
+
+            string ssql = "SELECT TOP 20  p.ProductId as pid, p.ProductName, sum(od.Quantity) as qty, count(*) as count " +
+              "FROM [Products] as p " +
+              "join [OrderDetails] as od on p.ProductId = od.ProductId " +
+              "join Orders as o on o.OrderId = od.OrderId " +
+              "where o.Status = 20 " +
+                "Group by p.ProductName, p.ProductId " +
+                "order by qty desc";
+            string stemp = "";
+            int rowCount = 0;
+            string connectionString = "";
+            connectionString = _config.GetConnectionString("VeganNewWorldContext");
+
+            //List<Employee> emps = new List<Employee>();
+
+            using (SqlConnection connection = new SqlConnection(connectionString))
+            {
+                connection.Open();
+                using (SqlCommand command = new SqlCommand(ssql, connection))
+                {
+                    using (SqlDataReader reader = command.ExecuteReader())
+                    {
+                        int FC = reader.FieldCount;
+                        stemp += "<table class=\"table table-bordered\">";
+
+                        stemp += "<thead><tr>";
+                        for (int i = 0; i < FC; i++)
+                        {
+                            string s = reader.GetName(i);
+                            Debug.Write(s + " \t\t\t");
+                            stemp += "<td>" + s + "</td>";
+                        }
+                        stemp += "</tr></thead>";
+                        while (reader.Read())
+                        {
+                            stemp += "<tr>";
+                            for (int i = 0; i < FC; i++)
+                            {
+                                string s = "";
+                                if (reader[i] != DBNull.Value)
+                                    s = reader[i].ToString();
+                                else
+                                    s = "...";
+
+                                Debug.Write(s + " \t\t\t");
+                                stemp += "<td>" + s + "</td>";
+                            }
+                            stemp += "</tr>";
+
+                            //Employee emp = new Employee()
+                            //{
+                            //    Id = (int)reader[0],
+                            //    Name = reader["Name"].ToString(),
+                            //};
+                            //emp.Id = (int) reader[0];
+                            //emp.Name = reader["Name"].ToString();
+                            //emps.Add(emp);
+
+                            rowCount++;
+                        }
+                        stemp += "</table>";
+
+                    }
+                }
+                connection.Close();                
+            }
+            //var sp = await _context.Products
+            //    .Include(x => x.OrderDetails)
+            //    .ToListAsync();
+
+            ViewBag.stemp = stemp;
+            return View();
+            return Content("done " + stemp);
+
+
+
+            DateTime specificDate = new DateTime(2024, 6, 4, 12, 0, 0);
+
+            var ods = await _context.OrderDetails
+                .Where(x => x.OrderId == x.Order.OrderId
+                    && ((int)x.Order.Status >= 20 && x.Order.Status != null)
+                    && x.Order.OrderDate > specificDate)
+                .Include(x => x.Order)
+                .Include(x => x.Product)
+                //.OrderByDescending(x => x.Order.OrderDate)
+                .OrderByDescending(x => x.ProductId)
+                .Take(100) //
+                .ToListAsync();
+            //ViewData["p"] = p;
+            //ViewData["ods"] = ods;
+
+            //return Content("got " + ods.Count);
+            return View(ods);
+        }
     }
 }
