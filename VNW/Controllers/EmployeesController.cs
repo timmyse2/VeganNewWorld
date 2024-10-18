@@ -689,7 +689,7 @@ namespace VNW.Controllers
                             //_ms.SetMySession("UserAccount", ShopAccount, HttpContext.Session);
                             HttpContext.Session.Remove("UserAccount");
                             _ms.SetMySession("ShopAccount", ShopAccount, HttpContext.Session);
-                            _ms.SetMySession("EmployeeId", employee.Id.ToString(), HttpContext.Session);                            
+                            _ms.SetMySession("EmployeeId", employee.Id.ToString(), HttpContext.Session);
                             if (employee.PhotoPath == null || employee.PhotoPath == "")
                                 HttpContext.Session.Remove("UserIcon");
                             else

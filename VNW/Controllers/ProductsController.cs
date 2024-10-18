@@ -1681,5 +1681,27 @@ namespace VNW.Controllers
                 return BadRequest(new { message = "Error unknown!" });
             }
         }
+
+        public async Task<IActionResult> SalesReport(int id)
+        {
+
+            var p = await _context.Products.FindAsync(id);
+
+            DateTime specificDate = new DateTime(2024, 6, 4, 12, 0, 0);
+
+            var ods = await _context.OrderDetails
+                .Where(x => x.ProductId == id && x.OrderId == x.Order.OrderId
+                    && ((int)x.Order.Status >= 20 && x.Order.Status != null)
+                    && x.Order.OrderDate > specificDate)
+                .Include(x => x.Order)
+                .OrderByDescending(x => x.Order.OrderDate)
+                .ToListAsync();
+            ViewData["p"] = p;
+            //ViewData["ods"] = ods;
+
+            //return Content("got " + ods.Count);
+            return View(ods);
+        }
+
     }
 }

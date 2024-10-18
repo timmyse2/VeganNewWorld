@@ -1,0 +1,93 @@
+﻿@model IEnumerable<OrderDetail>
+
+@{
+    ViewData["Title"] = "商品銷售報告";
+    Product p = null;
+}
+
+<h3>@ViewData["Title"]</h3>
+
+
+@if (ViewData["p"] != null)
+{
+    p = (Product)ViewData["p"];
+
+    <a asp-action="ProductDetailForShop" asp-route-id="@p.ProductId" class="btn btn-info">回商品細節</a>
+
+    <h4>商品資訊</h4>
+    <table class="table table-bordered">
+        <tr>
+            <td>ID</td>
+            <td>Name</td>
+            <td>Stock 庫存</td>
+            <td>Reserved 目前預訂量</td>
+            <td>可再下單數量</td>
+        </tr>
+        <tr>
+            <td>
+                #@p.ProductId
+            </td>
+            <td>
+                @p.ProductName
+                <img src="~/images/products/@p.Picture" style="width:80px; " /><br />
+                @if (p.IsLocked)
+                {
+                    <br /><span class="alert-danger">已被鎖定</span>
+                }
+                @if (p.Discontinued)
+                {
+                    <br /><span class="alert-danger">已下架</span>
+                }
+            </td>
+            <td>
+                @p.UnitsInStock
+            </td>
+            <td><b style="font-size:20px;">@p.UnitsReserved</b></td>
+
+            <td>@(p.UnitsInStock - p.UnitsReserved)</td>
+        </tr>
+    </table>
+}
+
+
+<h4>訂購記錄 @Model.Count()</h4>
+
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <td>#</td>
+            <td>Id</td>
+            <td>Qty</td>
+            <td>Price</td>
+            <td>Status</td>
+            <td>Create Date</td>
+            <td>Customer</td>
+        </tr>
+    </thead>
+
+    <tbody>
+        @{
+            int i = 0;
+        }
+        @foreach (OrderDetail item in Model)
+        {
+            <tr>
+                <td>@(++i)</td>
+                <td>@item.OrderId</td>
+                <td>@item.Quantity</td>
+                <td>@item.UnitPrice</td>
+
+                @if (item.Order != null)
+                {
+
+                    <td>@item.Order.Status</td>
+                    <td>@item.Order.OrderDate</td>
+                    <td>@item.Order.CustomerId</td>
+                }
+
+
+                <td></td>
+            </tr>
+        }
+    </tbody>
+</table>
