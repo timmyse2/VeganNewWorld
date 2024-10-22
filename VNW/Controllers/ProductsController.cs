@@ -1709,13 +1709,17 @@ namespace VNW.Controllers
             return View(ods);
         }
 
+        public class TopProduct
+        {
+            public int Pid { get; set; }
+            public string Name { get; set; }
+            public int Sum { get; set; }
+            public int Qty { get; set; } //long
+            public int Count { get; set; }
+        }
 
         public async Task<IActionResult> SalesReportTotal(string condition)
         {
-
-            //var p = await _context.Products.FindAsync(id);
-
-
             string ssql = "SELECT TOP 20  p.ProductId as pid, p.ProductName, sum(od.Quantity) as qty, count(*) as count " +
               "FROM [Products] as p " +
               "join [OrderDetails] as od on p.ProductId = od.ProductId " +
@@ -1729,6 +1733,7 @@ namespace VNW.Controllers
             connectionString = _config.GetConnectionString("VeganNewWorldContext");
 
             //List<Employee> emps = new List<Employee>();
+            List<TopProduct> tps = new List<TopProduct>();
 
             using (SqlConnection connection = new SqlConnection(connectionString))
             {
@@ -1764,15 +1769,14 @@ namespace VNW.Controllers
                             }
                             stemp += "</tr>";
 
-                            //Employee emp = new Employee()
-                            //{
-                            //    Id = (int)reader[0],
-                            //    Name = reader["Name"].ToString(),
-                            //};
-                            //emp.Id = (int) reader[0];
-                            //emp.Name = reader["Name"].ToString();
-                            //emps.Add(emp);
-
+                            TopProduct tp = new TopProduct()
+                            {
+                                Pid = (int)reader[0],
+                                Name = reader["ProductName"].ToString(),
+                                Qty = (int)reader["qty"],
+                                Count = (int)reader["count"]
+                            };
+                            tps.Add(tp);
                             rowCount++;
                         }
                         stemp += "</table>";
@@ -1786,10 +1790,9 @@ namespace VNW.Controllers
             //    .ToListAsync();
 
             ViewBag.stemp = stemp;
-            return View();
+            //ViewBag.tps = tps;
+            return View(tps);
             return Content("done " + stemp);
-
-
 
             DateTime specificDate = new DateTime(2024, 6, 4, 12, 0, 0);
 
