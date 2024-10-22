@@ -20,4 +20,15 @@ namespace VNW.ViewModels
         public short? UnitsInStock { get; set; }
         public string Picture { get; set; }
     }
+
+    //::
+    public class TopProduct
+    {
+        public int Pid { get; set; }
+        public string Name { get; set; }
+        //public int Sum { get; set; }
+        public int Qty { get; set; } //long
+        public int Count { get; set; }
+    }
+
 }

@@ -1,6 +1,5 @@
 ﻿@*@model IEnumerable<VNW.Models.OrderDetail>*@
-
-@model IEnumerable< VNW.Controllers.ProductsController.TopProduct>
+@model IEnumerable<VNW.ViewModels.TopProduct>
 
 @{
     ViewData["Title"] = "Sales Report Total";
@@ -15,7 +14,7 @@
     <a class="btn btn-default">Cancelled Only</a>
 </div>
 
-<h4>銷售前20名商品 (件數)</h4>
+<h4>銷售前20名商品 (依件數)</h4>
 
 @*@Html.Raw(ViewBag.stemp)*@
 
@@ -24,6 +23,11 @@
     <span>model is null</span>
     return;
 }
+
+@*@{ 
+    IEnumerable<VNW.ViewModels.TopProduct>
+        Model_sorted = Model.OrderByDescending(tx => tx.Pid);
+}*@
 
 <p>
     <h3>Count: @Model.Count()</h3>
@@ -47,14 +51,21 @@
         {
             <tr>
                 <td>@(++i)</td>
-                <td>@item.Name</td>
-                <td>@("#p00" + item.Pid)</td>
+                <td><a asp-action="ProductDetailForShop" asp-route-id="@item.Pid"> @item.Name</a> </td>
+                <td><a asp-action="SalesReport" asp-route-id="@item.Pid" class="btn btn-info"> 單項統計@("#"+item.Pid)</a> </td>
                 <td>@item.Qty</td>
                 <td>@item.Count</td>
             </tr>
         }
     </tbody>
 </table>
+<hr/>
+使用EF LINQ的方法:<br/>
+<a asp-route-condition="0" asp-action="SalesReportTotal_EF" class="btn btn-default">EF 0</a>
+<a asp-route-condition="1" asp-action="SalesReportTotal_EF" class="btn btn-default">EF 1*</a>
+<a asp-route-condition="2" asp-action="SalesReportTotal_EF" class="btn btn-default">EF 2</a>
+<a asp-route-condition="3" asp-action="SalesReportTotal_EF" class="btn btn-default">EF 3</a>
+
 
 
 

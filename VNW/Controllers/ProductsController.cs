@@ -1709,15 +1709,6 @@ namespace VNW.Controllers
             return View(ods);
         }
 
-        public class TopProduct
-        {
-            public int Pid { get; set; }
-            public string Name { get; set; }
-            public int Sum { get; set; }
-            public int Qty { get; set; } //long
-            public int Count { get; set; }
-        }
-
         public async Task<IActionResult> SalesReportTotal(string condition)
         {
             string ssql = "SELECT TOP 20  p.ProductId as pid, p.ProductName, sum(od.Quantity) as qty, count(*) as count " +
@@ -1727,7 +1718,7 @@ namespace VNW.Controllers
               "where o.Status = 20 " +
                 "Group by p.ProductName, p.ProductId " +
                 "order by qty desc";
-            string stemp = "";
+            //string stemp = "";
             int rowCount = 0;
             string connectionString = "";
             connectionString = _config.GetConnectionString("VeganNewWorldContext");
@@ -1742,32 +1733,32 @@ namespace VNW.Controllers
                 {
                     using (SqlDataReader reader = command.ExecuteReader())
                     {
-                        int FC = reader.FieldCount;
-                        stemp += "<table class=\"table table-bordered\">";
+                        //int FC = reader.FieldCount;
+                        //stemp += "<table class=\"table table-bordered\">";
 
-                        stemp += "<thead><tr>";
-                        for (int i = 0; i < FC; i++)
-                        {
-                            string s = reader.GetName(i);
-                            Debug.Write(s + " \t\t\t");
-                            stemp += "<td>" + s + "</td>";
-                        }
-                        stemp += "</tr></thead>";
+                        //stemp += "<thead><tr>";
+                        //for (int i = 0; i < FC; i++)
+                        //{
+                        //    string s = reader.GetName(i);
+                        //    //Debug.Write(s + " \t\t\t");
+                        //    stemp += "<td>" + s + "</td>";
+                        //}
+                        //stemp += "</tr></thead>";
                         while (reader.Read())
                         {
-                            stemp += "<tr>";
-                            for (int i = 0; i < FC; i++)
-                            {
-                                string s = "";
-                                if (reader[i] != DBNull.Value)
-                                    s = reader[i].ToString();
-                                else
-                                    s = "...";
+                            //stemp += "<tr>";
+                            //for (int i = 0; i < FC; i++)
+                            //{
+                            //    string s = "";
+                            //    if (reader[i] != DBNull.Value)
+                            //        s = reader[i].ToString();
+                            //    else
+                            //        s = "...";
 
-                                Debug.Write(s + " \t\t\t");
-                                stemp += "<td>" + s + "</td>";
-                            }
-                            stemp += "</tr>";
+                            //    //Debug.Write(s + " \t\t\t");
+                            //    stemp += "<td>" + s + "</td>";
+                            //}
+                            //stemp += "</tr>";
 
                             TopProduct tp = new TopProduct()
                             {
@@ -1779,38 +1770,82 @@ namespace VNW.Controllers
                             tps.Add(tp);
                             rowCount++;
                         }
-                        stemp += "</table>";
-
+                        //stemp += "</table>";
                     }
                 }
                 connection.Close();                
             }
-            //var sp = await _context.Products
-            //    .Include(x => x.OrderDetails)
-            //    .ToListAsync();
-
-            ViewBag.stemp = stemp;
+            //ViewBag.stemp = stemp;
             //ViewBag.tps = tps;
             return View(tps);
-            return Content("done " + stemp);
+        }
 
-            DateTime specificDate = new DateTime(2024, 6, 4, 12, 0, 0);
+        //::for studing - JOIN Group EF 
+        public async Task<IActionResult> SalesReportTotal_EF(string condition)
+        {
+            switch(condition)
+            {
+                case "1":
+                    var q1 =
+                    from p in _context.Products
+                    join od in _context.OrderDetails on p.ProductId equals od.ProductId
+                    join o in _context.Orders on od.OrderId equals o.OrderId
+                    where (int)o.Status == 20
+                    group new { p, od, o } by new { p.ProductName, p.ProductId } into g
+                    orderby g.Count() descending
+                    select new TopProduct
+                    {
+                        Pid = g.Key.ProductId,
+                        Name = g.Key.ProductName,
+                        Qty = g.Sum(x => x.od.Quantity), //from AI's suggestion
+                        Count = g.Count()
+                    };
+                    //return Json(await q1.Take(20).ToListAsync());
+                    return View("SalesReportTotal", await q1.Take(20).ToListAsync());
+                    break;
+                case "2":
+                    var q2 = from o in _context.Orders
+                        group new { o } by new { o.Status } into g
+                        orderby g.Count()
+                        select new
+                        {
+                            Status = g.Key,
+                            Count = g.Count()
+                        }
+                        ;
+                    return Json(await q2.ToListAsync());
+                    break;
+                case "3":
+                    var q3 = _context.Orders
+                        //.Join(_context.OrderDetails)
+                        .Where(o => (int)o.Status > 10)
+                        .GroupBy(o => o.Status)
+                        .Select(g => new
+                        {
+                            Status = g.Key,
+                            Count = g.Count()
+                        });
+                    return Json(await q3.ToListAsync());
+                    break;                
+                default:
+                    var q0 =
+                    from p in _context.Products
+                    join od in _context.OrderDetails on p.ProductId equals od.ProductId
+                    join o in _context.Orders on od.OrderId equals o.OrderId
+                    orderby o.OrderId descending
+                    select new TopProduct
+                    {
+                        Name = p.ProductName,
+                        Pid = p.ProductId,
+                        Qty = od.Quantity,
+                        Count = 0,                    
+                    };
+                    //return Json(await q0.Take(20).ToListAsync());
+                    //await _context.Products.ToListAsync();
+                    return View("SalesReportTotal", await q0.Take(20).ToListAsync());
+                    break; 
+            } 
 
-            var ods = await _context.OrderDetails
-                .Where(x => x.OrderId == x.Order.OrderId
-                    && ((int)x.Order.Status >= 20 && x.Order.Status != null)
-                    && x.Order.OrderDate > specificDate)
-                .Include(x => x.Order)
-                .Include(x => x.Product)
-                //.OrderByDescending(x => x.Order.OrderDate)
-                .OrderByDescending(x => x.ProductId)
-                .Take(100) //
-                .ToListAsync();
-            //ViewData["p"] = p;
-            //ViewData["ods"] = ods;
-
-            //return Content("got " + ods.Count);
-            return View(ods);
         }
     }
 }
