@@ -1802,7 +1802,7 @@ namespace VNW.Controllers
                     };
                     //return Json(await q1.Take(20).ToListAsync());
                     return View("SalesReportTotal", await q1.Take(20).ToListAsync());
-                    break;
+                    
                 case "2":
                     var q2 = from o in _context.Orders
                         group new { o } by new { o.Status } into g
@@ -1825,8 +1825,66 @@ namespace VNW.Controllers
                             Status = g.Key,
                             Count = g.Count()
                         });
-                    return Json(await q3.ToListAsync());
-                    break;                
+                    return Json(await q3.ToListAsync());                    
+                case "4":
+                    var q4 = _context.Orders
+                        .Join(_context.OrderDetails,
+                        o => o.OrderId,
+                        od => od.OrderId,
+                        (o, od) => new
+                        {
+                            o.OrderId,
+                            od.ProductId
+                        }
+                        ).Take(30);
+
+                    return Json(await q4.ToListAsync());
+                    
+                case "5":
+                    var q5 = _context.Products
+                        .Join(_context.OrderDetails, p => p.ProductId, od => od.ProductId,
+                            (p, od) => new { od, p })
+                        .Join(_context.Orders, j1 => j1.od.OrderId, o => o.OrderId,
+                            (j1, o) => new
+                            {
+                                o.OrderId,
+                                j1.p.ProductName,
+                                j1.p.ProductId,
+                                j1.od.Quantity
+                            })
+                        .OrderByDescending(o => o.OrderId)
+                        .Where(x => x.Quantity > 3)
+                        .Take(30)
+                        ;
+                    return Json(await q5.ToListAsync());
+
+                case "6":
+                    var q6 = _context.Products
+                        .Join(_context.OrderDetails, p => p.ProductId, od => od.ProductId,
+                            (p, od) => new { od, p })
+                        .Join(_context.Orders, combOdP => combOdP.od.OrderId, o => o.OrderId,
+                            (combOdP, o) => new
+                            {
+                                //o.OrderId,                                
+                                combOdP.p.ProductName,
+                                combOdP.p.ProductId,
+                                combOdP.od.Quantity,
+                                o.Status
+                            })                        
+                        .Where(x => (int)x.Status == 20)
+                        .GroupBy(x => new { x.ProductName, x.ProductId})
+                        .Select(g => new TopProduct
+                        {
+                            Pid = g.Key.ProductId,
+                            Name = g.Key.ProductName,
+                            Qty = g.Sum(x => x.Quantity),
+                            Count = g.Count()
+                        })
+                        .OrderByDescending(x => x.Count).ThenByDescending(x => x.Qty)
+                        .Take(30)
+                        ;
+                    //return Json(await q6.ToListAsync());
+                    return View("SalesReportTotal", await q6.ToListAsync());
                 default:
                     var q0 =
                     from p in _context.Products
@@ -1842,10 +1900,9 @@ namespace VNW.Controllers
                     };
                     //return Json(await q0.Take(20).ToListAsync());
                     //await _context.Products.ToListAsync();
-                    return View("SalesReportTotal", await q0.Take(20).ToListAsync());
-                    break; 
-            } 
-
+                    return View("SalesReportTotal", await q0.Take(10).ToListAsync());
+                    //break; 
+            }//switch 
         }
     }
 }

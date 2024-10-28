@@ -21,7 +21,7 @@ namespace VNW.ViewModels
         public string Picture { get; set; }
     }
 
-    //::
+    //::For 2B Sales Report 
     public class TopProduct
     {
         public int Pid { get; set; }
