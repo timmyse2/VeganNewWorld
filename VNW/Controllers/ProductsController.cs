@@ -1709,7 +1709,7 @@ namespace VNW.Controllers
             return View(ods);
         }
 
-        public async Task<IActionResult> SalesReportTotal(string condition)
+        public async Task<IActionResult> SalesReportTotalSQL(string condition)
         {
             string ssql = "SELECT TOP 20  p.ProductId as pid, p.ProductName, sum(od.Quantity) as qty, count(*) as count " +
               "FROM [Products] as p " +
@@ -1777,7 +1777,94 @@ namespace VNW.Controllers
             }
             //ViewBag.stemp = stemp;
             //ViewBag.tps = tps;
+            //return View(tps);
+            ViewData["condition"] = ssql;
+            return View("SalesReportTotal", tps);
+        }
+
+        public async Task<IActionResult> SalesReportTotal(string condition, int? y, int? m, int? d)
+        {
+            switch (condition)
+            {
+                case "weekly":
+                    //7 days
+                    break;
+                case "daily":
+                    //specificDate = DateTime.Now;
+                    //1 day
+                    break;
+                case "totally":
+                    break;
+                case "monthly":
+                    //30 days
+                default:
+                    condition = "monthly";
+                    break;
+            };
+            ViewData["condition"] = condition;
+
+            var tps = await GetDataAsync(y, m, d);
             return View(tps);
+            //return Content("no data - " + condition);
+        }
+
+        public async Task<List<TopProduct>> GetDataAsync(int? y, int? m, int? d)
+        {
+            DateTime dateStart, dateEnd;
+
+            if (y == null || m == null)
+                return null;
+            if (y <= 0) y = 1911;
+            if (m <= 0)
+                m = 1;
+            else if(m >= 13)
+                m = 12;
+
+            if (d != null)
+            {
+                //daily report
+                dateStart = new DateTime((int)y, (int)m, (int)d);
+                dateEnd = dateStart.AddDays(1);
+            }
+            else
+            {
+                //monthly report
+                dateStart = new DateTime((int)y, (int)m, 1);
+                dateEnd = dateStart.AddMonths(1).AddDays(-1);
+            }            
+
+            var q0 = _context.Products
+                       .Join(_context.OrderDetails, p => p.ProductId, od => od.ProductId,
+                           (p, od) => new { od, p })
+                       .Join(_context.Orders, combOdP => combOdP.od.OrderId, o => o.OrderId,
+                           (combOdP, o) => new
+                           {
+                               combOdP.p.ProductName,
+                               combOdP.p.ProductId,
+                               combOdP.od.Quantity,
+                               o.OrderDate,
+                               o.Status
+                           })
+                       .Where(x => (int)x.Status == 20 && x.OrderDate > dateStart && x.OrderDate < dateEnd)
+                       .GroupBy(x => new { x.ProductName, x.ProductId })
+                       .Select(g => new TopProduct
+                       {
+                           Pid = g.Key.ProductId,
+                           Name = g.Key.ProductName,
+                           Qty = g.Sum(x => x.Quantity),
+                           Count = g.Count()
+                       })
+                       .OrderByDescending(x => x.Qty).ThenByDescending(x => x.Count)
+                       .Take(20)
+                       ;
+
+            var q1 = await q0.ToListAsync();
+            //return Json(q1);
+            //ViewData["condition"] = "y" + y + "m" + m + "d" + d;
+            ViewData["condition"] = dateStart.ToLongDateString() + " - " + dateEnd.ToLongDateString();
+
+            //return View("SalesReportTotal", q1);
+            return q1;
         }
 
         //::for studing - JOIN Group EF 

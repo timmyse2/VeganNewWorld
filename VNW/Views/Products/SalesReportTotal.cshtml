@@ -6,61 +6,120 @@
 }
 
 <h2>@ViewData["Title"]</h2>
+<h4>銷售前20名商品 (依件數)</h4>
 
-<div>
-    <a class="btn btn-info">Weekly</a>
-    <a class="btn btn-info">Monthly</a>
-    <a class="btn btn-warning">All Status</a>
-    <a class="btn btn-default">Cancelled Only</a>
+
+<div id="maskWindow" style="opacity:0.05;background:#000;width:200%;height:200%;z-index:99;position:absolute;top:0;left:0;cursor:no-drop;display:none;"></div>
+<div id="imgLoading" style="z-index:100;position:fixed;border:none;width:100%;height:100%;left:0;top:50%-250px;cursor:no-drop;display:none;">
+    <center><h3><b>處理中...</b></h3><img src="~/images/wait.gif" style="width:250px;" /></center>
 </div>
 
-<h4>銷售前20名商品 (依件數)</h4>
+
+@if (ViewData["condition"] != null)
+{
+    <div>
+        <i>@ViewData["condition"]</i>
+    </div>
+}
+
+<div>
+    @*<a class="btn btn-info" asp-action="SalesReportTotal" asp-route-condition="weekly">Weekly</a>
+        <a class="btn btn-info" asp-action="SalesReportTotal" asp-route-condition="monthly">Monthly</a>
+        <a class="btn btn-info" asp-action="SalesReportTotal" asp-route-condition="totally">Totally</a>
+        <a class="btn btn-info" asp-action="SalesReportTotal" asp-route-condition="quarterly">Quarterly</a>*@
+    @*<a class="btn btn-warning">All Status</a>
+        <a class="btn btn-default">Cancelled Only</a>*@
+
+    <table class="table table-responsive table-condensed">
+        <tr>
+            <td>
+                Monthly
+            
+                <input type="month" id="monthPicker">
+                <btn class="btn btn-primary" id="btnMonthlyReport">Report</btn>
+                <div>
+                    @*<select id="selYear">
+                            @for (int y = 2020; y <= 2120; y++)
+                            {
+                                <option>@y</option>
+                            }
+                        </select>
+                        <select id="selMonth">
+                            @for (int m = 1; m <= 12; m++)
+                            {
+                                <option>@m</option>
+                            }
+                        </select>
+                        <select id="selDay">
+                            @for (int d = 1; d <= 31; d++)
+                            {
+                                <option>@d</option>
+                            }
+                        </select>*@
+                </div>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+                Daily
+                <input type="date" id="datePicker">
+                <div class="btn btn-primary" id="btnDailyReport">Report</div>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                Weekly
+                <input type="week" id="weekPicker">
+                <div class="btn btn-primary" id="btnWeeklyReport">Report</div>
+            </td>
+        </tr>
+
+
+    </table>
+</div>
 
 @*@Html.Raw(ViewBag.stemp)*@
 
 @if (Model == null)
 {
     <span>model is null</span>
-    return;
+    //return;
 }
-
-@*@{ 
-    IEnumerable<VNW.ViewModels.TopProduct>
-        Model_sorted = Model.OrderByDescending(tx => tx.Pid);
-}*@
-
-<p>
-    <h3>Count: @Model.Count()</h3>
-</p>
-
-@{ 
+else
+{
+    <p>
+        <h3>Count: @Model.Count()</h3>
+    </p>
     int i = 0;
-}
-<table class="table table-bordered table-condensed table-responsive table-hover table-striped">
-    <thead>
-        <tr>
-            <td>排名</td>
-            <td>品名</td>
-            <td>編號</td>
-            <td>件數</td>
-            <td>訂單數</td>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var item in Model)
-        {
+    <table class="table table-bordered table-condensed table-responsive table-hover table-striped">
+        <thead>
             <tr>
-                <td>@(++i)</td>
-                <td><a asp-action="ProductDetailForShop" asp-route-id="@item.Pid"> @item.Name</a> </td>
-                <td><a asp-action="SalesReport" asp-route-id="@item.Pid" class="btn btn-info"> 單項統計@("#"+item.Pid)</a> </td>
-                <td>@item.Qty</td>
-                <td>@item.Count</td>
+                <td>排名</td>
+                <td>品名</td>
+                <td>編號</td>
+                <td>件數</td>
+                <td>訂單數</td>
             </tr>
-        }
-    </tbody>
-</table>
-<hr/>
-使用EF LINQ的方法:<br/>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>@(++i)</td>
+                    <td><a asp-action="ProductDetailForShop" asp-route-id="@item.Pid"> @item.Name</a> </td>
+                    <td><a asp-action="SalesReport" asp-route-id="@item.Pid" class="btn btn-info"> 單項統計@("#" + item.Pid)</a> </td>
+                    <td>@item.Qty</td>
+                    <td>@item.Count</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+<hr />
+
+使用EF LINQ的方法:<br />
 <a asp-route-condition="1" asp-action="SalesReportTotal_EF" class="btn btn-default">EF 1* (Query Syntax)</a>
 <a asp-route-condition="2" asp-action="SalesReportTotal_EF" class="btn btn-default">EF 2</a>
 <a asp-route-condition="3" asp-action="SalesReportTotal_EF" class="btn btn-default">EF 3</a>
@@ -68,6 +127,67 @@
 <a asp-route-condition="5" asp-action="SalesReportTotal_EF" class="btn btn-default">EF 5 (Join 3 table, Method Chain)</a>
 <a asp-route-condition="6" asp-action="SalesReportTotal_EF" class="btn btn-default">EF 6* (Join 3 table group count, Method Chain)</a>
 <a asp-route-condition="" asp-action="SalesReportTotal_EF" class="btn btn-default">EF (Default)</a>
+<p></p>
+使用SQL CMD的方法:<br />
+<a asp-action="SalesReportTotalSQL" class="btn btn-default">SQL Command</a>
+
+@section endJS{
+    <script>
+        console.log("JS start");
+        var isError = false;
+        //::elements
+        var datePicker = document.getElementById('datePicker');
+        var monthPicker = document.getElementById('monthPicker');
+        var weekPicker = document.getElementById('weekPicker');
+
+        var selYear = document.getElementById('selYear');
+        var selMonth = document.getElementById('selMonth');
+        //var selDate = document.getElementById('selDate');
+        var btnMonthlyReport = document.getElementById('btnMonthlyReport');
+        var btnWeeklyReport = document.getElementById('btnWeeklyReport');
+        const btnDailyReport = document.getElementById('btnDailyReport');
+
+        function SetBusy() {
+            document.getElementById('imgLoading').style.display = 'block';
+            document.getElementById('maskWindow').style.display = 'block';
+        }
+        function SetReady() {
+            document.getElementById('imgLoading').style.display = 'none';
+            document.getElementById('maskWindow').style.display = 'none';
+        }
+
+        btnMonthlyReport.addEventListener("click", function () {
+            //SetBusy();
+            console.log('datePicker: ' + datePicker.value);
+            console.log('monthPicker: ' + monthPicker.value);
+            console.log('weekPicker: ' + weekPicker.value);
+            var [year, month] = monthPicker.value.split("-");
+
+            var surl = '';
+            //surl = '?y=' + selYear.value + '&m=' + selMonth.value;s
+            surl = '?y=' + year + '&m=' + month;
+
+            console.log('surl: ' + surl);
+            window.location = surl;
+            //SetReady();
+        });
+
+        btnDailyReport.addEventListener("click", function () {
+            //SetBusy();
+            console.log('datePicker: ' + datePicker.value);
+            var [year, month, date] = datePicker.value.split("-");
+
+            var surl = '';
+            surl = '?y=' + year + '&m=' + month + '&d=' + date;
+            console.log('surl: ' + surl);
+            window.location = surl;
+            //SetReady();
+        });
+
+        console.log("JS end");
+    </script>
+}
+
 
 
 
