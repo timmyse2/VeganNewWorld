@@ -1782,57 +1782,67 @@ namespace VNW.Controllers
             return View("SalesReportTotal", tps);
         }
 
-        public async Task<IActionResult> SalesReportTotal(string condition, int? y, int? m, int? d)
+        public async Task<IActionResult> SalesReportTotal(int? y, int? m, int? d, int? w)
         {
-            switch (condition)
-            {
-                case "weekly":
-                    //7 days
-                    break;
-                case "daily":
-                    //specificDate = DateTime.Now;
-                    //1 day
-                    break;
-                case "totally":
-                    break;
-                case "monthly":
-                    //30 days
-                default:
-                    condition = "monthly";
-                    break;
-            };
-            ViewData["condition"] = condition;
+            //switch (condition)
+            //{
+            //    case "weekly":
+            //        //7 days
+            //        break;
+            //    case "daily":
+            //        //specificDate = DateTime.Now;
+            //        //1 day
+            //        break;
+            //    case "totally":
+            //        break;
+            //    case "monthly":
+            //        //30 days
+            //    default:
+            //        condition = "monthly";
+            //        break;
+            //};
+            //ViewData["condition"] = condition;
 
-            var tps = await GetDataAsync(y, m, d);
+            var tps = await GetDataAsync(y, m, d, w);
             return View(tps);
             //return Content("no data - " + condition);
         }
 
-        public async Task<List<TopProduct>> GetDataAsync(int? y, int? m, int? d)
+        public async Task<List<TopProduct>> GetDataAsync(int? y, int? m, int? d, int? w)
         {
             DateTime dateStart, dateEnd;
 
-            if (y == null || m == null)
-                return null;
+            if (y == null) return null;
             if (y <= 0) y = 1911;
-            if (m <= 0)
-                m = 1;
-            else if(m >= 13)
-                m = 12;
 
-            if (d != null)
+            if(w != null)
             {
-                //daily report
-                dateStart = new DateTime((int)y, (int)m, (int)d);
-                dateEnd = dateStart.AddDays(1);
+                //::weekly report
+                if (w <= 0) w = 1;
+                dateStart = new DateTime((int)y, 1, 1).AddDays(7 * (int)(w-1));
+                dateEnd = dateStart.AddDays(7).AddSeconds(-1);
             }
             else
             {
-                //monthly report
-                dateStart = new DateTime((int)y, (int)m, 1);
-                dateEnd = dateStart.AddMonths(1).AddDays(-1);
-            }            
+                if (m == null) return null;
+                if (m <= 0)
+                    m = 1;
+                else if (m >= 13)
+                    m = 12;
 
+                if (d != null)
+                {
+                    //::daily report
+                    dateStart = new DateTime((int)y, (int)m, (int)d);
+                    dateEnd = dateStart.AddDays(1).AddSeconds(-1);
+                }
+                else
+                {
+                    //::monthly report
+                    dateStart = new DateTime((int)y, (int)m, 1);
+                    dateEnd = dateStart.AddMonths(1).AddSeconds(-1);
+                }
+            }
             var q0 = _context.Products
                        .Join(_context.OrderDetails, p => p.ProductId, od => od.ProductId,
                            (p, od) => new { od, p })
@@ -1859,11 +1869,8 @@ namespace VNW.Controllers
                        ;
 
             var q1 = await q0.ToListAsync();
-            //return Json(q1);
-            //ViewData["condition"] = "y" + y + "m" + m + "d" + d;
-            ViewData["condition"] = dateStart.ToLongDateString() + " - " + dateEnd.ToLongDateString();
-
-            //return View("SalesReportTotal", q1);
+            //return Json(q1);            
+            ViewData["condition"] = dateStart.ToString() + " - " + dateEnd.ToString();            
             return q1;
         }
 

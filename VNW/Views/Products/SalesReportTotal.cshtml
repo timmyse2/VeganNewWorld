@@ -14,14 +14,6 @@
     <center><h3><b>處理中...</b></h3><img src="~/images/wait.gif" style="width:250px;" /></center>
 </div>
 
-
-@if (ViewData["condition"] != null)
-{
-    <div>
-        <i>@ViewData["condition"]</i>
-    </div>
-}
-
 <div>
     @*<a class="btn btn-info" asp-action="SalesReportTotal" asp-route-condition="weekly">Weekly</a>
         <a class="btn btn-info" asp-action="SalesReportTotal" asp-route-condition="monthly">Monthly</a>
@@ -33,10 +25,9 @@
     <table class="table table-responsive table-condensed">
         <tr>
             <td>
-                Monthly
-            
+                月報
                 <input type="month" id="monthPicker">
-                <btn class="btn btn-primary" id="btnMonthlyReport">Report</btn>
+                <btn class="btn btn-primary" id="btnMonthlyReport">統計</btn>
                 <div>
                     @*<select id="selYear">
                             @for (int y = 2020; y <= 2120; y++)
@@ -62,23 +53,27 @@
         </tr>
         <tr>
             <td>
-                Daily
+                日報
                 <input type="date" id="datePicker">
-                <div class="btn btn-primary" id="btnDailyReport">Report</div>
+                <div class="btn btn-primary" id="btnDailyReport">統計</div>
             </td>
         </tr>
         <tr>
             <td>
-                Weekly
+                週報
                 <input type="week" id="weekPicker">
-                <div class="btn btn-primary" id="btnWeeklyReport">Report</div>
+                <div class="btn btn-primary" id="btnWeeklyReport">統計</div>
             </td>
         </tr>
-
-
     </table>
 </div>
 
+@if (ViewData["condition"] != null)
+{
+    <div>
+        <i>@ViewData["condition"]</i>
+    </div>
+}
 @*@Html.Raw(ViewBag.stemp)*@
 
 @if (Model == null)
@@ -89,7 +84,7 @@
 else
 {
     <p>
-        <h3>Count: @Model.Count()</h3>
+        <h4>Count: @Model.Count()</h4>
     </p>
     int i = 0;
     <table class="table table-bordered table-condensed table-responsive table-hover table-striped">
@@ -128,6 +123,7 @@ else
 <a asp-route-condition="6" asp-action="SalesReportTotal_EF" class="btn btn-default">EF 6* (Join 3 table group count, Method Chain)</a>
 <a asp-route-condition="" asp-action="SalesReportTotal_EF" class="btn btn-default">EF (Default)</a>
 <p></p>
+
 使用SQL CMD的方法:<br />
 <a asp-action="SalesReportTotalSQL" class="btn btn-default">SQL Command</a>
 
@@ -136,15 +132,16 @@ else
         console.log("JS start");
         var isError = false;
         //::elements
-        var datePicker = document.getElementById('datePicker');
-        var monthPicker = document.getElementById('monthPicker');
-        var weekPicker = document.getElementById('weekPicker');
+        const datePicker = document.getElementById('datePicker');
+        const monthPicker = document.getElementById('monthPicker');
+        const weekPicker = document.getElementById('weekPicker');
 
-        var selYear = document.getElementById('selYear');
-        var selMonth = document.getElementById('selMonth');
-        //var selDate = document.getElementById('selDate');
-        var btnMonthlyReport = document.getElementById('btnMonthlyReport');
-        var btnWeeklyReport = document.getElementById('btnWeeklyReport');
+        //const selYear = document.getElementById('selYear');
+        //const selMonth = document.getElementById('selMonth');
+        //const selDate = document.getElementById('selDate');
+
+        const btnMonthlyReport = document.getElementById('btnMonthlyReport');
+        const btnWeeklyReport = document.getElementById('btnWeeklyReport');
         const btnDailyReport = document.getElementById('btnDailyReport');
 
         function SetBusy() {
@@ -157,7 +154,7 @@ else
         }
 
         btnMonthlyReport.addEventListener("click", function () {
-            //SetBusy();
+            SetBusy();
             console.log('datePicker: ' + datePicker.value);
             console.log('monthPicker: ' + monthPicker.value);
             console.log('weekPicker: ' + weekPicker.value);
@@ -173,7 +170,7 @@ else
         });
 
         btnDailyReport.addEventListener("click", function () {
-            //SetBusy();
+            SetBusy();
             console.log('datePicker: ' + datePicker.value);
             var [year, month, date] = datePicker.value.split("-");
 
@@ -183,6 +180,20 @@ else
             window.location = surl;
             //SetReady();
         });
+
+        btnWeeklyReport.addEventListener("click", function () {
+
+            console.log('datePicker: ' + weekPicker.value);
+            var [year, week] = weekPicker.value.split("-");
+            if (week == null) return;
+            SetBusy();
+            var surl = '';
+            surl = '?y=' + year + '&w=' + week.replace('W', '');
+            console.log('surl: ' + surl);
+            window.location = surl;
+            //SetReady();
+        });
+
 
         console.log("JS end");
     </script>
