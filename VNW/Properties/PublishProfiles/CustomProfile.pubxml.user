@@ -10,7 +10,7 @@
   </PropertyGroup>
   <ItemGroup>
     <DestinationConnectionStrings Include="VeganNewWorldContext">
-      <Value>Server=.\SQLEXPRESS%3bDatabase=DB_VeganNewWorld%3bUser ID=vnwtest%3bPassword=1113%3b</Value>
+      <Value>Server=.\SQLEXPRESS%3bDatabase=DB_VeganNewWorld%3bUser ID=vnwtest%3bPassword=1114%3b</Value>
     </DestinationConnectionStrings>
   </ItemGroup>
 </Project>

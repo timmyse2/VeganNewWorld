@@ -1689,6 +1689,10 @@ namespace VNW.Controllers
 
         public async Task<IActionResult> SalesReport(int id)
         {
+            //::check user level == 1A|2B
+            string UserLevel = _ms.GetMySession("UserLevel", HttpContext.Session);
+            if (UserLevel != "2B" && UserLevel != "1A")
+                return RedirectToAction("Login", "Customers");
 
             var p = await _context.Products.FindAsync(id);
 
@@ -1711,6 +1715,11 @@ namespace VNW.Controllers
 
         public async Task<IActionResult> SalesReportTotalSQL(string condition)
         {
+            //::check user level == 1A|2B
+            string UserLevel = _ms.GetMySession("UserLevel", HttpContext.Session);
+            if (UserLevel != "2B" && UserLevel != "1A")
+                return RedirectToAction("Login", "Customers");
+
             string ssql = "SELECT TOP 20  p.ProductId as pid, p.ProductName, sum(od.Quantity) as qty, count(*) as count " +
               "FROM [Products] as p " +
               "join [OrderDetails] as od on p.ProductId = od.ProductId " +
@@ -1784,6 +1793,10 @@ namespace VNW.Controllers
 
         public async Task<IActionResult> SalesReportTotal(int? y, int? m, int? d, int? w)
         {
+            //::check user level == 1A|2B
+            string UserLevel = _ms.GetMySession("UserLevel", HttpContext.Session);
+            if (UserLevel != "2B" && UserLevel != "1A")
+                return RedirectToAction("Login", "Customers");
             //switch (condition)
             //{
             //    case "weekly":
@@ -1813,7 +1826,10 @@ namespace VNW.Controllers
             DateTime dateStart, dateEnd;
 
             if (y == null) return null;
-            if (y <= 0) y = 1911;
+            if (y <= 0)
+                y = 1911;
+            else if (y > 12025)
+                y = 12025;
 
             if(w != null)
             {
@@ -1829,11 +1845,22 @@ namespace VNW.Controllers
                     m = 1;
                 else if (m >= 13)
                     m = 12;
-
                 if (d != null)
                 {
                     //::daily report
-                    dateStart = new DateTime((int)y, (int)m, (int)d);
+                    if (d <= 0)
+                        d = 1;
+                    else if (d >= 31)
+                        d = 31;
+                    //29 , 30
+                    try
+                    {
+                        dateStart = new DateTime((int)y, (int)m, (int)d);
+                    }
+                    catch
+                    {
+                        dateStart = new DateTime((int)y, (int)m, 28);
+                    }
                     dateEnd = dateStart.AddDays(1).AddSeconds(-1);
                 }
                 else
@@ -1877,7 +1904,12 @@ namespace VNW.Controllers
         //::for studing - JOIN Group EF 
         public async Task<IActionResult> SalesReportTotal_EF(string condition)
         {
-            switch(condition)
+            //::check user level == 1A|2B
+            string UserLevel = _ms.GetMySession("UserLevel", HttpContext.Session);
+            if (UserLevel != "2B" && UserLevel != "1A")
+                return RedirectToAction("Login", "Customers");
+
+            switch (condition)
             {
                 case "1":
                     var q1 =
